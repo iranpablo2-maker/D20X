@@ -583,6 +583,15 @@ window.NEX_FEVEREIRO_FORMAS={
   },
   "Arquivos Secretos — Fevereiro::Labirinto": {
     "title": "Labirinto — Antena do Medo",
+    "normalData": {
+      "pdfPage": 61,
+      "vd": 80,
+      "pv": 120,
+      "defense": 20,
+      "movement": "9m",
+      "size": "MÉDIO",
+      "attributes": {"AGI": 1, "FOR": 1, "INT": 3, "PRE": 2, "VIG": 3}
+    },
     "data": {
       "pdfPage": 63,
       "vd": 140,
