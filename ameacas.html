@@ -163,7 +163,7 @@ function draw(){
   list.querySelectorAll('img[data-february-key]').forEach(face=>{
    const key=face.getAttribute('data-february-key');
    window.NEX_FEVEREIRO_FORM_IMAGE_URL(key,'normal').then(url=>{
-    if(!url||!face.isConnected||face.dataset.failed!=='1')return;
+    if(!url||!face.isConnected)return;
     face.onload=()=>{face.style.opacity='1'};
     face.src=url;
    }).catch(()=>{});
