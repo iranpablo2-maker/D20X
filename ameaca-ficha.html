@@ -13,6 +13,11 @@ nav a{color:#f0c7ce;text-decoration:none;font-weight:600}nav a:hover{text-decora
 .card{border:1px solid var(--border);border-radius:12px;background:var(--panel);overflow:hidden}
 .hero{display:flex;position:relative;isolation:isolate;gap:20px;padding:24px;min-height:184px;align-items:center;background:var(--art,linear-gradient(110deg,#46131c,#151016));background-size:cover;background-position:center}
 .hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#100b10f0,#100b10af 75%,#100b105c)}
+.portrait-switch{display:flex;flex-direction:column;align-items:stretch;flex:0 0 144px;gap:8px}
+.form-switch{display:none;background:#7f2335;border:1px solid #dd6676;color:#fff;font-weight:650;font-size:11px;line-height:1.35;padding:8px 7px;border-radius:7px;cursor:pointer;text-align:center}
+.form-switch:not([hidden]){display:block}
+.form-switch:hover{background:#aa3046}
+.form-switch:focus-visible{outline:2px solid #ffb2be;outline-offset:3px}
 .portrait{position:relative;overflow:hidden;flex:0 0 144px;height:144px;border-radius:9px;border:1px solid #6e3740;background:#260f17a8;display:grid;place-items:center;font:700 65px Georgia,serif;background-position:center;background-size:cover}
 .hero h1{font-size:27px;margin:4px 0 6px;line-height:1.2}.eyebrow{color:#f0b0bb;font-size:11px;text-transform:uppercase;letter-spacing:.12em}
 .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.tags span{border:1px solid #85404d;background:#351921c9;border-radius:5px;padding:3px 8px;font-size:11px}
@@ -32,7 +37,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 .lines{white-space:pre-line;color:#e7dce0;font-size:13px;margin:0}.muted{color:var(--muted)}.note{border-left:3px solid var(--red);background:#21171c;padding:12px;margin:18px 0;color:#d9bbc5}
 .action{border:1px solid #49323a;background:#23181e;padding:14px;border-radius:7px;margin-bottom:10px}
 #missing{padding:40px;text-align:center}
-@media(max-width:620px){.shell{padding:12px 9px 36px}.hero{padding:12px;gap:11px;min-height:122px}.portrait{flex-basis:96px;height:96px;font-size:40px}.hero h1{font-size:19px}.page{padding:16px 12px}.hp{margin:12px 12px 5px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tabs{gap:2px}.tabs button{padding:10px 8px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.portrait-switch{flex-basis:96px}.form-switch{font-size:10px;padding:7px 4px}.shell{padding:12px 9px 36px}.hero{padding:12px;gap:11px;min-height:122px}.portrait{flex-basis:96px;height:96px;font-size:40px}.hero h1{font-size:19px}.page{padding:16px 12px}.hp{margin:12px 12px 5px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tabs{gap:2px}.tabs button{padding:10px 8px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
  .hp-track{height:9px;background:#512630;border-radius:8px;margin:0 20px;overflow:hidden}
 .hp-fill{height:100%;width:100%;background:#e1455d;transition:width .25s}
 .hp-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 20px}
@@ -69,7 +74,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <div class="shell">
 <nav><a id="back" href="./ameacas.html">‹ Voltar às Ameaças</a><span class="brand">N E X</span></nav>
 <div class="card" id="screen" hidden>
-<header class="hero" id="hero"><div class="portrait" id="portrait" aria-label="Retrato"></div><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div></div></header>
+<header class="hero" id="hero"><div class="portrait-switch"><div class="portrait" id="portrait" aria-label="Retrato"></div><button id="formSwitch" class="form-switch" type="button" hidden aria-label="Mostrar outra forma">Mostrar outra ficha</button></div><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div></div></header>
 <div class="hp" id="hpBar" hidden><strong id="hpLabel"></strong></div>
 <div class="hp-track" id="hpTrack" hidden><div class="hp-fill" id="hpFill"></div></div>
 <div class="tabs" role="tablist" aria-label="Seções da ficha">
@@ -154,7 +159,35 @@ function threatFacts(x){
 const images={Sangue:"./assets/rituais/sangue-fundo.svg",Morte:"./assets/rituais/morte-fundo.svg",Energia:"./assets/rituais/energia-fundo.svg",Conhecimento:"./assets/rituais/conhecimento-fundo.svg",Medo:"./assets/rituais/medo-fundo.svg"};
 const $=id=>document.getElementById(id), esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const key=new URLSearchParams(location.search).get("id");
-const threat=records.find(x=>threatKey(x)===key);
+const baseThreat=records.find(x=>threatKey(x)===key);
+let threat=baseThreat;
+let currentForm="normal";
+// Uma ficha na biblioteca; as formas alternativas são consultadas no mesmo painel.
+const threatForms={
+ "Arquivos Secretos — Fevereiro::Jonas Aguiar":{
+  title:"Mutilador Noturno",
+  data:{
+   pdfPage:39,vd:140,pv:260,defense:29,movement:"9m",size:"MÉDIO",
+   attributes:{AGI:2,FOR:3,INT:1,PRE:2,VIG:2},
+   senses:["Percepção 1d20+10 | Iniciativa 2d20+10"],
+   saves:[["Fortitude","2d20+10"],["Reflexos","2d20+10"],["Vontade","1d20+10"]],
+   skills:[["Adestramento","2d20+10"],["Atletismo","3d20+15"],["Crime","2d20+10"],["Enganação","2d20+10"],["Furtividade","2d20+10"],["Investigação","1d20+10"],["Pilotagem","2d20+10"],["Sobrevivência","1d20+10"]],
+   actions:[
+    {type:"PADRÃO",name:"AGREDIR — MACHADO",test:"3d20+15",damage:"1d8+20 corte + 2d8 Sangue (incluído no crítico)",effect:"Dois ataques corpo a corpo; o alvo atingido sofre o efeito de sangramento indicado na fonte."},
+    {type:"PADRÃO",name:"AGREDIR — REVÓLVER",test:"2d20+15",damage:"3d6+20 balístico",effect:"Dois ataques à distância, alcance curto. Crítico 19/x3."},
+    {type:"REAÇÃO",name:"REVIDAR VIOLENTO",effect:"Até duas vezes por rodada, um ataque corpo a corpo que erre o Mutilador permite um contra-ataque corpo a corpo."},
+    {type:"LIVRE",name:"GOLPE MUTILADOR",effect:"Uma vez por rodada, pode receber +5 no ataque e +10 no dano."},
+    {type:"PADRÃO",name:"INTENÇÃO ASSASSINA",effect:"Adormece a transformação e retorna à ficha Jonas Aguiar; só pode usar a intenção novamente depois de dormir."},
+    {type:"PADRÃO",name:"PREDADOR SANGUINÁRIO",effect:"Memoriza o odor de uma vítima mediante um vestígio para obter bônus em tentativas de rastrear, perceber e atacar esse alvo; um alvo memorizado por vez."}
+   ],
+   abilities:[
+    {name:"PREDADOR PERFEITO",effect:"Recebe uma ação padrão adicional por rodada."},
+    {name:"PODER DE INTENÇÃO — FILHO DA BESTA",effect:"Depois de sofrer três ferimentos de pelo menos 5 PV cada, pode ativar RD 25 como reação; enquanto ativa, perde 5 PV no início de seus turnos."}
+   ],
+   description:"Forma alterada de Jonas Aguiar, conhecida como Mutilador Noturno. Sua ficha é apresentada em Arquivos Secretos de Fevereiro, página 40. Esta versão possui atributos de combate, ataques e habilidades próprios; o mestre pode alternar para a forma normal no botão abaixo do retrato."
+  }
+ }
+};
 let activeTab="status";
 function n(v){return v===null||v===undefined||v===""?"—":v;}
 function hasValue(value){
@@ -240,16 +273,33 @@ function actionSummary(a){
  return pieces.join('\n\n');
 }
 
-function getData(){return threatFacts(threat)}
+function getData(){
+ const form=baseThreat&&threatForms[threatKey(baseThreat)];
+ return currentForm==="alternativa"&&form?form.data:threatFacts(baseThreat);
+}
+function switchThreatForm(){
+ if(!baseThreat||!threatForms[threatKey(baseThreat)])return;
+ currentForm=currentForm==="normal"?"alternativa":"normal";
+ const option=threatForms[threatKey(baseThreat)];
+ threat=currentForm==="normal"?baseThreat:{...baseThreat,name:option.title};
+ render();
+}
 function activate(tab){activeTab=tab;for(const x of ["status","combat","description"]){$(x).hidden=x!==tab;document.querySelector('[data-tab="'+x+'"]').setAttribute("aria-selected",String(x===tab))}}
 function render(){
  if(!threat)return;
  const d=getData();
+ const variant=baseThreat&&threatForms[threatKey(baseThreat)];
+ const changeButton=$("formSwitch");
+ changeButton.hidden=!variant;
+ if(variant){
+  changeButton.textContent=currentForm==="normal"?"Ver ficha: "+variant.title:"Voltar: "+baseThreat.name;
+  changeButton.setAttribute("aria-label",changeButton.textContent);
+ }
  $("hero").style.setProperty("--art","linear-gradient(90deg,rgba(10,7,10,.2),rgba(10,7,10,.6)),url('"+(images[threat.element]||images.Medo)+"')");
  $("name").textContent=threat.name;$("source").textContent=threat.source;$("element").textContent=threat.element;
  $("kind").textContent=[d.variant?"Variação de criatura":threat.category||"Criatura",d.size].filter(Boolean).join(" · ");$("vdBadge").textContent="VD "+n(d.vd);
- const portrait=$("portrait"), official=threatIllustration(threat);
- const photoKey=threat.source+"::"+threat.name;
+ const portrait=$("portrait"), official=threatIllustration(baseThreat);
+ const photoKey=baseThreat.source+"::"+baseThreat.name;
  const archiveFirst=window.NEX_ARQUIVOS_FOTOS_CONFIRMADAS||{};
  const archiveSecond=window.NEX_ARQUIVOS_FOTOS_LOTE2||{};
  const isFirst=Object.prototype.hasOwnProperty.call(archiveFirst,photoKey)&&!!window.NEX_ARQUIVOS_ATLAS;
@@ -391,6 +441,7 @@ function explainThreatAbility(ability,threatData){
 
  activate(activeTab);
 }
+$("formSwitch").addEventListener("click",switchThreatForm);
 document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b)activate(b.dataset.tab)});
 
 
