@@ -105,6 +105,7 @@ body.detail-open main{width:min(1250px,100%);padding:8px 10px 28px}
 <script src="./nex-fevereiro-retratos.js?v=20261114faces2"></script>
 <script src="./nex-arquivos-zip-imagens.js?v=2"></script>
 <script src="./nex-ameacas-julho.js?v=20261114jul1"></script>
+<script src="./nex-arquivos-ameacas-faltantes.js?v=20261114completas1"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos2"></script>
 <script src="./nex-arquivos-atlas-lote2.js?v=nov14lote2a"></script>
 <script>
@@ -112,6 +113,7 @@ const records=[{"name":"Aberração de Carne","element":"Sangue","source":"Livro
 records.push({name:"Carrara",element:"Realidade",source:"Arquivos Secretos — Janeiro",category:"Ameaça da Realidade"});
 records.push(...[{"name":"Assecla Wip","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Investido","element":"Sangue","source":"Arquivos Secretos — Janeiro","category":"Ameaça"},{"name":"Apóstolo do Sangue","element":"Sangue","source":"Arquivos Secretos — Janeiro","category":"Ameaça"},{"name":"Giovanni Opspor","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Mosto","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Tarrafa","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Nando Salles","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Anulado","element":"Sangue","source":"Arquivos Secretos — Janeiro","category":"Ameaça"},{"name":"Jonas Aguiar","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Dalmo Magno","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Jae","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Kemi","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Labirinto","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Juan","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Fíbula","element":"Realidade","source":"Arquivos Secretos — Março","category":"Ameaça da Realidade"},{"name":"Chispa","element":"Realidade","source":"Arquivos Secretos — Março","category":"Ameaça da Realidade"},{"name":"Assistente de Produção","element":"Realidade","source":"Arquivos Secretos — Abril","category":"Ameaça da Realidade"},{"name":"Produtor","element":"Realidade","source":"Arquivos Secretos — Abril","category":"Ameaça da Realidade"},{"name":"Diretor","element":"Realidade","source":"Arquivos Secretos — Abril","category":"Ameaça da Realidade"},{"name":"Simulacro","element":"Energia","source":"Arquivos Secretos — Abril","category":"Ameaça"},{"name":"Alice Cruzes","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"},{"name":"Ketan Arjuna","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"},{"name":"Laila Verdante","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"},{"name":"Dr. Neruda","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"}]);
 records.push(...(window.NEX_JULY_THREATS||[]));
+records.push(...(window.NEX_SECRET_MISSING_THREATS||[]).filter(x=>!records.some(y=>y.name===x.name&&y.source===x.source)));
 
 const sourceOptions=["Todas as fontes","Livro Básico","Sobrevivendo ao Horror","Arquivos Secretos","Homebrew"];
 const elementOptions=["Todos","Sangue","Morte","Conhecimento","Energia","Medo","Realidade","Transmissão"];
@@ -137,7 +139,7 @@ function nexArchiveAtlasStyle(portrait){
 }
 function hasCoreStats(x){
  const key=threatKey(x);
- const d=(window.NEX_BASIC_THREATS_EXTRA||{})[key]||(window.NEX_BASIC_THREATS||{})[key]||(window.NEX_THREAT_DETAILS||{})[key]||null;
+ const d=(window.NEX_BASIC_THREATS_EXTRA||{})[key]||(window.NEX_BASIC_THREATS||{})[key]||(window.NEX_THREAT_DETAILS||{})[key]||(window.NEX_SECRET_MISSING_DETAILS||{})[key]||null;
  return !!(d&&((d.vd!=null&&d.pv!=null&&d.defense!=null)||d.variant===true));
 }
 function draw(){
