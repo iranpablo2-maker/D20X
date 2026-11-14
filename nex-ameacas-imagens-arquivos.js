@@ -1,7 +1,7 @@
 /* Retratos individuais em alta resolução. Até que os arquivos sejam enviados, o atlas de prévias permanece como fallback. */
 window.NEX_ARQUIVOS_IMAGES={
   "Arquivos Secretos — Fevereiro::Arara-devorada": "./assets/ameacas/arquivos-secretos/fevereiro/arara-devorada.webp",
-  "Arquivos Secretos — Fevereiro::Arara-vermelha": "./assets/ameacas/arquivos-secretos/fevereiro/arara-vermelha.webp",
+  "Arquivos Secretos — Fevereiro::Arara-vermelha": "./assets/ameacas/arquivos-secretos/fevereiro/arara-vermelha.webp?v=alta-20261114",
   "Arquivos Secretos — Fevereiro::Arara-infernal": "./assets/ameacas/arquivos-secretos/fevereiro/arara-infernal.webp",
   "Arquivos Secretos — Fevereiro::Jaguatirica": "./assets/ameacas/arquivos-secretos/fevereiro/jaguatirica.webp",
   "Arquivos Secretos — Fevereiro::Felino-devorado": "./assets/ameacas/arquivos-secretos/fevereiro/felino-devorado.webp",
