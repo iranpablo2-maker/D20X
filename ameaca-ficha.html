@@ -90,6 +90,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <script src="./nex-ameacas-imagens-arquivos.js?v=nov14links2"></script>
 <script src="./nex-arquivos-zip-imagens.js?v=2"></script>
 <script src="./nex-ameacas-julho.js?v=20261114jul1"></script>
+<script src="./nex-arquivos-ameacas-faltantes.js?v=20261114completas1"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos2"></script>
 <script src="./nex-arquivos-atlas-lote2.js?v=nov14lote2a"></script>
 <script src="./nex-fevereiro-formas.js?v=20261114forms2"></script>
@@ -100,6 +101,7 @@ const records=[{"name":"Aberração de Carne","element":"Sangue","source":"Livro
 records.push({name:"Carrara",element:"Realidade",source:"Arquivos Secretos — Janeiro",category:"Ameaça da Realidade"});
 records.push(...[{"name":"Assecla Wip","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Investido","element":"Sangue","source":"Arquivos Secretos — Janeiro","category":"Ameaça"},{"name":"Apóstolo do Sangue","element":"Sangue","source":"Arquivos Secretos — Janeiro","category":"Ameaça"},{"name":"Giovanni Opspor","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Mosto","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Tarrafa","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Nando Salles","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Anulado","element":"Sangue","source":"Arquivos Secretos — Janeiro","category":"Ameaça"},{"name":"Jonas Aguiar","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Dalmo Magno","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Jae","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Kemi","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Labirinto","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Juan","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Fíbula","element":"Realidade","source":"Arquivos Secretos — Março","category":"Ameaça da Realidade"},{"name":"Chispa","element":"Realidade","source":"Arquivos Secretos — Março","category":"Ameaça da Realidade"},{"name":"Assistente de Produção","element":"Realidade","source":"Arquivos Secretos — Abril","category":"Ameaça da Realidade"},{"name":"Produtor","element":"Realidade","source":"Arquivos Secretos — Abril","category":"Ameaça da Realidade"},{"name":"Diretor","element":"Realidade","source":"Arquivos Secretos — Abril","category":"Ameaça da Realidade"},{"name":"Simulacro","element":"Energia","source":"Arquivos Secretos — Abril","category":"Ameaça"},{"name":"Alice Cruzes","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"},{"name":"Ketan Arjuna","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"},{"name":"Laila Verdante","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"},{"name":"Dr. Neruda","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"}]);
 records.push(...(window.NEX_JULY_THREATS||[]));
+records.push(...(window.NEX_SECRET_MISSING_THREATS||[]).filter(x=>!records.some(y=>y.name===x.name&&y.source===x.source)));
 
 
 const screenshotExample={
@@ -125,7 +127,8 @@ function threatFacts(x){
   (window.NEX_BASIC_THREATS||{})[baseKey],
   (window.NEX_BASIC_THREATS_EXTRA||{})[baseKey],
   (window.NEX_THREAT_DETAILS||{})[threatKey(x)],
-  (window.NEX_JULY_THREAT_DETAILS||{})[threatKey(x)]
+  (window.NEX_JULY_THREAT_DETAILS||{})[threatKey(x)],
+  (window.NEX_SECRET_MISSING_DETAILS||{})[threatKey(x)]
  ].filter(v=>v&&typeof v==="object");
  const extra=Object.assign({},...sources.slice(1));
  // A atualização das descrições nunca deve apagar habilidades ou ações cadastradas.
