@@ -83,6 +83,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <script src="./nex-ameacas-basico-completo.js?v=20261114base2"></script>
 <script src="./nex-ameacas-imagens-principais.js?v=20261114sah1"></script>
 <script src="./nex-ameacas-imagens-arquivos.js?v=nov14links2"></script>
+<script src="./nex-arquivos-zip-imagens.js?v=2"></script>
 <script src="./nex-ameacas-julho.js?v=20261114jul1"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos2"></script>
 <script src="./nex-arquivos-atlas-lote2.js?v=nov14lote2a"></script>
@@ -277,8 +278,15 @@ function render(){
   tag.decoding="async";
   tag.style.cssText="width:100%;height:100%;object-fit:contain;position:absolute;inset:0;border-radius:8px;background:#1a1117;opacity:0";
   tag.onload=()=>{tag.style.opacity="1";if(thumbnail)thumbnail.hidden=true;};
-  tag.onerror=()=>tag.remove();
+  tag.onerror=()=>{tag.style.opacity='0'};
   portrait.appendChild(tag);
+  if(window.NEX_ARQUIVOS_ZIP_IMAGE_URL && photoKey.startsWith('Arquivos Secretos')){
+   window.NEX_ARQUIVOS_ZIP_IMAGE_URL(photoKey).then(url=>{
+    if(!url||!tag.isConnected)return;
+    tag.onload=()=>{tag.style.opacity='1';if(thumbnail)thumbnail.hidden=true;};
+    tag.src=url;
+   }).catch(error=>console.warn('Retrato da ameaça indisponível:',photoKey,error));
+  }
  }
  const rollRows=items=>Array.isArray(items)?items.filter(v=>Array.isArray(v)&&hasValue(v[0])&&hasValue(v[1])).map(v=>'<div class="skill"><span>'+esc(v[0])+'</span><strong>'+esc(v[1])+'</strong></div>').join(""):"";
 
