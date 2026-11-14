@@ -279,7 +279,26 @@ function getData(){
  const form=baseThreat&&threatForms[threatKey(baseThreat)];
  if(currentForm==="alternativa"&&form)return form.data;
  const original=threatFacts(baseThreat);
- if(form?.normalData)return {...original,...form.normalData,attributes:{...(original.attributes||{}),...(form.normalData.attributes||{})}};
+ if(form?.normalData){
+  const additional=form.normalData;
+  // Não perder ações e habilidades completas que já existiam no catálogo.
+  const preserve=(field)=>{
+   const merged=new Map();
+   for(const entry of [...(original[field]||[]),...(additional[field]||[])]){
+    if(!entry?.name)continue;
+    const id=String(entry.name).trim().toLocaleLowerCase("pt-BR");
+    const older=merged.get(id);
+    if(!older){merged.set(id,{...entry});continue;}
+    const combined={...older,...entry};
+    for(const property of ["description","effect","test","damage","type"]){
+     if(String(older[property]||"").length>String(entry[property]||"").length)combined[property]=older[property];
+    }
+    merged.set(id,combined);
+   }
+   return Array.from(merged.values());
+  };
+  return {...original,...additional,attributes:{...(original.attributes||{}),...(additional.attributes||{})},actions:preserve("actions"),abilities:preserve("abilities")};
+ }
  return original;
 }
 function switchThreatForm(){
