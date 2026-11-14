@@ -256,21 +256,27 @@ function render(){
  const atlasIndex=isFirst?archiveFirst[photoKey]:isSecond?archiveSecond[photoKey]:null;
  const atlasSource=isFirst?window.NEX_ARQUIVOS_ATLAS:isSecond?window.NEX_ARQUIVOS_ATLAS_2:null;
  portrait.style.backgroundImage="";
+ portrait.style.backgroundSize="cover";
+ portrait.style.backgroundPosition="center";
  portrait.replaceChildren();
  portrait.textContent="";
+ let thumbnail=null;
  if(atlasIndex!==null && atlasSource){
+  // A montagem tem baixa resolução: nunca ampliar o recorte até 144 px.
   const col=atlasIndex%4,row=Math.floor(atlasIndex/4);
-  portrait.style.backgroundImage='url("'+atlasSource+'")';
-  portrait.style.backgroundSize='400% 500%';
-  portrait.style.backgroundPosition=(col*100/3)+'% '+(row*25)+'%';
+  thumbnail=document.createElement("div");
+  thumbnail.setAttribute("aria-hidden","true");
+  thumbnail.style.cssText='width:104px;height:104px;max-width:100%;max-height:100%;flex:0 0 auto;background-repeat:no-repeat;background-color:#21151a;border-radius:7px;background-size:400% 500%;background-position:'+(col*100/3)+'% '+(row*25)+'%;background-image:url("'+atlasSource+'")';
+  portrait.appendChild(thumbnail);
  }
  if(official){
-  if(atlasIndex===null)portrait.style.backgroundSize='cover';
   const tag=document.createElement("img");
   tag.src=official;
   tag.alt="Arte principal de "+threat.name;
   tag.loading="lazy";
-  tag.style.cssText="width:100%;height:100%;object-fit:contain;position:absolute;inset:0;border-radius:8px";
+  tag.decoding="async";
+  tag.style.cssText="width:100%;height:100%;object-fit:contain;position:absolute;inset:0;border-radius:8px;background:#1a1117;opacity:0";
+  tag.onload=()=>{tag.style.opacity="1";if(thumbnail)thumbnail.hidden=true;};
   tag.onerror=()=>tag.remove();
   portrait.appendChild(tag);
  }
