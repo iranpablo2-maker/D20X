@@ -165,9 +165,11 @@ function threatFacts(x){
 const images={Sangue:"./assets/rituais/sangue-fundo.svg",Morte:"./assets/rituais/morte-fundo.svg",Energia:"./assets/rituais/energia-fundo.svg",Conhecimento:"./assets/rituais/conhecimento-fundo.svg",Medo:"./assets/rituais/medo-fundo.svg"};
 const $=id=>document.getElementById(id), esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const key=new URLSearchParams(location.search).get("id");
-const baseThreat=records.find(x=>threatKey(x)===key);
-let threat=baseThreat;
-let currentForm="normal";
+const razielTrueKey="Arquivos Secretos — Julho::O Verdadeiro Raziel";
+const razielBaseKey="Arquivos Secretos — Julho::Raziel";
+const baseThreat=records.find(x=>threatKey(x)===(key===razielTrueKey?razielBaseKey:key));
+let currentForm=key===razielTrueKey?"alternativa":"normal";
+let threat=currentForm==="alternativa"&&baseThreat?{...baseThreat,name:"O Verdadeiro Raziel"}:baseThreat;
 // Uma ficha na biblioteca; as formas alternativas são consultadas no mesmo painel.
 const threatForms={
  "Arquivos Secretos — Fevereiro::Jonas Aguiar":{
@@ -202,6 +204,15 @@ const threatForms={
  }
 };
 Object.assign(threatForms,window.NEX_FEVEREIRO_FORMAS||{});
+// Raziel e sua transformação compartilham a mesma ficha, como as outras formas alternativas.
+const razielData=window.NEX_JULY_THREAT_DETAILS||{};
+if(razielData[razielBaseKey]&&razielData[razielTrueKey]){
+ threatForms[razielBaseKey]={
+  title:"O Verdadeiro Raziel",
+  normalData:razielData[razielBaseKey],
+  data:razielData[razielTrueKey]
+ };
+}
 let activeTab="status";
 function n(v){return v===null||v===undefined||v===""?"—":v;}
 function hasValue(value){
