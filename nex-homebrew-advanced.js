@@ -343,7 +343,7 @@
    $('nexHbCursedArtifactRequirement').value='';
    $('nexHbImprovementTarget').value='Armas';
    $('nexHbBonusType').value='ataque';$('nexHbBonusValue').value='+2';
-   $('nexHbEffectBonusType').value='';$('nexHbEffectBonusValue').value='0';
+   effectRows=[];renderEffects('main');TRAIL_NEX.forEach(n=>{trailRows[n]=[];renderEffects(String(n));});
    TRAIL_NEX.forEach(n=>{$('nex53TrailBonusType'+n).value='';$('nex53TrailBonusValue'+n).value='0';});
    $('nexHbProtectionDefense').value='1';
    $('nexHbWeaponProficiency').value='Armas Simples';$('nexHbWeaponKind').value='Corpo a Corpo';$('nexHbWeaponWield').value='Uma Mão';
@@ -385,7 +385,7 @@
      $('nexHbAccessoryBonus').value=item.accessoryBonus?'+'+item.accessoryBonus:'';$('nexHbAccessorySkill').value=item.accessorySkill||'';
      $('nexHbCursedArtifactRequirement').value=item.cursedArtifactRequirement||'';
      $('nexHbImprovementTarget').value=item.improvementTarget||'Armas';
-     $('nexHbEffectBonusType').value=item.effectBonusType||'';$('nexHbEffectBonusValue').value=String(item.effectBonusValue??0);
+     effectRows=parseEffects(item.effectBonuses,item.effectBonusType,item.effectBonusValue,item.effectBonusSkill);renderEffects('main');
      $('nexHbBonusType').value=item.bonusType||'ataque';$('nexHbBonusValue').value='+'+Math.max(1,Math.min(10,item.bonusValue||2));$('nexHbBonusSkill').value=item.bonusSkill||'';
      customItemImprovements=Array.isArray(item.customImprovements)?[...item.customImprovements]:[];renderItemImprovements();
      $('nexHbProtectionDefense').value=String(item.protectionDefense??1);
@@ -409,7 +409,7 @@
      $('nexHbImageUrl').value=item.image?.startsWith('https://')?item.image:'';
      $('nexHbImagePreview').hidden=!item.image;if(item.image)$('nexHbImagePreview').src=item.image;
      if(item.type==='origem'){$('nex55Skill1').value=item.skills?.[0]||'';$('nex55Skill2').value=item.skills?.[1]||'';}
-     if(item.type==='trilha')TRAIL_NEX.forEach((n,i)=>{const step=(item.trailAbilities||[])[i]||{};$('nex53TrailName'+n).value=step.name||'';$('nex53TrailDescription'+n).value=step.description||'';$('nex53TrailBonusType'+n).value=step.bonusType||'';$('nex53TrailBonusValue'+n).value=String(step.bonusValue??0);});
+     if(item.type==='trilha')TRAIL_NEX.forEach((n,i)=>{const step=(item.trailAbilities||[])[i]||{};$('nex53TrailName'+n).value=step.name||'';$('nex53TrailDescription'+n).value=step.description||'';trailRows[n]=parseEffects(step.bonuses,step.bonusType,step.bonusValue,step.bonusSkill);renderEffects(String(n));});
      $('nex52EditorTitle').textContent='Editar '+item.name;
    }
    editorFields();$('nex52Editor').hidden=false;
@@ -535,8 +535,8 @@
      '<p class="nex52-detail-meta">'+esc(info.join(' · '))+'</p>'+
      (item.description?'<h4>Descrição</h4><p>'+(item.type==='item'?formattedDescription(item.description):esc(item.description))+'</p>':'<p>Sem descrição.</p>')+
      (item.requirements?'<h4>Pré-requisitos</h4><p>'+esc(item.requirements)+'</p>':'')+
-     (effectApplicable(item)&&item.type!=='trilha'&&item.effectBonusType?'<h4>Bônus configurado</h4><p>'+esc(EFFECT_TYPES.find(([id])=>id===item.effectBonusType)?.[1]||'Bônus')+': '+esc((item.effectBonusValue>=0?'+':'')+item.effectBonusValue)+'</p>':'')+
-     (item.type==='trilha'?'<h4>Bônus por NEX</h4>'+item.trailAbilities.map(a=>'<p>NEX '+esc(a.nex)+'% · '+esc(a.name)+': '+esc(EFFECT_TYPES.find(([id])=>id===a.bonusType)?.[1]||'Sem bônus')+' '+esc(a.bonusType?(a.bonusValue>=0?'+':'')+a.bonusValue:'')+'</p>').join(''):'')+
+     (effectApplicable(item)&&item.type!=='trilha'&&item.effectBonuses?.length?'<h4>Bônus configurados</h4><p>'+effectsLabel(item.effectBonuses)+'</p>':'')+
+     (item.type==='trilha'?'<h4>Bônus por NEX</h4>'+item.trailAbilities.map(a=>'<p>NEX '+esc(a.nex)+'% · '+esc(a.name)+': '+(a.bonuses?.length?effectsLabel(a.bonuses):'Sem bônus')+'</p>').join(''):'')+
      (item.type==='melhoria'?'<h4>Efeito configurado</h4><p>'+esc(BONUS_TYPES.find(([id])=>id===item.bonusType)?.[1]||'Bônus')+': '+esc((item.bonusValue>=0?'+':'')+item.bonusValue)+'</p>':'')+
      (item.type==='origem'?'<h4>Perícias treinadas</h4><p>'+esc((item.skills||[]).join(' e ')||'Não configuradas')+'</p>':'')+
      (item.type==='item'&&item.image?'<img class="nex-hb-preview-detail" src="'+esc(item.image)+'" alt="Imagem de '+esc(item.name)+'">':'')+
