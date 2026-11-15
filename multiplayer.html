@@ -351,6 +351,28 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 </style>
 
 
+
+<style id="nex-vtt-mini-sheet-style">
+#roomTabletopPanel #nexVttMiniSheet[hidden]{display:none!important}
+#roomTabletopPanel .nex-vtt-mini-sheet{
+  margin:8px 14px 20px;padding:13px;border:1px solid #d89cbd;border-radius:9px;
+  background:#fff4fa;color:#392837;display:flex;flex-direction:column;gap:10px;
+  box-shadow:0 4px 12px #aa709018;
+}
+#roomTabletopPanel .nex-vtt-mini-heading{display:flex;justify-content:space-between;align-items:center;gap:8px}
+#roomTabletopPanel .nex-vtt-mini-heading strong{font-size:16px}
+#roomTabletopPanel .nex-vtt-mini-heading button{border:0;background:transparent;color:#715669;font-size:23px}
+#roomTabletopPanel .nex-vtt-mini-portrait{width:100%;height:130px;object-fit:contain;border-radius:6px;background:#e9dce2}
+#roomTabletopPanel .nex-vtt-mini-subtitle{font-size:12px;color:#79526b;margin:0}
+#roomTabletopPanel .nex-vtt-mini-vitals{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+#roomTabletopPanel .nex-vtt-mini-vital{display:flex;flex-direction:column;align-items:center;padding:10px 4px;border:1px solid #d3a8c0;border-radius:7px;background:#fff}
+#roomTabletopPanel .nex-vtt-mini-vital small{font-size:11px;color:#8d5370;font-weight:bold}
+#roomTabletopPanel .nex-vtt-mini-vital strong{font-size:18px;color:#342735}
+#roomTabletopPanel .nex-vtt-mini-attributes{display:flex;flex-wrap:wrap;gap:5px}
+#roomTabletopPanel .nex-vtt-mini-attributes span{background:#f0d9e5;padding:5px 8px;border-radius:5px;font-size:11px;font-weight:700}
+#roomTabletopPanel .nex-vtt-mini-open{width:100%;padding:10px;background:#a6314c;border:1px solid #b64159;color:white;border-radius:6px;font-weight:700;cursor:pointer}
+#roomTabletopPanel .nex-vtt-sheet[aria-expanded=true]{outline:2px solid #ba4b7d;outline-offset:1px}
+</style>
 <style id="nex-vtt-drawing-menu-style">
 #roomTabletopPanel #nexVttDrawMenu{
  position:fixed!important;top:110px!important;left:51px!important;z-index:16000!important;
@@ -902,7 +924,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
       <label>Mapa <input type="file" id="nexTabletopMapFile" accept="image/png,image/jpeg,image/webp"></label>
       <button id="nexTabletopRemoveMap" type="button" class="alt">Remover mapa</button>
     </div></aside><div class="nex-vtt-stage"><div class="nex-tabletop-wrap"><div id="nexTabletopBoard" class="nex-tabletop-board" aria-label="Mapa com grade de combate"></div></div>
-    <p class="room-note nex-vtt-stage-note">Grade 25 × 25 · Selecione um token e use 0–9 para mudar sua imagem.</p></div><aside class="nex-vtt-sheets" id="nexVttSheetsPanel" aria-label="Fichas dos personagens"><div class="nex-vtt-sheets-title"><h3>Fichas</h3><button type="button" id="nexVttSheetsClose" aria-label="Recolher fichas">×</button></div><p class="room-note" id="nexVttSheetsHint">Abra a ficha sem sair do mapa.</p><div id="nexVttSheetsList" class="nex-vtt-sheets-list"></div></aside></div>
+    <p class="room-note nex-vtt-stage-note">Grade 25 × 25 · Selecione um token e use 0–9 para mudar sua imagem.</p></div><aside class="nex-vtt-sheets" id="nexVttSheetsPanel" aria-label="Fichas dos personagens"><div class="nex-vtt-sheets-title"><h3>Fichas</h3><button type="button" id="nexVttSheetsClose" aria-label="Recolher fichas">×</button></div><p class="room-note" id="nexVttSheetsHint">Abra a ficha sem sair do mapa.</p><div id="nexVttSheetsList" class="nex-vtt-sheets-list"></div><section id="nexVttMiniSheet" class="nex-vtt-mini-sheet" aria-label="Mini ficha do personagem" hidden></section></aside></div>
    </section>
    <section id="roomCombatsPanel" class="room-panel hide">
      <div class="room-panel-head"><h3>Combates</h3></div>
@@ -984,13 +1006,70 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  let extraSlotRequests=[],slotPending=false;
  let publicSheets=[],privateSheets=[];
  function refreshRoomSheets(){roomSheets=gm?[...publicSheets,...privateSheets]:publicSheets.slice();drawSheets();drawMembers();renderQuota();renderSlotManagement();renderCombats();renderVttSheets();if(publicSheets.length)syncOwnCharacterPhotos();}
+ let activeVttMiniSheetId=null;
+ function vttStatValue(sheet,keys){
+  const sources=[sheet.fullSheet,sheet].filter(x=>x&&typeof x==='object');
+  for(const source of sources)for(const key of keys){
+   const value=source[key];
+   if((typeof value==='number'&&Number.isFinite(value))||(typeof value==='string'&&value.trim()!==''))return String(value);
+  }
+  return '—';
+ }
+ function renderVttMiniSheet(sheet){
+  const box=$('nexVttMiniSheet');
+  if(!box)return;
+  box.replaceChildren();
+  if(!sheet){box.hidden=true;return;}
+  box.hidden=false;
+  const heading=document.createElement('div');heading.className='nex-vtt-mini-heading';
+  const title=document.createElement('strong');title.textContent=String(sheet.name||'Personagem');
+  const close=document.createElement('button');close.type='button';close.textContent='×';close.title='Fechar mini ficha';
+  close.addEventListener('click',()=>{activeVttMiniSheetId=null;renderVttSheets();});
+  heading.append(title,close);box.append(heading);
+  const portrait=sheetPortrait(sheet);
+  if(portrait){
+   const image=document.createElement('img');image.className='nex-vtt-mini-portrait';image.src=portrait;image.alt='Retrato do personagem';box.append(image);
+  }
+  const line=document.createElement('p');line.className='nex-vtt-mini-subtitle';
+  line.textContent=(sheet.className||sheet.fullSheet?.className||sheet.fullSheet?.class||'Personagem')+' · NEX '+(Number(sheet.nex)||0)+'%';
+  box.append(line);
+  const vitals=document.createElement('div');vitals.className='nex-vtt-mini-vitals';
+  for(const [name,keys] of [
+   ['PV',['pvCurrent','pvAtual','pv','currentPV']],
+   ['PE',['peCurrent','peAtual','pe','currentPE']],
+   ['SAN',['sanCurrent','sanAtual','san','currentSAN']]
+  ]){
+   const tile=document.createElement('div');tile.className='nex-vtt-mini-vital';
+   const number=document.createElement('strong');number.textContent=vttStatValue(sheet,keys);
+   const label=document.createElement('small');label.textContent=name;
+   tile.append(label,number);vitals.append(tile);
+  }
+  box.append(vitals);
+  const attributes=sheet.fullSheet?.attributes||sheet.fullSheet?.atributos||null;
+  if(attributes&&typeof attributes==='object'){
+   const attrs=document.createElement('div');attrs.className='nex-vtt-mini-attributes';
+   for(const [label,keys] of [
+    ['AGI',['agi','agilidade','AGI']],['FOR',['for','forca','FOR']],
+    ['INT',['int','intelecto','INT']],['PRE',['pre','presenca','PRE']],['VIG',['vig','vigor','VIG']]
+   ]){
+    const value=keys.map(k=>attributes[k]).find(v=>v!==undefined&&v!==null);
+    if(value===undefined)continue;
+    const tile=document.createElement('span');tile.textContent=label+' '+String(value);attrs.append(tile);
+   }
+   if(attrs.childElementCount)box.append(attrs);
+  }
+  const open=document.createElement('button');open.type='button';open.className='nex-vtt-mini-open';open.textContent='Abrir ficha completa';
+  open.addEventListener('click',()=>openVttSheet(sheet.id));box.append(open);
+ }
  function renderVttSheets(){
   const list=$('nexVttSheetsList');if(!list)return;
   const allowed=roomSheets.filter(sheet=>gm||assignedTo(sheet,uid));
+  if(activeVttMiniSheetId&&!allowed.some(s=>s.id===activeVttMiniSheetId))activeVttMiniSheetId=null;
   list.replaceChildren();
   $('nexVttSheetsHint').textContent=gm?'Personagens da campanha, inclusive os ocultos.':'Suas fichas vinculadas a esta campanha.';
   for(const sheet of allowed){
-   const button=document.createElement('button');button.type='button';button.className='nex-vtt-sheet';button.dataset.vttSheet=sheet.id;
+   const button=document.createElement('button');button.type='button';button.className='nex-vtt-sheet';
+   button.dataset.vttMiniSheet=sheet.id;button.setAttribute('aria-expanded',String(activeVttMiniSheetId===sheet.id));
    const photo=sheetPortrait(sheet);
    if(photo){const img=document.createElement('img');img.src=photo;img.alt='';button.append(img);}
    else{const avatar=document.createElement('span');avatar.className='nex-vtt-avatar';avatar.textContent=String(sheet.name||'P')[0].toUpperCase();button.append(avatar);}
@@ -999,6 +1078,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    info.append(name,meta);button.append(info);list.append(button);
   }
   if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent=gm?'Adicione personagens à campanha para acessá-los aqui.':'Sua ficha ainda não foi atribuída a você nesta campanha.';list.append(note);}
+  renderVttMiniSheet(allowed.find(s=>s.id===activeVttMiniSheetId));
  }
  function openVttSheet(id){
   const sheet=roomSheets.find(item=>item.id===id);
@@ -1495,7 +1575,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('nexVttSheetsToggle').setAttribute('aria-expanded',String(!panel.hidden));
  });
  $('nexVttSheetsClose').addEventListener('click',()=>{$('nexVttSheetsPanel').hidden=true;$('nexVttSheetsToggle').setAttribute('aria-expanded','false');});
- $('nexVttSheetsList').addEventListener('click',event=>{const button=event.target.closest('[data-vtt-sheet]');if(button)openVttSheet(button.dataset.vttSheet);});
+ $('nexVttSheetsList').addEventListener('click',event=>{const button=event.target.closest('[data-vtt-mini-sheet]');if(button){activeVttMiniSheetId=activeVttMiniSheetId===button.dataset.vttMiniSheet?null:button.dataset.vttMiniSheet;renderVttSheets();}});
  $('roomOpenTabletop').addEventListener('click',()=>roomSection('tabletop'));
  $('nexVttExit').addEventListener('click',()=>roomSection('characters'));
  function inviteView(mode,message){
