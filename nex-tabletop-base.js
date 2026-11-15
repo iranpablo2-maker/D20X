@@ -9,7 +9,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  let scene=empty(),selectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false;
  const handlers=[];
  const listen=(el,type,fn,opts)=>{el?.addEventListener(type,fn,opts);handlers.push(()=>el?.removeEventListener(type,fn,opts));};
- const message=t=>{status.textContent=t;};
+ const message=t=>{status.textContent=t;status.classList.toggle('vtt-silent-status',/^Mesa (pronta|sincronizada|salva)/.test(t));};
  const selected=()=>scene.tokens.find(t=>t.id===selectedId);
  const isTyping=e=>e.target?.closest?.('input,textarea,select,[contenteditable="true"]');
  tools.hidden=!gm;
@@ -140,6 +140,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  const vttButtons=new Map();
  function vttButton(label,title,callback,disabled=false){const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);b.disabled=disabled;b.addEventListener('click',callback);vttBar.append(b);return b;}
  function vttSetMode(mode){vttMode=mode;for(const [key,button] of vttButtons)button.setAttribute('aria-pressed',String(key===mode));vttOptions.hidden=true;board.style.cursor=mode==='select'?'default':mode==='pan'?'grab':'crosshair';}
+ vttButton('☰','Abrir ou recolher o painel de fichas',()=>document.getElementById('nexVttSheetsToggle')?.click());
  for(const [mode,symbol,title] of [['select','➤','Selecionar'],['pan','✋','Mover mapa'],['draw','✎','Desenhar'],['line','╱','Linha'],['rectangle','▭','Retângulo'],['circle','◯','Círculo'],['text','T','Texto'],['measure','⌁','Medir distância'],['marker','⌖','Marcador'],['fog','◐','Revelar névoa']]){
    vttButtons.set(mode,vttButton(symbol,title,()=>vttSetMode(mode),!gm&&!['select','pan','measure'].includes(mode)));
  }
@@ -166,6 +167,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  vttButton('≡','Iniciativa',()=>vttOpen('turn'));
  vttButton('↶','Desfazer desenho',()=>{if(!gm)return;scene.drawings.pop();render();save();},!gm);
  vttButton('✕','Limpar desenhos',()=>{if(!gm||!confirm('Apagar todos os desenhos?'))return;scene.drawings=[];render();save();},!gm);
+ vttButton('↩','Voltar à campanha',()=>document.getElementById('nexVttExit')?.click());
  function vttChangeZoom(d){
    vttZoom=Math.min(2,Math.max(.25,Math.round((vttZoom+d)*100)/100));
    board.style.zoom=String(vttZoom);
