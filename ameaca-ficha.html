@@ -69,6 +69,30 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 #combat .threat-action-content{padding:13px 15px 17px}
 #combat .threat-action-kind{font-size:12px;color:#d2aab6;margin-bottom:8px}
 #combat .threat-action-content>div{margin-bottom:5px}
+</style><style id="nex-uniform-threat-sheet-photos-v2">
+/* Retratos principais usam uma moldura quadrada com preenchimento uniforme. */
+.portrait-switch{flex:0 0 144px;min-width:0}
+.portrait{
+ flex:0 0 144px!important;width:144px!important;max-width:144px!important;
+ height:144px!important;min-height:144px!important;max-height:144px!important;
+ overflow:hidden!important;position:relative!important;padding:0!important;
+}
+.portrait>img{
+ position:absolute!important;inset:0!important;
+ display:block!important;width:100%!important;height:100%!important;
+ object-fit:cover!important;object-position:center!important;
+ max-width:none!important;max-height:none!important;
+ margin:0!important;padding:0!important;transform:none!important;
+}
+.portrait>div[aria-hidden="true"]{
+ position:absolute!important;inset:0!important;
+ width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;
+ border-radius:8px!important;
+}
+@media(max-width:620px){
+ .portrait-switch{flex-basis:96px!important}
+ .portrait{flex-basis:96px!important;width:96px!important;max-width:96px!important;height:96px!important;min-height:96px!important;max-height:96px!important}
+}
 </style></head>
 <body>
 <div class="shell">
@@ -510,7 +534,7 @@ function explainThreatAbility(ability,threatData){
  const abilities=Array.isArray(d.abilities)?d.abilities.filter(a=>a&&hasValue(a.name)):[];
  const abilityRows=abilities.length?'<h2>Habilidades especiais</h2>'+abilities.map(a=>'<details class="action threat-action-fold"><summary class="threat-action-heading"><span class="threat-action-name">'+esc(a.name)+'</span><span class="threat-action-arrow" aria-hidden="true">⌄</span></summary><div class="threat-action-content">'+explainThreatAbility(a,d)+'</div></details>').join(""):"";
  $("combat").innerHTML=(actionRows||hasValue(d.attacks)?'<h2>Ataques e habilidades</h2>':"")+actionRows+abilityRows+(hasValue(d.attacks)?'<div class="action"><p class="lines">'+esc(d.attacks)+'</p></div>':'')+
- '<div class="note">As descrições desta tela organizam os efeitos já registrados no NEX. Quando algum número ou condição ainda não está cadastrado, a ficha não inventa regras. A ficha é somente para consulta.</div>';
+ '';
  const narrative=(window.NEX_THREAT_NARRATIVES||{})[threatKey(threat)]||(threat.name==="O Anfitrião"&&(window.NEX_THREAT_NARRATIVES||{})["Livro Básico::O Anfitrião"])||d.description||"";
  const characteristics=[];
  if(hasValue(d.size))characteristics.push("Porte: "+d.size);
