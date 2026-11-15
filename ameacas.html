@@ -211,7 +211,14 @@ function hasCoreStats(x){
 }
 function draw(){
  drawTabs(sourceEl,sourceOptions,source,"source");drawTabs(elementsEl,elementOptions,element,"element");
- const items=records.filter(x=>!NEX_THREATS_HIDDEN.has(String(x.name||"").trim())).filter(x=>(source==="Todas as fontes"||x.source===source||(source==="Arquivos Secretos"&&x.source.startsWith("Arquivos Secretos — ")))&&(element==="Todos"||x.element===element)&&(!search||(x.name+" "+x.source+" "+x.element).toLocaleLowerCase("pt-BR").includes(search))).sort((a,b)=>{const aRank=elementOrder.indexOf(a.element),bRank=elementOrder.indexOf(b.element);return (aRank<0?999:aRank)-(bRank<0?999:bRank)||a.name.localeCompare(b.name,"pt-BR",{sensitivity:"base",numeric:true})});
+ // Em "Todos", agrupa na sequência de elementos definida, com nomes de A a Z dentro de cada grupo.
+ // Nos filtros individuais, preserva a ordem alfabética.
+ const filtered=records.filter(x=>!NEX_THREATS_HIDDEN.has(String(x.name||"").trim())).filter(x=>(source==="Todas as fontes"||x.source===source||(source==="Arquivos Secretos"&&x.source.startsWith("Arquivos Secretos — ")))&&(element==="Todos"||x.element===element)&&(!search||(x.name+" "+x.source+" "+x.element).toLocaleLowerCase("pt-BR").includes(search)));
+ const byName=(a,b)=>a.name.localeCompare(b.name,"pt-BR",{sensitivity:"base",numeric:true});
+ const items=element==="Todos"
+  ? [...elementOrder.flatMap(category=>filtered.filter(x=>x.element===category).sort(byName)),
+     ...filtered.filter(x=>!elementOrder.includes(x.element)).sort((a,b)=>a.element.localeCompare(b.element,"pt-BR")||byName(a,b))]
+  : filtered.sort(byName);
  $("count").textContent=items.length+" ameaça(s)";
  list.innerHTML=items.length?items.map((x,i)=>{
  const groupHeading=i===0||items[i-1].element!==x.element
