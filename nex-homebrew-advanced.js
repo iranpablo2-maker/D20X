@@ -532,7 +532,7 @@
   return (Number(b.value)>=0?'+':'')+Number(b.value||0)+' '+name+(b.scaling==='nex'?' a cada '+(b.nexInterval||5)+'% de NEX':'');
  }
  function isAbilityBonusScope(scope){
-  return scope!=='improvement'&&(scope!=='main'||['habilidade','poder','poder_geral','poder_paranormal'].includes($('nex51Type').value));
+  return scope!=='improvement'&&(scope!=='main'||['origem','habilidade','poder','poder_geral','poder_paranormal'].includes($('nex51Type').value));
  }
  function isGeneralBonusScope(scope){return scope==='main'&&$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}
  const OFFENSIVE_BONUSES=['dano','ataque','carga','critico','multiplicador'];
