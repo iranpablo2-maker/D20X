@@ -2331,12 +2331,17 @@ function nexHomebrewBonuses(){
    if(item.type==='trilha'){
      if(item.className!==state.class||item.name!==state.trail)continue;
      for(const step of Array.isArray(item.trailAbilities)?item.trailAbilities:[]){
-       if(Number(step.nex)<=Number(state.nex))apply(step.bonusType,step.bonusValue);
+       if(Number(step.nex)>Number(state.nex))continue;
+       const effects=Array.isArray(step.bonuses)?step.bonuses:(step.bonusType?[{type:step.bonusType,value:step.bonusValue}]:[]);
+       for(const effect of effects)apply(effect.type,effect.value);
      }
    }else if(item.type==='item'||item.type==='maldicao'){
-     // Efeitos de itens exigem confirmação de equipamento e ativação.
+     // Efeitos de itens dependem de equipamento/ativação, não os aplicar sem confirmação.
      continue;
-   }else apply(item.effectBonusType,item.effectBonusValue);
+   }else{
+     const effects=Array.isArray(item.effectBonuses)?item.effectBonuses:(item.effectBonusType?[{type:item.effectBonusType,value:item.effectBonusValue}]:[]);
+     for(const effect of effects)apply(effect.type,effect.value);
+   }
  }
  return totals;
 }
@@ -4836,7 +4841,7 @@ const PARANORMAL=[
 })();
 </script>
 <script src="nex-duplicate-review.js?v=2055"></script>
-<script src="nex-homebrew-advanced.js?v=20261115bonus1"></script>
+<script src="nex-homebrew-advanced.js?v=20261115bonus2"></script>
 <script src="nex-rituais-metadados.js?v=1"></script>
 <script src="nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script src="nex-rituais-ficha.js?v=20261114arquivosfilter1"></script>
