@@ -267,6 +267,30 @@
    syncCursedWeaponElement();
    syncParanormalWeaponTier();
  }
+ function getEffects(scope){return scope==='main'?effectRows:(trailRows[scope]||(trailRows[scope]=[]));}
+ function renderEffects(scope){
+  const list=getEffects(scope),id=scope==='main'?'nexHbEffectBonusList':'nex53TrailBonusList'+scope;
+  const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
+  $(id).innerHTML=list.map((b,i)=>'<div class="nex-hb-bonus-grid" style="border-bottom:1px solid #38383d;padding:9px 0" data-effect-scope="'+esc(scope)+'" data-effect-index="'+i+'">'+
+    '<label>Tipo de bônus<select data-effect-type>'+EFFECT_TYPES.filter(([t])=>t).map(([t,label])=>'<option value="'+esc(t)+'"'+(t===b.type?' selected':'')+'>'+esc(label)+'</option>').join('')+'</select></label>'+
+    '<label>Valor do bônus<input data-effect-value type="number" min="-999" max="999" value="'+esc(b.value)+'"></label>'+
+    '<label'+(b.type==='pericia'?'':' hidden')+'>Perícia beneficiada<select data-effect-skill><option value="">Escolha a perícia</option>'+skills.map(name=>'<option value="'+esc(name)+'"'+(name===b.skill?' selected':'')+'>'+esc(name)+'</option>').join('')+'</select></label>'+
+    '<button type="button" class="btn sm" data-effect-remove>Remover</button></div>').join('');
+ }
+ mount.addEventListener('click',e=>{
+  const add=e.target.closest('[data-effect-add]');
+  if(add){const scope=add.dataset.effectAdd,items=getEffects(scope);if(items.length>=20){message('Limite de 20 bônus.');return;}items.push({type:'pv',value:1,skill:''});renderEffects(scope);return;}
+  const remove=e.target.closest('[data-effect-remove]');if(remove){const row=remove.closest('[data-effect-scope]');const scope=row.dataset.effectScope;getEffects(scope).splice(Number(row.dataset.effectIndex),1);renderEffects(scope);}
+ });
+ mount.addEventListener('change',e=>{
+  const row=e.target.closest('[data-effect-scope]');if(!row)return;
+  const scope=row.dataset.effectScope,item=getEffects(scope)[Number(row.dataset.effectIndex)];if(!item)return;
+  if(e.target.matches('[data-effect-type]')){item.type=e.target.value;item.skill='';renderEffects(scope);}
+  else if(e.target.matches('[data-effect-value]'))item.value=Math.max(-999,Math.min(999,Number(e.target.value)||0));
+  else if(e.target.matches('[data-effect-skill]'))item.skill=e.target.value;
+ });
+ const effectsValid=items=>items.every(b=>b.type!=='pericia'||(api()?.skillNames?.()||FALLBACK_SKILLS).includes(b.skill));
+ const effectsLabel=items=>items.map(b=>esc(EFFECT_TYPES.find(([id])=>id===b.type)?.[1]||b.type)+(b.skill?' ('+esc(b.skill)+')':'')+': '+esc((b.value>=0?'+':'')+b.value)).join(' · ');
  const FALLBACK_SKILLS=['Acrobacia','Adestramento','Artes','Atletismo','Atualidades','Ciências','Crime','Diplomacia','Enganação','Fortitude','Furtividade','Iniciativa','Intimidação','Intuição','Investigação','Luta','Medicina','Ocultismo','Percepção','Pilotagem','Pontaria','Profissão','Reflexos','Religião','Sobrevivência','Tática','Tecnologia','Vontade'];
  function loadSkillChoices(){
    const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
