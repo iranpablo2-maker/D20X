@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.14-descricoes-29",
-  "build": "20261114descricoes29",
-  "description": "Revisão de descrições longas verificadas: classe Especialista, Combatente, Ocultista; poder Visão do Oculto; habilidades Monstruoso e recuperação de descrições para poderes da origem Cultista Arrependido. Demais entradas continuam em revisão."
+  "version": "2026.11.15-vtt-1.3",
+  "build": "20261115linkedtokens13",
+  "description": "Tabletop NEX 1.3: token vinculado seleciona e abre a mini ficha da campanha; recursos de PV, PE e SAN associados a fichas, combate integrado e histórico. Publicar as regras firestore.rules no Firebase para autorizar sincronização de cenas."
 }
