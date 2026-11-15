@@ -9,7 +9,7 @@
  const ITEM_CATEGORIES=['Armas','Munições','Proteções','Geral','Itens Amaldiçoados'];
  const CURSED_KINDS=['Armas Amaldiçoadas','Proteções Amaldiçoadas','Munições Amaldiçoadas','Itens Paranormais'];
  const IMPROVEMENT_TARGETS=['Armas','Munições','Proteções','Geral'];
- const EFFECT_TYPES=[['','Sem bônus automático'],['pv','PV máximo'],['pe','PE máximo'],['san','SAN máxima'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Redução de dano'],['pericia','Perícia'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['carga','Capacidade de carga']];
+ const EFFECT_TYPES=[['','Sem bônus automático'],['pv','PV máximo'],['pe','PE máximo'],['san','SAN máxima'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Redução de dano'],['pericia','Perícia'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['carga','Capacidade de carga'],['pv_temp','PV temporários'],['pe_temp','PE temporários']];
  const parseEffects=(items,type,value,skill)=>{const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);return src.slice(0,20).map(b=>{if(!b)return null;const legacy={iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade'}[b.type];const id=legacy?'pericia':b.type;if(![...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].some(([key])=>key&&key===id))return null;return {type:id,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:id==='pericia'?cut(legacy||b.skill||'',60):'',scaling:b.scaling==='nex'?'nex':'fixed',nexInterval:[5,10,15,20].includes(Number(b.nexInterval))?Number(b.nexInterval):5};}).filter(Boolean);};
  const IMPROVEMENT_NO_SKILL=['Armas','Munições','Proteções'];
  const CURSED_NO_SKILL=['Armas Amaldiçoadas','Munições Amaldiçoadas','Proteções Amaldiçoadas'];
@@ -20,7 +20,7 @@
   const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);
   return src.slice(0,20).filter(b=>b&&BONUS_TYPES.some(([id])=>id===b.type)).map(b=>({type:b.type,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:b.type==='pericia'?cut(b.skill||'',60):'',scaling:b.scaling==='nex'?'nex':'fixed',nexInterval:[5,10,15,20].includes(Number(b.nexInterval))?Number(b.nexInterval):5}));
  };
- const effectApplicable=x=>['origem','poder_paranormal','poder_geral','poder','habilidade','trilha','maldicao'].includes(x.type)||(x.type==='ritual'&&x.ritualType==='Suporte')||(x.type==='item');
+ const effectApplicable=x=>['origem','poder_paranormal','poder_geral','poder','habilidade','trilha','maldicao'].includes(x.type)||(x.type==='ritual'&&['Dano','Suporte','Cura'].includes(x.ritualType))||(x.type==='item');
  const BONUS_TYPES=[['ataque','Bônus de ataque'],['dano','Bônus de dano'],['critico','Margem de crítico'],['multiplicador','Multiplicador crítico'],['defesa','Defesa'],['resistencia','Redução de dano'],['espacos','Espaços ocupados'],['carga','Capacidade de carga'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['pericia','Testes de perícia']];
  let customItemImprovements=[];
  let effectRows=[];
@@ -446,10 +446,9 @@
    const hasDice=$('nex51Type').value==='ritual'&&['Dano','Cura'].includes($('nex53RitualType').value);
    mount.querySelectorAll('.nex53-damage-field').forEach(el=>{el.hidden=!hasDice;});
    if($('nex51Type').value==='ritual'){
-     const support=$('nex53RitualType').value==='Suporte';
-     $('nexHbEffectBonusFields').hidden=!support;
-     $('nexHbEffectBonusHome').hidden=!support;
-     if(support)renderEffects('main');
+     $('nexHbEffectBonusFields').hidden=false;
+     $('nexHbEffectBonusHome').hidden=false;
+     renderEffects('main');
    }
  }
  function editorFields(){
@@ -529,7 +528,7 @@
  const effectEditing=Object.create(null);
  function getEffects(scope){return scope==='main'?effectRows:scope==='improvement'?improvementRows:(trailRows[scope]||(trailRows[scope]=[]));}
  function compactEffectLabel(b){
-  const name=({pv:'PV',pe:'PE',san:'SAN',pericia:b.skill||'Perícia',ataque:'Ataque',dano:'Dano',defesa:'Defesa',resistencia:'Redução de dano',critico:'Margem de crítico',multiplicador:'Multiplicador crítico',espacos:'Espaços',iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade',bloqueio:'Bloqueio',esquiva:'Esquiva',carga:'Carga'})[b.type]||b.type;
+  const name=({pv:'PV',pe:'PE',san:'SAN',pv_temp:'PV temporários',pe_temp:'PE temporários',pericia:b.skill||'Perícia',ataque:'Ataque',dano:'Dano',defesa:'Defesa',resistencia:'Redução de dano',critico:'Margem de crítico',multiplicador:'Multiplicador crítico',espacos:'Espaços',iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade',bloqueio:'Bloqueio',esquiva:'Esquiva',carga:'Carga'})[b.type]||b.type;
   return (Number(b.value)>=0?'+':'')+Number(b.value||0)+' '+name+(b.scaling==='nex'?' a cada '+(b.nexInterval||5)+'% de NEX':'');
  }
  function isAbilityBonusScope(scope){
@@ -539,6 +538,8 @@
  const OFFENSIVE_BONUSES=['dano','ataque','carga','critico','multiplicador'];
  const PROTECTION_BONUSES=['bloqueio','esquiva','resistencia','defesa','espacos'];
  const STANDARD_ITEM_BONUSES=['ataque','dano','defesa','resistencia','pericia','bloqueio','esquiva','carga','critico','multiplicador','espacos'];
+ const RITUAL_SUPPORT_BONUSES=['ataque','defesa','resistencia','pericia','bloqueio','esquiva','carga','critico','multiplicador'];
+ const RITUAL_HEAL_BONUSES=['pv_temp','pe_temp'];
  function allowedBonusTypes(scope){
   const kind=$('nex51Type').value;
   if(scope==='improvement'){
@@ -548,6 +549,13 @@
    return null;
   }
   if(scope!=='main')return null;
+  if(kind==='ritual'){
+   const ritualType=$('nex53RitualType').value;
+   if(ritualType==='Dano')return ['dano'];
+   if(ritualType==='Suporte')return RITUAL_SUPPORT_BONUSES;
+   if(ritualType==='Cura')return RITUAL_HEAL_BONUSES;
+   return [];
+  }
   if(kind==='maldicao'){
    const target=$('nexHbCurseTarget').value;
    if(['Armas','Munições'].includes(target))return OFFENSIVE_BONUSES;
@@ -1055,7 +1063,12 @@
    renderEffects('improvement');
   });
  ['nexHbBonusValue','nexHbAccessoryBonus'].forEach(id=>$(id).addEventListener('input',e=>{let digits=e.target.value.replace(/\D/g,'').slice(0,2);if(Number(digits)>10)digits='10';e.target.value=digits?'+'+digits:'';}));
- $('nex53RitualType').addEventListener('change',toggleRitualDamageFields);
+ $('nex53RitualType').addEventListener('change',()=>{
+  // Alterar a categoria não cria bônus e descarta os bônus da categoria anterior.
+  effectRows=[];
+  effectEditing.main=null;
+  toggleRitualDamageFields();
+ });
  $('nex51Circle').addEventListener('change',()=>{
    const circle=Number($('nex51Circle').value);
    $('nex53DiscenteCircle').value=String(Math.min(4,circle+1));
