@@ -528,8 +528,13 @@
   const name=({pv:'PV',pe:'PE',san:'SAN',pericia:b.skill||'Perícia',ataque:'Ataque',dano:'Dano',defesa:'Defesa',resistencia:'Redução de dano',critico:'Margem de crítico',multiplicador:'Multiplicador crítico',espacos:'Espaços',iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade',bloqueio:'Bloqueio',esquiva:'Esquiva',carga:'Carga'})[b.type]||b.type;
   return (Number(b.value)>=0?'+':'')+Number(b.value||0)+' '+name+(b.scaling==='nex'?' a cada '+(b.nexInterval||5)+'% de NEX':'');
  }
+ function isAbilityBonusScope(scope){
+  return scope!=='improvement'&&(scope!=='main'||['habilidade','poder','poder_geral','poder_paranormal'].includes($('nex51Type').value));
+ }
  function renderEffects(scope){
   const list=getEffects(scope),id=scope==='main'?'nexHbEffectBonusList':scope==='improvement'?'nexHbImprovementBonusList':'nex53TrailBonusList'+scope;
+  const allowProgression=isAbilityBonusScope(scope);
+  if(!allowProgression)list.forEach(b=>{b.scaling='fixed';b.nexInterval=5;});
   const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
   const noSkill=(scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value))||(scope==='main'&&cursedNoSkill());
   const types=scope==='improvement'?BONUS_TYPES.filter(([id])=>!noSkill||id!=='pericia'):(scope==='main'&&isCursedEditor()?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].filter(([id],i,arr)=>id&&(!noSkill||id!=='pericia')&&arr.findIndex(([k])=>k===id)===i):EFFECT_TYPES.filter(([id])=>id));
@@ -542,8 +547,8 @@
      (editing?'<div class="nex-hb-bonus-grid" style="padding:9px 0;gap:8px">'+
        '<label>Tipo de bônus<select data-effect-type>'+types.map(([t,label])=>'<option value="'+esc(t)+'"'+(t===b.type?' selected':'')+'>'+esc(label)+'</option>').join('')+'</select></label>'+
        '<label>Valor do bônus<input data-effect-value type="number" min="-999" max="999" step="1" value="'+esc(b.value)+'"></label>'+ 
-       '<label>Progressão do bônus<select data-effect-scaling><option value="fixed"'+(b.scaling!=='nex'?' selected':'')+'>Fixo</option><option value="nex"'+(b.scaling==='nex'?' selected':'')+'>A cada X% de NEX</option></select></label>'+ 
-       (b.scaling==='nex'?'<label>Intervalo de NEX<select data-effect-nex-interval>'+[5,10,15,20].map(n=>'<option value="'+n+'"'+(Number(b.nexInterval||5)===n?' selected':'')+'>A cada '+n+'% de NEX</option>').join('')+'</select></label>':'')+
+       (allowProgression?'<label>Progressão do bônus<select data-effect-scaling><option value="fixed"'+(b.scaling!=='nex'?' selected':'')+'>Fixo</option><option value="nex"'+(b.scaling==='nex'?' selected':'')+'>A cada X% de NEX</option></select></label>':'')+ 
+       (allowProgression&&b.scaling==='nex'?'<label>Intervalo de NEX<select data-effect-nex-interval>'+[5,10,15,20].map(n=>'<option value="'+n+'"'+(Number(b.nexInterval||5)===n?' selected':'')+'>A cada '+n+'% de NEX</option>').join('')+'</select></label>':'')+
        (b.type==='pericia'?'<label>Perícia beneficiada<select data-effect-skill><option value="">Escolha a perícia</option>'+skills.map(name=>'<option value="'+esc(name)+'"'+(name===b.skill?' selected':'')+'>'+esc(name)+'</option>').join('')+'</select></label>':'')+
        '<button type="button" class="btn primary sm" data-effect-done>Concluir</button></div>':'')+
      '</div>';
@@ -579,8 +584,8 @@
   if(e.target.matches('[data-effect-type]')){if((scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill())&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
   else if(e.target.matches('[data-effect-value]')){item.value=Math.max(-999,Math.min(999,Number(e.target.value)||0));renderEffects(scope);}
   else if(e.target.matches('[data-effect-skill]')){item.skill=e.target.value;renderEffects(scope);}
-  else if(e.target.matches('[data-effect-scaling]')){item.scaling=e.target.value==='nex'?'nex':'fixed';renderEffects(scope);}
-  else if(e.target.matches('[data-effect-nex-interval]')){item.nexInterval=[5,10,15,20].includes(Number(e.target.value))?Number(e.target.value):5;renderEffects(scope);}
+  else if(e.target.matches('[data-effect-scaling]')){item.scaling=isAbilityBonusScope(scope)&&e.target.value==='nex'?'nex':'fixed';renderEffects(scope);}
+  else if(e.target.matches('[data-effect-nex-interval]')&&isAbilityBonusScope(scope)){item.nexInterval=[5,10,15,20].includes(Number(e.target.value))?Number(e.target.value):5;renderEffects(scope);}
  });
  const effectsValid=items=>items.every(b=>b.type!=='pericia'||(api()?.skillNames?.()||FALLBACK_SKILLS).includes(b.skill));
  const effectsLabel=items=>items.map(b=>esc([...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].find(([id])=>id===b.type)?.[1]||b.type)+(b.skill?' ('+esc(b.skill)+')':'')+': '+esc((b.value>=0?'+':'')+b.value)+(b.scaling==='nex'?' a cada '+esc(b.nexInterval||5)+'% de NEX':'')).join(' · ');
