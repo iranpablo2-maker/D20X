@@ -305,7 +305,22 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-brand strong{font:700 23px Georgia,serif;letter-spacing:.18em;color:#fff}
 #roomTabletopPanel .nex-vtt-brand span{font-size:13px;color:#d6b8c0}
 #roomTabletopPanel .nex-vtt-heading-actions{display:flex;align-items:center;gap:11px}
-#roomTabletopPanel #nexVttExit{background:#4d202a;border:1px solid #be5363;border-radius:6px;color:#fff;padding:9px 13px;font-weight:650}
+#roomTabletopPanel #nexVttExit,#roomTabletopPanel #nexVttSheetsToggle{background:#4d202a;border:1px solid #be5363;border-radius:6px;color:#fff;padding:9px 13px;font-weight:650}
+#roomTabletopPanel #nexVttSheetsToggle[aria-expanded="true"]{background:#7b2c3a}
+#roomTabletopPanel .nex-vtt-sheets{flex:0 0 280px;width:280px;min-width:0;overflow:auto;padding:13px;background:#151116;border-left:1px solid #57303b}
+#roomTabletopPanel .nex-vtt-sheets[hidden]{display:none!important}
+#roomTabletopPanel .nex-vtt-sheets-title{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#roomTabletopPanel .nex-vtt-sheets-title h3{margin:0;color:#f5d0d6;font-size:15px}
+#roomTabletopPanel .nex-vtt-sheets-title button{background:none;color:#e1b0b9;border:0;font-size:23px;padding:4px 8px}
+#roomTabletopPanel .nex-vtt-sheets .room-note{font-size:12px;margin:8px 0 13px}
+#roomTabletopPanel .nex-vtt-sheets-list{display:flex;flex-direction:column;gap:9px}
+#roomTabletopPanel .nex-vtt-sheet{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px;border:1px solid #63333f;border-radius:8px;background:#23171d;color:#f9eaec}
+#roomTabletopPanel .nex-vtt-sheet:hover,#roomTabletopPanel .nex-vtt-sheet:focus-visible{border-color:#dc6674;background:#48222e}
+#roomTabletopPanel .nex-vtt-sheet img{width:44px;height:44px;flex:none;border-radius:6px;object-fit:cover;background:#140e12}
+#roomTabletopPanel .nex-vtt-sheet .nex-vtt-avatar{display:grid;place-items:center;width:44px;height:44px;flex:none;border-radius:6px;background:#873343;font-size:20px;font-weight:750}
+#roomTabletopPanel .nex-vtt-sheet strong{display:block;font-size:13px}
+#roomTabletopPanel .nex-vtt-sheet small{display:block;font-size:11px;color:#c9aab3;margin-top:2px}
+#roomTabletopPanel .nex-vtt-sheet-note{color:#d3b9bf;font-size:12px;line-height:1.5}
 #roomTabletopPanel .nex-vtt-subheading{display:none!important}
 #roomTabletopPanel #nexTabletopMessage{flex:none;margin:0!important;padding:7px 17px!important;font-size:12px;background:#161015;color:#cfb3ba}
 #roomTabletopPanel .nex-vtt-layout{display:flex;flex:1;min-height:0;min-width:0}
@@ -328,7 +343,10 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel .nex-vtt-sidebar{flex-basis:145px;width:145px;padding:9px}
  #roomTabletopPanel .nex-vtt-sidebar .nex-tabletop-tools{gap:7px}
  #roomTabletopPanel .nex-tabletop-wrap{padding:8px;justify-content:flex-start}
- #roomTabletopPanel #nexVttExit{padding:7px;font-size:11px}
+ #roomTabletopPanel #nexVttExit,#roomTabletopPanel #nexVttSheetsToggle{padding:7px;font-size:11px}
+ #roomTabletopPanel .nex-vtt-sheets{flex-basis:170px;width:170px;padding:8px}
+ #roomTabletopPanel .nex-vtt-sheet{padding:6px;gap:6px}
+ #roomTabletopPanel .nex-vtt-sheet img,#roomTabletopPanel .nex-vtt-sheet .nex-vtt-avatar{width:32px;height:32px}
 }
 </style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
@@ -604,7 +622,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
    <section id="roomTabletopPanel" class="room-panel hide" aria-label="Tabletop da campanha">
-    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><strong>NEX</strong><span>Tabletop · <span id="nexVttCampaignName">Campanha</span></span></div><div class="nex-vtt-heading-actions"><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
+    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><strong>NEX</strong><span>Tabletop · <span id="nexVttCampaignName">Campanha</span></span></div><div class="nex-vtt-heading-actions"><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
     <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
     <div class="nex-vtt-layout"><aside class="nex-vtt-sidebar"><h3>Ferramentas</h3><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
@@ -614,7 +632,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
       <label>Mapa <input type="file" id="nexTabletopMapFile" accept="image/png,image/jpeg,image/webp"></label>
       <button id="nexTabletopRemoveMap" type="button" class="alt">Remover mapa</button>
     </div></aside><div class="nex-vtt-stage"><div class="nex-tabletop-wrap"><div id="nexTabletopBoard" class="nex-tabletop-board" aria-label="Mapa com grade de combate"></div></div>
-    <p class="room-note nex-vtt-stage-note">Grade 16 × 12 · Selecione um token e use 0–9 para mudar sua imagem.</p></div></div>
+    <p class="room-note nex-vtt-stage-note">Grade 16 × 12 · Selecione um token e use 0–9 para mudar sua imagem.</p></div><aside class="nex-vtt-sheets" id="nexVttSheetsPanel" aria-label="Fichas dos personagens"><div class="nex-vtt-sheets-title"><h3>Fichas</h3><button type="button" id="nexVttSheetsClose" aria-label="Recolher fichas">×</button></div><p class="room-note" id="nexVttSheetsHint">Abra a ficha sem sair do mapa.</p><div id="nexVttSheetsList" class="nex-vtt-sheets-list"></div></aside></div>
    </section>
    <section id="roomCombatsPanel" class="room-panel hide">
      <div class="room-panel-head"><h3>Combates</h3></div>
@@ -695,7 +713,43 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  let portraitSyncBusy=false;
  let extraSlotRequests=[],slotPending=false;
  let publicSheets=[],privateSheets=[];
- function refreshRoomSheets(){roomSheets=gm?[...publicSheets,...privateSheets]:publicSheets.slice();drawSheets();drawMembers();renderQuota();renderSlotManagement();renderCombats();if(publicSheets.length)syncOwnCharacterPhotos();}
+ function refreshRoomSheets(){roomSheets=gm?[...publicSheets,...privateSheets]:publicSheets.slice();drawSheets();drawMembers();renderQuota();renderSlotManagement();renderCombats();renderVttSheets();if(publicSheets.length)syncOwnCharacterPhotos();}
+ function renderVttSheets(){
+  const list=$('nexVttSheetsList');if(!list)return;
+  const allowed=roomSheets.filter(sheet=>gm||assignedTo(sheet,uid));
+  list.replaceChildren();
+  $('nexVttSheetsHint').textContent=gm?'Personagens da campanha, inclusive os ocultos.':'Suas fichas vinculadas a esta campanha.';
+  for(const sheet of allowed){
+   const button=document.createElement('button');button.type='button';button.className='nex-vtt-sheet';button.dataset.vttSheet=sheet.id;
+   const photo=sheetPortrait(sheet);
+   if(photo){const img=document.createElement('img');img.src=photo;img.alt='';button.append(img);}
+   else{const avatar=document.createElement('span');avatar.className='nex-vtt-avatar';avatar.textContent=String(sheet.name||'P')[0].toUpperCase();button.append(avatar);}
+   const info=document.createElement('span'),name=document.createElement('strong'),meta=document.createElement('small');
+   name.textContent=sheet.name||'Personagem';meta.textContent='NEX '+(Number(sheet.nex)||0)+'%'+(sheet.isHidden?' · Oculta':'');
+   info.append(name,meta);button.append(info);list.append(button);
+  }
+  if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent=gm?'Adicione personagens à campanha para acessá-los aqui.':'Sua ficha ainda não foi atribuída a você nesta campanha.';list.append(note);}
+ }
+ function openVttSheet(id){
+  const sheet=roomSheets.find(item=>item.id===id);
+  if(!sheet||!(gm||assignedTo(sheet,uid)))return;
+  if(window.parent!==window&&sheet.fullSheet&&typeof sheet.fullSheet==='object'&&!Array.isArray(sheet.fullSheet)){
+   window.parent.postMessage({type:'nex-campaign-view-shared-sheet',sheet:sheet.fullSheet,name:sheet.name,sheetId:sheet.id,canEdit:gm||String(sheet.controllerUid||sheet.ownerUid)===uid},location.origin);
+   return;
+  }
+  if(window.parent!==window&&sheet.linkedAgentId&&sheet.ownerUid===uid&&assignedTo(sheet,uid)){
+   // A ficha da conta pode ser consultada sem sair da mesa, usando o visualizador do NEX.
+   requestNex('nex-agent-data-request',sheet.linkedAgentId).then(response=>{
+    const data=response.agent?.data;
+    if(data&&window.parent!==window)window.parent.postMessage({type:'nex-campaign-view-shared-sheet',sheet:data,name:sheet.name,sheetId:sheet.id,canEdit:false},location.origin);
+    else notice('Não foi possível carregar a ficha desta conta.');
+   }).catch(error=>notice(String(error.message||error)));
+   return;
+  }
+  $('nexCampaignSheetTitle').textContent=sheet.name||'Personagem';
+  $('nexCampaignSheetBody').textContent='A ficha completa ainda não está disponível nesta campanha. Vincule uma ficha NEX para consultá-la dentro da mesa.';
+  $('nexCampaignSheetDialog').showModal();
+ }
  function campaignSheetRef(sheet){return doc(db,'campaigns',roomId,sheet.isHidden?'privateSheets':'sheets',sheet.id)}
  const pendingBridge=new Map();
  let bridgeSeq=0;
@@ -1155,7 +1209,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomCombatsPanel',section==='combats');
   show('roomTabletopPanel',section==='tabletop');
   document.documentElement.classList.toggle('nex-vtt-active',section==='tabletop');
-  if(section==='tabletop')$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';
+  if(section==='tabletop'){$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';renderVttSheets();}
   if(window.parent!==window){
    try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:section==='tabletop'},location.origin);}catch(error){}
   }
@@ -1166,6 +1220,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomManagePanel',section==='manage'&&gm);
  }
  document.querySelectorAll('[data-room-section]').forEach(button=>button.addEventListener('click',()=>roomSection(button.dataset.roomSection)));
+ $('nexVttSheetsToggle').addEventListener('click',()=>{
+  const panel=$('nexVttSheetsPanel');panel.hidden=!panel.hidden;
+  $('nexVttSheetsToggle').setAttribute('aria-expanded',String(!panel.hidden));
+ });
+ $('nexVttSheetsClose').addEventListener('click',()=>{$('nexVttSheetsPanel').hidden=true;$('nexVttSheetsToggle').setAttribute('aria-expanded','false');});
+ $('nexVttSheetsList').addEventListener('click',event=>{const button=event.target.closest('[data-vtt-sheet]');if(button)openVttSheet(button.dataset.vttSheet);});
  $('roomOpenTabletop').addEventListener('click',()=>roomSection('tabletop'));
  $('nexVttExit').addEventListener('click',()=>roomSection('characters'));
  function inviteView(mode,message){
