@@ -939,8 +939,8 @@
    return '<article class="nex52-card nex52-card-'+(threat?'threat':item.type==='ritual'?'ritual':item.type==='item'?'item':'ability')+'"'+theme+'>'+
     portrait+'<div class="nex52-card-data"><strong>'+esc(item.name)+'</strong>'+tag+'<span>'+esc(details[0])+'</span><span>'+esc(details[1])+'</span></div>'+
     '<div class="nex52-card-controls"><button type="button" data-nex52-settings="'+esc(item.id)+'" class="nex52-gear" aria-label="Opções para '+esc(item.name)+'" aria-expanded="false">⚙</button>'+
-    '<div class="nex52-settings" data-nex52-menu="'+esc(item.id)+'" hidden><button type="button" data-nex52-edit="'+esc(item.id)+'">Editar</button><button type="button" data-nex52-share="'+esc(item.id)+'">Compartilhar</button><button type="button" data-nex52-delete="'+esc(item.id)+'">Excluir</button></div>'+
-    '<button type="button" class="nex52-open" data-nex52-view="'+esc(item.id)+'">Ficha</button></div></article>';
+    '<div class="nex52-settings" data-nex52-menu="'+esc(item.id)+'" hidden><button type="button" data-nex52-share="'+esc(item.id)+'">Compartilhar</button><button type="button" data-nex52-delete="'+esc(item.id)+'">Excluir</button></div>'+
+    '<button type="button" class="nex52-open" data-nex52-edit="'+esc(item.id)+'">Editar</button></div></article>';
  }
  function targetOptions(){
    const sel=$('nex51Target');const previous=sel.value;
