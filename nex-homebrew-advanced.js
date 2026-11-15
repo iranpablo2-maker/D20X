@@ -414,8 +414,54 @@
    list.innerHTML=customItemImprovements.length?customItemImprovements.map((name,i)=>'<span class="nex-hb-improvement-chip">'+esc(name)+' <button type="button" data-nex52-improvement-remove="'+i+'" aria-label="Remover '+esc(name)+'">×</button></span>').join(''):'<small>Nenhuma melhoria homebrew adicionada.</small>';
  }
  function canonicalCategory(value){return ITEM_CATEGORIES.includes(value)?value:({'Arma':'Armas','Munição':'Munições','Proteção':'Proteções','Item Amaldiçoado':'Itens Amaldiçoados'}[value]||'Geral');}
+
+ let threatActions=[];
+ function renderThreatActions(){
+  const el=$('nexHbThreatActions');if(!el)return;
+  el.innerHTML=threatActions.map((a,i)=>'<fieldset data-threat-row="'+i+'"><legend>Ação '+(i+1)+'</legend><div class="nex-hb-threat-grid">'+
+   [['name','Nome'],['action','Tipo de ação'],['test','Teste'],['damage','Dados / resultado'],['range','Alcance'],['effect','Efeito']].map(([k,label])=>'<label>'+label+(k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="2">'+esc(a[k]||'')+'</textarea>':'<input data-threat-key="'+k+'" maxlength="90" value="'+esc(a[k]||'')+'">')+'</label>').join('')+
+   '</div><button type="button" class="btn sm" data-threat-delete="'+i+'">Remover ação</button></fieldset>').join('');
+ }
+ function readThreatSheet(){
+  const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=Number(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value)||0;});
+  const out={element:$('nexHbThreatElement').value,attributes,actions:threatActions.map(a=>({...a}))};
+  THREAT_NUMERIC.forEach(([k])=>{out[k]=Number(mount.querySelector('[data-nex-threat-number="'+k+'"]').value)||0;});
+  THREAT_TEXT.forEach(([k])=>{out[k]=mount.querySelector('[data-nex-threat-text="'+k+'"]').value;});
+  return out;
+ }
+ function populateThreatSheet(x){
+  const data=normalizeThreat({threatSheet:x||{}});
+  $('nexHbThreatElement').value=data.element;
+  THREAT_ATTRS.forEach(([k])=>{mount.querySelector('[data-nex-threat-attr="'+k+'"]').value=data.attributes[k];});
+  THREAT_NUMERIC.forEach(([k])=>{mount.querySelector('[data-nex-threat-number="'+k+'"]').value=data[k];});
+  THREAT_TEXT.forEach(([k])=>{mount.querySelector('[data-nex-threat-text="'+k+'"]').value=data[k];});
+  threatActions=data.actions.map(a=>({...a}));renderThreatActions();
+ }
+ $('nexHbThreatAddAction').addEventListener('click',()=>{
+  if(threatActions.length>=12){message('Limite de 12 ações por ameaça.');return;}
+  threatActions.push({name:'Nova ação',action:'Padrão',test:'',damage:'',range:'',effect:''});renderThreatActions();
+ });
+ $('nexHbThreatActions').addEventListener('input',event=>{
+  const row=event.target.closest('[data-threat-row]'),field=event.target.closest('[data-threat-key]');
+  if(row&&field&&threatActions[Number(row.dataset.threatRow)])threatActions[Number(row.dataset.threatRow)][field.dataset.threatKey]=field.value;
+ });
+ $('nexHbThreatActions').addEventListener('click',event=>{
+  const btn=event.target.closest('[data-threat-delete]');
+  if(btn){threatActions.splice(Number(btn.dataset.threatDelete),1);renderThreatActions();}
+ });
+ function threatDetails(item){
+  const t=normalizeThreat(item);
+  const statistic=(label,value)=>'<div class="nex-hb-threat-stat"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></div>';
+  const texts=[['Deslocamento',t.deslocamento],['Sentidos',t.sentidos],['Resistências',t.resistencias],['Imunidades',t.imunidades],['Vulnerabilidades',t.vulnerabilidades],['Outras perícias',t.pericias],['Características e habilidades',t.habilidades],['Enigma de Medo',t.enigma],['Observações',t.notas]].filter(([,v])=>v);
+  return '<section class="nex-hb-threat-sheet"><div class="nex-hb-threat-sheet-head"><strong>'+esc(item.name)+'</strong><span>VD '+esc(item.vd)+' · '+esc(t.element)+' · '+esc(item.size)+'</span></div>'+
+   '<h4>ATRIBUTOS</h4><div class="nex-hb-threat-stat-grid">'+THREAT_ATTRS.map(([k,label])=>statistic(label,t.attributes[k])).join('')+'</div>'+
+   '<h4>DEFESA E VITALIDADE</h4><div class="nex-hb-threat-stat-grid">'+THREAT_NUMERIC.map(([k,label])=>statistic(label,t[k])).join('')+'</div>'+
+   texts.map(([label,value])=>'<h4>'+esc(label)+'</h4><p>'+esc(value).replace(/\n/g,'<br>')+'</p>').join('')+
+   (t.actions.length?'<h4>AÇÕES</h4>'+t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage,a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'')+'</section>';
+ }
  function resetForm(){
    $('nex51Form').reset();$('nex51Edit').value='';
+   populateThreatSheet(null);
    customItemImprovements=[];renderItemImprovements();
    loadSkillChoices();
    $('nex51Type').innerHTML=currentTypes().map(type=>'<option value="'+type+'">'+LABEL[type]+'</option>').join('');
@@ -469,6 +515,7 @@
      if(item.image)$('nex53RitualPreview').src=item.image;
      $('nex53ParanormalElement').value=['Sangue','Morte','Energia','Conhecimento','Medo'].includes(item.element)?item.element:'Sangue';if($('nex51Cost'))$('nex51Cost').value=item.cost;
      $('nex52VD').value=item.vd;$('nex52Size').value=item.size;
+     if(item.type==='ameaca')populateThreatSheet(item.threatSheet);
      $('nex52CreatureType').value=item.creatureType;
      $('nex52Category').value=canonicalCategory(item.category);
      $('nexHbCurseElement').value=item.element||'Sangue';$('nexHbCurseTarget').value=item.curseTarget||'Armas';
@@ -633,6 +680,7 @@
    opened=item.id;const info=meta(item);
    $('nex52DetailBody').innerHTML='<div class="nex52-detail-top"><span>'+esc(LABEL[item.type])+'</span><h3>'+esc(item.name)+'</h3></div>'+
      '<p class="nex52-detail-meta">'+esc(info.join(' · '))+'</p>'+
+     (item.type==='ameaca'?threatDetails(item):'')+
      (item.description?'<h4>Descrição</h4><p>'+(item.type==='item'?formattedDescription(item.description):esc(item.description))+'</p>':'<p>Sem descrição.</p>')+
      (item.requirements?'<h4>Pré-requisitos</h4><p>'+esc(item.requirements)+'</p>':'')+
      (effectApplicable(item)&&item.type!=='trilha'&&item.effectBonuses?.length?'<h4>Bônus configurados</h4><p>'+effectsLabel(item.effectBonuses)+'</p>':'')+
@@ -796,6 +844,7 @@
      verdadeiroDice:type==='ritual'?$('nex53VerdadeiroDice').value:old?.verdadeiroDice,
      image:type==='item'?($('nexHbImageUrl').value.trim()||(!$('nexHbImagePreview').hidden?$('nexHbImagePreview').src:'')||old?.image||''):type==='ritual'?($('nex53RitualFile').files.length?(! $('nex53RitualPreview').hidden ?$('nex53RitualPreview').src:''):($('nex53RitualImage').value||(! $('nex53RitualPreview').hidden?$('nex53RitualPreview').src:''))):(old?.image||''),
      size:$('nex52Size').value,creatureType:$('nex52CreatureType').value,category:$('nex52Category').value,
+     threatSheet:type==='ameaca'?readThreatSheet():(old?.threatSheet||undefined),
      cursedKind:type==='item'&&tab==='paranormal'?cursedKind:(old?.cursedKind||'Itens Paranormais'),
      paranormalActivation:old?.paranormalActivation||'',
      paranormalEffect:old?.paranormalEffect||'',
