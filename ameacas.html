@@ -259,7 +259,7 @@ window.addEventListener("message",e=>{
 let nexLastLibraryHeight=0;
 function nexReportLibraryHeight(){
  if(window.parent===window)return;
- const height=Math.ceil(document.documentElement.scrollHeight);
+ const height=Math.ceil(document.body.scrollHeight);
  if(height>0&&Math.abs(height-nexLastLibraryHeight)>2){
   nexLastLibraryHeight=height;
   window.parent.postMessage({type:"nex-threat-library-height",height},location.origin);
