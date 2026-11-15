@@ -430,7 +430,7 @@
      $('nexHbImprovementTarget').value=item.improvementTarget||'Armas';
      effectRows=parseEffects(item.effectBonuses,item.effectBonusType,item.effectBonusValue,item.effectBonusSkill);renderEffects('main');
      $('nexHbBonusType').value=item.bonusType||'ataque';$('nexHbBonusValue').value='+'+Math.max(1,Math.min(10,item.bonusValue||2));$('nexHbBonusSkill').value=item.bonusSkill||'';
-     improvementRows=parseImprovementBonuses(item.improvementBonuses,item.bonusType,item.bonusValue,item.bonusSkill);renderEffects('improvement');
+     improvementRows=parseImprovementBonuses(item.improvementBonuses,item.bonusType,item.bonusValue,item.bonusSkill);if(IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value))improvementRows=improvementRows.filter(b=>b.type!=='pericia');renderEffects('improvement');
      customItemImprovements=Array.isArray(item.customImprovements)?[...item.customImprovements]:[];renderItemImprovements();
      $('nexHbProtectionDefense').value=String(item.protectionDefense??1);
      $('nexHbWeaponProficiency').value=item.weaponProficiency||'Armas Simples';
