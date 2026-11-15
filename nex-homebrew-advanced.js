@@ -226,6 +226,31 @@
   .nex-hb-threat-combat-edit #nexHbThreatActions .nex-hb-threat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   @media(max-width:610px){.nex-hb-threat-edit-header{padding:12px;gap:11px}.nex-hb-threat-photo{flex-basis:90px;height:100px}.nex-hb-threat-heading-fields #nex53NameField>input{font-size:19px}.nex-hb-threat-heading-info label,.nex-hb-threat-heading-badges label{font-size:9px}.nex-hb-threat-edit-major{grid-template-columns:1fr}.nex-hb-threat-edit-attributes input{font-size:21px!important}}
 
+  /* Sobrepõe o grid genérico de 3 colunas do editor Homebrew. */
+  #homebrewScreen .nex52-form #nex52ThreatFields.nex-hb-threat-editor{display:block!important;width:100%!important;max-width:none!important;grid-template-columns:none!important;grid-column:1/-1!important;gap:0!important;overflow:hidden!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields[hidden]{display:none!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-edit-header{display:flex!important;flex-direction:row!important;align-items:center!important;min-width:0!important;width:100%!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-heading-fields{display:flex!important;flex:1 1 0!important;min-width:0!important;width:auto!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-photo{flex:0 0 145px!important;width:145px!important;max-width:145px!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-vital-editor{display:block!important;position:static!important;grid-column:auto!important;width:auto!important;height:auto!important;min-height:0!important;margin:16px 18px 8px!important;padding:7px!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-vital-editor label{display:flex!important;flex-direction:row!important;justify-content:center!important;align-items:center!important;width:100%!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-nav{display:flex!important;width:100%!important;grid-column:auto!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields [data-threat-editor-panel]{display:block!important;width:100%!important;min-width:0!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields [data-threat-editor-panel][hidden]{display:none!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-edit-line{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(135px,210px)!important;align-items:center!important;gap:12px!important;min-height:45px!important;padding:6px 12px!important;width:100%!important;flex-direction:row!important;text-align:left!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-edit-line span{justify-self:start!important;text-align:left!important;font-size:13px!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-edit-line input{justify-self:end!important;display:block!important;width:100%!important;min-width:0!important;max-width:210px!important;padding:5px 6px!important;text-align:right!important;font-size:13px!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-edit-attributes{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-edit-major{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-heading-info label,#homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-heading-badges label{display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;min-width:0!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-heading-info select,#homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-heading-badges select{flex:1 1 auto!important;width:auto!important;min-width:0!important}
+  @media(max-width:610px){
+    #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-photo{flex:0 0 90px!important;width:90px!important;max-width:90px!important;height:100px!important}
+    #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-edit-major{grid-template-columns:1fr!important}
+    #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-edit-line{grid-template-columns:minmax(0,1fr) minmax(110px,48%)!important}
+  }
+
+
 
   @media(max-width:600px){.nex-hb-threat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.nex-hb-threat-sheet-head strong{font-size:15px}}
  `;
