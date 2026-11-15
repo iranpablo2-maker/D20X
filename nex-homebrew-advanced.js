@@ -538,6 +538,7 @@
  function isGeneralBonusScope(scope){return scope==='main'&&$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}
  const OFFENSIVE_BONUSES=['dano','ataque','carga','critico','multiplicador'];
  const PROTECTION_BONUSES=['bloqueio','esquiva','resistencia','defesa','espacos'];
+ const STANDARD_ITEM_BONUSES=['ataque','dano','defesa','resistencia','pericia','bloqueio','esquiva','carga','critico','multiplicador','espacos'];
  function allowedBonusTypes(scope){
   const kind=$('nex51Type').value;
   if(scope==='improvement'){
@@ -551,13 +552,14 @@
    const target=$('nexHbCurseTarget').value;
    if(['Armas','Munições'].includes(target))return OFFENSIVE_BONUSES;
    if(target==='Proteções')return PROTECTION_BONUSES;
+   if(target==='Itens Gerais')return STANDARD_ITEM_BONUSES;
    return null;
   }
   if(kind!=='item')return null;
   const target=tab==='paranormal'?cursedKind:itemTab;
   if(['Armas','Munições','Armas Amaldiçoadas','Munições Amaldiçoadas'].includes(target))return OFFENSIVE_BONUSES;
   if(['Proteções','Proteções Amaldiçoadas'].includes(target))return PROTECTION_BONUSES;
-  if(target==='Geral'||target==='Itens Paranormais'&&$('nexHbTag').value==='Explosivos')return OFFENSIVE_BONUSES;
+  if(target==='Geral'||target==='Itens Paranormais')return $('nexHbTag').value==='Explosivos'?OFFENSIVE_BONUSES:STANDARD_ITEM_BONUSES;
   return null;
  }
  function bonusOptions(scope){
