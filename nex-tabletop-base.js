@@ -37,7 +37,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   for(const t of scene.tokens){
    if(t.hidden&&!gm)continue;
    const el=document.createElement('button');el.type='button';el.className='nex-tabletop-token';el.dataset.token=t.id;el.dataset.master=String(gm);el.dataset.selected=String(t.id===selectedId);
-   el.style.left=(t.x*GRID+4)+'px';el.style.top=(t.y*GRID+4)+'px';el.style.width=(t.size*GRID-8)+'px';el.style.height=(t.size*GRID-8)+'px';el.style.transform='rotate('+t.rotation+'deg)';el.title=t.name+' · Variação '+t.variation;el.setAttribute('aria-label',el.title);
+   el.style.left=(t.x*GRID+4)+'px';el.style.top=(t.y*GRID+4)+'px';el.style.width=((t.size||1)*GRID-8)+'px';el.style.height=((t.size||1)*GRID-8)+'px';el.style.transform='rotate('+t.rotation+'deg)';el.title=t.name+' · Variação '+t.variation;el.setAttribute('aria-label',el.title);
    const img=t.images[t.variation]||'';
    if(img){const image=document.createElement('img');image.src=img;image.alt=t.name;el.appendChild(image);}
    else{const span=document.createElement('span');span.textContent=t.name.slice(0,3).toUpperCase();el.appendChild(span);}
@@ -69,7 +69,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   if(!gm)return;const name=$('nexTabletopTokenName').value.trim().slice(0,35)||'Token';
   const taken=new Set(scene.tokens.map(t=>t.x+','+t.y));let x=1,y=1;
   outer:for(let row=1;row<H;row++)for(let col=1;col<W;col++)if(!taken.has(col+','+row)){x=col;y=row;break outer;}
-  const t={id:'tt_'+crypto.randomUUID(),name,x,y,variation:1,images:[]};scene.tokens.push(t);selectedId=t.id;$('nexTabletopTokenName').value='';render();save();
+  const t={id:'tt_'+crypto.randomUUID(),name,x,y,variation:1,images:[],size:1,rotation:0,pv:0,pe:0,san:0,hidden:false,locked:false};scene.tokens.push(t);selectedId=t.id;$('nexTabletopTokenName').value='';render();save();
  });
  listen($('nexTabletopClearTokens'),'click',()=>{if(!gm||!confirm('Remover todos os tokens desta cena?'))return;scene.tokens=[];selectedId=null;render();save();});
  listen($('nexTabletopRemoveMap'),'click',()=>{if(!gm)return;scene.map='';render();save();});
@@ -91,7 +91,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  listen(document,'pointermove',e=>{
   if(!gm||!drag||drag.pointer!==e.pointerId)return;
   const rect=board.getBoundingClientRect(),t=scene.tokens.find(t=>t.id===drag.id);if(!t)return;
-  t.x=Math.max(0,Math.min(W-1,Math.floor((e.clientX-rect.left)/(GRID*vttZoom))));t.y=Math.max(0,Math.min(H-1,Math.floor((e.clientY-rect.top)/(GRID*vttZoom))));render();
+  t.x=Math.max(0,Math.min(W-(t.size||1),Math.floor((e.clientX-rect.left)/(GRID*vttZoom))));t.y=Math.max(0,Math.min(H-(t.size||1),Math.floor((e.clientY-rect.top)/(GRID*vttZoom))));render();
  });
  listen(document,'pointerup',e=>{if(!drag||drag.pointer!==e.pointerId)return;drag=null;save();});
  listen(document,'pointercancel',()=>{if(drag){drag=null;save();}});
