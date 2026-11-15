@@ -1257,6 +1257,7 @@
      if(group==='paranormal'){paranormalSection=record.type==='maldicao'?'maldicoes':'itens';cursedKind=record.cursedKind||'Itens Paranormais';}
      if(group==='habilidades'){const category=Object.keys(SKILL_TABS).find(k=>SKILL_TABS[k].includes(record.type));if(category)skillTab=category;}
      closeEditor();renderLibrary();
+     if(record.type==='origem')document.dispatchEvent(new Event('nex-advanced-homebrew-library-changed'));
      message(editing?'Homebrew atualizado. Fichas já associadas continuam com a versão anterior.':'Homebrew salvo!');
    }catch(error){console.error(error);message('Falha ao salvar o homebrew neste dispositivo.');}
    }catch(error){
@@ -1278,7 +1279,7 @@
    if(btn.dataset.nex52Edit){if(item.type==='maldicao'){tab='paranormal';paranormalSection='maldicoes';}else if(item.type==='item'&&item.category==='Itens Amaldiçoados'){tab='paranormal';paranormalSection='itens';cursedKind=item.cursedKind||'Itens Paranormais';}else if(item.type==='item')itemTab=canonicalCategory(item.category);openEditor(item);return;}
    if(btn.dataset.nex52Delete){
      if(!confirm('Excluir "'+item.name+'" da biblioteca? As fichas que já receberam este conteúdo não serão alteradas.'))return;
-     try{markDeletedId(id);write(read().filter(x=>x.id!==id));if(read().some(x=>x.id===id))throw Error('Ameaça ainda presente após a exclusão');renderLibrary();message('Homebrew excluído da biblioteca.');}
+     try{markDeletedId(id);write(read().filter(x=>x.id!==id));if(read().some(x=>x.id===id))throw Error('Ameaça ainda presente após a exclusão');renderLibrary();if(item.type==='origem')document.dispatchEvent(new Event('nex-advanced-homebrew-library-changed'));message('Homebrew excluído da biblioteca.');}
      catch(error){console.error(error);message('Falha ao salvar a exclusão.');}
      return;
    }
