@@ -64,6 +64,7 @@
 (()=>{
  const archive="./NEX_20_imagens_organizadas.zip";
  const folder="assets/ameacas/enviadas/";
+ const pendingFolder="pendentes/";
  const mapping={
   "Arquivos Secretos — Julho::Strzyga":"strzyga.webp",
   "Arquivos Secretos — Julho::Apóstata":"apostata.webp",
@@ -77,7 +78,13 @@
   "Arquivos Secretos — Março::Caíto":"caito.webp",
   "Arquivos Secretos — Julho::Zéfero":"zefero.webp",
   "Arquivos Secretos — Julho::O Verdadeiro Raziel":"o-verdadeiro-raziel.webp",
-  "Arquivos Secretos — Abril::Simulacro":"simulacro.webp"
+  "Arquivos Secretos — Abril::Simulacro":"simulacro.webp",
+  "Arquivos Secretos — Março::Cindy":"imagem_03.webp",
+  "Arquivos Secretos — Janeiro::Cleo Brisa":"imagem_04.webp",
+  "Arquivos Secretos — Março::Coruja":"imagem_10.webp",
+  "Arquivos Secretos — Março::Corvo":"imagem_12.webp",
+  "Arquivos Secretos — Março::Eloy":"imagem_16.webp",
+  "Arquivos Secretos — Março::Franco":"imagem_01.webp"
  };
  window.NEX_UPLOADED_THREAT_IMAGES=mapping;
  const urls=new Map();
@@ -110,7 +117,7 @@
   if(urls.has(name))return urls.get(name);
   const pending=(async()=>{
    const {data,v,entries}=await (archivePromise||(archivePromise=readArchive().catch(e=>{archivePromise=null;throw e})));
-   const entry=entries.get(folder+name);
+   const entry=entries.get((name.startsWith("imagem_")?pendingFolder:folder)+name);
    if(!entry)return null;
    if(u32(v,entry.offset)!==0x04034b50)throw Error("Cabeçalho de retrato ZIP inválido");
    const start=entry.offset+30+u16(v,entry.offset+26)+u16(v,entry.offset+28);
