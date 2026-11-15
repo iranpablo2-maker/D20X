@@ -580,7 +580,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
       <button id="nexTabletopRemoveMap" type="button" class="alt">Remover mapa</button>
     </div>
     <div class="nex-tabletop-wrap"><div id="nexTabletopBoard" class="nex-tabletop-board" aria-label="Mapa com grade de combate"></div></div>
-    <p class="room-note">Grade de 16 × 12 quadrados. O mestre arrasta os tokens e os jogadores acompanham em tempo real.</p>
+    <p class="room-note">Grade de 16 × 12 quadrados. O mestre move tokens, altera imagens e GIFs e sincroniza a cena com a campanha.</p>
    </section>
    <section id="roomCombatsPanel" class="room-panel hide">
      <div class="room-panel-head"><h3>Combates</h3></div>
@@ -643,6 +643,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115base1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -1106,6 +1107,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    notice('Copie o link selecionado e envie ao jogador.');
   }
  });
+ function subscribeTabletop(id){
+  try{unsubs.push(mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId:id,gm}));}
+  catch(error){console.error('Falha ao iniciar Tabletop',error);$('nexTabletopMessage').textContent='Falha ao iniciar mesa virtual.';}
+ }
  function roomSection(section){
   const allowed=['characters','master','manage','players','invites','combats','tabletop'];
   if(!allowed.includes(section)||(['master','manage','invites'].includes(section)&&!gm))section='characters';
