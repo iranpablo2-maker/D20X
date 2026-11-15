@@ -67,6 +67,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
   }
   renderAdvanced();
   renderCombatDock();
+  refreshSceneStatus();
   const t=selected();$('nexTtSelected').textContent=t?t.name:'Nenhum';slot.disabled=!t;slot.value=String(t?.variation??1);
   $('nexTtVariantFile').disabled=!t;$('nexTtDelete').disabled=!t;
  }
@@ -207,6 +208,36 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    drawMenu.append(clear);
  }
  drawMenuRefresh();
+ const actionDock=$('nexVttActionDock');
+ const sceneStatus=$('nexVttSceneStatus');
+ const quickToken=$('nexVttQuickToken');
+ if(quickToken)quickToken.hidden=!gm;
+ const quickClick=(id,action)=>listen($(id),'click',action);
+ quickClick('nexVttQuickSheets',()=>{
+   const panel=$('nexVttSheetsPanel');
+   if(panel?.hidden)$('nexVttSheetsToggle')?.click();
+   else if(!panel?.hidden)panel?.querySelector('.nex-vtt-sheet')?.focus();
+ });
+ quickClick('nexVttQuickCombat',()=>primaryNav.combat?.click());
+ quickClick('nexVttQuickDice',()=>vttOpen('dice'));
+ quickClick('nexVttQuickGrid',()=>vttOpen('grid'));
+ quickClick('nexVttQuickToken',()=>{
+   if(!gm)return;
+   const name=prompt('Nome do token:','Token');
+   if(name===null)return;
+   const input=$('nexTabletopTokenName');
+   if(input)input.value=name.trim().slice(0,35)||'Token';
+   $('nexTabletopAddToken')?.click();
+ });
+ function refreshSceneStatus(){
+   if(!sceneStatus)return;
+   const visibleTokens=scene.tokens.filter(t=>gm||!t.hidden);
+   const sheetCount=getSheets().filter(t=>gm||!t.isHidden).length;
+   const selection=selected();
+   sceneStatus.textContent=selection
+     ?selection.name+(linkedSheet(selection)?' · Ficha vinculada':' · Token livre')
+     :visibleTokens.length+' tokens · '+sheetCount+' fichas';
+ }
  const vttStage=board.closest('.nex-vtt-stage');
  vttStage?.append(vttOptions,vttSide);
  const combatDock=document.createElement('section');combatDock.id='nexVttCombatDock';combatDock.hidden=true;
