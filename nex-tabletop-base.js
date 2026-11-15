@@ -84,16 +84,15 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   const el=e.target.closest('[data-token]');if(!el)return;
   selectedId=el.dataset.token;render();
   if(!gm)return;
-  const target=board.querySelector('[data-token="'+selectedId+'"]');target?.setPointerCapture?.(e.pointerId);
   drag={id:selectedId,pointer:e.pointerId};e.preventDefault();
  });
- listen(board,'pointermove',e=>{
+ listen(document,'pointermove',e=>{
   if(!gm||!drag||drag.pointer!==e.pointerId)return;
   const rect=board.getBoundingClientRect(),t=scene.tokens.find(t=>t.id===drag.id);if(!t)return;
   t.x=Math.max(0,Math.min(W-1,Math.floor((e.clientX-rect.left)/GRID)));t.y=Math.max(0,Math.min(H-1,Math.floor((e.clientY-rect.top)/GRID)));render();
  });
- listen(board,'pointerup',e=>{if(!drag||drag.pointer!==e.pointerId)return;drag=null;save();});
- listen(board,'pointercancel',()=>{if(drag){drag=null;save();}});
+ listen(document,'pointerup',e=>{if(!drag||drag.pointer!==e.pointerId)return;drag=null;save();});
+ listen(document,'pointercancel',()=>{if(drag){drag=null;save();}});
  listen(document,'keydown',e=>{
   if(!gm||!selectedId||isTyping(e)||e.altKey||e.ctrlKey||e.metaKey||!(/^[0-9]$/).test(e.key))return;
   const t=selected();if(!t)return;t.variation=Number(e.key);render();save();e.preventDefault();
