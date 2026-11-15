@@ -157,7 +157,7 @@ window.NEX_JULY_THREAT_DETAILS={
     "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 45."
   },
   "Arquivos Secretos — Julho::Incinerado": {
-    "vd": 100,
+    "vd": 60,
     "pv": 100,
     "defense": 21,
     "movement": "9m",
@@ -244,7 +244,26 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 67,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 67."
+    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 67.",
+    "vd": 120,
+    "defense": 28,
+    "senses": [
+      "Percepção 4d20+10 | Iniciativa 3d20+10 | Visão no escuro"
+    ],
+    "saves": [
+      [
+        "Fortitude",
+        "2d20+5"
+      ],
+      [
+        "Reflexos",
+        "3d20+10"
+      ],
+      [
+        "Vontade",
+        "4d20+10"
+      ]
+    ]
   },
   "Arquivos Secretos — Julho::Apóstata": {
     "vd": 80,
@@ -258,7 +277,7 @@ window.NEX_JULY_THREAT_DETAILS={
       "FOR": 2,
       "PRE": 4
     },
-    "presence": "DT 20, 3d8 mental (varia conforme estágio)",
+    "presence": "VD variável de 80 a 320 conforme evolução da ameaça",
     "immunities": [
       "Dano e condições, enquanto protegida por seu enigma"
     ],
@@ -294,6 +313,7 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 70,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 70."
+    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 70.",
+    "size": "MÉDIO"
   }
 };
