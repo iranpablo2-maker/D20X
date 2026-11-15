@@ -224,6 +224,19 @@
   .nex-hb-editing-threat #nex55DescriptionField textarea{width:100%;min-height:115px;border:1px solid #443039}
   .nex-hb-threat-combat-edit #nexHbThreatActions>fieldset{border:1px solid #553240;border-radius:7px;padding:12px;background:#1a1117}
   .nex-hb-threat-combat-edit #nexHbThreatActions .nex-hb-threat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+  .nex-hb-threat-action-editor{border:1px solid #553240;border-radius:6px;margin:9px 0;background:#21161c;overflow:hidden}
+  .nex-hb-threat-action-summary{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:6px 9px;min-height:45px}
+  .nex-hb-threat-action-toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:1;min-width:0;border:0!important;background:transparent!important;text-align:left;color:#f7edf0;cursor:pointer;padding:7px 4px;font-size:13px}
+  .nex-hb-threat-action-toggle strong{overflow-wrap:anywhere}
+  .nex-hb-threat-action-toggle span{font-size:17px;color:#ed627b}
+  .nex-hb-threat-action-controls{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+  .nex-hb-threat-action-controls .btn{font-size:12px;padding:6px 10px}
+  .nex-hb-threat-action-fields{padding:8px 12px 12px;border-top:1px solid #533640}
+  .nex-hb-threat-action-fields .nex-hb-threat-action-controls{justify-content:flex-end;margin-top:12px}
+  #homebrewScreen .nex52-form #nexHbThreatActions .nex-hb-threat-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  @media(max-width:510px){#homebrewScreen .nex52-form #nexHbThreatActions .nex-hb-threat-grid{grid-template-columns:1fr!important}.nex-hb-threat-action-summary{flex-wrap:wrap}.nex-hb-threat-action-controls .btn{padding:5px 8px}}
+
   @media(max-width:610px){.nex-hb-threat-edit-header{padding:12px;gap:11px}.nex-hb-threat-photo{flex-basis:90px;height:100px}.nex-hb-threat-heading-fields #nex53NameField>input{font-size:19px}.nex-hb-threat-heading-info label,.nex-hb-threat-heading-badges label{font-size:9px}.nex-hb-threat-edit-major{grid-template-columns:1fr}.nex-hb-threat-edit-attributes input{font-size:21px!important}}
 
   /* Sobrepõe o grid genérico de 3 colunas do editor Homebrew. */
@@ -576,11 +589,22 @@
  });
  $('nexHbThreatRemovePhoto').addEventListener('click',()=>{threatImage='';$('nexHbThreatPreview').hidden=true;$('nexHbThreatPreview').removeAttribute('src');$('nexHbThreatFile').value='';$('nexHbThreatRemovePhoto').hidden=true;});
  let threatActions=[];
+ let openThreatActionIndex=null;
  function renderThreatActions(){
   const el=$('nexHbThreatActions');if(!el)return;
-  el.innerHTML=threatActions.map((a,i)=>'<fieldset data-threat-row="'+i+'"><legend>Ação '+(i+1)+'</legend><div class="nex-hb-threat-grid">'+
-   [['name','Nome'],['action','Tipo de ação'],['test','Teste'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Efeito']].map(([k,label])=>'<label>'+label+(k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="2">'+esc(a[k]||'')+'</textarea>':'<input data-threat-key="'+k+'" maxlength="90" value="'+esc(a[k]||'')+'">')+'</label>').join('')+
-   '</div><button type="button" class="btn sm" data-threat-delete="'+i+'">Remover ação</button></fieldset>').join('');
+  el.innerHTML=threatActions.map((a,i)=>{
+   const expanded=openThreatActionIndex===i;
+   const title=[a.action||'Ação',a.name||'Sem nome'].filter(Boolean).join(' — ');
+   return '<div class="nex-hb-threat-action-editor" data-threat-row="'+i+'">'+
+    '<div class="nex-hb-threat-action-summary">'+
+      '<button type="button" class="nex-hb-threat-action-toggle" data-threat-toggle="'+i+'" aria-expanded="'+expanded+'"><strong>'+esc(title)+'</strong><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
+      (!expanded?'<div class="nex-hb-threat-action-controls"><button type="button" class="btn sm" data-threat-edit="'+i+'">Editar</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div>':'')+
+    '</div>'+
+    (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
+     [['name','Nome'],['action','Tipo de ação'],['test','Teste'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Efeito']].map(([k,label])=>'<label>'+label+(k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="2">'+esc(a[k]||'')+'</textarea>':'<input data-threat-key="'+k+'" maxlength="90" value="'+esc(a[k]||'')+'">')+'</label>').join('')+
+     '</div><div class="nex-hb-threat-action-controls"><button type="button" class="btn primary sm" data-threat-save="'+i+'">Salvar ação</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div></div>':'')+
+    '</div>';
+  }).join('');
  }
  function readThreatSheet(){
   const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=Number(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value)||0;});
@@ -599,21 +623,38 @@
   $('nexHbThreatPvAlias').value=data.pv;
   THREAT_TESTS.forEach(([k])=>{mount.querySelector('[data-nex-threat-test="'+k+'"]').value=data[k];});
   THREAT_TEXT.forEach(([k])=>{mount.querySelector('[data-nex-threat-text="'+k+'"]').value=data[k];});
-  threatActions=data.actions.map(a=>({...a}));renderThreatActions();
+  threatActions=data.actions.map(a=>({...a}));openThreatActionIndex=null;renderThreatActions();
  }
  $('nexHbThreatPvAlias').addEventListener('input',()=>{mount.querySelector('[data-nex-threat-number="pv"]').value=$('nexHbThreatPvAlias').value;});
  mount.querySelector('[data-nex-threat-number="pv"]').addEventListener('input',event=>{$('nexHbThreatPvAlias').value=event.target.value;});
  $('nexHbThreatAddAction').addEventListener('click',()=>{
   if(threatActions.length>=12){message('Limite de 12 ações por ameaça.');return;}
-  threatActions.push({name:'Nova ação',action:'Padrão',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});renderThreatActions();
+  threatActions.push({name:'Nova ação',action:'Padrão',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});openThreatActionIndex=threatActions.length-1;renderThreatActions();
  });
  $('nexHbThreatActions').addEventListener('input',event=>{
   const row=event.target.closest('[data-threat-row]'),field=event.target.closest('[data-threat-key]');
   if(row&&field&&threatActions[Number(row.dataset.threatRow)])threatActions[Number(row.dataset.threatRow)][field.dataset.threatKey]=field.value;
  });
  $('nexHbThreatActions').addEventListener('click',event=>{
-  const btn=event.target.closest('[data-threat-delete]');
-  if(btn){threatActions.splice(Number(btn.dataset.threatDelete),1);renderThreatActions();}
+  const btn=event.target.closest('button');if(!btn)return;
+  if(btn.hasAttribute('data-threat-delete')){
+    const index=Number(btn.dataset.threatDelete);
+    threatActions.splice(index,1);
+    if(openThreatActionIndex===index)openThreatActionIndex=null;
+    else if(openThreatActionIndex!==null&&openThreatActionIndex>index)openThreatActionIndex--;
+    renderThreatActions();return;
+  }
+  if(btn.hasAttribute('data-threat-save')){
+    const index=Number(btn.dataset.threatSave);
+    const action=threatActions[index];
+    if(!action||!cut(action.name,90)){message('Informe um nome para a ação.');return;}
+    openThreatActionIndex=null;renderThreatActions();return;
+  }
+  if(btn.hasAttribute('data-threat-edit')||btn.hasAttribute('data-threat-toggle')){
+    const index=Number(btn.dataset.threatEdit??btn.dataset.threatToggle);
+    openThreatActionIndex=openThreatActionIndex===index?null:index;
+    renderThreatActions();
+  }
  });
  function threatDetails(item){
   const t=normalizeThreat(item);
