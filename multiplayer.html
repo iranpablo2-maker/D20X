@@ -349,6 +349,224 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel .nex-vtt-sheet img,#roomTabletopPanel .nex-vtt-sheet .nex-vtt-avatar{width:32px;height:32px}
 }
 </style>
+
+<style id="nex-vtt-layout-light-roll20">
+/* NEX Virtual Tabletop: light workspace, 25x25 board and slim tool strip. */
+#room #roomTabletopPanel:not(.hide){
+  position:fixed!important;inset:0!important;z-index:15000!important;
+  width:100vw!important;height:100dvh!important;
+  display:flex!important;flex-direction:column!important;
+  padding:0!important;margin:0!important;overflow:hidden!important;
+  background:#e2e2e2!important;border:0!important;color:#303038!important;
+}
+#roomTabletopPanel .nex-vtt-heading,
+#roomTabletopPanel .nex-vtt-subheading,
+#roomTabletopPanel .nex-vtt-stage-note{display:none!important}
+#roomTabletopPanel #nexTabletopMessage{
+  position:absolute!important;bottom:8px!important;left:59px!important;right:auto!important;
+  z-index:40!important;max-width:min(520px,60vw)!important;
+  margin:0!important;padding:5px 9px!important;background:#fffffff0!important;
+  border:1px solid #cccccc!important;border-radius:5px!important;
+  color:#594951!important;font-size:11px!important;pointer-events:none!important;
+}
+#roomTabletopPanel #nexTabletopMessage.vtt-silent-status{display:none!important}
+#roomTabletopPanel .nex-vtt-layout{
+  display:flex!important;flex:1 1 auto!important;min-height:0!important;
+  min-width:0!important;gap:0!important;align-items:stretch!important;
+}
+#roomTabletopPanel .nex-vtt-sidebar{
+  display:flex!important;flex-direction:column!important;align-items:center!important;
+  width:46px!important;min-width:46px!important;flex:0 0 46px!important;
+  padding:6px 3px!important;gap:0!important;
+  background:#fbfbfb!important;border-right:1px solid #bfc0c4!important;
+  color:#292733!important;overflow-y:auto!important;overflow-x:hidden!important;
+  scrollbar-width:thin;scrollbar-color:#bbb #f5f5f5;
+}
+#roomTabletopPanel .nex-vtt-sidebar>h3,
+#roomTabletopPanel #nexTabletopTools,
+#roomTabletopPanel #nexTtVariants{display:none!important}
+#roomTabletopPanel #nexVttBar{
+  position:static!important;display:flex!important;flex-direction:column!important;
+  align-items:center!important;flex-wrap:nowrap!important;gap:4px!important;
+  width:40px!important;max-width:40px!important;max-height:none!important;
+  margin:0!important;padding:2px 0!important;border:0!important;
+  border-radius:0!important;background:transparent!important;overflow:visible!important;
+}
+#roomTabletopPanel #nexVttBar button{
+  display:grid!important;place-items:center!important;flex:0 0 34px!important;
+  width:34px!important;min-width:34px!important;height:34px!important;
+  padding:0!important;border:0!important;border-radius:6px!important;
+  background:transparent!important;box-shadow:none!important;
+  color:#292631!important;font:600 19px/1 'Segoe UI Symbol',system-ui,sans-serif!important;
+  transition:background .15s ease!important;
+}
+#roomTabletopPanel #nexVttBar button:hover{background:#dedfe4!important}
+#roomTabletopPanel #nexVttBar button[aria-pressed="true"]{
+  background:#c6cbd6!important;color:#25212a!important;
+  box-shadow:inset 0 0 0 1px #9299ab!important;
+}
+#roomTabletopPanel #nexVttBar button:disabled{opacity:.4!important}
+#roomTabletopPanel .nex-vtt-stage{
+  display:flex!important;position:relative!important;flex:1 1 auto!important;
+  flex-direction:column!important;min-width:0!important;min-height:0!important;
+  background:#dedede!important;overflow:hidden!important;
+}
+#roomTabletopPanel .nex-tabletop-wrap{
+  display:flex!important;position:relative!important;
+  flex:1 1 auto!important;min-height:0!important;min-width:0!important;
+  align-items:flex-start!important;justify-content:flex-start!important;
+  margin:0!important;padding:26px 66px 26px 26px!important;
+  overflow:auto!important;border:0!important;border-radius:0!important;
+  background:linear-gradient(180deg,#f7f7f7 0%,#e2e2e2 58%,#cecece 100%)!important;
+  scrollbar-width:thin;scrollbar-color:#a4a4a4 #eaeaea;
+}
+#roomTabletopPanel #nexTabletopBoard{
+  position:relative!important;display:block!important;flex-shrink:0!important;
+  margin:0 auto!important;
+  width:1200px!important;height:1200px!important;
+  background-color:#fdfdfd!important;
+  background-position:center center!important;background-size:100% 100%!important;
+  background-repeat:no-repeat!important;border:1px solid #353535!important;
+  box-shadow:0 3px 11px #00000020!important;
+}
+#roomTabletopPanel #nexTabletopBoard::before{
+  background-image:
+    linear-gradient(to right,rgba(0,0,0,.085) 1px,transparent 1px),
+    linear-gradient(to bottom,rgba(0,0,0,.085) 1px,transparent 1px)!important;
+  background-size:48px 48px!important;
+}
+#roomTabletopPanel #nexTabletopBoard .nex-tabletop-token{z-index:3!important}
+#roomTabletopPanel #nexVttDrawLayer{z-index:2!important}
+#roomTabletopPanel #nexVttMeasureLayer{z-index:6!important}
+#roomTabletopPanel #nexVttZoomRail{
+  display:flex!important;position:absolute!important;z-index:30!important;
+  top:70px!important;right:12px!important;bottom:auto!important;transform:none!important;
+  width:39px!important;min-height:245px!important;padding:8px 3px!important;
+  flex-direction:column!important;align-items:center!important;gap:7px!important;
+  background:#fdfdfd!important;color:#555!important;
+  border:1px solid #bec0c7!important;border-radius:11px!important;
+  box-shadow:0 2px 9px #00000024!important;
+}
+#roomTabletopPanel #nexVttZoomRail button{
+  display:grid!important;place-items:center!important;
+  flex-shrink:0!important;width:29px!important;height:29px!important;
+  padding:0!important;border:0!important;background:transparent!important;
+  color:#57515e!important;font-size:22px!important;border-radius:5px!important;
+}
+#roomTabletopPanel #nexVttZoomRail button:hover{background:#ececf1!important}
+#roomTabletopPanel #nexVttZoomValue{
+  display:block!important;min-width:34px!important;text-align:center!important;
+  color:#555!important;font-size:11px!important;font-weight:700!important;
+}
+#roomTabletopPanel #nexVttZoomSlider{
+  display:block!important;flex:1 1 auto!important;min-height:112px!important;
+  height:125px!important;width:17px!important;
+  writing-mode:vertical-lr;direction:rtl;accent-color:#e23aae;
+  padding:0!important;border:0!important;background:transparent!important;
+  cursor:pointer;
+}
+#roomTabletopPanel #nexVttOptions{
+  display:flex;flex-wrap:wrap;align-items:center;gap:9px;
+  position:absolute!important;top:12px!important;left:14px!important;
+  z-index:50!important;width:max-content!important;max-width:min(390px,calc(100% - 80px))!important;
+  padding:12px!important;background:#fff!important;color:#343038!important;
+  border:1px solid #c2c2c2!important;border-radius:8px!important;
+  box-shadow:0 8px 24px #00000022!important;
+  font-size:12px!important;
+}
+#roomTabletopPanel #nexVttOptions[hidden]{display:none!important}
+#roomTabletopPanel #nexVttOptions label{display:flex!important;gap:5px!important;align-items:center!important}
+#roomTabletopPanel #nexVttOptions input,
+#roomTabletopPanel #nexVttOptions select{
+  width:auto!important;max-width:120px!important;padding:6px!important;
+  color:#303038!important;background:#fafafa!important;border:1px solid #aaa!important;
+}
+#roomTabletopPanel #nexVttOptions button,
+#roomTabletopPanel #nexVttTokenProperties button{
+  padding:6px 10px!important;background:#f6e3eb!important;
+  border:1px solid #c69aaa!important;border-radius:5px!important;color:#57404c!important;
+}
+#roomTabletopPanel #nexVttTokenProperties{
+  display:grid;position:absolute!important;right:61px!important;top:12px!important;z-index:51!important;
+  width:210px!important;max-height:calc(100% - 25px)!important;overflow:auto!important;
+  padding:12px!important;gap:8px!important;
+  background:white!important;color:#302d36!important;
+  border:1px solid #bababa!important;border-radius:8px!important;
+  box-shadow:0 9px 30px #0000002b!important;
+}
+#roomTabletopPanel #nexVttTokenProperties[hidden]{display:none!important}
+#roomTabletopPanel #nexVttTokenProperties label{display:flex!important;flex-direction:column!important;gap:4px!important}
+#roomTabletopPanel #nexVttTokenProperties input{
+  width:100%!important;background:#fff!important;color:#292833!important;
+  border:1px solid #aaa!important;padding:6px!important;
+}
+#roomTabletopPanel .nex-vtt-sheets{
+  display:flex!important;flex-direction:column!important;align-items:stretch!important;
+  flex:0 0 340px!important;width:340px!important;min-width:0!important;
+  min-height:0!important;margin:0!important;padding:0 0 14px!important;
+  overflow-y:auto!important;background:#f5d0e2!important;color:#29232c!important;
+  border-left:1px solid #aaa!important;scrollbar-width:thin;scrollbar-color:#c998b1 #f3d0e3;
+}
+#roomTabletopPanel .nex-vtt-sheets[hidden]{display:none!important}
+#roomTabletopPanel .nex-vtt-right-tabs{
+  display:flex;flex:none;align-items:center;justify-content:flex-end;gap:0;
+  height:41px;min-height:41px;padding:2px 8px;background:#fdfdfd;border-bottom:1px solid #ddd;
+}
+#roomTabletopPanel .nex-vtt-right-tabs button{
+  width:42px;height:35px;padding:0;border:0;background:transparent;border-radius:4px;
+  color:#6a6c77;font-size:20px;cursor:pointer;
+}
+#roomTabletopPanel .nex-vtt-right-tabs button:hover{background:#eee}
+#roomTabletopPanel .nex-vtt-room-tag{
+  flex:none;background:#f3b8d6;color:#ad1466;text-align:center;
+  padding:11px 13px;font-size:12px;border-bottom:1px solid white;
+}
+#roomTabletopPanel .nex-vtt-sheets-title{
+  flex:none;display:flex!important;align-items:center!important;
+  justify-content:space-between!important;gap:10px!important;
+  margin:0!important;padding:16px 18px 8px!important;background:transparent!important;
+}
+#roomTabletopPanel .nex-vtt-sheets-title h3{
+  color:#342e36!important;font-size:16px!important;letter-spacing:0!important;
+  text-transform:none!important;
+}
+#roomTabletopPanel .nex-vtt-sheets-title button{
+  color:#645363!important;background:transparent!important;border:0!important;font-size:23px!important;
+}
+#roomTabletopPanel .nex-vtt-sheets .room-note{
+  color:#55404e!important;padding:0 18px!important;font-size:12px!important;
+}
+#roomTabletopPanel .nex-vtt-sheets-list{
+  display:flex!important;flex-direction:column!important;gap:9px!important;
+  padding:6px 16px 12px!important;
+}
+#roomTabletopPanel .nex-vtt-sheet{
+  width:100%!important;display:flex!important;gap:11px!important;align-items:center!important;
+  padding:11px!important;background:#fce8f1!important;
+  border:1px solid #d99fbc!important;border-radius:7px!important;
+  color:#382936!important;box-shadow:none!important;text-align:left!important;
+}
+#roomTabletopPanel .nex-vtt-sheet:hover{
+  background:#fff1f7!important;border-color:#c45d91!important;
+}
+#roomTabletopPanel .nex-vtt-sheet strong{color:#31212c!important}
+#roomTabletopPanel .nex-vtt-sheet small{color:#764860!important}
+#roomTabletopPanel .nex-vtt-sheet .nex-vtt-avatar{background:#cd76a0!important;color:white!important}
+#roomTabletopPanel .nex-vtt-sheet-note{color:#7e5470!important}
+@media(max-width:800px){
+ #roomTabletopPanel .nex-vtt-sheets{flex:0 0 235px!important;width:235px!important}
+ #roomTabletopPanel .nex-vtt-sidebar{width:43px!important;min-width:43px!important;flex-basis:43px!important}
+ #roomTabletopPanel .nex-tabletop-wrap{padding:15px 53px 15px 15px!important}
+ #roomTabletopPanel #nexVttZoomRail{right:6px!important}
+}
+@media(max-width:540px){
+ #roomTabletopPanel .nex-vtt-sheets{
+   position:absolute!important;z-index:52!important;right:0!important;top:0!important;
+   height:100%!important;width:min(85vw,320px)!important;box-shadow:-8px 0 24px #0003!important;
+ }
+ #roomTabletopPanel .nex-tabletop-wrap{padding:12px 48px 12px 12px!important}
+}
+</style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -695,7 +913,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115mapfocus4';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115roll20light5';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
