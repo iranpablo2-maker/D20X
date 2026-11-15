@@ -114,7 +114,7 @@ body.detail-open main{width:min(1250px,100%);padding:8px 10px 28px}
 <script src="./nex-arquivos-retratos-abril-junho.js?v=20261114retratos1"></script>
 <script src="./nex-ameacas-imagens-arquivos.js?v=nov14links4"></script>
 <script src="./nex-fevereiro-retratos.js?v=20261114faces3"></script>
-<script src="./nex-arquivos-zip-imagens.js?v=2"></script>
+<script src="./nex-arquivos-zip-imagens.js?v=20261115nov1"></script>
 <script src="./nex-ameacas-julho.js?v=20261114jul3"></script>
 <script src="./nex-arquivos-ameacas-faltantes.js?v=20261114completas2"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos3"></script>
@@ -174,7 +174,9 @@ function draw(){
  const portraitKey=x.source+"::"+x.name;
  const pairedImage=window.NEX_FEVEREIRO_FORM_IMAGES?.[portraitKey]?.normal;
  const special=pairedImage?'<img data-february-key="'+escape(portraitKey)+'" src="'+escape(pairedImage)+'?v=20261114faces3" alt="" loading="lazy" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=0;this.dataset.failed=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBilu?"contain":"cover")+' ;background:#160e12;opacity:0">':'';
- const visual=fallback+img+special;
+ const uploaded=(window.NEX_UPLOADED_THREAT_IMAGES||{})[key]?
+  '<img data-nex-uploaded="'+escape(key)+'" alt="" loading="lazy" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;background:#1a1117;opacity:0">':'';
+ const visual=fallback+img+special+uploaded;
  return '<article class="monster" style="--art:'+art(x.element)+'"><div class="emblem" style="position:relative;overflow:hidden">'+visual+'</div><div class="details"><strong>'+escape(x.name)+'</strong><small>'+escape(x.element)+' · '+escape(x.category||"Criatura")+'</small><span class="source">'+escape(x.source)+'</span></div><button type="button" class="threat-link" data-show-threat="'+encodeURIComponent(threatKey(x))+'" title="Abrir ficha dentro do NEX">Ficha</button></article>';
 
  }).join(""):'<div class="empty">Nenhuma ameaça encontrada nesta combinação. Algumas fontes ainda estão em revisão.</div>';
@@ -187,6 +189,17 @@ function draw(){
     face.onload=()=>{face.style.opacity='1'};
     face.src=url;
    }).catch(()=>{});
+  });
+ }
+ // Retratos do ZIP de 20 imagens enviado ao GitHub, sem identificar os 7 pendentes.
+ if(window.NEX_UPLOADED_THREAT_IMAGE_URL){
+  list.querySelectorAll('img[data-nex-uploaded]').forEach(img=>{
+   const key=img.getAttribute('data-nex-uploaded');
+   window.NEX_UPLOADED_THREAT_IMAGE_URL(key).then(url=>{
+    if(!url||!img.isConnected)return;
+    img.onload=()=>{img.style.opacity="1"};
+    img.src=url;
+   }).catch(error=>console.warn("Imagem enviada não pôde ser aberta:",key,error));
   });
  }
  // As imagens individuais publicadas dentro do ZIP substituem o atlas pixelado.
