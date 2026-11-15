@@ -101,50 +101,38 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  });
 
  // Expanded Roll20-inspired VTT toolbar; all shared changes use the existing campaign document.
- let vttMode='select',vttZoom=.85,vttDraft=null,vttPan=null,vttColor='#e4677c';
+ let vttMode='select',vttZoom=.45,vttDraft=null,vttPan=null,vttColor='#e4677c',vttManualZoom=false,vttTokenInspectorOpen=false;
  const vttBar=document.createElement('nav');vttBar.id='nexVttBar';vttBar.setAttribute('aria-label','Ferramentas da mesa');
  const vttOptions=document.createElement('div');vttOptions.id='nexVttOptions';vttOptions.hidden=true;
  const vttSide=document.createElement('div');vttSide.id='nexVttTokenProperties';vttSide.hidden=true;
  const vttWrap=board.closest('.nex-tabletop-wrap');
- const vttStyle=document.createElement('style');vttStyle.textContent=
- '#nexVttBar{display:flex;flex-wrap:wrap;gap:5px;padding:7px 13px;background:#1d151b;border-bottom:1px solid #704050}'+
- '#nexVttBar button{padding:7px 9px;min-width:34px;background:#2b1c25;color:#fff;border:1px solid #744353;border-radius:5px}'+
- '#nexVttBar button[aria-pressed="true"]{background:#a63149;border-color:#e96c82}'+
- '#nexVttBar button:disabled{opacity:.45}'+
- '#nexVttOptions{background:#251a22;padding:10px;color:#fff;display:flex;align-items:center;gap:10px;flex-wrap:wrap}'+
- '#nexVttOptions[hidden],#nexVttTokenProperties[hidden]{display:none!important}'+
- '#nexVttOptions label{display:flex;align-items:center;gap:6px}'+
- '#nexVttOptions input,#nexVttOptions select,#nexVttTokenProperties input{max-width:120px;width:auto;background:#2f222b;color:white;border:1px solid #865065;padding:6px}'+
- '#nexVttOptions button,#nexVttTokenProperties button{background:#732d40;color:#fff;border:1px solid #b85a6f;padding:7px;border-radius:4px}'+
- '#nexVttTokenProperties{padding:9px;margin-top:10px;border:1px solid #78414e;display:grid;gap:8px}'+
- '#nexVttTokenProperties label{display:flex;flex-direction:column;gap:3px}'+
- '#nexVttTokenProperties input{max-width:100%;width:100%}'+
- '#nexVttDrawLayer,#nexVttMeasureLayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}'+
+ const vttStyle=document.createElement('style');
+ vttStyle.id='nex-vtt-layer-style';
+ vttStyle.textContent='#nexVttDrawLayer,#nexVttMeasureLayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}'+
  '#nexVttDrawLayer{z-index:1}#nexVttMeasureLayer{z-index:4}'+
  '#nexVttFogLayer{position:absolute;inset:0;z-index:4;pointer-events:none;background:rgba(0,0,0,.9)}'+
- '#nexVttFogLayer[hidden]{display:none!important}'+
- '.nex-vtt-hide-grid::before{display:none!important}'+
- '#roomTabletopPanel .nex-vtt-sidebar{flex:0 0 58px!important;width:58px!important;min-width:58px!important;display:flex!important;flex-direction:column!important;align-items:center!important;padding:7px 4px!important;overflow-x:hidden!important}'+
- '#roomTabletopPanel .nex-vtt-sidebar>h3,#roomTabletopPanel .nex-vtt-sidebar>#nexTabletopTools,#roomTabletopPanel .nex-vtt-sidebar>#nexTtVariants,#roomTabletopPanel .nex-vtt-sidebar>#nexVttTokenProperties{display:none!important}'+
- '#roomTabletopPanel .nex-vtt-sidebar #nexVttBar{flex:0 0 auto!important;grid-column:auto!important;grid-row:auto!important;width:49px!important;max-width:49px!important}'+
- '#roomTabletopPanel .nex-vtt-sidebar>h3,#roomTabletopPanel .nex-vtt-sidebar>#nexTabletopTools,#roomTabletopPanel .nex-vtt-sidebar>#nexTtVariants,#roomTabletopPanel .nex-vtt-sidebar>#nexVttTokenProperties{grid-column:2;min-width:0}'+
- '#roomTabletopPanel .nex-vtt-sidebar>h3{grid-row:1;margin:5px 0 9px!important}'+
- '#roomTabletopPanel #nexVttBar{grid-column:1;grid-row:1/span 9;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;position:sticky;top:0;max-height:calc(100dvh - 100px);overflow-y:auto;overflow-x:hidden;padding:5px 2px!important;border:1px solid #54303e!important;border-radius:7px;background:#1b131a!important}'+
- '#roomTabletopPanel #nexVttBar button{flex:0 0 36px;width:37px!important;min-width:37px!important;height:36px;padding:0!important;font-size:16px!important;display:grid;place-items:center}'+
- '#roomTabletopPanel .nex-vtt-stage{position:relative}'+
- '#roomTabletopPanel .nex-tabletop-wrap{align-items:flex-start!important;justify-content:flex-start!important;padding:16px 60px 16px 16px!important;background:#111013!important}'+
- '#roomTabletopPanel .nex-tabletop-board{background-color:#2c2930!important;border:1px solid #82777f!important;box-shadow:0 0 0 1px #5f565f,0 8px 32px #0009!important}'+
- '#roomTabletopPanel .nex-tabletop-board::before{background-image:linear-gradient(to right,rgba(255,255,255,.38) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.38) 1px,transparent 1px)!important}'+
- '#roomTabletopPanel #nexVttZoomRail{position:absolute;z-index:20;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;padding:9px 6px;border:1px solid #814556;border-radius:10px;background:#21161fdc;box-shadow:0 5px 25px #000a}'+
- '#roomTabletopPanel #nexVttZoomRail button{width:35px;height:35px;border:1px solid #854a5b;border-radius:6px;background:#412431;color:white;font-size:20px}'+
- '#roomTabletopPanel #nexVttZoomValue{min-width:42px}'+
- '#roomTabletopPanel #nexVttOptions{flex:none}'+
- '@media(max-width:650px){#roomTabletopPanel .nex-vtt-sidebar{flex:0 0 46px!important;width:46px!important;min-width:46px!important;padding:4px 2px!important}#roomTabletopPanel .nex-vtt-sidebar #nexVttBar{max-width:40px!important;width:40px!important}#roomTabletopPanel #nexVttBar button{width:32px!important;min-width:32px!important}#roomTabletopPanel .nex-tabletop-wrap{padding-right:48px!important}#roomTabletopPanel #nexVttZoomRail{right:5px}}';
+ '#nexVttFogLayer[hidden]{display:none!important}.nex-vtt-hide-grid::before{display:none!important}';
  document.head.append(vttStyle);
  const vttSidebar=tools.closest('.nex-vtt-sidebar');
  vttSidebar?.prepend(vttBar);
- document.querySelector('#roomTabletopPanel .nex-vtt-heading')?.after(vttOptions);
- tools.parentElement?.append(vttSide);
+ const vttStage=board.closest('.nex-vtt-stage');
+ vttStage?.append(vttOptions,vttSide);
+ const vttPanel=board.closest('#roomTabletopPanel');
+ const vttRight=vttPanel?.querySelector('#nexVttSheetsPanel');
+ const vttTabs=document.createElement('nav');
+ vttTabs.className='nex-vtt-right-tabs';
+ vttTabs.setAttribute('aria-label','Seções da mesa NEX');
+ const vttTab=(label,title,cb)=>{
+   const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);b.addEventListener('click',cb);vttTabs.append(b);return b;
+ };
+ vttTab('☷','Mostrar fichas',()=>document.getElementById('nexVttSheetsToggle')?.click());
+ vttTab('⚄','Rolagem de dados',()=>vttOpen('dice'));
+ vttTab('⚙','Configurações do mapa',()=>vttOpen('grid'));
+ vttTab('↩','Voltar à campanha',()=>document.getElementById('nexVttExit')?.click());
+ vttRight?.prepend(vttTabs);
+ const vttRoomTag=document.createElement('div');vttRoomTag.className='nex-vtt-room-tag';
+ vttRoomTag.textContent='NEX · '+(document.getElementById('nexVttCampaignName')?.textContent||'Campanha');
+ vttRight?.insertBefore(vttRoomTag,vttRight.querySelector('.nex-vtt-sheets-title'));
  const vttSVG=(id)=>{const node=document.createElementNS('http://www.w3.org/2000/svg','svg');node.id=id;node.setAttribute('viewBox','0 0 '+(GRID*W)+' '+(GRID*H));board.append(node);return node;};
  const vttLayer=vttSVG('nexVttDrawLayer'),vttMeasure=vttSVG('nexVttMeasureLayer');
  const vttFog=document.createElement('div');vttFog.id='nexVttFogLayer';vttFog.hidden=true;board.append(vttFog);
@@ -152,16 +140,25 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  const vttButtons=new Map();
  function vttButton(label,title,callback,disabled=false){const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);b.disabled=disabled;b.addEventListener('click',callback);vttBar.append(b);return b;}
  function vttSetMode(mode){vttMode=mode;for(const [key,button] of vttButtons)button.setAttribute('aria-pressed',String(key===mode));vttOptions.hidden=true;board.style.cursor=mode==='select'?'default':mode==='pan'?'grab':'crosshair';}
- for(const [mode,symbol,title] of [['select','↖','Selecionar'],['pan','✋','Mover mapa'],['draw','✎','Desenhar'],['line','╱','Linha'],['rectangle','▭','Retângulo'],['circle','◯','Círculo'],['text','T','Texto'],['measure','⌁','Medir distância'],['marker','⌖','Marcador'],['fog','◐','Revelar névoa']]){
+ for(const [mode,symbol,title] of [['select','➤','Selecionar'],['pan','✋','Mover mapa'],['draw','✎','Desenhar'],['line','╱','Linha'],['rectangle','▭','Retângulo'],['circle','◯','Círculo'],['text','T','Texto'],['measure','⌁','Medir distância'],['marker','⌖','Marcador'],['fog','◐','Revelar névoa']]){
    vttButtons.set(mode,vttButton(symbol,title,()=>vttSetMode(mode),!gm&&!['select','pan','measure'].includes(mode)));
  }
  const vttZoomRail=document.createElement('div');vttZoomRail.id='nexVttZoomRail';
- const vttZoomPlus=vttButton('+','Aumentar zoom',()=>vttChangeZoom(.1));
+ const vttZoomPlus=vttButton('+','Aumentar zoom',()=>{vttManualZoom=true;vttChangeZoom(.05);});
  const vttZoomText=document.createElement('span');vttZoomText.id='nexVttZoomValue';vttZoomText.style.cssText='color:white;font-size:12px;text-align:center;font-weight:700'; 
- const vttZoomMinus=vttButton('−','Diminuir zoom',()=>vttChangeZoom(-.1));
- vttZoomRail.append(vttZoomPlus,vttZoomText,vttZoomMinus);
+ const vttZoomMinus=vttButton('−','Diminuir zoom',()=>{vttManualZoom=true;vttChangeZoom(-.05);});
+ const vttZoomSlider=document.createElement('input');vttZoomSlider.type='range';vttZoomSlider.id='nexVttZoomSlider';vttZoomSlider.min='25';vttZoomSlider.max='200';vttZoomSlider.step='1';vttZoomSlider.setAttribute('aria-label','Escala de zoom do mapa');
+ vttZoomSlider.addEventListener('input',()=>{vttManualZoom=true;vttChangeZoom(Number(vttZoomSlider.value)/100-vttZoom);});
+ const vttZoomFit=vttButton('⊡','Ajustar todo o mapa à tela',()=>{vttManualZoom=false;vttFitZoom();});
+ vttZoomRail.append(vttZoomFit,vttZoomPlus,vttZoomSlider,vttZoomText,vttZoomMinus);
  vttWrap.parentElement?.append(vttZoomRail);
- vttButton('＋','Adicionar token',()=>document.getElementById('nexTabletopAddToken')?.click(),!gm);
+ vttButton('＋','Adicionar token',()=>{
+   const name=prompt('Nome do token:','Token');
+   if(name===null)return;
+   const input=document.getElementById('nexTabletopTokenName');
+   if(input)input.value=name.trim().slice(0,35)||'Token';
+   document.getElementById('nexTabletopAddToken')?.click();
+ },!gm);
  vttButton('▧','Enviar imagem do mapa',()=>document.getElementById('nexTabletopMapFile')?.click(),!gm);
  vttButton('▦','Grade e névoa',()=>vttOpen('grid'),!gm);
  vttButton('♟','Token',()=>vttOpen('token'),!gm);
@@ -169,8 +166,23 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  vttButton('≡','Iniciativa',()=>vttOpen('turn'));
  vttButton('↶','Desfazer desenho',()=>{if(!gm)return;scene.drawings.pop();render();save();},!gm);
  vttButton('✕','Limpar desenhos',()=>{if(!gm||!confirm('Apagar todos os desenhos?'))return;scene.drawings=[];render();save();},!gm);
- function vttChangeZoom(d){vttZoom=Math.min(2,Math.max(.5,Math.round((vttZoom+d)*10)/10));board.style.zoom=String(vttZoom);vttZoomText.textContent=Math.round(vttZoom*100)+'%';}
+ function vttChangeZoom(d){
+   vttZoom=Math.min(2,Math.max(.25,Math.round((vttZoom+d)*100)/100));
+   board.style.zoom=String(vttZoom);
+   vttZoomText.textContent=Math.round(vttZoom*100)+'%';
+   vttZoomSlider.value=String(Math.round(vttZoom*100));
+ }
+ function vttFitZoom(){
+   if(vttManualZoom)return;
+   const width=vttWrap.clientWidth, height=vttWrap.clientHeight;
+   if(width<150||height<150)return;
+   const fits=Math.min((width-90)/(GRID*W),(height-45)/(GRID*H));
+   vttChangeZoom(Math.max(.25,Math.min(1.5,Math.floor(fits*100)/100))-vttZoom);
+ }
+ const vttResizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(()=>vttFitZoom()):null;
+ vttResizeObserver?.observe(vttWrap);
  vttChangeZoom(0);vttSetMode('select');
+ requestAnimationFrame(()=>vttFitZoom());
  const vttEl=(tag,attrs,parent)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);parent.append(n);return n;};
  function vttPaint(d,layer){
    const attrs={stroke:d.color||'#e4677c','stroke-width':3,fill:'none','stroke-linecap':'round'};
@@ -193,9 +205,10 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
    if(vttSide.dataset.token!==selectedId){vttSide.dataset.token=selectedId||'';vttRenderTokenSettings();}
  }
  function vttRenderTokenSettings(){
-   const t=selected();vttSide.hidden=!gm||!t;vttSide.replaceChildren();
+   const t=selected();vttSide.hidden=!gm||!t||!vttTokenInspectorOpen;vttSide.replaceChildren();
    if(!gm||!t)return;
    const title=document.createElement('strong');title.textContent='Configurar '+t.name;vttSide.append(title);
+   const close=document.createElement('button');close.type='button';close.textContent='Fechar ×';close.addEventListener('click',()=>{vttTokenInspectorOpen=false;vttSide.hidden=true;});vttSide.append(close);
    for(const [prop,label,type] of [['name','Nome','text'],['pv','PV','number'],['pe','PE','number'],['san','SAN','number'],['size','Tamanho (1-3)','number'],['rotation','Rotação','number'],['hidden','Oculto aos jogadores','checkbox'],['locked','Bloquear posição','checkbox']]){
      const row=document.createElement('label');row.textContent=label;
      const inp=document.createElement('input');inp.type=type;if(type==='checkbox')inp.checked=!!t[prop];else inp.value=String(t[prop]??'');
@@ -214,7 +227,11 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
      btn('Reiniciar névoa',()=>{scene.revealed=[];render();save();});
      const color=document.createElement('input');color.type='color';color.value=vttColor;control('Cor ',color);color.oninput=()=>{vttColor=color.value;};
    }
-   if(section==='token'){const el=document.createElement('span');el.textContent=selected()?'Use os campos na lateral esquerda.':'Selecione um token no mapa.';vttOptions.append(el);}
+   if(section==='token'){
+     vttTokenInspectorOpen=!vttTokenInspectorOpen;
+     vttRenderTokenSettings();
+     vttOptions.hidden=true;
+   }
    if(section==='dice'){
      const die=document.createElement('select');for(const sides of [4,6,8,10,12,20,100]){const o=document.createElement('option');o.value=sides;o.textContent='d'+sides;die.append(o);}die.value='20';control('Dado ',die);
      const qty=document.createElement('input');qty.type='number';qty.min=1;qty.max=20;qty.value=1;control('Quantidade ',qty);
@@ -258,5 +275,5 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   remoteReady=true;render();message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Tabletop disponível nesta sessão. Para sincronização online, atualize as regras do Firestore.');console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();vttResizeObserver?.disconnect();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
 }
