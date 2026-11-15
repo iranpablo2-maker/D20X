@@ -8,13 +8,6 @@ window.NEX_JULY_THREATS=[
     "page": 40
   },
   {
-    "name": "O Verdadeiro Raziel",
-    "element": "Sangue",
-    "source": "Arquivos Secretos — Julho",
-    "category": "Pessoa",
-    "page": 41
-  },
-  {
     "name": "Alvira",
     "element": "Sangue",
     "source": "Arquivos Secretos — Julho",
