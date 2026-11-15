@@ -327,7 +327,7 @@
    const isTrail=type==='trilha',isOrigin=type==='origem',isGeneral=['poder_geral','poder','habilidade'].includes(type);
    const isParanormal=type==='poder_paranormal';
    // Ao escolher a subcategoria, não é preciso selecionar "Categoria" novamente.
-   $('nex55TypeField').hidden=tab==='habilidades'||type==='item'||type==='melhoria'||type==='maldicao';
+   $('nex55TypeField').hidden=tab==='habilidades'||type==='item'||type==='melhoria'||type==='maldicao'||type==='ameaca';
    const classSelect=$('nex51Class'),oldClass=classSelect.value;
    const choices=isTrail?['Combatente','Especialista','Ocultista']:isGeneral?['Geral','Combatente','Especialista','Ocultista']:['Livre','Combatente','Especialista','Ocultista'];
    classSelect.innerHTML=choices.map(name=>'<option value="'+name+'">'+name+'</option>').join('');
@@ -336,6 +336,7 @@
    $('nex51NexField').hidden=isTrail||isOrigin||isGeneral||type==='poder_paranormal';
    $('nex53ParanormalElementField').hidden=type!=='poder_paranormal';
    $('nex52ThreatFields').hidden=type!=='ameaca';
+   if(type==='ameaca'){$('nexHbThreatNameSlot').appendChild($('nex53NameField'));$('nex52Editor').classList.add('nex-hb-editing-threat');}else{$('nex55TypeField').after($('nex53NameField'));$('nex52Editor').classList.remove('nex-hb-editing-threat');}
    $('nex52AbilityFields').hidden=!['origem','poder_geral','poder','trilha','habilidade'].includes(type);
    $('nex53TrailFields').hidden=!isTrail;
    $('nex55OriginSkills').hidden=!isOrigin;
@@ -512,6 +513,7 @@
   const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=Number(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value)||0;});
   const out={element:$('nexHbThreatElement').value,attributes,actions:threatActions.map(a=>({...a}))};
   THREAT_NUMERIC.forEach(([k])=>{out[k]=Number(mount.querySelector('[data-nex-threat-number="'+k+'"]').value)||0;});
+  out.pv=Number($('nexHbThreatPvAlias').value)||0;
   THREAT_TESTS.forEach(([k])=>{out[k]=mount.querySelector('[data-nex-threat-test="'+k+'"]').value;});
   THREAT_TEXT.forEach(([k])=>{out[k]=mount.querySelector('[data-nex-threat-text="'+k+'"]').value;});
   return out;
@@ -521,10 +523,13 @@
   $('nexHbThreatElement').value=data.element;
   THREAT_ATTRS.forEach(([k])=>{mount.querySelector('[data-nex-threat-attr="'+k+'"]').value=data.attributes[k];});
   THREAT_NUMERIC.forEach(([k])=>{mount.querySelector('[data-nex-threat-number="'+k+'"]').value=data[k];});
+  $('nexHbThreatPvAlias').value=data.pv;
   THREAT_TESTS.forEach(([k])=>{mount.querySelector('[data-nex-threat-test="'+k+'"]').value=data[k];});
   THREAT_TEXT.forEach(([k])=>{mount.querySelector('[data-nex-threat-text="'+k+'"]').value=data[k];});
   threatActions=data.actions.map(a=>({...a}));renderThreatActions();
  }
+ $('nexHbThreatPvAlias').addEventListener('input',()=>{mount.querySelector('[data-nex-threat-number="pv"]').value=$('nexHbThreatPvAlias').value;});
+ mount.querySelector('[data-nex-threat-number="pv"]').addEventListener('input',event=>{$('nexHbThreatPvAlias').value=event.target.value;});
  $('nexHbThreatAddAction').addEventListener('click',()=>{
   if(threatActions.length>=12){message('Limite de 12 ações por ameaça.');return;}
   threatActions.push({name:'Nova ação',action:'Padrão',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});renderThreatActions();
