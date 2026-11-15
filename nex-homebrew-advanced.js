@@ -33,7 +33,8 @@
 
  const THREAT_ELEMENTS=['Sangue','Morte','Conhecimento','Energia','Medo','Transmissão','Realidade'];
  const THREAT_ATTRS=[['agi','Agilidade'],['for','Força'],['int','Intelecto'],['pre','Presença'],['vig','Vigor']];
- const THREAT_NUMERIC=[['defense','Defesa'],['pv','Pontos de Vida'],['fortitude','Fortitude'],['reflexos','Reflexos'],['vontade','Vontade'],['iniciativa','Iniciativa'],['percepcao','Percepção']];
+ const THREAT_NUMERIC=[['defense','Defesa'],['pv','Pontos de Vida']];
+ const THREAT_TESTS=[['fortitude','Fortitude'],['reflexos','Reflexos'],['vontade','Vontade'],['iniciativa','Iniciativa'],['percepcao','Percepção']];
  const THREAT_TEXT=[['deslocamento','Deslocamento'],['presencaPerturbadora','Presença perturbadora'],['sentidos','Sentidos'],['resistencias','Resistências a dano'],['imunidades','Imunidades'],['vulnerabilidades','Vulnerabilidades'],['pericias','Outras perícias'],['habilidades','Habilidades e características'],['enigma','Enigma de Medo'],['notas','Observações']];
  function normalizeThreat(x){
   const raw=x?.threatSheet&&typeof x.threatSheet==='object'?x.threatSheet:{};
@@ -41,6 +42,7 @@
   THREAT_ATTRS.forEach(([k])=>{attributes[k]=num(raw.attributes?.[k],0,30,1);});
   const out={element:THREAT_ELEMENTS.includes(raw.element)?raw.element:'Sangue',attributes};
   THREAT_NUMERIC.forEach(([k])=>{out[k]=num(raw[k],0,99999,0);});
+  THREAT_TESTS.forEach(([k])=>{out[k]=cut(raw[k]??'',90);});
   THREAT_TEXT.forEach(([k])=>{out[k]=cut(raw[k]||'',k==='habilidades'?4000:1200);});
   out.actions=Array.isArray(raw.actions)?raw.actions.slice(0,12).map(a=>({
     name:cut(a?.name||'',90),action:cut(a?.action||'Padrão',60),
@@ -220,6 +222,7 @@
  '<label>Imagem da ameaça<input id="nexHbThreatFile" type="file" accept="image/png,image/jpeg,image/webp"></label><img id="nexHbThreatPreview" class="nex-hb-threat-preview" alt="Prévia da ameaça" hidden><button id="nexHbThreatRemovePhoto" type="button" class="btn sm" hidden>Remover imagem</button></fieldset>'+
  '<fieldset><legend>Atributos</legend><div class="nex-hb-threat-grid">'+THREAT_ATTRS.map(([id,label])=>'<label>'+label+'<input type="number" data-nex-threat-attr="'+id+'" min="0" max="30" value="1"></label>').join('')+'</div></fieldset>'+
  '<fieldset><legend>Defesa, PV e testes</legend><div class="nex-hb-threat-grid">'+THREAT_NUMERIC.map(([id,label])=>'<label>'+label+'<input type="number" data-nex-threat-number="'+id+'" min="0" max="99999" value="0"></label>').join('')+'</div></fieldset>'+
+ '<fieldset><legend>Testes de resistência e sentidos</legend><div class="nex-hb-threat-grid">'+THREAT_TESTS.map(([id,label])=>'<label>'+label+'<input type="text" data-nex-threat-test="'+id+'" maxlength="90" placeholder="Ex.: 3d20+10"></label>').join('')+'</div></fieldset>'+ 
  '<fieldset><legend>Presença perturbadora, sentidos e resistências</legend><div class="nex-hb-threat-grid">'+THREAT_TEXT.filter(([id])=>['presencaPerturbadora','deslocamento','sentidos','resistencias','imunidades','vulnerabilidades','pericias'].includes(id)).map(([id,label])=>'<label>'+label+'<textarea data-nex-threat-text="'+id+'" maxlength="1200" rows="2"></textarea></label>').join('')+'</div></fieldset></div>'+
  '<div data-threat-editor-panel="combate" hidden><fieldset><legend>Ações e ataques</legend><button type="button" class="btn sm" id="nexHbThreatAddAction">+ Adicionar ação</button><div id="nexHbThreatActions"></div></fieldset></div>'+
  '<div data-threat-editor-panel="descricao" hidden><fieldset><legend>Descrição e habilidades</legend><div id="nexHbThreatDescriptionSlot"></div><div class="nex-hb-threat-grid">'+THREAT_TEXT.filter(([id])=>['habilidades','enigma','notas'].includes(id)).map(([id,label])=>'<label>'+label+'<textarea data-nex-threat-text="'+id+'" maxlength="'+(id==='habilidades'?4000:1200)+'" rows="4"></textarea></label>').join('')+'</div></fieldset></div>'+
@@ -503,6 +506,7 @@
   const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=Number(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value)||0;});
   const out={element:$('nexHbThreatElement').value,attributes,actions:threatActions.map(a=>({...a}))};
   THREAT_NUMERIC.forEach(([k])=>{out[k]=Number(mount.querySelector('[data-nex-threat-number="'+k+'"]').value)||0;});
+  THREAT_TESTS.forEach(([k])=>{out[k]=mount.querySelector('[data-nex-threat-test="'+k+'"]').value;});
   THREAT_TEXT.forEach(([k])=>{out[k]=mount.querySelector('[data-nex-threat-text="'+k+'"]').value;});
   return out;
  }
@@ -511,6 +515,7 @@
   $('nexHbThreatElement').value=data.element;
   THREAT_ATTRS.forEach(([k])=>{mount.querySelector('[data-nex-threat-attr="'+k+'"]').value=data.attributes[k];});
   THREAT_NUMERIC.forEach(([k])=>{mount.querySelector('[data-nex-threat-number="'+k+'"]').value=data[k];});
+  THREAT_TESTS.forEach(([k])=>{mount.querySelector('[data-nex-threat-test="'+k+'"]').value=data[k];});
   THREAT_TEXT.forEach(([k])=>{mount.querySelector('[data-nex-threat-text="'+k+'"]').value=data[k];});
   threatActions=data.actions.map(a=>({...a}));renderThreatActions();
  }
