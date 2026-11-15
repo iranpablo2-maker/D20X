@@ -32,5 +32,15 @@ window.NEX_ARQUIVOS_IMAGES={
   "Arquivos Secretos — Janeiro::Tarrafa": "./assets/ameacas/arquivos-secretos/janeiro/tarrafa.webp",
   "Arquivos Secretos — Janeiro::Carrara": "./assets/ameacas/arquivos-secretos/janeiro/carrara.webp",
   "Arquivos Secretos — Janeiro::Nando Salles": "./assets/ameacas/arquivos-secretos/janeiro/nando-salles.webp",
-  "Arquivos Secretos — Janeiro::Anulado": "./assets/ameacas/arquivos-secretos/janeiro/anulado.webp"
+  "Arquivos Secretos — Janeiro::Anulado": "./assets/ameacas/arquivos-secretos/janeiro/anulado.webp",
+  "Arquivos Secretos — Fevereiro::Jasper": "./assets/ameacas/arquivos-secretos/fevereiro/jasper.webp",
+  "Arquivos Secretos — Fevereiro::Lena Viegas": "./assets/ameacas/arquivos-secretos/fevereiro/lena-viegas.webp",
+  "Arquivos Secretos — Fevereiro::Maria": "./assets/ameacas/arquivos-secretos/fevereiro/maria.webp",
+  "Arquivos Secretos — Fevereiro::Remi": "./assets/ameacas/arquivos-secretos/fevereiro/remi.webp",
+  "Arquivos Secretos — Fevereiro::Tuco": "./assets/ameacas/arquivos-secretos/fevereiro/tuco.webp",
+  "Arquivos Secretos — Março::Chispa": "./assets/ameacas/arquivos-secretos/marco/chispa.webp",
+  "Arquivos Secretos — Março::Ana": "./assets/ameacas/arquivos-secretos/marco/ana.webp",
+  "Arquivos Secretos — Março::Torvo": "./assets/ameacas/arquivos-secretos/marco/torvo.webp",
+  "Arquivos Secretos — Março::Escarlata": "./assets/ameacas/arquivos-secretos/marco/escarlata.webp",
+  "Arquivos Secretos — Março::Miasma": "./assets/ameacas/arquivos-secretos/marco/miasma.webp"
 };
