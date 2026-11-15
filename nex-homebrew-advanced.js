@@ -20,7 +20,7 @@
   const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);
   return src.slice(0,20).filter(b=>b&&BONUS_TYPES.some(([id])=>id===b.type)).map(b=>({type:b.type,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:b.type==='pericia'?cut(b.skill||'',60):'',scaling:b.scaling==='nex'?'nex':'fixed',nexInterval:[5,10,15,20].includes(Number(b.nexInterval))?Number(b.nexInterval):5}));
  };
- const effectApplicable=x=>['origem','poder_paranormal','poder_geral','poder','habilidade','trilha','maldicao'].includes(x.type)||(x.type==='ritual'&&x.ritualType==='Suporte')||(x.type==='item'&&x.category==='Itens Amaldiçoados');
+ const effectApplicable=x=>['origem','poder_paranormal','poder_geral','poder','habilidade','trilha','maldicao'].includes(x.type)||(x.type==='ritual'&&x.ritualType==='Suporte')||(x.type==='item'&&['Itens Amaldiçoados','Geral'].includes(x.category));
  const BONUS_TYPES=[['ataque','Bônus de ataque'],['dano','Bônus de dano'],['critico','Margem de crítico'],['multiplicador','Multiplicador crítico'],['defesa','Defesa'],['resistencia','Redução de dano'],['espacos','Espaços ocupados'],['pericia','Testes de perícia']];
  let customItemImprovements=[];
  let effectRows=[];
@@ -506,6 +506,9 @@
    $('nexHbCursedForm').querySelectorAll('[data-hb-sync="nexHbTier"],[data-hb-sync="nexHbSpaces"]').forEach(el=>el.closest('label').hidden=weapon||protection);
    if(type==='item'&&tab==='paranormal')$('nexHbParanormalKindLabel').textContent=cursedKind;
    $('nexHbGeneralForm').hidden=!general;
+   const explosion=$('nexHbCursedExplosion');
+   const explosionHost=general?$('nexHbGeneralForm'):$('nexHbCursedForm');
+   if(explosion.parentElement!==explosionHost)explosionHost.appendChild(explosion);
    $('nexHbWeaponForm').hidden=!weapon;
    $('nexHbProtectionForm').hidden=!protection;
    $('nexHbOtherForm').hidden=type!=='item'||general||weapon||protection||cursed;
@@ -513,7 +516,7 @@
    $('nexHbAmmoExtras').hidden=cursedKind!=='Munições Amaldiçoadas';
    $('nexHbAccessoryExtras').hidden=true;
    $('nexHbCursedTagField').hidden=!(cursed&&cursedKind==='Itens Paranormais');
-   $('nexHbCursedExplosion').hidden=!(cursed&&cursedKind==='Itens Paranormais'&&$('nexHbTag').value==='Explosivos');
+   $('nexHbCursedExplosion').hidden=!((general||(cursed&&cursedKind==='Itens Paranormais'))&&$('nexHbTag').value==='Explosivos');
    $('nexHbArtifactExtras').hidden=cursedKind!=='Itens Paranormais';
    $('nexHbSharedImprovements').hidden=true;
    ['nexHbProtectionDefense','nexHbWeaponDamage','nexHbWeaponCritical','nexHbWeaponMultiplier'].forEach(id=>{ $(id).required=protection&&id==='nexHbProtectionDefense'||weapon&&id!=='nexHbProtectionDefense'; });
@@ -616,8 +619,8 @@
    if(normal){normal.hidden=isCursedWeapon;normal.disabled=isCursedWeapon;}
    if(isCursedWeapon)secondary.value=$('nexHbElement').value;
  }
-  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'&&isCursedEditor())$('nexHbCursedExplosion').hidden=!(cursedKind==='Itens Paranormais'&&el.value==='Explosivos');}});
-  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'&&isCursedEditor())$('nexHbCursedExplosion').hidden=!(cursedKind==='Itens Paranormais'&&el.value==='Explosivos');}});
+  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag')$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');}});
+  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag')$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');}});
  function renderItemImprovements(){
    const list=$('nex52ImprovementList');if(!list)return;
    list.innerHTML=customItemImprovements.length?customItemImprovements.map((name,i)=>'<span class="nex-hb-improvement-chip">'+esc(name)+' <button type="button" data-nex52-improvement-remove="'+i+'" aria-label="Remover '+esc(name)+'">×</button></span>').join(''):'<small>Nenhuma melhoria homebrew adicionada.</small>';
@@ -996,7 +999,7 @@
      (item.type==='item'&&item.category==='Armas'?'<h4>Características da arma</h4><p>'+esc([item.weaponProficiency,item.weaponKind,item.weaponWield,'Dano '+item.weaponDamage,'Dano secundário '+(item.weaponSecondary||'—'),'Crítico '+item.weaponCritical+' ×'+item.weaponMultiplier,'Tipo de dano '+item.weaponDamageType,'Alcance '+item.weaponRange,'Quantidade '+item.weaponQuantity].join(' · '))+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'?'<h4>Tipo paranormal</h4><p>'+esc(item.cursedKind)+'</p>':'')+
       (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Itens Paranormais'?'<h4>Tag</h4><p>'+esc(item.itemTag||'Acessórios')+'</p>':'')+
-      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Itens Paranormais'&&item.itemTag==='Explosivos'?'<h4>Dados do explosivo</h4><p>'+esc('Dano '+(item.cursedExplosiveDamage||'—')+' · Dano secundário '+(item.cursedExplosiveSecondary||'—')+' · Tipo secundário '+item.cursedExplosiveSecondaryType+' · Multiplicador ×'+item.cursedExplosiveMultiplier+' · Alcance '+(item.cursedExplosiveRange||'—'))+'</p>':'')+
+      (item.type==='item'&&(item.category==='Geral'||item.category==='Itens Amaldiçoados'&&item.cursedKind==='Itens Paranormais')&&item.itemTag==='Explosivos'?'<h4>Dados do explosivo</h4><p>'+esc('Dano '+(item.cursedExplosiveDamage||'—')+' · Dano secundário '+(item.cursedExplosiveSecondary||'—')+' · Tipo secundário '+item.cursedExplosiveSecondaryType+' · Multiplicador ×'+item.cursedExplosiveMultiplier+' · Alcance '+(item.cursedExplosiveRange||'—'))+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Munições Amaldiçoadas'?'<p>'+esc(item.cursedAmmoType)+' · '+esc(item.cursedAmmoBonus)+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Acessórios Amaldiçoados'?'<p>'+esc(item.cursedAccessoryType)+' · '+esc(item.cursedAccessoryBenefit)+'</p>':'')+
      (item.type==='item'&&item.customImprovements?.length?'<h4>Melhorias</h4><p>'+item.customImprovements.map(esc).join(' · ')+'</p>':'')+ritualDetails(item)+trailDetails(item);
@@ -1114,7 +1117,7 @@
    if(type==='item'&&(tab==='paranormal'?cursedKind==='Proteções Amaldiçoadas':itemTab==='Proteções')&&(!/^\d+$/.test($('nexHbProtectionDefense').value)||Number($('nexHbProtectionDefense').value)>100)){message('Informe defesa válida entre 0 e 100.');return;}
    if(type==='item'&&!cut($('nex51Description').value,2000)){message('Preencha a descrição do item.');return;}
    if(type==='item'&&tab==='paranormal'&&cursedKind==='Armas Amaldiçoadas'&&$('nexHbTier').value==='0'){message('Escolha uma categoria entre I e IV.');return;}
-    if(type==='item'&&isCursedEditor()&&cursedKind==='Itens Paranormais'&&$('nexHbTag').value==='Explosivos'){
+    if(type==='item'&&(tab==='itens'&&itemTab==='Geral'||isCursedEditor()&&cursedKind==='Itens Paranormais')&&$('nexHbTag').value==='Explosivos'){
       if(!$('nexHbCursedExplosionDamage').value.trim()||!Number.isInteger(Number($('nexHbCursedExplosionMultiplier').value))||Number($('nexHbCursedExplosionMultiplier').value)<1||Number($('nexHbCursedExplosionMultiplier').value)>20){message('Confira o dano e o multiplicador do explosivo.');return;}
     }
    if(type==='item'&&(!['0','I','II','III','IV'].includes($('nexHbTier').value)||!/^\d+$/.test($('nexHbSpaces').value)||Number($('nexHbSpaces').value)>100)){message('Categoria ou espaços inválidos.');return;}
@@ -1183,11 +1186,11 @@
      itemTier:type==='item'?$('nexHbTier').value:(old?.itemTier||'0'),
      itemSpaces:type==='item'?$('nexHbSpaces').value:(old?.itemSpaces??1),
       itemTag:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbTag').value:(old?.itemTag||'Acessórios'),
-      cursedExplosiveDamage:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionDamage').value:(old?.cursedExplosiveDamage||''),
-      cursedExplosiveSecondary:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionSecondary').value:(old?.cursedExplosiveSecondary||''),
-      cursedExplosiveSecondaryType:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionType').value:(old?.cursedExplosiveSecondaryType||'Normal'),
-      cursedExplosiveMultiplier:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionMultiplier').value:(old?.cursedExplosiveMultiplier||'2'),
-      cursedExplosiveRange:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionRange').value:(old?.cursedExplosiveRange||''),
+      cursedExplosiveDamage:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionDamage').value:(old?.cursedExplosiveDamage||''),
+      cursedExplosiveSecondary:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionSecondary').value:(old?.cursedExplosiveSecondary||''),
+      cursedExplosiveSecondaryType:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionType').value:(old?.cursedExplosiveSecondaryType||'Normal'),
+      cursedExplosiveMultiplier:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionMultiplier').value:(old?.cursedExplosiveMultiplier||'2'),
+      cursedExplosiveRange:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionRange').value:(old?.cursedExplosiveRange||''),
      customImprovements:type==='item'?customItemImprovements:(old?.customImprovements||[]),
      trailAbilities:type==='trilha'?TRAIL_NEX.map(n=>({nex:n,name:$('nex53TrailName'+n).value,description:$('nex53TrailDescription'+n).value,bonusType:'',bonusValue:0,bonuses:getEffects(String(n))})):(old?.trailAbilities||[]),
      skills:type==='origem'?[$('nex55Skill1').value,$('nex55Skill2').value]:(old?.skills||[])
