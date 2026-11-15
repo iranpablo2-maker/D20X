@@ -1975,7 +1975,7 @@ body > #nexOriginPopup[hidden]{display:none!important;}
 </details>
 </section>
 <section id="threatsPanel" class="hide" aria-label="Biblioteca de Ameaças">
- <iframe id="nexThreatLibrary" title="Biblioteca de Ameaças NEX" src="./ameacas.html?v=20261115ameacas66" loading="lazy" scrolling="no"></iframe>
+ <iframe id="nexThreatLibrary" title="Biblioteca de Ameaças NEX" data-src="./ameacas.html?v=20261115ameacas66" loading="lazy" scrolling="no"></iframe>
 </section>
 <section id="campaignPanel" class="hide" aria-label="Campanhas">
  <div class="home-toolbar"><button class="btn" id="campaignBack">← Menu principal</button></div>
@@ -5190,4 +5190,19 @@ window.addEventListener('nex-cloud-sync-state',event=>{
   if(Number.isFinite(height)&&height>0&&height<120000)frame.style.height=Math.ceil(height+12)+"px";
  });
 })();
-</script></body></html>
+</script>
+<script id="nex-threats-on-demand">
+(function(){
+  const panel=document.getElementById('threatsPanel');
+  const frame=document.getElementById('nexThreatLibrary');
+  if(!panel||!frame)return;
+  function loadWhenVisible(){
+    if(panel.classList.contains('hide')||frame.hasAttribute('src'))return;
+    const url=frame.getAttribute('data-src');
+    if(url)frame.setAttribute('src',url);
+  }
+  new MutationObserver(loadWhenVisible).observe(panel,{attributes:true,attributeFilter:['class','style']});
+  loadWhenVisible();
+})();
+</script>
+</body></html>
