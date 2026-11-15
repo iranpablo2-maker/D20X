@@ -13,7 +13,7 @@ window.NEX_ARQUIVOS_IMAGES={
   "Arquivos Secretos — Maio::Fummu": "./assets/ameacas/arquivos-secretos/maio/fummu.webp",
   "Arquivos Secretos — Maio::Doppelganger Civil": "./assets/ameacas/arquivos-secretos/maio/doppelganger-civil.webp",
   "Arquivos Secretos — Maio::Doppelganger Cultista": "./assets/ameacas/arquivos-secretos/maio/doppelganger-cultista.webp",
-  "Arquivos Secretos — Maio::Doppelganger Monstruoso": "./assets/ameacas/arquivos-secretos/maio/doppelganger-monstruoso.webp",
+  "Arquivos Secretos — Maio::Bilu": "./assets/ameacas/arquivos-secretos/maio/doppelganger-monstruoso.webp",
   "Arquivos Secretos — Maio::Rastropoda": "./assets/ameacas/arquivos-secretos/maio/rastropoda.webp",
   "Arquivos Secretos — Maio::Memoflígico": "./assets/ameacas/arquivos-secretos/maio/memofligico.webp",
   "Arquivos Secretos — Maio::Doppelganger Combatente": "./assets/ameacas/arquivos-secretos/maio/doppelganger-combatente.webp",
