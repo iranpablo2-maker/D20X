@@ -3,7 +3,8 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
- const GRID=48,W=16,H=12;
+ const GRID=48,W=25,H=25;
+ board.style.width=(GRID*W)+'px';board.style.height=(GRID*H)+'px';
  const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[]});
  let scene=empty(),selectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false;
  const handlers=[];
@@ -90,7 +91,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  listen(document,'pointermove',e=>{
   if(!gm||!drag||drag.pointer!==e.pointerId)return;
   const rect=board.getBoundingClientRect(),t=scene.tokens.find(t=>t.id===drag.id);if(!t)return;
-  t.x=Math.max(0,Math.min(W-1,Math.floor((e.clientX-rect.left)/GRID)));t.y=Math.max(0,Math.min(H-1,Math.floor((e.clientY-rect.top)/GRID)));render();
+  t.x=Math.max(0,Math.min(W-1,Math.floor((e.clientX-rect.left)/(GRID*vttZoom))));t.y=Math.max(0,Math.min(H-1,Math.floor((e.clientY-rect.top)/(GRID*vttZoom))));render();
  });
  listen(document,'pointerup',e=>{if(!drag||drag.pointer!==e.pointerId)return;drag=null;save();});
  listen(document,'pointercancel',()=>{if(drag){drag=null;save();}});
@@ -100,7 +101,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  });
 
  // Expanded Roll20-inspired VTT toolbar; all shared changes use the existing campaign document.
- let vttMode='select',vttZoom=1,vttDraft=null,vttPan=null,vttColor='#e4677c';
+ let vttMode='select',vttZoom=.6,vttDraft=null,vttPan=null,vttColor='#e4677c';
  const vttBar=document.createElement('nav');vttBar.id='nexVttBar';vttBar.setAttribute('aria-label','Ferramentas da mesa');
  const vttOptions=document.createElement('div');vttOptions.id='nexVttOptions';vttOptions.hidden=true;
  const vttSide=document.createElement('div');vttSide.id='nexVttTokenProperties';vttSide.hidden=true;
@@ -122,11 +123,25 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  '#nexVttDrawLayer{z-index:1}#nexVttMeasureLayer{z-index:4}'+
  '#nexVttFogLayer{position:absolute;inset:0;z-index:4;pointer-events:none;background:rgba(0,0,0,.9)}'+
  '#nexVttFogLayer[hidden]{display:none!important}'+
- '.nex-vtt-hide-grid::before{display:none!important}';
+ '.nex-vtt-hide-grid::before{display:none!important}'+
+ '#roomTabletopPanel .nex-vtt-sidebar{display:grid!important;grid-template-columns:47px minmax(0,1fr)!important;column-gap:9px!important;align-content:start!important;padding:10px 8px!important}'+
+ '#roomTabletopPanel .nex-vtt-sidebar>h3,#roomTabletopPanel .nex-vtt-sidebar>#nexTabletopTools,#roomTabletopPanel .nex-vtt-sidebar>#nexTtVariants,#roomTabletopPanel .nex-vtt-sidebar>#nexVttTokenProperties{grid-column:2;min-width:0}'+
+ '#roomTabletopPanel .nex-vtt-sidebar>h3{grid-row:1;margin:5px 0 9px!important}'+
+ '#roomTabletopPanel #nexVttBar{grid-column:1;grid-row:1/span 9;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;position:sticky;top:0;max-height:calc(100dvh - 100px);overflow-y:auto;overflow-x:hidden;padding:5px 2px!important;border:1px solid #54303e!important;border-radius:7px;background:#1b131a!important}'+
+ '#roomTabletopPanel #nexVttBar button{flex:0 0 36px;width:37px!important;min-width:37px!important;height:36px;padding:0!important;font-size:16px!important;display:grid;place-items:center}'+
+ '#roomTabletopPanel .nex-vtt-stage{position:relative}'+
+ '#roomTabletopPanel .nex-tabletop-wrap{align-items:flex-start!important;justify-content:flex-start!important;padding:24px 64px 24px 24px!important}'+
+ '#roomTabletopPanel #nexVttZoomRail{position:absolute;z-index:20;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;padding:9px 6px;border:1px solid #814556;border-radius:10px;background:#21161fdc;box-shadow:0 5px 25px #000a}'+
+ '#roomTabletopPanel #nexVttZoomRail button{width:35px;height:35px;border:1px solid #854a5b;border-radius:6px;background:#412431;color:white;font-size:20px}'+
+ '#roomTabletopPanel #nexVttZoomValue{min-width:42px}'+
+ '#roomTabletopPanel #nexVttOptions{flex:none}'+
+ '@media(max-width:650px){#roomTabletopPanel .nex-vtt-sidebar{flex-basis:195px!important;width:195px!important;grid-template-columns:40px minmax(0,1fr)!important}#roomTabletopPanel #nexVttBar button{width:32px!important;min-width:32px!important}#roomTabletopPanel .nex-tabletop-wrap{padding-right:48px!important}#roomTabletopPanel #nexVttZoomRail{right:5px}}';
  document.head.append(vttStyle);
- document.querySelector('#roomTabletopPanel .nex-vtt-heading')?.after(vttBar,vttOptions);
+ const vttSidebar=tools.closest('.nex-vtt-sidebar');
+ vttSidebar?.prepend(vttBar);
+ document.querySelector('#roomTabletopPanel .nex-vtt-heading')?.after(vttOptions);
  tools.parentElement?.append(vttSide);
- const vttSVG=(id)=>{const node=document.createElementNS('http://www.w3.org/2000/svg','svg');node.id=id;node.setAttribute('viewBox','0 0 768 576');board.append(node);return node;};
+ const vttSVG=(id)=>{const node=document.createElementNS('http://www.w3.org/2000/svg','svg');node.id=id;node.setAttribute('viewBox','0 0 '+(GRID*W)+' '+(GRID*H));board.append(node);return node;};
  const vttLayer=vttSVG('nexVttDrawLayer'),vttMeasure=vttSVG('nexVttMeasureLayer');
  const vttFog=document.createElement('div');vttFog.id='nexVttFogLayer';vttFog.hidden=true;board.append(vttFog);
  const vttLog=document.createElement('div');vttLog.style.cssText='position:absolute;bottom:6px;right:6px;background:#171015ee;color:#fff;z-index:8;padding:8px;border-radius:5px;pointer-events:none;font-size:12px';vttLog.hidden=true;board.append(vttLog);
@@ -136,15 +151,19 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  for(const [mode,symbol,title] of [['select','↖','Selecionar'],['pan','✋','Mover mapa'],['draw','✎','Desenhar'],['line','╱','Linha'],['rectangle','▭','Retângulo'],['circle','◯','Círculo'],['text','T','Texto'],['measure','⌁','Medir distância'],['marker','⌖','Marcador'],['fog','◐','Revelar névoa']]){
    vttButtons.set(mode,vttButton(symbol,title,()=>vttSetMode(mode),!gm&&!['select','pan','measure'].includes(mode)));
  }
- vttButton('−','Zoom menos',()=>vttChangeZoom(-.1));const vttZoomText=document.createElement('span');vttZoomText.style.cssText='color:white;align-self:center;font-size:12px';vttBar.append(vttZoomText);
- vttButton('+','Zoom mais',()=>vttChangeZoom(.1));
+ const vttZoomRail=document.createElement('div');vttZoomRail.id='nexVttZoomRail';
+ const vttZoomPlus=vttButton('+','Aumentar zoom',()=>vttChangeZoom(.1));
+ const vttZoomText=document.createElement('span');vttZoomText.id='nexVttZoomValue';vttZoomText.style.cssText='color:white;font-size:12px;text-align:center;font-weight:700'; 
+ const vttZoomMinus=vttButton('−','Diminuir zoom',()=>vttChangeZoom(-.1));
+ vttZoomRail.append(vttZoomPlus,vttZoomText,vttZoomMinus);
+ vttWrap.parentElement?.append(vttZoomRail);
  vttButton('▦','Grade e névoa',()=>vttOpen('grid'),!gm);
  vttButton('♟','Token',()=>vttOpen('token'),!gm);
  vttButton('⚄','Dados',()=>vttOpen('dice'));
  vttButton('≡','Iniciativa',()=>vttOpen('turn'));
  vttButton('↶','Desfazer desenho',()=>{if(!gm)return;scene.drawings.pop();render();save();},!gm);
  vttButton('✕','Limpar desenhos',()=>{if(!gm||!confirm('Apagar todos os desenhos?'))return;scene.drawings=[];render();save();},!gm);
- function vttChangeZoom(d){vttZoom=Math.min(2,Math.max(.5,Math.round((vttZoom+d)*10)/10));board.style.transform='scale('+vttZoom+')';board.style.transformOrigin='center';vttZoomText.textContent=Math.round(vttZoom*100)+'%';}
+ function vttChangeZoom(d){vttZoom=Math.min(2,Math.max(.5,Math.round((vttZoom+d)*10)/10));board.style.zoom=String(vttZoom);vttZoomText.textContent=Math.round(vttZoom*100)+'%';}
  vttChangeZoom(0);vttSetMode('select');
  const vttEl=(tag,attrs,parent)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);parent.append(n);return n;};
  function vttPaint(d,layer){
@@ -202,7 +221,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
        btn('Limpar',()=>{scene.turns=[];save();vttOpen('turn');vttOpen('turn');});}
    }
  }
- const vttPoint=e=>{const a=board.getBoundingClientRect();return {x:Math.max(0,Math.min(768,Math.round((e.clientX-a.left)/vttZoom))),y:Math.max(0,Math.min(576,Math.round((e.clientY-a.top)/vttZoom))) };};
+ const vttPoint=e=>{const a=board.getBoundingClientRect();return {x:Math.max(0,Math.min(GRID*W,Math.round((e.clientX-a.left)/vttZoom))),y:Math.max(0,Math.min(GRID*H,Math.round((e.clientY-a.top)/vttZoom))) };};
  listen(board,'pointerdown',e=>{
    if(e.target.closest('[data-token]')||vttMode==='select')return;
    if(vttMode==='pan'){vttPan={pointer:e.pointerId,x:e.clientX,y:e.clientY,left:vttWrap.scrollLeft,top:vttWrap.scrollTop};return;}
@@ -233,5 +252,5 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   remoteReady=true;render();message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Tabletop disponível nesta sessão. Para sincronização online, atualize as regras do Firestore.');console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();vttBar.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
 }
