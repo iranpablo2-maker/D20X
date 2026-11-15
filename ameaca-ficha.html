@@ -93,6 +93,8 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
  .portrait-switch{flex-basis:96px!important}
  .portrait{flex-basis:96px!important;width:96px!important;max-width:96px!important;height:96px!important;min-height:96px!important;max-height:96px!important}
 }
+</style><style id="nex-hide-realidade-portrait">
+.portrait-switch[hidden]{display:none!important}
 </style></head>
 <body>
 <div class="shell">
@@ -116,8 +118,8 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <script src="./nex-arquivos-zip-imagens.js?v=20261115nov2"></script>
 <script src="./nex-ameacas-ultimos-quatro.js?v=20261115ultimo1"></script>
 <script src="./nex-ameacas-julho.js?v=20261115jul4"></script>
-<script src="./nex-arquivos-ameacas-faltantes.js?v=20261114completas2"></script>
-<script src="./nex-sah-ameacas-faltantes.js?v=20261115sah18"></script>
+<script src="./nex-arquivos-ameacas-faltantes.js?v=20261115realidade1"></script>
+<script src="./nex-sah-ameacas-faltantes.js?v=20261115sah17"></script>
 <script src="./nex-ameacas-realidade-basico.js?v=20261115basicreality1"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos3"></script>
 <script src="./nex-arquivos-atlas-lote2.js?v=nov14lote2a"></script>
@@ -388,6 +390,8 @@ function render(){
  $("hero").style.setProperty("--art","linear-gradient(90deg,rgba(10,7,10,.2),rgba(10,7,10,.6)),url('"+(images[threat.element]||images.Medo)+"')");
  $("name").textContent=threat.name;$("source").textContent=threat.source;$("element").textContent=threat.element;
  $("kind").textContent=[d.variant?"Variação de criatura":threat.category||"Criatura",d.size].filter(Boolean).join(" · ");$("vdBadge").textContent="VD "+n(d.vd);
+ const noRealityPortrait=baseThreat.element==="Realidade"&&(baseThreat.source==="Livro Básico"||baseThreat.source==="Sobrevivendo ao Horror");
+ document.querySelector(".portrait-switch").hidden=noRealityPortrait;
  const portrait=$("portrait"), official=threatIllustration(baseThreat);
  const photoKey=baseThreat.source+"::"+baseThreat.name;
  const pairedImage=window.NEX_FEVEREIRO_FORM_IMAGES?.[photoKey]?.[currentForm];
