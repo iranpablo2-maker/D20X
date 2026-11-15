@@ -654,8 +654,8 @@
    if(normal){normal.hidden=isCursedWeapon;normal.disabled=isCursedWeapon;}
    if(isCursedWeapon)secondary.value=$('nexHbElement').value;
  }
-  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){if($('nex51Type').value==='item')renderEffects('main');$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
-  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){if($('nex51Type').value==='item')renderEffects('main');$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
+  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){if($('nex51Type').value==='item'){effectRows=[];effectEditing.main=null;renderEffects('main');}$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
+  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){if($('nex51Type').value==='item'){effectRows=[];effectEditing.main=null;renderEffects('main');}$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
  function renderItemImprovements(){
    const list=$('nex52ImprovementList');if(!list)return;
    list.innerHTML=customItemImprovements.length?customItemImprovements.map((name,i)=>'<span class="nex-hb-improvement-chip">'+esc(name)+' <button type="button" data-nex52-improvement-remove="'+i+'" aria-label="Remover '+esc(name)+'">×</button></span>').join(''):'<small>Nenhuma melhoria homebrew adicionada.</small>';
@@ -1042,7 +1042,12 @@
  }
  $('nex51Type').addEventListener('change',editorFields);
   $('nexHbBonusType').addEventListener('change',()=>{$('nexHbBonusSkillField').hidden=$('nexHbBonusType').value!=='pericia';});
-  $('nexHbCurseTarget').addEventListener('change',()=>{effectEditing.main=null;renderEffects('main');});
+  $('nexHbCurseTarget').addEventListener('change',()=>{
+   // Trocar o alvo apenas altera os tipos permitidos; nenhum bônus é criado automaticamente.
+   effectRows=[];
+   effectEditing.main=null;
+   renderEffects('main');
+  });
   $('nexHbImprovementTarget').addEventListener('change',()=>{
    // A categoria nova começa sem bônus; somente o botão cria um bônus.
    improvementRows=[];
