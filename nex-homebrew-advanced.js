@@ -517,6 +517,7 @@
    $('nexHbAccessoryExtras').hidden=true;
    $('nexHbCursedTagField').hidden=!(cursed&&cursedKind==='Itens Paranormais');
    $('nexHbCursedExplosion').hidden=!((general||(cursed&&cursedKind==='Itens Paranormais'))&&$('nexHbTag').value==='Explosivos');
+   $('nexHbCursedExplosionType').closest('label').hidden=general;
    $('nexHbArtifactExtras').hidden=cursedKind!=='Itens Paranormais';
    $('nexHbSharedImprovements').hidden=true;
    ['nexHbProtectionDefense','nexHbWeaponDamage','nexHbWeaponCritical','nexHbWeaponMultiplier'].forEach(id=>{ $(id).required=protection&&id==='nexHbProtectionDefense'||weapon&&id!=='nexHbProtectionDefense'; });
@@ -534,13 +535,14 @@
  function isAbilityBonusScope(scope){
   return scope!=='improvement'&&(scope!=='main'||['habilidade','poder','poder_geral','poder_paranormal'].includes($('nex51Type').value));
  }
+ function isGeneralBonusScope(scope){return scope==='main'&&$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}
  function renderEffects(scope){
   const list=getEffects(scope),id=scope==='main'?'nexHbEffectBonusList':scope==='improvement'?'nexHbImprovementBonusList':'nex53TrailBonusList'+scope;
   const allowProgression=isAbilityBonusScope(scope);
   if(!allowProgression)list.forEach(b=>{b.scaling='fixed';b.nexInterval=5;});
   const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
   const noSkill=(scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value))||(scope==='main'&&cursedNoSkill());
-  const types=scope==='improvement'?BONUS_TYPES.filter(([id])=>!noSkill||id!=='pericia'):(scope==='main'&&isCursedEditor()?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].filter(([id],i,arr)=>id&&(!noSkill||id!=='pericia')&&arr.findIndex(([k])=>k===id)===i):EFFECT_TYPES.filter(([id])=>id));
+  const types=isGeneralBonusScope(scope)?EFFECT_TYPES.filter(([id])=>['dano','ataque','carga'].includes(id)):scope==='improvement'?BONUS_TYPES.filter(([id])=>!noSkill||id!=='pericia'):(scope==='main'&&isCursedEditor()?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].filter(([id],i,arr)=>id&&(!noSkill||id!=='pericia')&&arr.findIndex(([k])=>k===id)===i):EFFECT_TYPES.filter(([id])=>id));
   $(id).innerHTML=list.map((b,i)=>{
    const editing=effectEditing[scope]===i;
    return '<div class="nex-hb-effect-card" style="border-bottom:1px solid #38383d;padding:7px 0" data-effect-scope="'+esc(scope)+'" data-effect-index="'+i+'">'+
@@ -562,7 +564,7 @@
   if(add){
    const scope=add.dataset.effectAdd,items=getEffects(scope);
    if(items.length>=20){message('Limite de 20 bônus.');return;}
-   items.push({type:scope==='improvement'||scope==='main'&&isCursedEditor()?'ataque':'pv',value:1,skill:'',scaling:'fixed',nexInterval:5});effectEditing[scope]=items.length-1;renderEffects(scope);return;
+   items.push({type:scope==='improvement'||scope==='main'&&(isCursedEditor()||isGeneralBonusScope(scope))?'ataque':'pv',value:1,skill:'',scaling:'fixed',nexInterval:5});effectEditing[scope]=items.length-1;renderEffects(scope);return;
   }
   const row=e.target.closest('[data-effect-scope]');if(!row)return;
   const scope=row.dataset.effectScope,index=Number(row.dataset.effectIndex);
@@ -584,7 +586,7 @@
  mount.addEventListener('change',e=>{
   const row=e.target.closest('[data-effect-scope]');if(!row)return;
   const scope=row.dataset.effectScope,item=getEffects(scope)[Number(row.dataset.effectIndex)];if(!item)return;
-  if(e.target.matches('[data-effect-type]')){if((scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill())&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
+  if(e.target.matches('[data-effect-type]')){if(isGeneralBonusScope(scope)&&!['dano','ataque','carga'].includes(e.target.value))return;if((scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill())&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
   else if(e.target.matches('[data-effect-value]')){item.value=Math.max(-999,Math.min(999,Number(e.target.value)||0));renderEffects(scope);}
   else if(e.target.matches('[data-effect-skill]')){item.skill=e.target.value;renderEffects(scope);}
   else if(e.target.matches('[data-effect-scaling]')){item.scaling=isAbilityBonusScope(scope)&&e.target.value==='nex'?'nex':'fixed';renderEffects(scope);}
@@ -619,8 +621,8 @@
    if(normal){normal.hidden=isCursedWeapon;normal.disabled=isCursedWeapon;}
    if(isCursedWeapon)secondary.value=$('nexHbElement').value;
  }
-  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag')$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');}});
-  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag')$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');}});
+  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
+  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
  function renderItemImprovements(){
    const list=$('nex52ImprovementList');if(!list)return;
    list.innerHTML=customItemImprovements.length?customItemImprovements.map((name,i)=>'<span class="nex-hb-improvement-chip">'+esc(name)+' <button type="button" data-nex52-improvement-remove="'+i+'" aria-label="Remover '+esc(name)+'">×</button></span>').join(''):'<small>Nenhuma melhoria homebrew adicionada.</small>';
@@ -1188,7 +1190,7 @@
       itemTag:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbTag').value:(old?.itemTag||'Acessórios'),
       cursedExplosiveDamage:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionDamage').value:(old?.cursedExplosiveDamage||''),
       cursedExplosiveSecondary:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionSecondary').value:(old?.cursedExplosiveSecondary||''),
-      cursedExplosiveSecondaryType:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionType').value:(old?.cursedExplosiveSecondaryType||'Normal'),
+      cursedExplosiveSecondaryType:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?(tab==='paranormal'?$('nexHbCursedExplosionType').value:'Normal'):(old?.cursedExplosiveSecondaryType||'Normal'),
       cursedExplosiveMultiplier:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionMultiplier').value:(old?.cursedExplosiveMultiplier||'2'),
       cursedExplosiveRange:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbCursedExplosionRange').value:(old?.cursedExplosiveRange||''),
      customImprovements:type==='item'?customItemImprovements:(old?.customImprovements||[]),
