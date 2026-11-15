@@ -297,6 +297,40 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 .nex-tabletop-token span{pointer-events:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .nex-tabletop-token:focus-visible{outline:3px solid #fff;outline-offset:2px;}
 </style>
+<style id="nex-tabletop-fullscreen-style">
+#room #roomOpenTabletop{background:#6b202d;border-color:#c24b5b;color:#fff;font-weight:700}
+#room #roomTabletopPanel:not(.hide){position:fixed!important;inset:0!important;z-index:15000!important;display:flex!important;flex-direction:column!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#09090c!important;border:0!important;border-radius:0!important}
+#roomTabletopPanel .nex-vtt-heading{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 19px;border-bottom:1px solid #63303b;background:#151014;min-height:62px}
+#roomTabletopPanel .nex-vtt-brand{display:flex;align-items:center;gap:15px}
+#roomTabletopPanel .nex-vtt-brand strong{font:700 23px Georgia,serif;letter-spacing:.18em;color:#fff}
+#roomTabletopPanel .nex-vtt-brand span{font-size:13px;color:#d6b8c0}
+#roomTabletopPanel .nex-vtt-heading-actions{display:flex;align-items:center;gap:11px}
+#roomTabletopPanel #nexVttExit{background:#4d202a;border:1px solid #be5363;border-radius:6px;color:#fff;padding:9px 13px;font-weight:650}
+#roomTabletopPanel .nex-vtt-subheading{display:none!important}
+#roomTabletopPanel #nexTabletopMessage{flex:none;margin:0!important;padding:7px 17px!important;font-size:12px;background:#161015;color:#cfb3ba}
+#roomTabletopPanel .nex-vtt-layout{display:flex;flex:1;min-height:0;min-width:0}
+#roomTabletopPanel .nex-vtt-sidebar{flex:0 0 245px;width:245px;min-width:0;overflow:auto;padding:15px;background:#151116;border-right:1px solid #57303b}
+#roomTabletopPanel .nex-vtt-sidebar h3{color:#f5d0d6;margin:0 0 13px;font-size:14px}
+#roomTabletopPanel .nex-vtt-sidebar .nex-tabletop-tools{display:flex;flex-direction:column;align-items:stretch;gap:9px;margin:0;padding:0}
+#roomTabletopPanel .nex-vtt-sidebar .nex-tabletop-tools>*{width:100%;max-width:none}
+#roomTabletopPanel .nex-vtt-sidebar .nex-tabletop-tools input{max-width:100%;width:100%}
+#roomTabletopPanel #nexTtVariants{margin:13px 0 0}
+#roomTabletopPanel .nex-vtt-stage{flex:1;display:flex;flex-direction:column;min-width:0;min-height:0;background:#0b0c0e}
+#roomTabletopPanel .nex-tabletop-wrap{flex:1;display:flex;align-items:center;justify-content:center;min-height:0;margin:0;padding:25px;overflow:auto;border:0;border-radius:0;background:#0b0c0e}
+#roomTabletopPanel .nex-tabletop-board{flex-shrink:0}
+#roomTabletopPanel .nex-vtt-stage-note{flex:none;margin:0!important;padding:10px 16px;background:#171218;border-top:1px solid #4c2933;font-size:12px}
+#roomTabletopPanel #nexTtVariants{max-width:none}
+@media(max-width:650px){
+ #roomTabletopPanel .nex-vtt-heading{padding:9px 12px}
+ #roomTabletopPanel .nex-vtt-brand{gap:6px;flex-wrap:wrap}
+ #roomTabletopPanel .nex-vtt-brand strong{font-size:18px}
+ #roomTabletopPanel .nex-vtt-brand span{font-size:11px}
+ #roomTabletopPanel .nex-vtt-sidebar{flex-basis:145px;width:145px;padding:9px}
+ #roomTabletopPanel .nex-vtt-sidebar .nex-tabletop-tools{gap:7px}
+ #roomTabletopPanel .nex-tabletop-wrap{padding:8px;justify-content:flex-start}
+ #roomTabletopPanel #nexVttExit{padding:7px;font-size:11px}
+}
+</style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -524,6 +558,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <button type="button" id="roomEditAction">Editar Campanha</button>
    <button type="button" id="roomCreateCombatAction">Criar Combate</button>
    <button type="button" id="roomMasterAction">Escudo do Mestre</button>
+   <button type="button" id="roomOpenTabletop" class="nex-open-tabletop">Tabletop</button>
   </nav>
   <div class="room-hero">
    <div class="room-top"><h2 id="roomTitle">Campanha</h2><span id="role" class="badge"></span></div>
@@ -564,23 +599,22 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-room-section="characters" aria-pressed="true">Personagens</button>
     <button type="button" data-room-section="players" aria-pressed="false">Jogadores</button>
     <button type="button" data-room-section="combats" aria-pressed="false">Combates</button>
-    <button type="button" data-room-section="tabletop" aria-pressed="false">Tabletop</button>
     <button type="button" data-room-section="manage" id="roomManageTab" aria-pressed="false" class="hide">Gerenciar Jogadores</button>
     <button type="button" data-room-section="master" id="roomMasterTab" aria-pressed="false" class="hide">Escudo do Mestre</button>
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
    <section id="roomTabletopPanel" class="room-panel hide" aria-label="Tabletop da campanha">
-    <div class="room-panel-head"><h2>Tabletop</h2><span id="nexTabletopRole" class="badge">Tabuleiro</span></div>
+    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><strong>NEX</strong><span>Tabletop · <span id="nexVttCampaignName">Campanha</span></span></div><div class="nex-vtt-heading-actions"><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
+    <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
-    <div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
+    <div class="nex-vtt-layout"><aside class="nex-vtt-sidebar"><h3>Ferramentas</h3><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
       <label>Nome do token <input type="text" id="nexTabletopTokenName" maxlength="35" placeholder="Ex.: Agente, criatura"></label>
       <button id="nexTabletopAddToken" type="button">Adicionar token</button>
       <button id="nexTabletopClearTokens" type="button" class="alt">Limpar tokens</button>
       <label>Mapa <input type="file" id="nexTabletopMapFile" accept="image/png,image/jpeg,image/webp"></label>
       <button id="nexTabletopRemoveMap" type="button" class="alt">Remover mapa</button>
-    </div>
-    <div class="nex-tabletop-wrap"><div id="nexTabletopBoard" class="nex-tabletop-board" aria-label="Mapa com grade de combate"></div></div>
-    <p class="room-note">Grade de 16 × 12 quadrados. O mestre move tokens, altera imagens e GIFs e sincroniza a cena com a campanha.</p>
+    </div></aside><div class="nex-vtt-stage"><div class="nex-tabletop-wrap"><div id="nexTabletopBoard" class="nex-tabletop-board" aria-label="Mapa com grade de combate"></div></div>
+    <p class="room-note nex-vtt-stage-note">Grade 16 × 12 · Selecione um token e use 0–9 para mudar sua imagem.</p></div></div>
    </section>
    <section id="roomCombatsPanel" class="room-panel hide">
      <div class="room-panel-head"><h3>Combates</h3></div>
@@ -972,6 +1006,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   notice('Falha: '+explanation);console.error(err);
  }};
  const clearRoom=()=>{
+  document.documentElement.classList.remove('nex-vtt-active');
+  if(window.parent!==window){try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:false},location.origin);}catch(error){}}
   for(const u of [...unsubs,...combatRollUnsubs]){try{u()}catch(e){}}unsubs=[];combatRollUnsubs=[];
   roomId='';gm=false;roomMembers=[];roomSheets=[];publicSheets=[];privateSheets=[];roomRequests=[];extraSlotRequests=[];slotPending=false;roomCombats=[];roomData=null;editing=null;localPortraits.clear();
   $('roomAgentPicker').hidden=true;$('roomEditConfiguration').hidden=true;$('nexCampaignSheetDialog').close?.();
@@ -1118,6 +1154,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomCharactersPanel',section==='characters');
   show('roomCombatsPanel',section==='combats');
   show('roomTabletopPanel',section==='tabletop');
+  document.documentElement.classList.toggle('nex-vtt-active',section==='tabletop');
+  if(section==='tabletop')$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';
+  if(window.parent!==window){
+   try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:section==='tabletop'},location.origin);}catch(error){}
+  }
   $('roomAgentPicker').hidden=true;
   show('roomPlayersPanel',section==='players');
   show('roomInvitePanel',section==='invites'&&gm);
@@ -1125,6 +1166,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomManagePanel',section==='manage'&&gm);
  }
  document.querySelectorAll('[data-room-section]').forEach(button=>button.addEventListener('click',()=>roomSection(button.dataset.roomSection)));
+ $('roomOpenTabletop').addEventListener('click',()=>roomSection('tabletop'));
+ $('nexVttExit').addEventListener('click',()=>roomSection('characters'));
  function inviteView(mode,message){
   inviteState=mode;
   const explanation=$('inviteExplanation'),request=$('requestEntry'),open=$('openApproved');
