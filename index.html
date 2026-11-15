@@ -2958,15 +2958,33 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    return persist(show);
  };
  function visible(which){
+  const tabletop=$('campaignPanel')?.classList.contains('nex-tabletop-expanded');
+  const sheetOverlay=which==='sheet'&&tabletop;
   if(nexCampaignLiveEdit&&which!=='sheet')finishCampaignLiveEdit();
   $('mainMenu').classList.toggle('hide',which!=='home');
-  $('agentsPanel').classList.toggle('hide',which!=='agents');
-  $('campaignPanel').classList.toggle('hide',which!=='campaigns');
+  $('agentsPanel').classList.toggle('hide',which!=='campaigns'&&which!=='agents');
+  $('campaignPanel').classList.toggle('hide',which!=='campaigns'&&!sheetOverlay);
   $('threatsPanel').classList.toggle('hide',which!=='threats');
   $('sheetScreen').classList.toggle('hide',which!=='sheet');
   $('wizardScreen').classList.toggle('hide',which!=='wizard');
   $('homebrewScreen').classList.toggle('hide',which!=='homebrew');
-  window.scrollTo(0,0);
+  document.body.classList.toggle('nex-vtt-sheet-overlay',sheetOverlay);
+  let close=document.getElementById('nexVttSheetClose');
+  if(sheetOverlay&&!close){
+    close=document.createElement('button');
+    close.type='button';
+    close.id='nexVttSheetClose';
+    close.textContent='← Voltar ao tabletop';
+    close.addEventListener('click',()=>{
+      if(nexCampaignLiveEdit)finishCampaignLiveEdit();
+      else persist();
+      visible('campaigns');
+    });
+    $('sheetScreen').prepend(close);
+  }
+  if(close)close.hidden=!sheetOverlay;
+  if(!sheetOverlay)window.scrollTo(0,0);
+  else $('sheetScreen').scrollTop=0;
  }
  window.NEX_AUTO_BRIDGE={
    ready:()=>storageReady,
@@ -4991,6 +5009,26 @@ const PARANORMAL=[
  #campaignPanel #nexCampaignRoomFrame{height:460px;min-height:240px}
  #campaignPanel .nex-campaign-integrated{border-radius:8px;margin-left:-6px;margin-right:-6px}
  #campaignPanel .nex-campaign-legacy-inside{padding:8px 10px 16px}
+}
+</style>
+<style id="nex-vtt-sheet-overlay-style">
+/* Ficha operacional dentro da mesa: mantém o iframe, mapa e sincronização ativos. */
+body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){
+ position:fixed!important;z-index:1000002!important;top:3.5vh!important;left:50%!important;
+ transform:translateX(-50%)!important;width:min(1100px,93vw)!important;
+ max-width:93vw!important;height:93dvh!important;max-height:93dvh!important;
+ overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;
+ background:#0d0e12!important;border:1px solid #853b48!important;border-radius:12px!important;
+ box-shadow:0 20px 90px rgba(0,0,0,.8)!important;padding:8px 12px 24px!important;
+ scrollbar-color:#853b48 #17191d;
+}
+body.nex-vtt-sheet-overlay #sheetScreen:not(.hide) .shell{max-width:100%!important}
+#nexVttSheetClose{position:sticky;top:0;z-index:1000010;display:block;width:100%;
+ padding:12px 18px;margin:0 0 12px;background:#411e28;color:#fff;
+ border:1px solid #a44b59;border-radius:7px;font-weight:700;text-align:left}
+#nexVttSheetClose[hidden]{display:none!important}
+@media(max-width:700px){
+ body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){top:0!important;width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;padding:5px!important}
 }
 </style>
 <style id="nex-campaign-tabletop-fullscreen">
