@@ -10,6 +10,7 @@ import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp} from 'https://
  const getItems=()=>window.NEX51?.readLibrary?.()||[];
  const link=id=>{const url=new URL(location.href);url.searchParams.set('hbShare',id);url.hash='';return url.href;};
  const style=document.createElement('style');style.textContent='#nexHbShareAll{margin:8px 0 14px;padding:10px 13px;background:#69232e;color:#fff;border:1px solid #a94855;border-radius:7px;cursor:pointer}#nexHbShareDialog{width:min(94vw,650px);max-height:90vh;overflow:auto;background:#151116;color:#fff;border:1px solid #b34d5a;border-radius:11px;padding:18px}#nexHbShareDialog::backdrop{background:#000b}#nexHbShareDialog .hb-option{display:flex;gap:12px;padding:10px;border-bottom:1px solid #432c33}#nexHbShareDialog .hb-option small{display:block;color:#aaa}#nexHbShareDialog .hb-items{max-height:42vh;overflow:auto;border:1px solid #63414b;margin:10px 0;border-radius:5px}#nexHbShareDialog button{padding:9px 12px;border:1px solid #c55d6a;border-radius:6px;color:white;background:#862d3a;cursor:pointer}#nexHbShareDialog .hb-actions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}#nexHbShareDialog input[type=text]{width:100%;box-sizing:border-box;padding:10px;background:#0e0d10;color:white;border:1px solid #66414a}#nexHbShareDialog [hidden]{display:none!important}#nexHbShareStatus{color:#ffbfc7;min-height:20px}';
+ style.textContent+='#nexHbShareDialog .hb-option{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important}#nexHbShareDialog .hb-option input[type=checkbox]{appearance:auto!important;-webkit-appearance:checkbox!important;display:inline-block!important;flex:0 0 18px!important;width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;max-width:18px!important;max-height:18px!important;margin:0!important;padding:0!important;accent-color:#b23848;transform:none!important;position:static!important}#nexHbShareDialog .hb-option div{flex:1;min-width:0}';
  document.head.append(style);
  const all=document.createElement('button');all.id='nexHbShareAll';all.type='button';all.textContent='Compartilhar vários Homebrews';
  const toolbar=mount.querySelector('.nex52-toolbar');
@@ -58,7 +59,7 @@ import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp} from 'https://
   }catch(e){tell('Não foi possível abrir o link: '+(e.code==='permission-denied'?'permissões do Firebase ainda não ativadas':e.message));}
  }
  async function generate(){
-  const ids=selected(),items=getItems().filter(item=>ids.includes(item.id)),user=auth.currentUser;
+  const ids=selected(),items=JSON.parse(JSON.stringify(getItems().filter(item=>ids.includes(item.id)))),user=auth.currentUser;
   if(!user)return tell('Entre na sua conta NEX para gerar links.');
   if(!items.length||items.length>20)return tell('Selecione de 1 a 20 Homebrews.');
   if(new TextEncoder().encode(JSON.stringify(items)).length>850000)return tell('Pacote grande demais; compartilhe menos itens ou imagens menores.');
