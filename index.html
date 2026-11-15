@@ -1938,7 +1938,7 @@ body > #nexOriginPopup[hidden]{display:none!important;}
  <div class="home-section-heading"><h2>Central de operações</h2></div>
  <div class="home-grid"><button class="home-tile" data-home="agents"><span class="symbol">♙</span><strong>Meus personagens</strong><small>Visualize, abra e gerencie fichas de personagens.</small></button><button class="home-tile" data-home="new"><span class="symbol">＋</span><strong>Criar personagem</strong><small>Inicie uma nova ficha com as regras do NEX.</small></button><button class="home-tile" data-home="campaigns"><span class="symbol">◎</span><strong>Campanhas</strong><small>Crie mesas, convide amigos e acompanhe as fichas na mesma campanha.</small></button><button class="home-tile" data-home="threats"><span class="symbol">◈</span><strong>Ameaças</strong><small>Consulte criaturas por livro e elemento.</small></button><button class="home-tile" data-home="homebrew"><span class="symbol">✧</span><strong>Homebrew</strong><small>Crie e edite origens personalizadas na biblioteca independente.</small></button></div>
  <div class="home-section-heading" id="agentsHeading"><h2>Personagens registrados</h2><div class="home-toolbar"><button class="btn sm" id="menuBackup" style="display:none!important" aria-hidden="true" tabindex="-1">↓ Exportar ficha atual</button><button class="btn sm" id="menuImport" style="display:none!important" aria-hidden="true" tabindex="-1">↑ Importar ficha</button></div></div>
- <div id="menuAgents" class="home-card-list"></div><p class="hint" style="margin-top:15px">As fichas são vinculadas à sua conta NEX e sincronizadas com o Firebase. A cópia deste navegador serve apenas para recuperação se a conexão falhar.</p>
+ <div id="menuAgents" class="home-card-list"></div>
 </section>
 <section id="agentsPanel" class="hide agents-panel" aria-label="Personagens salvos">
  <div class="agents-panel-header">
@@ -1953,7 +1953,7 @@ body > #nexOriginPopup[hidden]{display:none!important;}
   </div>
  </div>
  <div class="agents-count-row">
-  <strong id="agentsCount">Agentes: 0/15</strong>
+  <strong id="agentsCount">Personagens: 0 fichas</strong>
   <div class="home-toolbar">
    <button class="btn sm" id="agentsImport" style="display:none!important" aria-hidden="true" tabindex="-1">↑ Importar ficha</button>
    <button class="btn sm" id="agentsBackup" style="display:none!important" aria-hidden="true" tabindex="-1">↓ Exportar ficha atual</button><button class="btn sm" type="button" id="nexToggleCopies" hidden>Mostrar todas as cópias</button>
@@ -3126,7 +3126,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   if(list)list.innerHTML=message+previewHtml;
   if(panel)panel.innerHTML=message+panelHtml;
   const toggle=$('nexToggleCopies');if(toggle){toggle.textContent=nexShowPreservedCopies?'Ocultar cópias preservadas':'Mostrar todas as cópias';toggle.hidden=!roster.hidden&&!nexShowPreservedCopies;}
-  if(count)count.textContent=`Agentes: ${agents.length} fichas · ${roster.hidden} cópia(s) agrupada(s)`;
+  if(count)count.textContent=`Personagens: ${agents.length} ${agents.length===1?"ficha":"fichas"}`;
  }
  function rehydrate(){state.homebrew=globalHomebrew();if(typeof nex12Ensure==='function')nex12Ensure();renderFields();if(typeof nex12PopulateOrigins==='function')nex12PopulateOrigins();if(typeof nex12RenderHomebrew==='function')nex12RenderHomebrew();if(typeof nex12RenderTrail==='function')nex12RenderTrail();if(typeof nex12RenderPowerList==='function')nex12RenderPowerList();if(typeof nex12RenderRitualList==='function')nex12RenderRitualList();if(typeof nex12UpdateTabVisibility==='function')nex12UpdateTabVisibility();renderAttacks();renderInventory();renderStats();if(window.NEX51)window.NEX51.renderSheet();}
  function openSharedReadOnlySheet(data,description={}){
