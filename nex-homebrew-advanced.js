@@ -35,7 +35,7 @@
  const THREAT_ATTRS=[['agi','Agilidade'],['for','Força'],['int','Intelecto'],['pre','Presença'],['vig','Vigor']];
  const THREAT_NUMERIC=[['defense','Defesa'],['pv','Pontos de Vida']];
  const THREAT_TESTS=[['fortitude','Fortitude'],['reflexos','Reflexos'],['vontade','Vontade'],['iniciativa','Iniciativa'],['percepcao','Percepção']];
- const THREAT_TEXT=[['deslocamento','Deslocamento'],['presencaPerturbadora','Presença perturbadora'],['sentidos','Sentidos'],['resistencias','Resistências a dano'],['imunidades','Imunidades'],['vulnerabilidades','Vulnerabilidades'],['pericias','Outras perícias'],['habilidades','Habilidades e características'],['enigma','Enigma de Medo'],['notas','Observações']];
+ const THREAT_TEXT=[['deslocamento','Deslocamento'],['presencaPerturbadora','Presença perturbadora'],['sentidos','Sentidos'],['resistencias','Resistências a dano'],['imunidades','Imunidades'],['vulnerabilidades','Vulnerabilidades'],['habilidades','Habilidades e características'],['enigma','Enigma de Medo'],['notas','Observações']];
  function normalizeThreat(x){
   const raw=x?.threatSheet&&typeof x.threatSheet==='object'?x.threatSheet:{};
   const attributes={};
@@ -277,7 +277,7 @@
  '<section class="nex-hb-threat-inline-section"><h4>Resistências</h4><textarea data-nex-threat-text="resistencias" maxlength="1200" rows="2" placeholder="Ex.: Sangue 10"></textarea></section>'+
  '<section class="nex-hb-threat-inline-section"><h4>Vulnerabilidades</h4><textarea data-nex-threat-text="vulnerabilidades" maxlength="1200" rows="2" placeholder="Ex.: Morte"></textarea></section>'+
  '<section class="nex-hb-threat-inline-section"><h4>Imunidades</h4><textarea data-nex-threat-text="imunidades" maxlength="1200" rows="2"></textarea></section>'+
- '<section class="nex-hb-threat-inline-section"><h4>Outras perícias</h4><textarea data-nex-threat-text="pericias" maxlength="1200" rows="2"></textarea></section></div>'+
+ '</div>'+
  '<div data-threat-editor-panel="combate" class="nex-hb-threat-combat-edit" hidden><section class="nex-hb-threat-inline-section"><h4>Ações e ataques</h4><button type="button" class="btn sm" id="nexHbThreatAddAction">+ Adicionar ação</button><div id="nexHbThreatActions"></div></section></div>'+
  '<div data-threat-editor-panel="descricao" class="nex-hb-threat-description-edit" hidden><section class="nex-hb-threat-inline-section"><h4>Descrição da ameaça</h4><div id="nexHbThreatDescriptionSlot"></div></section>'+THREAT_TEXT.filter(([id])=>['habilidades','enigma','notas'].includes(id)).map(([id,label])=>'<section class="nex-hb-threat-inline-section"><h4>'+label+'</h4><textarea data-nex-threat-text="'+id+'" maxlength="'+(id==='habilidades'?4000:1200)+'" rows="4"></textarea></section>').join('')+'</div>'+
  '</div>'+
@@ -394,7 +394,7 @@
    if(type==='ameaca')showThreatEditorTab('status');
    $('nex55DescriptionLabel').textContent=type==='item'?'Descrição (use B, I ou U para formatar)':'Descrição';
    $('nexHbDescriptionToolbar').hidden=true;
-   $('nex55RequirementsField').hidden=isTrail||isOrigin||isGeneral||type==='poder_paranormal'||type==='ritual'||type==='item'||type==='melhoria'||type==='maldicao';
+   $('nex55RequirementsField').hidden=isTrail||isOrigin||isGeneral||type==='poder_paranormal'||type==='ritual'||type==='item'||type==='melhoria'||type==='maldicao'||type==='ameaca';
    $('nex55DescriptionLabel').textContent=type==='item'||type==='melhoria'||type==='maldicao'?'Descrição':isOrigin||isGeneral||isParanormal?'Descrição':'Descrição e efeitos';
    $('nex51Name').placeholder=type==='ritual'?'Novo Ritual':isParanormal||isGeneral?'Nome do homebrew':'Nome';
    $('nex51Name').parentElement.classList.toggle('nex53-ritual-name',type==='ritual');
@@ -599,7 +599,7 @@
     note('Presença perturbadora',t.presencaPerturbadora)+
     '<h4>Testes de resistência</h4>'+[['Fortitude',t.fortitude],['Reflexos',t.reflexos],['Vontade',t.vontade]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
     '<h4>Sentidos</h4>'+[['Percepção',t.percepcao],['Iniciativa',t.iniciativa]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
-    note('Sentidos especiais',t.sentidos)+note('Outras perícias',t.pericias)+note('Resistências',t.resistencias)+note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades);
+    note('Sentidos especiais',t.sentidos)+note('Resistências',t.resistencias)+note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades);
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+note('Habilidades e características',t.habilidades)+note('Enigma de Medo',t.enigma)+note('Observações',t.notas);
   return '<section class="nex-hb-threat-sheet" data-nex-threat-preview>'+
