@@ -317,7 +317,7 @@
  '<section class="nex-hb-threat-inline-section"><h4>Imunidades</h4><textarea data-nex-threat-text="imunidades" maxlength="1200" rows="2"></textarea></section>'+
  '</div>'+
  '<div data-threat-editor-panel="combate" class="nex-hb-threat-combat-edit" hidden><section class="nex-hb-threat-inline-section"><h4>Ações e ataques</h4><button type="button" class="btn sm" id="nexHbThreatAddAction">+ Adicionar ação</button><div id="nexHbThreatActions"></div></section></div>'+
- '<div data-threat-editor-panel="descricao" class="nex-hb-threat-description-edit" hidden><section class="nex-hb-threat-inline-section"><h4>Descrição da ameaça</h4><div id="nexHbThreatDescriptionSlot"></div></section>'+THREAT_TEXT.filter(([id])=>['habilidades','enigma','notas'].includes(id)).map(([id,label])=>'<section class="nex-hb-threat-inline-section"><h4>'+label+'</h4><textarea data-nex-threat-text="'+id+'" maxlength="'+(id==='habilidades'?4000:1200)+'" rows="4"></textarea></section>').join('')+'</div>'+
+ '<div data-threat-editor-panel="descricao" class="nex-hb-threat-description-edit" hidden><section class="nex-hb-threat-inline-section"><h4>Descrição da ameaça</h4><div id="nexHbThreatDescriptionSlot"></div></section>'+THREAT_TEXT.filter(([id])=>id==='enigma').map(([id,label])=>'<section class="nex-hb-threat-inline-section"><h4>'+label+'</h4><textarea data-nex-threat-text="'+id+'" maxlength="1200" rows="4"></textarea></section>').join('')+'<div hidden aria-hidden="true"><textarea data-nex-threat-text="habilidades"></textarea><textarea data-nex-threat-text="notas"></textarea></div></div>'+
  '</div>'+
  '<div class="nex52-specific" id="nex52AbilityFields" hidden><label id="nex55ClassField">Classe<select id="nex51Class"><option>Livre</option><option>Combatente</option><option>Especialista</option><option>Ocultista</option></select></label>'+
  '<label id="nex51NexField">NEX mínimo<input id="nex51Nex" type="number" min="0" max="99" value="5"></label></div>'+
@@ -667,7 +667,7 @@
     '<h4>Sentidos</h4>'+[['Percepção',t.percepcao],['Iniciativa',t.iniciativa]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
     note('Sentidos especiais',t.sentidos)+note('Resistências',t.resistencias)+note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades);
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
-  const descriptionPanel=note('Descrição',item.description)+note('Habilidades e características',t.habilidades)+note('Enigma de Medo',t.enigma)+note('Observações',t.notas);
+  const descriptionPanel=note('Descrição',item.description)+note('Enigma de Medo',t.enigma);
   return '<section class="nex-hb-threat-sheet" data-nex-threat-preview>'+
    '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem da ameaça">':'')+
      '<div><small>HOMEBREW</small><h2>'+esc(item.name)+'</h2><p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span></div></div>'+
