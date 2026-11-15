@@ -120,7 +120,7 @@
  });
  const DELETED_KEY=KEY+'_deleted_ids_v1';
  function readDeletedIds(){
-  try{const entries=JSON.parse(localStorage.getItem(DELETED_KEY)||'[]');return new Set(Array.isArray(entries)?entries.filter(x=>typeof x==='string'&&/^[\\w-]{3,100}$/.test(x)).slice(-2000):[]);}
+  try{const entries=JSON.parse(localStorage.getItem(DELETED_KEY)||'[]');return new Set(Array.isArray(entries)?entries.filter(x=>typeof x==='string'&&/^[\w-]{3,100}$/.test(x)).slice(-2000):[]);}
   catch{return new Set();}
  }
  function markDeletedId(id){
@@ -276,6 +276,21 @@
 
 
 
+
+
+  /* Cartas da biblioteca Homebrew com o fundo do respectivo elemento. */
+  #homebrewScreen .nex52-card-threat{
+    background-color:#170f15!important;
+    background-image:linear-gradient(100deg,rgba(12,8,13,.9) 0%,rgba(18,9,15,.78) 62%,rgba(11,9,14,.70)),var(--nex-threat-card-bg)!important;
+    background-size:cover!important;background-position:center!important;
+    border-color:var(--nex-threat-card-accent,#a43d51)!important;
+    min-height:122px;
+  }
+  #homebrewScreen .nex52-card-threat::before{background:linear-gradient(90deg,rgba(10,7,11,.2),transparent)!important}
+  #homebrewScreen .nex52-card-threat .nex-hb-threat-card-element{display:inline-flex;align-self:flex-start;font-size:11px;padding:3px 8px;margin-bottom:5px;border:1px solid var(--nex-threat-card-accent,#a43d51);border-radius:5px;color:#fff;background:#120e12ab}
+  #homebrewScreen .nex52-card-threat .nex-hb-threat-card-portrait{position:relative;z-index:1;flex:0 0 90px;width:90px;height:90px;max-width:90px;object-fit:cover;border:1px solid var(--nex-threat-card-accent,#a43d51);border-radius:6px;align-self:center}
+  #homebrewScreen .nex52-card-threat .nex52-open{background:#9b2533;border:1px solid var(--nex-threat-card-accent,#a43d51)}
+  @media(max-width:550px){#homebrewScreen .nex52-card-threat .nex-hb-threat-card-portrait{flex-basis:65px;width:65px;height:65px}#homebrewScreen .nex52-card-threat{gap:8px}}
 
   /* O fundo do editor e da ficha é atualizado conforme o elemento escolhido. */
   #homebrewScreen .nex52-form #nex52ThreatFields.nex-hb-threat-editor{
@@ -860,8 +875,13 @@
  }
  function card(item){
    const details=meta(item);
-   return '<article class="nex52-card nex52-card-'+(item.type==='ameaca'?'threat':item.type==='ritual'?'ritual':item.type==='item'?'item':'ability')+'">'+
-    '<div class="nex52-card-data"><strong>'+esc(item.name)+'</strong><span>'+esc(details[0])+'</span><span>'+esc(details[1])+'</span></div>'+
+   const threat=item.type==='ameaca';
+   const bg=threat?(THREAT_BG[item.threatSheet?.element]||THREAT_BG.Sangue):null;
+   const theme=bg?' style="--nex-threat-card-bg:url(&quot;./assets/rituais/'+esc(bg.file)+'&quot;);--nex-threat-card-accent:'+esc(bg.color)+'"':'';
+   const portrait=threat&&item.image?'<img class="nex-hb-threat-card-portrait" src="'+esc(item.image)+'" alt="" loading="lazy">':'';
+   const tag=threat?'<span class="nex-hb-threat-card-element">'+esc(item.threatSheet?.element||'Sangue')+'</span>':'';
+   return '<article class="nex52-card nex52-card-'+(threat?'threat':item.type==='ritual'?'ritual':item.type==='item'?'item':'ability')+'"'+theme+'>'+
+    portrait+'<div class="nex52-card-data"><strong>'+esc(item.name)+'</strong>'+tag+'<span>'+esc(details[0])+'</span><span>'+esc(details[1])+'</span></div>'+
     '<div class="nex52-card-controls"><button type="button" data-nex52-settings="'+esc(item.id)+'" class="nex52-gear" aria-label="Opções para '+esc(item.name)+'" aria-expanded="false">⚙</button>'+
     '<div class="nex52-settings" data-nex52-menu="'+esc(item.id)+'" hidden><button type="button" data-nex52-edit="'+esc(item.id)+'">Editar</button><button type="button" data-nex52-delete="'+esc(item.id)+'">Excluir</button></div>'+
     '<button type="button" class="nex52-open" data-nex52-view="'+esc(item.id)+'">Ficha</button></div></article>';
