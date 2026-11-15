@@ -15,7 +15,7 @@ window.NEX_ARQUIVOS_FOTOS_CONFIRMADAS={
 "Arquivos Secretos — Maio::Fummu":11,
 "Arquivos Secretos — Maio::Doppelganger Civil":12,
 "Arquivos Secretos — Maio::Doppelganger Cultista":13,
-"Arquivos Secretos — Maio::Doppelganger Monstruoso":14,
+"Arquivos Secretos — Maio::Bilu":14,
 "Arquivos Secretos — Maio::Rastropoda":15,
 "Arquivos Secretos — Maio::Memoflígico":16,
 "Arquivos Secretos — Maio::Doppelganger Combatente":17,
