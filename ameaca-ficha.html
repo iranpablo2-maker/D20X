@@ -89,7 +89,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <script src="./nex-ameacas-imagens-principais.js?v=20261114sah1"></script>
 <script src="./nex-arquivos-retratos-abril-junho.js?v=20261114retratos1"></script>
 <script src="./nex-ameacas-imagens-arquivos.js?v=nov14links4"></script>
-<script src="./nex-arquivos-zip-imagens.js?v=2"></script>
+<script src="./nex-arquivos-zip-imagens.js?v=20261115nov1"></script>
 <script src="./nex-ameacas-julho.js?v=20261114jul3"></script>
 <script src="./nex-arquivos-ameacas-faltantes.js?v=20261114completas2"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos3"></script>
@@ -419,6 +419,24 @@ function render(){
   };
   portrait.appendChild(face);
   face.src=pairedImage+"?v=20261114faces3";
+ }
+ // Arte do pacote de 20 imagens enviado pelo usuário: prevalece sobre retratos anteriores.
+ if(window.NEX_UPLOADED_THREAT_IMAGE_URL){
+  const uploadedKey=currentForm==="alternativa"&&baseThreat.name==="Raziel"&&baseThreat.source==="Arquivos Secretos — Julho"
+   ?"Arquivos Secretos — Julho::O Verdadeiro Raziel":photoKey;
+  if((window.NEX_UPLOADED_THREAT_IMAGES||{})[uploadedKey]){
+   const uploaded=document.createElement("img");
+   uploaded.alt="Retrato de "+threat.name;
+   uploaded.loading="lazy";
+   uploaded.decoding="async";
+   uploaded.style.cssText="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#160e12;border-radius:8px;opacity:0";
+   portrait.appendChild(uploaded);
+   window.NEX_UPLOADED_THREAT_IMAGE_URL(uploadedKey).then(url=>{
+    if(!url||!uploaded.isConnected)return;
+    uploaded.onload=()=>{uploaded.style.opacity="1";if(thumbnail)thumbnail.hidden=true};
+    uploaded.src=url;
+   }).catch(error=>console.warn("Retrato enviado indisponível:",uploadedKey,error));
+  }
  }
  const rollRows=items=>Array.isArray(items)?items.filter(v=>Array.isArray(v)&&hasValue(v[0])&&hasValue(v[1])).map(v=>'<div class="skill"><span>'+esc(v[0])+'</span><strong>'+esc(v[1])+'</strong></div>').join(""):"";
 
