@@ -10,9 +10,12 @@
  const CURSED_KINDS=['Armas Amaldiçoadas','Proteções Amaldiçoadas','Munições Amaldiçoadas','Acessórios Amaldiçoados','Itens Paranormais'];
  const IMPROVEMENT_TARGETS=['Armas','Munições','Proteções','Geral'];
  const EFFECT_TYPES=[['','Sem bônus automático'],['pv','PV máximo'],['pe','PE máximo'],['san','SAN máxima'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Redução de dano'],['pericia','Perícia'],['iniciativa','Iniciativa'],['fortitude','Fortitude'],['reflexos','Reflexos'],['vontade','Vontade'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['carga','Capacidade de carga']];
+ const parseEffects=(items,type,value,skill)=>{const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);return src.slice(0,20).filter(b=>b&&EFFECT_TYPES.some(([id])=>id&&id===b.type)).map(b=>({type:b.type,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:b.type==='pericia'?cut(b.skill||'',60):''}));};
  const effectApplicable=x=>['origem','poder_paranormal','poder_geral','poder','habilidade','trilha','maldicao'].includes(x.type)||(x.type==='item'&&x.category==='Itens Amaldiçoados');
  const BONUS_TYPES=[['ataque','Bônus de ataque'],['dano','Bônus de dano'],['critico','Margem de crítico'],['multiplicador','Multiplicador crítico'],['defesa','Defesa'],['resistencia','Redução de dano'],['espacos','Espaços ocupados'],['pericia','Testes de perícia']];
  let customItemImprovements=[];
+ let effectRows=[];
+ const trailRows={};
  const $=id=>document.getElementById(id);
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&#39;'}[c]));
  const cut=(v,max)=>String(v??'').trim().slice(0,max);
@@ -51,6 +54,7 @@
    bonusSkill:cut(x.bonusSkill||'',60),
    effectBonusType:EFFECT_TYPES.some(([k])=>k===x.effectBonusType)?x.effectBonusType:'',
    effectBonusValue:Number.isFinite(Number(x.effectBonusValue))?Math.max(-999,Math.min(999,Number(x.effectBonusValue))):0,
+   effectBonuses:parseEffects(x.effectBonuses,x.effectBonusType,x.effectBonusValue,x.effectBonusSkill),
    accessoryBonus:num(x.accessoryBonus,0,10,0),
    accessorySkill:cut(x.accessorySkill||'',60),
    itemTier:['0','I','II','III','IV'].includes(String(x.itemTier||''))?String(x.itemTier):'0',
@@ -73,7 +77,7 @@
    trailAbilities:x.type==='trilha'?TRAIL_NEX.map((n,i)=>{
      const list=Array.isArray(x.trailAbilities)?x.trailAbilities:[];
      const saved=list.find(item=>item&&Number(item.nex)===n)||list[i]||{};
-     return {nex:n,name:cut(saved.name,90),description:cut(saved.description,1600),bonusType:EFFECT_TYPES.some(([k])=>k===saved.bonusType)?saved.bonusType:'',bonusValue:Number.isFinite(Number(saved.bonusValue))?Math.max(-999,Math.min(999,Number(saved.bonusValue))):0};
+     return {nex:n,name:cut(saved.name,90),description:cut(saved.description,1600),bonusType:'',bonusValue:0,bonuses:parseEffects(saved.bonuses,saved.bonusType,saved.bonusValue,saved.bonusSkill)};
    }):[]
  });
  function read(){
@@ -182,11 +186,11 @@
  '<div class="nex-hb-bonus-grid"><label>Tipo de bônus<select id="nexHbBonusType">'+BONUS_TYPES.map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('')+'</select></label>'+
  '<label>Valor do bônus<input id="nexHbBonusValue" type="text" maxlength="3" inputmode="numeric" placeholder="+1 até +10" value="+2" required></label><label id="nexHbBonusSkillField" hidden>Perícia beneficiada<select id="nexHbBonusSkill"><option value="">Selecione a perícia</option></select></label></div></div>'+ 
  '<div id="nexHbCurseFields" class="nex52-specific nex52-full" hidden><label>Elemento<select id="nexHbCurseElement"><option>Sangue</option><option>Morte</option><option>Energia</option><option>Conhecimento</option><option>Medo</option></select></label><label>Aplicável a<select id="nexHbCurseTarget"><option>Armas</option><option>Proteções</option><option>Munições</option><option>Acessórios</option><option>Itens Gerais</option></select></label></div>'+ 
- '<div id="nexHbEffectBonusFields" class="nex52-full nex-hb-bonus-grid" hidden><label>Tipo de bônus<select id="nexHbEffectBonusType">'+EFFECT_TYPES.map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('')+'</select></label><label>Valor do bônus<input id="nexHbEffectBonusValue" type="number" min="-999" max="999" step="1" value="0"></label></div>'+ 
+ '<div id="nexHbEffectBonusFields" class="nex52-full" hidden><button type="button" class="btn" data-effect-add="main">+ Adicionar bônus</button><div id="nexHbEffectBonusList"></div></div>'+
  '<div id="nex53TrailFields" class="nex53-trail-fields nex52-full" hidden><p>Configure o nome e o efeito de cada marco de NEX.</p>'+
  TRAIL_NEX.map((n,i)=>'<fieldset class="nex53-trail-step"><legend>NEX '+n+'% · Habilidade '+(i+1)+'</legend>'+
  '<label>Nome da habilidade<input type="text" id="nex53TrailName'+n+'" maxlength="90" placeholder="Nome da habilidade de '+n+'%"></label>'+
- '<label>Descrição e efeitos<textarea id="nex53TrailDescription'+n+'" maxlength="1600" rows="3" placeholder="Descreva o efeito concedido em '+n+'% de NEX"></textarea></label><label>Tipo de bônus<select id="nex53TrailBonusType'+n+'">'+EFFECT_TYPES.map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('')+'</select></label><label>Valor do bônus<input type="number" id="nex53TrailBonusValue'+n+'" min="-999" max="999" step="1" value="0"></label></fieldset>').join('')+'</div>'+
+ '<label>Descrição e efeitos<textarea id="nex53TrailDescription'+n+'" maxlength="1600" rows="3"></textarea></label><button type="button" class="btn" data-effect-add="'+n+'">+ Adicionar bônus</button><div id="nex53TrailBonusList'+n+'"></div></fieldset>').join('')+'</div>'+
  '<div class="nex55-origin-skills nex52-full" id="nex55OriginSkills" hidden><label>Primeira perícia<select id="nex55Skill1"><option value="">Escolha a primeira perícia</option></select></label>'+
  '<label>Segunda perícia<select id="nex55Skill2"><option value="">Escolha a segunda perícia</option></select></label>'+
  '<p>Ao aplicar esta origem, as duas perícias ficam treinadas (+5) automaticamente na ficha, sem reduzir treinamentos existentes.</p></div>'+
