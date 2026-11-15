@@ -779,8 +779,8 @@
  }
  function view(item){
    opened=item.id;const info=meta(item);
-   $('nex52DetailBody').innerHTML='<div class="nex52-detail-top"><span>'+esc(LABEL[item.type])+'</span><h3>'+esc(item.name)+'</h3></div>'+
-     '<p class="nex52-detail-meta">'+esc(info.join(' · '))+'</p>'+
+   $('nex52DetailBody').innerHTML=(item.type==='ameaca'?'':'<div class="nex52-detail-top"><span>'+esc(LABEL[item.type])+'</span><h3>'+esc(item.name)+'</h3></div>'+
+     '<p class="nex52-detail-meta">'+esc(info.join(' · '))+'</p>')+
      (item.type==='ameaca'?threatDetails(item):'')+
      (item.type==='ameaca'?'':item.description?'<h4>Descrição</h4><p>'+(item.type==='item'?formattedDescription(item.description):esc(item.description))+'</p>':'<p>Sem descrição.</p>')+
      (item.requirements?'<h4>Pré-requisitos</h4><p>'+esc(item.requirements)+'</p>':'')+
