@@ -83,7 +83,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <div class="page" id="status"></div><div class="page" id="combat" hidden></div><div class="page" id="description" hidden></div></div>
 <div id="missing" class="card" hidden>Ameaça não encontrada. <a href="./ameacas.html">Voltar ao catálogo.</a></div>
 </div>
-<script src="./nex-ameacas-complemento.js?v=20261115assecla"></script>
+<script src="./nex-ameacas-complemento.js?v=20261115complete2"></script>
 <script src="./nex-ameacas-livro-basico.js?v=20261114basic1"></script>
 <script src="./nex-ameacas-basico-completo.js?v=20261114base2"></script>
 <script src="./nex-ameacas-imagens-principais.js?v=20261114sah1"></script>
@@ -544,7 +544,7 @@ function explainThreatAbility(ability,threatData){
  $("description").innerHTML='<h2>'+esc(threat.name)+'</h2><p class="muted">'+esc(threat.source)+(d.pdfPage?' · PDF, página '+d.pdfPage:threat.page?' · livro, página '+threat.page:'')+'</p>'+
  '<p class="lines">'+esc(descriptionText)+'</p>'+
  (profile.length?'<h2>Características e comportamento em jogo</h2><p class="lines">'+esc(profile.join("\n\n"))+'</p>':"")+
- '<p class="note">Apresentação original para consulta, não transcrição do texto do livro. Para a narrativa integral e as condições completas, use a página indicada da obra.</p>';
+ '';
  const visiblePV=Number(d.pv);
  $("hpBar").hidden=!(Number.isFinite(visiblePV)&&visiblePV>0);
  $("hpTrack").hidden=!(Number.isFinite(visiblePV)&&visiblePV>0);
@@ -564,6 +564,18 @@ if(embedded){
  });
  document.querySelector(".brand").textContent="NEX | Ficha de Ameaça";
 }
+// Ajusta a altura da ficha para que a biblioteca use a barra de rolagem do site.
+let nexLastSheetHeight=0;
+function nexReportSheetHeight(){
+ if(window.parent===window)return;
+ const height=Math.ceil(document.documentElement.scrollHeight);
+ if(height>0&&Math.abs(height-nexLastSheetHeight)>2){
+  nexLastSheetHeight=height;
+  window.parent.postMessage({type:"nex-threat-sheet-height",height},location.origin);
+ }
+}
+if(window.ResizeObserver)new ResizeObserver(()=>requestAnimationFrame(nexReportSheetHeight)).observe(document.body);
+window.addEventListener("load",nexReportSheetHeight);
 if(threat){$("screen").hidden=false;render()}else{$("missing").hidden=false}
 </script>
 </body></html>
