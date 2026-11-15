@@ -161,7 +161,7 @@ function hasCoreStats(x){
 }
 function draw(){
  drawTabs(sourceEl,sourceOptions,source,"source");drawTabs(elementsEl,elementOptions,element,"element");
- const items=records.filter(x=>!NEX_THREATS_HIDDEN.has(String(x.name||"").trim())).filter(x=>(source==="Todas as fontes"||x.source===source||(source==="Arquivos Secretos"&&x.source.startsWith("Arquivos Secretos — ")))&&(element==="Todos"||x.element===element)&&(!search||(x.name+" "+x.source+" "+x.element).toLocaleLowerCase("pt-BR").includes(search)));
+ const items=records.filter(x=>!NEX_THREATS_HIDDEN.has(String(x.name||"").trim())).filter(x=>(source==="Todas as fontes"||x.source===source||(source==="Arquivos Secretos"&&x.source.startsWith("Arquivos Secretos — ")))&&(element==="Todos"||x.element===element)&&(!search||(x.name+" "+x.source+" "+x.element).toLocaleLowerCase("pt-BR").includes(search))).sort((a,b)=>a.name.localeCompare(b.name,"pt-BR",{sensitivity:"base",numeric:true}));
  const reviewed=records.filter(hasCoreStats).length;
  $("total").textContent=reviewed+" com dados de ficha · "+(records.length-reviewed)+" ainda incompletas";
  $("count").textContent=items.length+" ameaça(s)";
@@ -215,7 +215,7 @@ function openThreatDetail(key){
  if(!records.some(x=>threatKey(x)===key))return;
  document.body.classList.add("detail-open");
  threatDetailView.hidden=false;
- threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&v=20261114ameacas53";
+ threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&v=20261115ameacas54";
  window.scrollTo(0,0);
 }
 function closeThreatDetail(){
