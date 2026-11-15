@@ -350,6 +350,58 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 }
 </style>
 
+
+<style id="nex-vtt-drawing-menu-style">
+#roomTabletopPanel #nexVttDrawMenu{
+ position:fixed!important;top:110px!important;left:51px!important;z-index:16000!important;
+ width:270px!important;padding:0!important;background:#f9f9fb!important;color:#353139!important;
+ border:1px solid #d1d1d7!important;border-radius:10px!important;
+ box-shadow:0 8px 22px #0003!important;overflow:hidden!important;
+ font:13px/1.4 system-ui,sans-serif!important;
+}
+#roomTabletopPanel #nexVttDrawMenu[hidden]{display:none!important}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-top{
+ display:flex!important;align-items:center!important;gap:8px!important;
+ padding:10px 11px!important;border-bottom:1px solid #dadbe0!important;background:#fff!important;
+}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-top input[type=color]{
+ flex:0 0 34px!important;width:34px!important;height:34px!important;
+ border:2px solid #afb6c4!important;border-radius:5px!important;padding:2px!important;
+ background:white!important;cursor:pointer!important;
+}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-transparent{
+ flex:0 0 34px!important;width:34px!important;height:34px!important;
+ background:repeating-conic-gradient(#dedee2 0 25%,#fff 0 50%) 0 0/14px 14px!important;
+ border:2px solid transparent!important;border-radius:5px!important;font-size:0!important;
+}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-transparent[aria-pressed=true]{border-color:#3559ea!important}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-top select{
+ flex:1 1 auto!important;min-width:0!important;width:auto!important;
+ height:34px!important;margin:0!important;padding:5px 22px 5px 8px!important;
+ background:#f4f4f7!important;color:#4f4d55!important;border:0!important;
+ border-radius:6px!important;font-size:13px!important;
+}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-list{display:flex!important;flex-direction:column!important;padding:5px!important}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-list button{
+ display:flex!important;align-items:center!important;gap:9px!important;width:100%!important;
+ min-height:36px!important;margin:0!important;padding:6px 8px!important;
+ background:transparent!important;color:#33313a!important;border:0!important;
+ border-radius:6px!important;text-align:left!important;font-size:13px!important;
+}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-list button:hover,
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-list button[aria-pressed=true]{background:#e5e7ef!important}
+#roomTabletopPanel #nexVttDrawMenu .draw-glyph{display:inline-flex!important;flex:0 0 18px!important;justify-content:center!important;font-size:17px!important}
+#roomTabletopPanel #nexVttDrawMenu .draw-label{flex:1!important}
+#roomTabletopPanel #nexVttDrawMenu .draw-key{font-size:12px!important;color:#7b7b83!important;white-space:nowrap!important}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-clear-draw{
+ display:block!important;width:100%!important;text-align:left!important;
+ padding:12px 14px!important;background:#fff!important;border:0!important;
+ border-top:1px solid #e3e3e8!important;color:#e33a48!important;
+ font-size:13px!important;font-weight:500!important;
+}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-clear-draw:hover{background:#fff1f2!important}
+@media(max-width:550px){#roomTabletopPanel #nexVttDrawMenu{left:45px!important;width:min(270px,calc(100vw - 52px))!important}}
+</style>
 <style id="nex-vtt-layout-light-roll20">
 /* NEX Virtual Tabletop: light workspace, 25x25 board and slim tool strip. */
 #room #roomTabletopPanel:not(.hide){
@@ -913,7 +965,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115roll20light5';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115drawmenu6';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
