@@ -101,7 +101,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  });
 
  // Expanded Roll20-inspired VTT toolbar; all shared changes use the existing campaign document.
- let vttMode='select',vttZoom=.45,vttDraft=null,vttPan=null,vttColor='#e4677c',vttManualZoom=false,vttTokenInspectorOpen=false;
+ let vttMode='select',vttZoom=.45,vttDraft=null,vttPan=null,vttColor='#3157f5',vttStroke=3,vttTransparent=true,vttManualZoom=false,vttTokenInspectorOpen=false;
  const vttBar=document.createElement('nav');vttBar.id='nexVttBar';vttBar.setAttribute('aria-label','Ferramentas da mesa');
  const vttOptions=document.createElement('div');vttOptions.id='nexVttOptions';vttOptions.hidden=true;
  const vttSide=document.createElement('div');vttSide.id='nexVttTokenProperties';vttSide.hidden=true;
@@ -115,6 +115,51 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  document.head.append(vttStyle);
  const vttSidebar=tools.closest('.nex-vtt-sidebar');
  vttSidebar?.prepend(vttBar);
+ const drawMenu=document.createElement('div');
+ drawMenu.id='nexVttDrawMenu';drawMenu.hidden=true;
+ drawMenu.setAttribute('aria-label','Ferramentas de desenho');
+ vttSidebar?.append(drawMenu);
+ const drawingModes=new Set(['draw','line','rectangle','circle']);
+ const drawModeLabel={draw:'À Mão Livre',line:'Caneta/Linha',rectangle:'Retângulo',circle:'Elipse'};
+ function closeDrawMenu(){drawMenu.hidden=true;drawToggle?.setAttribute('aria-expanded','false');}
+ let drawToggle=null;
+ function showDrawMenu(){
+   if(!gm)return;
+   drawMenu.hidden=!drawMenu.hidden;
+   drawToggle?.setAttribute('aria-expanded',String(!drawMenu.hidden));
+ }
+ function drawMenuRefresh(){
+   drawMenu.replaceChildren();
+   const top=document.createElement('div');top.className='nex-vtt-draw-top';
+   const color=document.createElement('input');color.type='color';color.value=vttColor;color.title='Escolher cor';color.setAttribute('aria-label','Cor do desenho');
+   color.addEventListener('input',()=>{vttColor=color.value;});
+   const transparent=document.createElement('button');transparent.type='button';transparent.className='nex-vtt-transparent';
+   transparent.title='Alternar preenchimento transparente';transparent.setAttribute('aria-label','Preenchimento transparente');
+   transparent.setAttribute('aria-pressed',String(vttTransparent));
+   transparent.textContent='▧';
+   transparent.addEventListener('click',()=>{vttTransparent=!vttTransparent;transparent.setAttribute('aria-pressed',String(vttTransparent));});
+   const widths=document.createElement('select');widths.setAttribute('aria-label','Espessura do traço');
+   for(const [value,title] of [['2','Fino'],['3','Normal'],['6','Grosso']]){const option=document.createElement('option');option.value=value;option.textContent=title;widths.append(option);}
+   widths.value=String(vttStroke);
+   widths.addEventListener('change',()=>{vttStroke=Number(widths.value);});
+   top.append(color,transparent,widths);drawMenu.append(top);
+   const line=document.createElement('div');line.className='nex-vtt-draw-list';drawMenu.append(line);
+   for(const [mode,icon,label,shortcut] of [['draw','✎','À Mão Livre','Ctrl + F'],['line','◩','Caneta/Linha',''],['rectangle','■','Retângulo','Ctrl + D'],['circle','●','Elipse','']]){
+     const button=document.createElement('button');button.type='button';
+     button.innerHTML='<span class="draw-glyph"></span><span class="draw-label"></span><span class="draw-key"></span>';
+     button.querySelector('.draw-glyph').textContent=icon;
+     button.querySelector('.draw-label').textContent=label;
+     button.querySelector('.draw-key').textContent=shortcut;
+     button.setAttribute('aria-pressed',String(vttMode===mode));
+     button.addEventListener('click',()=>{vttSetMode(mode);closeDrawMenu();});
+     line.append(button);
+   }
+   const clear=document.createElement('button');clear.type='button';clear.className='nex-vtt-clear-draw';
+   clear.textContent='🗑 Limpar desenhos e texto';
+   clear.addEventListener('click',()=>{if(!confirm('Apagar todos os desenhos e textos do mapa?'))return;scene.drawings=[];render();save();closeDrawMenu();});
+   drawMenu.append(clear);
+ }
+ drawMenuRefresh();
  const vttStage=board.closest('.nex-vtt-stage');
  vttStage?.append(vttOptions,vttSide);
  const vttPanel=board.closest('#roomTabletopPanel');
@@ -139,11 +184,25 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  const vttLog=document.createElement('div');vttLog.style.cssText='position:absolute;bottom:6px;right:6px;background:#171015ee;color:#fff;z-index:8;padding:8px;border-radius:5px;pointer-events:none;font-size:12px';vttLog.hidden=true;board.append(vttLog);
  const vttButtons=new Map();
  function vttButton(label,title,callback,disabled=false){const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);b.disabled=disabled;b.addEventListener('click',callback);vttBar.append(b);return b;}
- function vttSetMode(mode){vttMode=mode;for(const [key,button] of vttButtons)button.setAttribute('aria-pressed',String(key===mode));vttOptions.hidden=true;board.style.cursor=mode==='select'?'default':mode==='pan'?'grab':'crosshair';}
+ function vttSetMode(mode){vttMode=mode;for(const [key,button] of vttButtons)button.setAttribute('aria-pressed',String(key===mode));if(drawToggle)drawToggle.setAttribute('aria-pressed',String(drawingModes.has(mode)));vttOptions.hidden=true;board.style.cursor=mode==='select'?'default':mode==='pan'?'grab':'crosshair';}
  vttButton('☰','Abrir ou recolher o painel de fichas',()=>document.getElementById('nexVttSheetsToggle')?.click());
- for(const [mode,symbol,title] of [['select','➤','Selecionar'],['pan','✋','Mover mapa'],['draw','✎','Desenhar'],['line','╱','Linha'],['rectangle','▭','Retângulo'],['circle','◯','Círculo'],['text','T','Texto'],['measure','⌁','Medir distância'],['marker','⌖','Marcador'],['fog','◐','Revelar névoa']]){
+ for(const [mode,symbol,title] of [['select','➤','Selecionar'],['pan','✋','Mover mapa'],['text','T','Texto'],['measure','⌁','Medir distância'],['marker','⌖','Marcador'],['fog','◐','Revelar névoa']]){
    vttButtons.set(mode,vttButton(symbol,title,()=>vttSetMode(mode),!gm&&!['select','pan','measure'].includes(mode)));
  }
+ drawToggle=vttButton('✎','Desenhar: abrir ferramentas',()=>{drawMenuRefresh();showDrawMenu();},!gm);
+ drawToggle.setAttribute('aria-expanded','false');drawToggle.setAttribute('aria-controls','nexVttDrawMenu');
+ const textTool=vttButtons.get('text');
+ vttBar.insertBefore(drawToggle,textTool);
+ listen(document,'pointerdown',event=>{if(!drawMenu.hidden&&!drawMenu.contains(event.target)&&event.target!==drawToggle)closeDrawMenu();});
+ listen(document,'keydown',event=>{
+   const active=vttPanel?.classList.contains('hide')===false;
+   if(!gm||!active||isTyping(event)||event.altKey||event.metaKey)return;
+   if(event.key==='Escape'){closeDrawMenu();return;}
+   if(event.ctrlKey&&!event.shiftKey){
+     if(event.key.toLowerCase()==='f'){event.preventDefault();vttSetMode('draw');closeDrawMenu();}
+     if(event.key.toLowerCase()==='d'){event.preventDefault();vttSetMode('rectangle');closeDrawMenu();}
+   }
+ });
  const vttZoomRail=document.createElement('div');vttZoomRail.id='nexVttZoomRail';
  const vttZoomPlus=vttButton('+','Aumentar zoom',()=>{vttManualZoom=true;vttChangeZoom(.05);});
  const vttZoomText=document.createElement('span');vttZoomText.id='nexVttZoomValue';vttZoomText.style.cssText='color:white;font-size:12px;text-align:center;font-weight:700'; 
@@ -187,7 +246,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  requestAnimationFrame(()=>vttFitZoom());
  const vttEl=(tag,attrs,parent)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);parent.append(n);return n;};
  function vttPaint(d,layer){
-   const attrs={stroke:d.color||'#e4677c','stroke-width':3,fill:'none','stroke-linecap':'round'};
+   const attrs={stroke:d.color||'#3157f5','stroke-width':d.width||3,fill:(d.filled&&['rectangle','circle'].includes(d.type))?(d.color||'#3157f5'):'none','fill-opacity':d.filled?'.3':'1','stroke-linecap':'round'};
    if(d.type==='line'||d.type==='measure')vttEl('line',{...attrs,x1:d.x,y1:d.y,x2:d.x2,y2:d.y2},layer);
    if(d.type==='rectangle')vttEl('rect',{...attrs,x:Math.min(d.x,d.x2),y:Math.min(d.y,d.y2),width:Math.abs(d.x2-d.x),height:Math.abs(d.y2-d.y)},layer);
    if(d.type==='circle')vttEl('circle',{...attrs,cx:d.x,cy:d.y,r:Math.hypot(d.x2-d.x,d.y2-d.y)},layer);
@@ -255,7 +314,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
    if(vttMode==='fog'){if(!scene.fogEnabled)return message('Ative a névoa nas opções de grade.');scene.revealed.push(p);render();save();return;}
    if(vttMode==='text'){const text=prompt('Texto no mapa:');if(text){scene.drawings.push({type:'text',...p,text:text.slice(0,80),color:vttColor});render();save();}return;}
    if(vttMode==='marker'){scene.drawings.push({type:'marker',...p,color:vttColor});render();save();return;}
-   vttDraft={type:vttMode,...p,x2:p.x,y2:p.y,color:vttColor,points:[[p.x,p.y]]};
+   vttDraft={type:vttMode,...p,x2:p.x,y2:p.y,color:vttColor,width:vttStroke,filled:!vttTransparent,points:[[p.x,p.y]]};
    e.preventDefault();
  });
  listen(board,'pointermove',e=>{
@@ -277,5 +336,5 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   remoteReady=true;render();message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Tabletop disponível nesta sessão. Para sincronização online, atualize as regras do Firestore.');console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();vttResizeObserver?.disconnect();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();vttResizeObserver?.disconnect();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
 }
