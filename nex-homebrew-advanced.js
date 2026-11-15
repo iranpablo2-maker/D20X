@@ -339,7 +339,7 @@
      $('nex53RitualImage').value=item.image?.startsWith('https://')?item.image:'';
      $('nex53RitualPreview').hidden=!item.image;
      if(item.image)$('nex53RitualPreview').src=item.image;
-     $('nex53ParanormalElement').value=['Sangue','Morte','Energia','Conhecimento','Medo'].includes(item.element)?item.element:'Sangue';$('nex51Cost').value=item.cost;
+     $('nex53ParanormalElement').value=['Sangue','Morte','Energia','Conhecimento','Medo'].includes(item.element)?item.element:'Sangue';if($('nex51Cost'))$('nex51Cost').value=item.cost;
      $('nex52VD').value=item.vd;$('nex52Size').value=item.size;
      $('nex52CreatureType').value=item.creatureType;
      $('nex52Category').value=canonicalCategory(item.category);
@@ -591,8 +591,11 @@
    const index=Number(button.dataset.nex52ImprovementRemove);
    if(Number.isInteger(index)&&index>=0&&index<customItemImprovements.length){customItemImprovements.splice(index,1);renderItemImprovements();}
  });
+ // Desativa bloqueios silenciosos de validação em campos escondidos; o editor valida os campos ativos.
+ $('nex51Form').noValidate=true;
  $('nex51Form').addEventListener('submit',e=>{
-   e.preventDefault();const type=$('nex51Type').value,name=cut($('nex51Name').value,90);
+   e.preventDefault();
+   try{const type=$('nex51Type').value,name=cut($('nex51Name').value,90);
    if(!Object.hasOwn(LABEL,type)||!name){message('Informe um nome e um tipo.');return;}
    const all=read(),editing=$('nex51Edit').value,old=all.find(x=>x.id===editing);
    if(editing&&!old){message('O conteúdo original não foi encontrado.');return;}
@@ -624,7 +627,7 @@
      id:editing||'hb51_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,9),
      type,name,description:$('nex51Description').value,requirements:$('nex51Requirements').value,
      className:$('nex51Class').value,minNex:['trilha','origem','poder_geral','poder','habilidade'].includes(type)?(old?.minNex??(type==='trilha'?10:5)):$('nex51Nex').value,circle:$('nex51Circle').value,
-     element:type==='maldicao'?$('nexHbCurseElement').value:type==='item'&&tab==='paranormal'?$('nexHbElement').value:type==='poder_paranormal'?$('nex53ParanormalElement').value:$('nex51Element').value,cost:$('nex51Cost').value,vd:$('nex52VD').value,
+     element:type==='maldicao'?$('nexHbCurseElement').value:type==='item'&&tab==='paranormal'?$('nexHbElement').value:type==='poder_paranormal'?$('nex53ParanormalElement').value:$('nex51Element').value,cost:($('nex51Cost')?.value||old?.cost||0),vd:$('nex52VD').value,
      ritualType:type==='ritual'?$('nex53RitualType').value:(old?.ritualType||'Suporte'),
      discenteCircle:type==='ritual'?$('nex53DiscenteCircle').value:old?.discenteCircle,
      verdadeiroCircle:type==='ritual'?$('nex53VerdadeiroCircle').value:old?.verdadeiroCircle,
@@ -684,6 +687,10 @@
      closeEditor();renderLibrary();
      message(editing?'Homebrew atualizado. Fichas já associadas continuam com a versão anterior.':'Homebrew salvo!');
    }catch(error){console.error(error);message('Falha ao salvar o homebrew neste dispositivo.');}
+   }catch(error){
+     console.error('NEX: falha ao processar salvamento de homebrew',error);
+     message('Não foi possível salvar: '+String(error?.message||error));
+   }
  });
  $('nex51List').addEventListener('click',e=>{
    const btn=e.target.closest('button');if(!btn)return;
