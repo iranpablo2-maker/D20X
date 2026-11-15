@@ -90,6 +90,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <script src="./nex-arquivos-retratos-abril-junho.js?v=20261114retratos1"></script>
 <script src="./nex-ameacas-imagens-arquivos.js?v=nov15assecla"></script>
 <script src="./nex-arquivos-zip-imagens.js?v=20261115nov2"></script>
+<script src="./nex-ameacas-ultimos-quatro.js?v=20261115ultimo1"></script>
 <script src="./nex-ameacas-julho.js?v=20261114jul3"></script>
 <script src="./nex-arquivos-ameacas-faltantes.js?v=20261114completas2"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos3"></script>
@@ -437,6 +438,16 @@ function render(){
     uploaded.src=url;
    }).catch(error=>console.warn("Retrato enviado indisponível:",uploadedKey,error));
   }
+ }
+ // Retratos dos quatro últimos personagens, conferidos no PDF de março.
+ const finalIndex=(window.NEX_FINAL_FOUR_POSITIONS||{})[photoKey];
+ if(finalIndex!==undefined&&window.NEX_FINAL_FOUR_ATLAS){
+  const last=document.createElement("div");
+  last.setAttribute("role","img");
+  last.setAttribute("aria-label","Retrato de "+threat.name);
+  last.style.cssText="position:absolute;inset:0;border-radius:8px;background-image:url("+window.NEX_FINAL_FOUR_ATLAS+");background-size:200% 200%;background-position:"+(finalIndex%2?"100%":"0%")+" "+(finalIndex>=2?"100%":"0%")+";background-repeat:no-repeat";
+  portrait.appendChild(last);
+  if(thumbnail)thumbnail.hidden=true;
  }
  const rollRows=items=>Array.isArray(items)?items.filter(v=>Array.isArray(v)&&hasValue(v[0])&&hasValue(v[1])).map(v=>'<div class="skill"><span>'+esc(v[0])+'</span><strong>'+esc(v[1])+'</strong></div>').join(""):"";
 
