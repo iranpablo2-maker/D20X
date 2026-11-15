@@ -1903,8 +1903,8 @@ body > #nexOriginPopup[hidden]{display:none!important;}
 </style>
 <style id="nex-threats-page-style">
 #threatsPanel{max-width:1250px;margin:0 auto;padding:0 10px 38px;min-height:calc(100vh - 120px)}
-#threatsPanel #nexThreatLibrary{display:block;width:100%;height:calc(100vh - 128px);min-height:670px;border:0;background:#0b0b0e}
-@media(max-width:700px){#threatsPanel{padding:0 2px 25px}#threatsPanel #nexThreatLibrary{height:calc(100vh - 120px);min-height:600px}}
+#threatsPanel #nexThreatLibrary{display:block;width:100%;height:1100px;min-height:0;border:0;background:#0b0b0e;overflow:hidden}
+@media(max-width:700px){#threatsPanel{padding:0 2px 25px}}
 </style></head><body>
 <script src="nex-sobrevivendo-ao-horror.js?v=2072"></script>
 <script src="nex-arquivos-secretos.js?v=20261114desc29"></script>
@@ -1975,7 +1975,7 @@ body > #nexOriginPopup[hidden]{display:none!important;}
 </details>
 </section>
 <section id="threatsPanel" class="hide" aria-label="Biblioteca de Ameaças">
- <iframe id="nexThreatLibrary" title="Biblioteca de Ameaças NEX" src="./ameacas.html?v=20261115ameacas57" loading="lazy"></iframe>
+ <iframe id="nexThreatLibrary" title="Biblioteca de Ameaças NEX" src="./ameacas.html?v=20261115ameacas58" loading="lazy" scrolling="no"></iframe>
 </section>
 <section id="campaignPanel" class="hide" aria-label="Campanhas">
  <div class="home-toolbar"><button class="btn" id="campaignBack">← Menu principal</button></div>
@@ -5180,4 +5180,14 @@ window.addEventListener('nex-cloud-sync-state',event=>{
  if(small)small.textContent=message;
 });
 </script>
-</body></html>
+<script id="nex-threat-single-scroll">
+(function(){
+ window.addEventListener("message",function(event){
+  const frame=document.getElementById("nexThreatLibrary");
+  if(!frame||event.origin!==location.origin||event.source!==frame.contentWindow)return;
+  if(event.data?.type!=="nex-threat-library-height")return;
+  const height=Number(event.data.height);
+  if(Number.isFinite(height)&&height>0&&height<120000)frame.style.height=Math.ceil(height+12)+"px";
+ });
+})();
+</script></body></html>
