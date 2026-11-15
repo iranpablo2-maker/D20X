@@ -501,14 +501,32 @@
  });
  function threatDetails(item){
   const t=normalizeThreat(item);
-  const statistic=(label,value)=>'<div class="nex-hb-threat-stat"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></div>';
-  const texts=[['Deslocamento',t.deslocamento],['Sentidos',t.sentidos],['Resistências',t.resistencias],['Imunidades',t.imunidades],['Vulnerabilidades',t.vulnerabilidades],['Outras perícias',t.pericias],['Características e habilidades',t.habilidades],['Enigma de Medo',t.enigma],['Observações',t.notas]].filter(([,v])=>v);
-  return '<section class="nex-hb-threat-sheet"><div class="nex-hb-threat-sheet-head"><strong>'+esc(item.name)+'</strong><span>VD '+esc(item.vd)+' · '+esc(t.element)+' · '+esc(item.size)+'</span></div>'+
-   '<h4>ATRIBUTOS</h4><div class="nex-hb-threat-stat-grid">'+THREAT_ATTRS.map(([k,label])=>statistic(label,t.attributes[k])).join('')+'</div>'+
-   '<h4>DEFESA E VITALIDADE</h4><div class="nex-hb-threat-stat-grid">'+THREAT_NUMERIC.map(([k,label])=>statistic(label,t[k])).join('')+'</div>'+
-   texts.map(([label,value])=>'<h4>'+esc(label)+'</h4><p>'+esc(value).replace(/\n/g,'<br>')+'</p>').join('')+
-   (t.actions.length?'<h4>AÇÕES</h4>'+t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage,a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'')+'</section>';
+  const block=(label,value)=>'<div class="nex-hb-threat-stat"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></div>';
+  const note=(label,value)=>value?'<section class="nex-hb-threat-info"><h4>'+esc(label)+'</h4><p>'+esc(value).replace(/\n/g,'<br>')+'</p></section>':'';
+  const statPanel='<div class="nex-hb-threat-attribute-bar">'+THREAT_ATTRS.map(([k,label])=>block(k.toUpperCase(),t.attributes[k])).join('')+'</div>'+
+    '<div class="nex-hb-threat-main-stats">'+block('Defesa',t.defense)+block('Deslocamento',t.deslocamento||'—')+block('PV máximos',t.pv)+'</div>'+
+    note('Presença perturbadora',t.presencaPerturbadora)+
+    '<h4>Testes de resistência</h4>'+[['Fortitude',t.fortitude],['Reflexos',t.reflexos],['Vontade',t.vontade]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
+    '<h4>Sentidos</h4>'+[['Percepção',t.percepcao],['Iniciativa',t.iniciativa]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
+    note('Sentidos especiais',t.sentidos)+note('Outras perícias',t.pericias)+note('Resistências',t.resistencias)+note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades);
+  const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
+  const descriptionPanel=note('Descrição',item.description)+note('Habilidades e características',t.habilidades)+note('Enigma de Medo',t.enigma)+note('Observações',t.notas);
+  return '<section class="nex-hb-threat-sheet" data-nex-threat-preview>'+
+   '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem da ameaça">':'')+
+     '<div><small>HOMEBREW</small><h2>'+esc(item.name)+'</h2><p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span></div></div>'+
+   '<div class="nex-hb-threat-pv">'+esc(t.pv)+' PV</div>'+
+   '<nav class="nex-hb-threat-tabs" role="tablist" aria-label="Seções da ameaça"><button type="button" data-threat-preview-tab="status" aria-selected="true">STATUS</button><button type="button" data-threat-preview-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-threat-preview-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
+   '<div class="nex-hb-threat-panel" data-threat-preview-panel="status">'+statPanel+'</div>'+
+   '<div class="nex-hb-threat-panel" data-threat-preview-panel="combate" hidden>'+combatPanel+'</div>'+
+   '<div class="nex-hb-threat-panel" data-threat-preview-panel="descricao" hidden>'+descriptionPanel+'</div></section>';
  }
+ $('nex52DetailBody').addEventListener('click',event=>{
+  const button=event.target.closest('[data-threat-preview-tab]');if(!button)return;
+  const root=button.closest('[data-nex-threat-preview]');if(!root)return;
+  const tab=button.dataset.threatPreviewTab;
+  root.querySelectorAll('[data-threat-preview-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.threatPreviewTab===tab)));
+  root.querySelectorAll('[data-threat-preview-panel]').forEach(panel=>{panel.hidden=panel.dataset.threatPreviewPanel!==tab;});
+ });
  function resetForm(){
    $('nex51Form').reset();$('nex51Edit').value='';
    populateThreatSheet(null);
@@ -732,7 +750,7 @@
    $('nex52DetailBody').innerHTML='<div class="nex52-detail-top"><span>'+esc(LABEL[item.type])+'</span><h3>'+esc(item.name)+'</h3></div>'+
      '<p class="nex52-detail-meta">'+esc(info.join(' · '))+'</p>'+
      (item.type==='ameaca'?threatDetails(item):'')+
-     (item.description?'<h4>Descrição</h4><p>'+(item.type==='item'?formattedDescription(item.description):esc(item.description))+'</p>':'<p>Sem descrição.</p>')+
+     (item.type==='ameaca'?'':item.description?'<h4>Descrição</h4><p>'+(item.type==='item'?formattedDescription(item.description):esc(item.description))+'</p>':'<p>Sem descrição.</p>')+
      (item.requirements?'<h4>Pré-requisitos</h4><p>'+esc(item.requirements)+'</p>':'')+
      (effectApplicable(item)&&item.type!=='trilha'&&item.effectBonuses?.length?'<h4>Bônus configurados</h4><p>'+effectsLabel(item.effectBonuses)+'</p>':'')+
      (item.type==='trilha'?'<h4>Bônus por NEX</h4>'+item.trailAbilities.map(a=>'<p>NEX '+esc(a.nex)+'% · '+esc(a.name)+': '+(a.bonuses?.length?effectsLabel(a.bonuses):'Sem bônus')+'</p>').join(''):'')+
