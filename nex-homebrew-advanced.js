@@ -265,6 +265,24 @@
 
 
 
+
+  /* O fundo do editor e da ficha é atualizado conforme o elemento escolhido. */
+  #homebrewScreen .nex52-form #nex52ThreatFields.nex-hb-threat-editor{
+    background-color:#130e12!important;
+    background-image:linear-gradient(180deg,rgba(13,8,13,.80),rgba(13,8,13,.94) 58%),var(--nex-threat-bg)!important;
+    background-size:cover!important;background-position:center top!important;
+  }
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-edit-header{
+    background-image:linear-gradient(90deg,rgba(12,8,13,.58),rgba(18,10,17,.82)),var(--nex-threat-bg)!important;
+    background-size:cover!important;background-position:center!important;
+    border-bottom:1px solid var(--nex-threat-accent,#943949)!important;
+  }
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-vital-editor{box-shadow:0 0 0 1px var(--nex-threat-accent,#bd3344)!important}
+  #homebrewScreen .nex52-form #nex52ThreatFields .nex-hb-threat-nav button[aria-selected="true"]{border-bottom-color:var(--nex-threat-accent,#e43c54)!important}
+  .nex-hb-threat-sheet{background-image:linear-gradient(180deg,rgba(13,9,14,.9),rgba(13,9,14,.97)),var(--nex-threat-bg)!important;background-size:cover!important;background-position:center!important}
+  .nex-hb-threat-sheet .nex-hb-threat-sheet-head{background-image:linear-gradient(90deg,rgba(16,9,14,.65),rgba(19,10,16,.78)),var(--nex-threat-bg)!important;background-size:cover!important;background-position:center!important}
+  .nex-hb-threat-sheet .nex-hb-threat-tabs button[aria-selected="true"]{border-color:var(--nex-threat-accent,#e43c54)!important}
+
   @media(max-width:600px){.nex-hb-threat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.nex-hb-threat-sheet-head strong{font-size:15px}}
  `;
  document.head.appendChild(threatStyle);
@@ -571,6 +589,24 @@
  }
  function canonicalCategory(value){return ITEM_CATEGORIES.includes(value)?value:({'Arma':'Armas','Munição':'Munições','Proteção':'Proteções','Item Amaldiçoado':'Itens Amaldiçoados'}[value]||'Geral');}
 
+ const THREAT_BG={
+  Sangue:{file:'sangue-fundo.svg',color:'#c43850'},
+  Morte:{file:'morte-fundo.svg',color:'#a4a5ae'},
+  Conhecimento:{file:'conhecimento-fundo.svg',color:'#d4b450'},
+  Energia:{file:'energia-fundo.svg',color:'#b282db'},
+  Medo:{file:'medo-fundo.svg',color:'#e3e3e9'},
+  'Transmissão':{file:'energia-fundo.svg',color:'#67bf94'},
+  Realidade:{file:'conhecimento-fundo.svg',color:'#c3a9a6'}
+ };
+ function updateThreatBackground(){
+  const key=$('nexHbThreatElement').value;
+  const bg=THREAT_BG[key]||THREAT_BG.Medo;
+  const panel=$('nex52ThreatFields');
+  panel.style.setProperty('--nex-threat-bg','url("./assets/rituais/'+bg.file+'")');
+  panel.style.setProperty('--nex-threat-accent',bg.color);
+  panel.dataset.threatElement=key;
+ }
+ $('nexHbThreatElement').addEventListener('change',updateThreatBackground);
  let threatImage='';
  function showThreatEditorTab(tabId){
   mount.querySelectorAll('[data-threat-editor-tab]').forEach(btn=>btn.setAttribute('aria-selected',String(btn.dataset.threatEditorTab===tabId)));
@@ -618,6 +654,7 @@
  function populateThreatSheet(x){
   const data=normalizeThreat({threatSheet:x||{}});
   $('nexHbThreatElement').value=data.element;
+  updateThreatBackground();
   THREAT_ATTRS.forEach(([k])=>{mount.querySelector('[data-nex-threat-attr="'+k+'"]').value=data.attributes[k];});
   THREAT_NUMERIC.forEach(([k])=>{mount.querySelector('[data-nex-threat-number="'+k+'"]').value=data[k];});
   $('nexHbThreatPvAlias').value=data.pv;
@@ -658,6 +695,7 @@
  });
  function threatDetails(item){
   const t=normalizeThreat(item);
+  const threatBg=THREAT_BG[t.element]||THREAT_BG.Medo;
   const block=(label,value)=>'<div class="nex-hb-threat-stat"><small>'+esc(label)+'</small><strong>'+esc(value)+'</strong></div>';
   const note=(label,value)=>value?'<section class="nex-hb-threat-info"><h4>'+esc(label)+'</h4><p>'+esc(value).replace(/\n/g,'<br>')+'</p></section>':'';
   const statPanel='<div class="nex-hb-threat-attribute-bar">'+THREAT_ATTRS.map(([k,label])=>block(k.toUpperCase(),t.attributes[k])).join('')+'</div>'+
@@ -668,7 +706,7 @@
     note('Sentidos especiais',t.sentidos)+note('Resistências',t.resistencias)+note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades);
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+note('Enigma de Medo',t.enigma);
-  return '<section class="nex-hb-threat-sheet" data-nex-threat-preview>'+
+  return '<section class="nex-hb-threat-sheet" data-nex-threat-preview style="--nex-threat-bg:url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;);--nex-threat-accent:'+esc(threatBg.color)+'">'+
    '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem da ameaça">':'')+
      '<div><small>HOMEBREW</small><h2>'+esc(item.name)+'</h2><p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span></div></div>'+
    '<div class="nex-hb-threat-pv">'+esc(t.pv)+' PV</div>'+
