@@ -1,6 +1,6 @@
 /* Retratos das duas formas de cinco personagens dos Arquivos Secretos de Fevereiro.
    Os nomes correspondem às fotos enviadas na ordem original.
-   Juan não foi incluído porque não há fotos desse par no lote recebido. */
+   Juan e Juan Diabólico agora usam os retratos recebidos no lote seguinte. */
 (()=>{
  const folder="./assets/ameacas/arquivos-secretos/fevereiro/";
  const pairs={
@@ -8,7 +8,8 @@
   "Arquivos Secretos — Fevereiro::Dalmo Magno":["dalmo-magno","colosso"],
   "Arquivos Secretos — Fevereiro::Jae":["jae","x"],
   "Arquivos Secretos — Fevereiro::Kemi":["kemi","fantasma"],
-  "Arquivos Secretos — Fevereiro::Labirinto":["labirinto","labirinto-antena-do-medo"]
+  "Arquivos Secretos — Fevereiro::Labirinto":["labirinto","labirinto-antena-do-medo"],
+  "Arquivos Secretos — Fevereiro::Juan":["juan","juan-diabolico"]
  };
  const pictures=Object.fromEntries(Object.entries(pairs).map(([key,p])=>
   [key,{normal:folder+p[0]+".webp",alternativa:folder+p[1]+".webp"}]));
