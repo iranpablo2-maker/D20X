@@ -289,7 +289,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 .nex-tabletop-tools label{display:flex;flex-direction:column;gap:5px;color:#e6c1c7;font-size:12px;min-width:155px;}
 .nex-tabletop-tools input{max-width:210px;padding:9px;background:#110e12;color:#fff;border:1px solid #64404a;border-radius:6px;}
 .nex-tabletop-wrap{width:100%;max-width:100%;overflow:auto;background:#08090a;border:1px solid #6b303d;border-radius:11px;padding:12px;touch-action:pan-x pan-y;}
-.nex-tabletop-board{width:768px;height:576px;position:relative;background-color:#221a1e;background-size:100% 100%;background-position:center;background-repeat:no-repeat;box-shadow:0 8px 30px #0008;isolation:isolate;}
+.nex-tabletop-board{width:1200px;height:1200px;position:relative;background-color:#221a1e;background-size:100% 100%;background-position:center;background-repeat:no-repeat;box-shadow:0 8px 30px #0008;isolation:isolate;}
 .nex-tabletop-board::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background-image:linear-gradient(to right,rgba(255,255,255,.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.22) 1px,transparent 1px);background-size:48px 48px;}
 .nex-tabletop-token{position:absolute;z-index:2;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:2px solid #fbe9eb;box-shadow:0 3px 10px #000b;background:#ab364c;color:#fff;border-radius:50%;font-size:12px;font-weight:800;cursor:default;user-select:none;touch-action:none;}
 .nex-tabletop-token[data-master="true"]{cursor:grab;}
@@ -632,7 +632,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
       <label>Mapa <input type="file" id="nexTabletopMapFile" accept="image/png,image/jpeg,image/webp"></label>
       <button id="nexTabletopRemoveMap" type="button" class="alt">Remover mapa</button>
     </div></aside><div class="nex-vtt-stage"><div class="nex-tabletop-wrap"><div id="nexTabletopBoard" class="nex-tabletop-board" aria-label="Mapa com grade de combate"></div></div>
-    <p class="room-note nex-vtt-stage-note">Grade 16 × 12 · Selecione um token e use 0–9 para mudar sua imagem.</p></div><aside class="nex-vtt-sheets" id="nexVttSheetsPanel" aria-label="Fichas dos personagens"><div class="nex-vtt-sheets-title"><h3>Fichas</h3><button type="button" id="nexVttSheetsClose" aria-label="Recolher fichas">×</button></div><p class="room-note" id="nexVttSheetsHint">Abra a ficha sem sair do mapa.</p><div id="nexVttSheetsList" class="nex-vtt-sheets-list"></div></aside></div>
+    <p class="room-note nex-vtt-stage-note">Grade 25 × 25 · Selecione um token e use 0–9 para mudar sua imagem.</p></div><aside class="nex-vtt-sheets" id="nexVttSheetsPanel" aria-label="Fichas dos personagens"><div class="nex-vtt-sheets-title"><h3>Fichas</h3><button type="button" id="nexVttSheetsClose" aria-label="Recolher fichas">×</button></div><p class="room-note" id="nexVttSheetsHint">Abra a ficha sem sair do mapa.</p><div id="nexVttSheetsList" class="nex-vtt-sheets-list"></div></aside></div>
    </section>
    <section id="roomCombatsPanel" class="room-panel hide">
      <div class="room-panel-head"><h3>Combates</h3></div>
@@ -695,7 +695,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115tools2';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115left25x25v3';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
