@@ -5,7 +5,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
  const GRID=48,W=25,H=25;
  board.style.width=(GRID*W)+'px';board.style.height=(GRID*H)+'px';
- const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[]});
+ const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[]});
  let scene=empty(),selectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false;
  const handlers=[];
  const listen=(el,type,fn,opts)=>{el?.addEventListener(type,fn,opts);handlers.push(()=>el?.removeEventListener(type,fn,opts));};
@@ -24,10 +24,10 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
  function validScene(data){
   if(!stateOK(data))return empty();
-  return {map:typeof data.map==='string'&&data.map.length<650000?data.map:'',drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
+  return {map:typeof data.map==='string'&&data.map.length<650000?data.map:'',drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-1,Math.floor(Number(t.x)||0))),y:Math.max(0,Math.min(H-1,Math.floor(Number(t.y)||0))),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),
-   images:Array.isArray(t.images)?t.images.slice(0,10).map(url=>typeof url==='string'&&url.length<300000?url:''):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,size:Math.max(1,Math.min(3,Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
+   images:Array.isArray(t.images)?t.images.slice(0,10).map(url=>typeof url==='string'&&url.length<300000?url:''):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
   }))};
  }
  function render(){
@@ -41,9 +41,19 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
    const img=t.images[t.variation]||'';
    if(img){const image=document.createElement('img');image.src=img;image.alt=t.name;el.appendChild(image);}
    else{const span=document.createElement('span');span.textContent=t.name.slice(0,3).toUpperCase();el.appendChild(span);}
+   const resources=document.createElement('span');resources.className='nex-token-resource-bars';
+   for(const [name,tone] of [['pv','#df5a66'],['pe','#f6c15a'],['san','#62aad7']]){
+     const current=Math.max(0,Number(t[name])||0),max=Math.max(1,Number(t[name+'Max'])||current||1);
+     const line=document.createElement('i');line.style.background='linear-gradient(to right,'+tone+' '+Math.min(100,Math.round(100*current/max))+'%,#262b36 '+Math.min(100,Math.round(100*current/max))+'%)';
+     line.title=name.toUpperCase()+': '+current+' / '+(t[name+'Max']||'—');
+     resources.append(line);
+   }
+   el.append(resources);
+   el.dataset.targeted=String(vttCombatTargets.has(t.id));
    board.appendChild(el);
   }
   renderAdvanced();
+  renderCombatDock();
   const t=selected();$('nexTtSelected').textContent=t?t.name:'Nenhum';slot.disabled=!t;slot.value=String(t?.variation??1);
   $('nexTtVariantFile').disabled=!t;$('nexTtDelete').disabled=!t;
  }
@@ -69,7 +79,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   if(!gm)return;const name=$('nexTabletopTokenName').value.trim().slice(0,35)||'Token';
   const taken=new Set(scene.tokens.map(t=>t.x+','+t.y));let x=1,y=1;
   outer:for(let row=1;row<H;row++)for(let col=1;col<W;col++)if(!taken.has(col+','+row)){x=col;y=row;break outer;}
-  const t={id:'tt_'+crypto.randomUUID(),name,x,y,variation:1,images:[],size:1,rotation:0,pv:0,pe:0,san:0,hidden:false,locked:false};scene.tokens.push(t);selectedId=t.id;$('nexTabletopTokenName').value='';render();save();
+  const t={id:'tt_'+crypto.randomUUID(),name,x,y,variation:1,images:[],size:1,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,defense:0,hidden:false,locked:false};scene.tokens.push(t);selectedId=t.id;$('nexTabletopTokenName').value='';render();save();
  });
  listen($('nexTabletopClearTokens'),'click',()=>{if(!gm||!confirm('Remover todos os tokens desta cena?'))return;scene.tokens=[];selectedId=null;render();save();});
  listen($('nexTabletopRemoveMap'),'click',()=>{if(!gm)return;scene.map='';render();save();});
@@ -84,6 +94,14 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  listen($('nexTtDelete'),'click',()=>{if(!gm||!selectedId)return;scene.tokens=scene.tokens.filter(t=>t.id!==selectedId);selectedId=null;render();save();});
  listen(board,'pointerdown',e=>{
   const el=e.target.closest('[data-token]');if(!el)return;
+  if(vttCombatTargetMode&&gm){
+   const target=scene.tokens.find(t=>t.id===el.dataset.token);
+   if(target&&!target.hidden){
+     if(vttCombatTargets.has(target.id))vttCombatTargets.delete(target.id);
+     else vttCombatTargets.add(target.id);
+     render();return;
+   }
+  }
   selectedId=el.dataset.token;render();
   if(!gm||selected()?.locked||vttMode!=='select')return;
   drag={id:selectedId,pointer:e.pointerId,startX:selected().x,startY:selected().y};e.preventDefault();
@@ -110,6 +128,9 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  const vttOptions=document.createElement('div');vttOptions.id='nexVttOptions';vttOptions.hidden=true;
  const vttSide=document.createElement('div');vttSide.id='nexVttTokenProperties';vttSide.hidden=true;
  const vttWrap=board.closest('.nex-tabletop-wrap');
+ let vttCombatTargetMode=false;
+ const vttCombatTargets=new Set();
+ let vttCombatAction='damage',vttCombatAmount=0;
  const vttStyle=document.createElement('style');
  vttStyle.id='nex-vtt-layer-style';
  vttStyle.textContent='#nexVttDrawLayer,#nexVttMeasureLayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}'+
@@ -166,6 +187,9 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  drawMenuRefresh();
  const vttStage=board.closest('.nex-vtt-stage');
  vttStage?.append(vttOptions,vttSide);
+ const combatDock=document.createElement('section');combatDock.id='nexVttCombatDock';combatDock.hidden=true;
+ combatDock.setAttribute('aria-label','Combate integrado');
+ vttStage?.append(combatDock);
  const vttPanel=board.closest('#roomTabletopPanel');
  const vttRight=vttPanel?.querySelector('#nexVttSheetsPanel');
  const vttTabs=document.createElement('nav');
@@ -304,7 +328,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
    if(!gm||!t)return;
    const title=document.createElement('strong');title.textContent='Configurar '+t.name;vttSide.append(title);
    const close=document.createElement('button');close.type='button';close.textContent='Fechar ×';close.addEventListener('click',()=>{vttTokenInspectorOpen=false;vttSide.hidden=true;});vttSide.append(close);
-   for(const [prop,label,type] of [['name','Nome','text'],['pv','PV','number'],['pe','PE','number'],['san','SAN','number'],['size','Tamanho (1-3)','number'],['rotation','Rotação','number'],['hidden','Oculto aos jogadores','checkbox'],['locked','Bloquear posição','checkbox']]){
+   for(const [prop,label,type] of [['name','Nome','text'],['pv','PV atual','number'],['pvMax','PV máximo','number'],['pe','PE atual','number'],['peMax','PE máximo','number'],['san','SAN atual','number'],['sanMax','SAN máximo','number'],['defense','Defesa','number'],['size','Tamanho (1-3)','number'],['rotation','Rotação','number'],['hidden','Oculto aos jogadores','checkbox'],['locked','Bloquear posição','checkbox']]){
      const row=document.createElement('label');row.textContent=label;
      const inp=document.createElement('input');inp.type=type;if(type==='checkbox')inp.checked=!!t[prop];else inp.value=String(t[prop]??'');
      inp.addEventListener('change',()=>{t[prop]=type==='checkbox'?inp.checked:type==='number'?Number(inp.value)||0:inp.value.slice(0,35);render();save();});
