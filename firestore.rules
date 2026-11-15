@@ -5,6 +5,32 @@ service cloud.firestore {
       return request.auth != null && request.auth.uid == userId;
     }
 
+    // Links de Homebrews: a URL contém um ID aleatório; listagem pública é proibida.
+    // Apenas a conta criadora grava ou desativa um link. O conteúdo é uma cópia.
+    match /sharedHomebrews/{shareId} {
+      allow get: if shareId.matches('[a-f0-9]{32}');
+      allow list: if false;
+      allow create: if request.auth != null
+        && shareId.matches('[a-f0-9]{32}')
+        && request.resource.data.keys().hasOnly(['format','ownerUid','active','items','createdAt','updatedAt'])
+        && request.resource.data.format == 'nex-hb-share-v1'
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.active == true
+        && request.resource.data.items is list
+        && request.resource.data.items.size() >= 1
+        && request.resource.data.items.size() <= 20
+        && request.resource.data.createdAt is timestamp
+        && request.resource.data.updatedAt is timestamp;
+      allow update: if request.auth != null
+        && resource.data.ownerUid == request.auth.uid
+        && request.resource.data.ownerUid == resource.data.ownerUid
+        && request.resource.data.format == resource.data.format
+        && request.resource.data.items == resource.data.items
+        && request.resource.data.active == false
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['active','updatedAt']);
+      allow delete: if false;
+    }
+
     // Arquivo antigo: mantém regras restritas, mas o NEX novo não o utiliza.
     match /users/{userId}/characters/{characterId} {
       allow read: if owned(userId);
