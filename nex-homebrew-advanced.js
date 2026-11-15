@@ -10,8 +10,12 @@
  const CURSED_KINDS=['Armas Amaldiçoadas','Proteções Amaldiçoadas','Munições Amaldiçoadas','Acessórios Amaldiçoados','Itens Paranormais'];
  const IMPROVEMENT_TARGETS=['Armas','Munições','Proteções','Geral'];
  const EFFECT_TYPES=[['','Sem bônus automático'],['pv','PV máximo'],['pe','PE máximo'],['san','SAN máxima'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Redução de dano'],['pericia','Perícia'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['carga','Capacidade de carga']];
- const parseEffects=(items,type,value,skill)=>{const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);return src.slice(0,20).map(b=>{if(!b)return null;const legacy={iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade'}[b.type];const id=legacy?'pericia':b.type;if(!EFFECT_TYPES.some(([key])=>key&&key===id))return null;return {type:id,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:id==='pericia'?cut(legacy||b.skill||'',60):''};}).filter(Boolean);};
+ const parseEffects=(items,type,value,skill)=>{const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);return src.slice(0,20).map(b=>{if(!b)return null;const legacy={iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade'}[b.type];const id=legacy?'pericia':b.type;if(![...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].some(([key])=>key&&key===id))return null;return {type:id,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:id==='pericia'?cut(legacy||b.skill||'',60):''};}).filter(Boolean);};
  const IMPROVEMENT_NO_SKILL=['Armas','Munições','Proteções'];
+ const CURSED_NO_SKILL=['Armas Amaldiçoadas','Munições Amaldiçoadas','Proteções Amaldiçoadas'];
+ const CURSED_EXTRA_BONUSES=[['critico','Margem de crítico'],['multiplicador','Multiplicador crítico'],['espacos','Espaços ocupados']];
+ const isCursedEditor=()=>tab==='paranormal'&&paranormalSection==='itens'&&$('nex51Type')?.value==='item';
+ const cursedNoSkill=()=>isCursedEditor()&&CURSED_NO_SKILL.includes(cursedKind);
  const parseImprovementBonuses=(items,type,value,skill)=>{
   const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);
   return src.slice(0,20).filter(b=>b&&BONUS_TYPES.some(([id])=>id===b.type)).map(b=>({type:b.type,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:b.type==='pericia'?cut(b.skill||'',60):''}));
@@ -250,6 +254,7 @@
    $('nexHbBonusSkillField').hidden=type!=='melhoria'||$('nexHbBonusType').value!=='pericia';
    $('nexHbCurseFields').hidden=type!=='maldicao';
    $('nexHbEffectBonusFields').hidden=!effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})||type==='trilha';
+   if(type==='item'&&isCursedEditor())renderEffects('main');
    if(type==='item')$('nex52Category').value=tab==='paranormal'?'Itens Amaldiçoados':$('nex51Edit').value?$('nex52Category').value:itemTab;
    $('nex52Category').hidden=true;
    const cursed=type==='item'&&(tab==='paranormal'||itemTab==='Itens Amaldiçoados');
@@ -283,8 +288,8 @@
  function renderEffects(scope){
   const list=getEffects(scope),id=scope==='main'?'nexHbEffectBonusList':scope==='improvement'?'nexHbImprovementBonusList':'nex53TrailBonusList'+scope;
   const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
-  const noSkill=scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value);
-  const types=scope==='improvement'?BONUS_TYPES.filter(([id])=>!noSkill||id!=='pericia'):EFFECT_TYPES.filter(([id])=>id);
+  const noSkill=(scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value))||(scope==='main'&&cursedNoSkill());
+  const types=scope==='improvement'?BONUS_TYPES.filter(([id])=>!noSkill||id!=='pericia'):(scope==='main'&&isCursedEditor()?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].filter(([id],i,arr)=>id&&(!noSkill||id!=='pericia')&&arr.findIndex(([k])=>k===id)===i):EFFECT_TYPES.filter(([id])=>id));
   $(id).innerHTML=list.map((b,i)=>{
    const editing=effectEditing[scope]===i;
    return '<div class="nex-hb-effect-card" style="border-bottom:1px solid #38383d;padding:7px 0" data-effect-scope="'+esc(scope)+'" data-effect-index="'+i+'">'+
@@ -304,7 +309,7 @@
   if(add){
    const scope=add.dataset.effectAdd,items=getEffects(scope);
    if(items.length>=20){message('Limite de 20 bônus.');return;}
-   items.push({type:scope==='improvement'?'ataque':'pv',value:1,skill:''});effectEditing[scope]=items.length-1;renderEffects(scope);return;
+   items.push({type:scope==='improvement'||scope==='main'&&isCursedEditor()?'ataque':'pv',value:1,skill:''});effectEditing[scope]=items.length-1;renderEffects(scope);return;
   }
   const row=e.target.closest('[data-effect-scope]');if(!row)return;
   const scope=row.dataset.effectScope,index=Number(row.dataset.effectIndex);
@@ -326,7 +331,7 @@
  mount.addEventListener('change',e=>{
   const row=e.target.closest('[data-effect-scope]');if(!row)return;
   const scope=row.dataset.effectScope,item=getEffects(scope)[Number(row.dataset.effectIndex)];if(!item)return;
-  if(e.target.matches('[data-effect-type]')){if(scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
+  if(e.target.matches('[data-effect-type]')){if((scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill())&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
   else if(e.target.matches('[data-effect-value]')){item.value=Math.max(-999,Math.min(999,Number(e.target.value)||0));renderEffects(scope);}
   else if(e.target.matches('[data-effect-skill]')){item.skill=e.target.value;renderEffects(scope);}
  });
@@ -428,7 +433,9 @@
      $('nexHbAccessoryBonus').value=item.accessoryBonus?'+'+item.accessoryBonus:'';$('nexHbAccessorySkill').value=item.accessorySkill||'';
      $('nexHbCursedArtifactRequirement').value=item.cursedArtifactRequirement||'';
      $('nexHbImprovementTarget').value=item.improvementTarget||'Armas';
-     effectRows=parseEffects(item.effectBonuses,item.effectBonusType,item.effectBonusValue,item.effectBonusSkill);renderEffects('main');
+     effectRows=parseEffects(item.effectBonuses,item.effectBonusType,item.effectBonusValue,item.effectBonusSkill);
+     if(item.type==='item'&&item.category==='Itens Amaldiçoados'&&CURSED_NO_SKILL.includes(item.cursedKind))effectRows=effectRows.filter(b=>b.type!=='pericia');
+     renderEffects('main');
      $('nexHbBonusType').value=item.bonusType||'ataque';$('nexHbBonusValue').value='+'+Math.max(1,Math.min(10,item.bonusValue||2));$('nexHbBonusSkill').value=item.bonusSkill||'';
      improvementRows=parseImprovementBonuses(item.improvementBonuses,item.bonusType,item.bonusValue,item.bonusSkill);if(IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value))improvementRows=improvementRows.filter(b=>b.type!=='pericia');renderEffects('improvement');
      customItemImprovements=Array.isArray(item.customImprovements)?[...item.customImprovements]:[];renderItemImprovements();
@@ -687,6 +694,7 @@
    if(!editing&&count>=50){message('Limite de 50 homebrews para esta categoria.');return;}
    if(type==='trilha'&&TRAIL_NEX.some(n=>!cut($('nex53TrailName'+n).value,90))){message('Informe o nome das quatro habilidades da trilha: 10%, 40%, 65% e 99%.');return;}
     if((type==='trilha'&&!TRAIL_NEX.every(n=>effectsValid(getEffects(String(n)))))||(type!=='trilha'&&effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})&&!effectsValid(effectRows))){message('Escolha a perícia para todos os bônus de perícia.');return;}
+    if(type==='item'&&isCursedEditor()&&cursedNoSkill()&&effectRows.some(b=>b.type==='pericia')){message('Armas, Munições e Proteções amaldiçoadas não podem ter bônus de perícia.');return;}
     if(type==='melhoria'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)&&improvementRows.some(b=>b.type==='pericia')){message('Armas, Munições e Proteções não podem ter bônus de perícia.');return;}
     if(type==='melhoria'&&!improvementRows.every(b=>BONUS_TYPES.some(([id])=>id===b.type))){message('Tipo de bônus inválido.');return;}
    if(type==='item'&&tab==='paranormal'&&cursedKind==='Acessórios Amaldiçoados'&&$('nexHbAccessoryBonus').value&&!/^\+(?:[1-9]|10)$/.test($('nexHbAccessoryBonus').value)){message('Digite um bônus no formato +1 até +10.');return;}
