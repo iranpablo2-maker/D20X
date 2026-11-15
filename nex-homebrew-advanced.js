@@ -7,7 +7,7 @@
  const SKILL_TABS={origens:['origem'],paranormais:['poder_paranormal'],gerais:['poder_geral','poder','habilidade'],trilhas:['trilha']};
  const TRAIL_NEX=[10,40,65,99];
  const ITEM_CATEGORIES=['Armas','Munições','Proteções','Geral','Itens Amaldiçoados'];
- const CURSED_KINDS=['Armas Amaldiçoadas','Proteções Amaldiçoadas','Munições Amaldiçoadas','Acessórios Amaldiçoados','Itens Paranormais'];
+ const CURSED_KINDS=['Armas Amaldiçoadas','Proteções Amaldiçoadas','Munições Amaldiçoadas','Itens Paranormais'];
  const IMPROVEMENT_TARGETS=['Armas','Munições','Proteções','Geral'];
  const EFFECT_TYPES=[['','Sem bônus automático'],['pv','PV máximo'],['pe','PE máximo'],['san','SAN máxima'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Redução de dano'],['pericia','Perícia'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['carga','Capacidade de carga']];
  const parseEffects=(items,type,value,skill)=>{const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);return src.slice(0,20).map(b=>{if(!b)return null;const legacy={iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade'}[b.type];const id=legacy?'pericia':b.type;if(![...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].some(([key])=>key&&key===id))return null;return {type:id,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:id==='pericia'?cut(legacy||b.skill||'',60):''};}).filter(Boolean);};
@@ -56,7 +56,7 @@
    cursedAccessoryType:cut(x.cursedAccessoryType||'Anel',80),
    cursedAccessoryBenefit:cut(x.cursedAccessoryBenefit||'',100),
    cursedArtifactRequirement:cut(x.cursedArtifactRequirement||'',120),
-   cursedKind:CURSED_KINDS.includes(x.cursedKind)?x.cursedKind:'Itens Paranormais',
+    cursedKind:CURSED_KINDS.includes(x.cursedKind)?x.cursedKind:'Itens Paranormais',
    curseTarget:cut(x.curseTarget||'Armas',50),
    improvementTarget:IMPROVEMENT_TARGETS.includes(x.improvementTarget)?x.improvementTarget:'Armas',
    bonusType:BONUS_TYPES.some(([id])=>id===x.bonusType)?x.bonusType:'ataque',
@@ -83,6 +83,11 @@
    weaponRange:cut(x.weaponRange||'—',60),
    weaponQuantity:num(x.weaponQuantity,1,9999,1),
    itemTag:['Acessórios','Explosivos','Itens Operacionais'].includes(x.itemTag)?x.itemTag:'Acessórios',
+   cursedExplosiveDamage:cut(x.cursedExplosiveDamage||'',90),
+   cursedExplosiveSecondary:cut(x.cursedExplosiveSecondary||'',90),
+   cursedExplosiveSecondaryType:['Normal','Sangue','Morte','Energia','Conhecimento','Medo'].includes(x.cursedExplosiveSecondaryType)?x.cursedExplosiveSecondaryType:'Normal',
+   cursedExplosiveMultiplier:cut(x.cursedExplosiveMultiplier||'2',10),
+   cursedExplosiveRange:cut(x.cursedExplosiveRange||'',60),
    customImprovements:x.type==='item'&&Array.isArray(x.customImprovements)?[...new Set(x.customImprovements.filter(v=>typeof v==='string').map(v=>cut(v,80)).filter(Boolean))].slice(0,30):[],
    skills:x.type==='origem'&&Array.isArray(x.skills)?[...new Set(x.skills.filter(v=>typeof v==='string').map(v=>cut(v,60)))].slice(0,2):[],
    trailAbilities:x.type==='trilha'?TRAIL_NEX.map((n,i)=>{
@@ -161,7 +166,7 @@
  '<div class="nex52-specific nex52-full" id="nex52ItemFields" hidden>'+
  '<select id="nex52Category" hidden aria-label="Categoria definida pela aba">'+ITEM_CATEGORIES.map(c=>'<option value="'+esc(c)+'">'+esc(c)+'</option>').join('')+'</select>'+
  '<div class="nex-hb-hidden-item-values" hidden><select id="nexHbElement"><option>Conhecimento</option><option>Energia</option><option>Medo</option><option>Morte</option><option>Sangue</option></select><select id="nexHbTier"><option value="0">0</option><option>I</option><option>II</option><option>III</option><option>IV</option></select><input type="number" id="nexHbSpaces" value="1"><select id="nexHbTag"><option>Acessórios</option><option>Explosivos</option><option>Itens Operacionais</option></select></div>'+
- '<section class="nex-hb-special-form" id="nexHbCursedForm" hidden><div class="nex-hb-cursed-fields"><label>Elemento<select data-hb-sync="nexHbElement"><option>Conhecimento</option><option>Energia</option><option>Medo</option><option>Morte</option><option>Sangue</option></select></label><label>Categoria*<select data-hb-sync="nexHbTier"><option value="0">0</option><option>I</option><option>II</option><option>III</option><option>IV</option></select></label><label>Espaços*<input type="number" min="0" max="100" data-hb-sync="nexHbSpaces" value="1"></label></div></section>'+
+ '<section class="nex-hb-special-form" id="nexHbCursedForm" hidden><div class="nex-hb-cursed-fields"><label>Elemento<select data-hb-sync="nexHbElement"><option>Conhecimento</option><option>Energia</option><option>Medo</option><option>Morte</option><option>Sangue</option></select></label><label>Categoria*<select data-hb-sync="nexHbTier"><option value="0">0</option><option>I</option><option>II</option><option>III</option><option>IV</option></select></label><label>Espaços*<input type="number" min="0" max="100" data-hb-sync="nexHbSpaces" value="1"></label><label id="nexHbCursedTagField">Tag<select data-hb-sync="nexHbTag"><option>Acessórios</option><option>Explosivos</option><option>Itens Operacionais</option></select></label></div><div id="nexHbCursedExplosion" class="nex-hb-paranormal-extra-fields" hidden><label>Dano<input id="nexHbCursedExplosionDamage" maxlength="90" placeholder="Ex.: 2d6"></label><label>Dano secundário<input id="nexHbCursedExplosionSecondary" maxlength="90" placeholder="Opcional"></label><label>Tipo do dano secundário<select id="nexHbCursedExplosionType"><option>Normal</option><option>Sangue</option><option>Morte</option><option>Energia</option><option>Conhecimento</option><option>Medo</option></select></label><label>Multiplicador<input id="nexHbCursedExplosionMultiplier" type="number" min="1" max="20" value="2"></label><label>Alcance<input id="nexHbCursedExplosionRange" maxlength="60" placeholder="Curto, Médio..."></label></div></section>'+
  '<section class="nex-hb-special-form" id="nexHbGeneralForm" hidden><div class="nex-hb-general-fields"><label>Categoria*<select data-hb-sync="nexHbTier"><option value="0">0</option><option>I</option><option>II</option><option>III</option><option>IV</option></select></label><label>Espaços*<input type="number" min="0" max="100" data-hb-sync="nexHbSpaces" value="1"></label><label>Tag<select data-hb-sync="nexHbTag"><option>Acessórios</option><option>Explosivos</option><option>Itens Operacionais</option></select></label></div></section>'+
  '<section class="nex-hb-special-form" id="nexHbWeaponForm" hidden><div class="nex-hb-weapon-fields">'+
  '<label>Proficiência<select id="nexHbWeaponProficiency"><option>Armas Simples</option><option>Armas Táticas</option><option>Armas Pesadas</option></select></label>'+
@@ -197,7 +202,7 @@
  '<div hidden><select id="nexHbBonusType">'+BONUS_TYPES.map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('')+'</select><input id="nexHbBonusValue" value="+2"><select id="nexHbBonusSkill"><option value="">Selecione a perícia</option></select><span id="nexHbBonusSkillField"></span></div>'+ 
  '<div class="nex52-full"><button type="button" class="btn" data-effect-add="improvement">+ Adicionar bônus</button><div id="nexHbImprovementBonusList"></div></div></div>'+ 
  '<div id="nexHbCurseFields" class="nex52-specific nex52-full" hidden><label>Elemento<select id="nexHbCurseElement"><option>Sangue</option><option>Morte</option><option>Energia</option><option>Conhecimento</option><option>Medo</option></select></label><label>Aplicável a<select id="nexHbCurseTarget"><option>Armas</option><option>Proteções</option><option>Munições</option><option>Acessórios</option><option>Itens Gerais</option></select></label></div>'+ 
- '<div id="nexHbEffectBonusFields" class="nex52-full" hidden><button type="button" class="btn" data-effect-add="main">+ Adicionar bônus</button><div id="nexHbEffectBonusList"></div></div>'+
+ '<div id="nexHbEffectBonusHome" class="nex52-full"><div id="nexHbEffectBonusFields" class="nex52-full" hidden><button type="button" class="btn" data-effect-add="main">+ Adicionar bônus</button><div id="nexHbEffectBonusList"></div></div></div>'+
  '<div id="nex53TrailFields" class="nex53-trail-fields nex52-full" hidden><p>Configure o nome e o efeito de cada marco de NEX.</p>'+
  TRAIL_NEX.map((n,i)=>'<fieldset class="nex53-trail-step"><legend>NEX '+n+'% · Habilidade '+(i+1)+'</legend>'+
  '<label>Nome da habilidade<input type="text" id="nex53TrailName'+n+'" maxlength="90" placeholder="Nome da habilidade de '+n+'%"></label>'+
@@ -254,6 +259,8 @@
    $('nexHbBonusSkillField').hidden=type!=='melhoria'||$('nexHbBonusType').value!=='pericia';
    $('nexHbCurseFields').hidden=type!=='maldicao';
    $('nexHbEffectBonusFields').hidden=!effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})||type==='trilha';
+   if(type==='item'&&isCursedEditor())$('nexHbCursedForm').appendChild($('nexHbEffectBonusFields'));
+   else $('nexHbEffectBonusHome').appendChild($('nexHbEffectBonusFields'));
    if(type==='item'&&isCursedEditor())renderEffects('main');
    if(type==='item')$('nex52Category').value=tab==='paranormal'?'Itens Amaldiçoados':$('nex51Edit').value?$('nex52Category').value:itemTab;
    $('nex52Category').hidden=true;
@@ -270,7 +277,9 @@
    $('nexHbOtherForm').hidden=type!=='item'||general||weapon||protection||cursed;
    $('nexHbParanormalExtras').hidden=type!=='item'||tab!=='paranormal'||weapon||protection;
    $('nexHbAmmoExtras').hidden=cursedKind!=='Munições Amaldiçoadas';
-   $('nexHbAccessoryExtras').hidden=cursedKind!=='Acessórios Amaldiçoados';
+   $('nexHbAccessoryExtras').hidden=true;
+   $('nexHbCursedTagField').hidden=cursedKind!=='Itens Paranormais';
+   $('nexHbCursedExplosion').hidden=!(cursed&&cursedKind==='Itens Paranormais'&&$('nexHbTag').value==='Explosivos');
    $('nexHbArtifactExtras').hidden=cursedKind!=='Itens Paranormais';
    $('nexHbSharedImprovements').hidden=type!=='item'||!(general||protection||weapon);
    ['nexHbProtectionDefense','nexHbWeaponDamage','nexHbWeaponCritical','nexHbWeaponMultiplier'].forEach(id=>{ $(id).required=protection&&id==='nexHbProtectionDefense'||weapon&&id!=='nexHbProtectionDefense'; });
@@ -389,6 +398,7 @@
    $('nexHbCursedArtifactRequirement').value='';
    $('nexHbImprovementTarget').value='Armas';
    $('nexHbBonusType').value='ataque';$('nexHbBonusValue').value='+2';
+   $('nexHbCursedExplosionDamage').value='';$('nexHbCursedExplosionSecondary').value='';$('nexHbCursedExplosionType').value='Normal';$('nexHbCursedExplosionMultiplier').value='2';$('nexHbCursedExplosionRange').value='';
    improvementRows=[];renderEffects('improvement');
    Object.keys(effectEditing).forEach(scope=>delete effectEditing[scope]);
    effectRows=[];renderEffects('main');TRAIL_NEX.forEach(n=>{trailRows[n]=[];renderEffects(String(n));});
@@ -454,6 +464,11 @@
      $('nexHbTier').value=item.itemTier||'0';$('nexHbSpaces').value=String(item.itemSpaces??1);
      $('nexHbElement').value=['Conhecimento','Energia','Medo','Morte','Sangue'].includes(item.element)?item.element:'Conhecimento';
      $('nexHbTag').value=item.itemTag||'Acessórios';
+      $('nexHbCursedExplosionDamage').value=item.cursedExplosiveDamage||'';
+      $('nexHbCursedExplosionSecondary').value=item.cursedExplosiveSecondary||'';
+      $('nexHbCursedExplosionType').value=item.cursedExplosiveSecondaryType||'Normal';
+      $('nexHbCursedExplosionMultiplier').value=item.cursedExplosiveMultiplier||'2';
+      $('nexHbCursedExplosionRange').value=item.cursedExplosiveRange||'';
      syncItemCategoryFields();
      syncCursedWeaponElement();
      syncParanormalWeaponTier();
