@@ -387,6 +387,27 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  background:#edf5fc!important;text-align:center!important;color:#565665!important;
 }
 </style>
+<style id="nex-vtt-quick-actions-style">
+#roomTabletopPanel .nex-vtt-quick-actions{
+ display:flex;flex-direction:column;gap:9px;padding:10px;
+ background:#fff;border:1px solid #e0bfd0;border-radius:8px;
+}
+#roomTabletopPanel .nex-vtt-quick-title{
+ display:flex;flex-direction:column;gap:2px;color:#372936;
+}
+#roomTabletopPanel .nex-vtt-quick-title strong{font-size:13px}
+#roomTabletopPanel .nex-vtt-quick-title small{font-size:11px;color:#8e6d80}
+#roomTabletopPanel .nex-vtt-quick-buttons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+#roomTabletopPanel .nex-vtt-quick-die{
+ padding:8px 4px;background:#f9e9f1;border:1px solid #d7a6c0;
+ border-radius:6px;color:#6e2449;font-weight:750;cursor:pointer;
+}
+#roomTabletopPanel .nex-vtt-quick-die:hover{background:#efd1e1}
+#roomTabletopPanel .nex-vtt-quick-result{display:flex;flex-direction:column;gap:4px}
+#roomTabletopPanel .nex-vtt-quick-result:empty{display:none}
+#roomTabletopPanel .nex-vtt-quick-result strong{font-size:17px;color:#a12c59}
+#roomTabletopPanel .nex-vtt-quick-result small{font-size:11px;color:#62515e;overflow-wrap:anywhere}
+</style>
 <style id="nex-vtt-mini-sheet-style">
 #roomTabletopPanel #nexVttMiniSheet[hidden]{display:none!important}
 #roomTabletopPanel .nex-vtt-mini-sheet{
@@ -1092,6 +1113,49 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     const tile=document.createElement('span');tile.textContent=label+' '+String(value);attrs.append(tile);
    }
    if(attrs.childElementCount)box.append(attrs);
+  }
+  // Rolagens rápidas da ficha: os atributos são consultados na ficha vinculada.
+  // Não alteram os recursos nem substituem as ações completas da ficha NEX.
+  const attrSource=sheet.fullSheet?.attributes||sheet.fullSheet?.atributos||null;
+  if(attrSource&&typeof attrSource==='object'){
+   const quick=document.createElement('section');quick.className='nex-vtt-quick-actions';
+   const heading=document.createElement('div');heading.className='nex-vtt-quick-title';
+   const label=document.createElement('strong');label.textContent='Testes rápidos';
+   const detail=document.createElement('small');detail.textContent='Clique para rolar o atributo puro';
+   heading.append(label,detail);quick.append(heading);
+   const buttons=document.createElement('div');buttons.className='nex-vtt-quick-buttons';
+   const result=document.createElement('div');result.className='nex-vtt-quick-result';result.setAttribute('role','status');result.setAttribute('aria-live','polite');
+   const keysets=[
+    ['AGI','Agilidade',['agi','agilidade','AGI']],
+    ['FOR','Força',['for','forca','FOR']],
+    ['INT','Intelecto',['int','intelecto','INT']],
+    ['PRE','Presença',['pre','presenca','PRE']],
+    ['VIG','Vigor',['vig','VIG']]
+   ];
+   for(const [short,name,keys] of keysets){
+    const raw=keys.map(key=>attrSource[key]).find(value=>value!==undefined&&value!==null);
+    if(raw===undefined)continue;
+    const level=Number(raw);if(!Number.isInteger(level)||level<0||level>20)continue;
+    const action=document.createElement('button');action.type='button';action.className='nex-vtt-quick-die';
+    action.textContent=short+' '+level;
+    action.title='Rolar '+name;
+    action.addEventListener('click',()=>{
+     const diceCount=level===0?2:Math.min(level,20);
+     const rolls=Array.from({length:diceCount},()=>{
+      const n=new Uint32Array(1);
+      crypto.getRandomValues(n);
+      return 1+(n[0]%20);
+     });
+     const value=level===0?Math.min(...rolls):Math.max(...rolls);
+     result.replaceChildren();
+     const total=document.createElement('strong');total.textContent=name+': '+value;
+     const numbers=document.createElement('small');
+     numbers.textContent=(level===0?'2d20 (menor): ':diceCount+'d20 (maior): ')+rolls.join(', ');
+     result.append(total,numbers);
+    });
+    buttons.append(action);
+   }
+   if(buttons.childElementCount){quick.append(buttons,result);box.append(quick);}
   }
   const open=document.createElement('button');open.type='button';open.className='nex-vtt-mini-open';open.textContent='Abrir ficha completa';
   open.addEventListener('click',()=>openVttSheet(sheet.id));box.append(open);
