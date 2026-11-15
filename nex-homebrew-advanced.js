@@ -601,7 +601,12 @@
  }
  $('nex51Type').addEventListener('change',editorFields);
   $('nexHbBonusType').addEventListener('change',()=>{$('nexHbBonusSkillField').hidden=$('nexHbBonusType').value!=='pericia';});
-  $('nexHbImprovementTarget').addEventListener('change',()=>{if(IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value))improvementRows=improvementRows.filter(b=>b.type!=='pericia');effectEditing.improvement=null;renderEffects('improvement');});
+  $('nexHbImprovementTarget').addEventListener('change',()=>{
+   // A categoria nova começa sem bônus; somente o botão cria um bônus.
+   improvementRows=[];
+   effectEditing.improvement=null;
+   renderEffects('improvement');
+  });
  ['nexHbBonusValue','nexHbAccessoryBonus'].forEach(id=>$(id).addEventListener('input',e=>{let digits=e.target.value.replace(/\D/g,'').slice(0,2);if(Number(digits)>10)digits='10';e.target.value=digits?'+'+digits:'';}));
  $('nex53RitualType').addEventListener('change',toggleRitualDamageFields);
  $('nex51Circle').addEventListener('change',()=>{
