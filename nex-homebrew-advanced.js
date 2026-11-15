@@ -10,7 +10,7 @@
  const CURSED_KINDS=['Armas Amaldiçoadas','Proteções Amaldiçoadas','Munições Amaldiçoadas','Itens Paranormais'];
  const IMPROVEMENT_TARGETS=['Armas','Munições','Proteções','Geral'];
  const EFFECT_TYPES=[['','Sem bônus automático'],['pv','PV máximo'],['pe','PE máximo'],['san','SAN máxima'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Redução de dano'],['pericia','Perícia'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['carga','Capacidade de carga']];
- const parseEffects=(items,type,value,skill)=>{const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);return src.slice(0,20).map(b=>{if(!b)return null;const legacy={iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade'}[b.type];const id=legacy?'pericia':b.type;if(![...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].some(([key])=>key&&key===id))return null;return {type:id,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:id==='pericia'?cut(legacy||b.skill||'',60):''};}).filter(Boolean);};
+ const parseEffects=(items,type,value,skill)=>{const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);return src.slice(0,20).map(b=>{if(!b)return null;const legacy={iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade'}[b.type];const id=legacy?'pericia':b.type;if(![...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].some(([key])=>key&&key===id))return null;return {type:id,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:id==='pericia'?cut(legacy||b.skill||'',60):'',scaling:b.scaling==='nex'?'nex':'fixed',nexInterval:[5,10,15,20].includes(Number(b.nexInterval))?Number(b.nexInterval):5};}).filter(Boolean);};
  const IMPROVEMENT_NO_SKILL=['Armas','Munições','Proteções'];
  const CURSED_NO_SKILL=['Armas Amaldiçoadas','Munições Amaldiçoadas','Proteções Amaldiçoadas'];
  const CURSED_EXTRA_BONUSES=[['critico','Margem de crítico'],['multiplicador','Multiplicador crítico'],['espacos','Espaços ocupados']];
@@ -18,7 +18,7 @@
  const cursedNoSkill=()=>isCursedEditor()&&CURSED_NO_SKILL.includes(cursedKind);
  const parseImprovementBonuses=(items,type,value,skill)=>{
   const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);
-  return src.slice(0,20).filter(b=>b&&BONUS_TYPES.some(([id])=>id===b.type)).map(b=>({type:b.type,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:b.type==='pericia'?cut(b.skill||'',60):''}));
+  return src.slice(0,20).filter(b=>b&&BONUS_TYPES.some(([id])=>id===b.type)).map(b=>({type:b.type,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:b.type==='pericia'?cut(b.skill||'',60):'',scaling:b.scaling==='nex'?'nex':'fixed',nexInterval:[5,10,15,20].includes(Number(b.nexInterval))?Number(b.nexInterval):5}));
  };
  const effectApplicable=x=>['origem','poder_paranormal','poder_geral','poder','habilidade','trilha','maldicao'].includes(x.type)||(x.type==='ritual'&&x.ritualType==='Suporte')||(x.type==='item'&&x.category==='Itens Amaldiçoados');
  const BONUS_TYPES=[['ataque','Bônus de ataque'],['dano','Bônus de dano'],['critico','Margem de crítico'],['multiplicador','Multiplicador crítico'],['defesa','Defesa'],['resistencia','Redução de dano'],['espacos','Espaços ocupados'],['pericia','Testes de perícia']];
@@ -526,7 +526,7 @@
  function getEffects(scope){return scope==='main'?effectRows:scope==='improvement'?improvementRows:(trailRows[scope]||(trailRows[scope]=[]));}
  function compactEffectLabel(b){
   const name=({pv:'PV',pe:'PE',san:'SAN',pericia:b.skill||'Perícia',ataque:'Ataque',dano:'Dano',defesa:'Defesa',resistencia:'Redução de dano',critico:'Margem de crítico',multiplicador:'Multiplicador crítico',espacos:'Espaços',iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade',bloqueio:'Bloqueio',esquiva:'Esquiva',carga:'Carga'})[b.type]||b.type;
-  return (Number(b.value)>=0?'+':'')+Number(b.value||0)+' '+name;
+  return (Number(b.value)>=0?'+':'')+Number(b.value||0)+' '+name+(b.scaling==='nex'?' a cada '+(b.nexInterval||5)+'% de NEX':'');
  }
  function renderEffects(scope){
   const list=getEffects(scope),id=scope==='main'?'nexHbEffectBonusList':scope==='improvement'?'nexHbImprovementBonusList':'nex53TrailBonusList'+scope;
@@ -541,7 +541,9 @@
        '<span style="display:flex;gap:5px"><button type="button" class="btn sm" data-effect-edit="'+i+'">'+(editing?'Fechar':'Editar')+'</button><button type="button" class="btn sm" data-effect-remove="'+i+'">Remover</button></span></div>'+
      (editing?'<div class="nex-hb-bonus-grid" style="padding:9px 0;gap:8px">'+
        '<label>Tipo de bônus<select data-effect-type>'+types.map(([t,label])=>'<option value="'+esc(t)+'"'+(t===b.type?' selected':'')+'>'+esc(label)+'</option>').join('')+'</select></label>'+
-       '<label>Valor do bônus<input data-effect-value type="number" min="-999" max="999" step="1" value="'+esc(b.value)+'"></label>'+
+       '<label>Valor do bônus<input data-effect-value type="number" min="-999" max="999" step="1" value="'+esc(b.value)+'"></label>'+ 
+       '<label>Progressão do bônus<select data-effect-scaling><option value="fixed"'+(b.scaling!=='nex'?' selected':'')+'>Fixo</option><option value="nex"'+(b.scaling==='nex'?' selected':'')+'>A cada X% de NEX</option></select></label>'+ 
+       (b.scaling==='nex'?'<label>Intervalo de NEX<select data-effect-nex-interval>'+[5,10,15,20].map(n=>'<option value="'+n+'"'+(Number(b.nexInterval||5)===n?' selected':'')+'>A cada '+n+'% de NEX</option>').join('')+'</select></label>':'')+
        (b.type==='pericia'?'<label>Perícia beneficiada<select data-effect-skill><option value="">Escolha a perícia</option>'+skills.map(name=>'<option value="'+esc(name)+'"'+(name===b.skill?' selected':'')+'>'+esc(name)+'</option>').join('')+'</select></label>':'')+
        '<button type="button" class="btn primary sm" data-effect-done>Concluir</button></div>':'')+
      '</div>';
@@ -552,7 +554,7 @@
   if(add){
    const scope=add.dataset.effectAdd,items=getEffects(scope);
    if(items.length>=20){message('Limite de 20 bônus.');return;}
-   items.push({type:scope==='improvement'||scope==='main'&&isCursedEditor()?'ataque':'pv',value:1,skill:''});effectEditing[scope]=items.length-1;renderEffects(scope);return;
+   items.push({type:scope==='improvement'||scope==='main'&&isCursedEditor()?'ataque':'pv',value:1,skill:'',scaling:'fixed',nexInterval:5});effectEditing[scope]=items.length-1;renderEffects(scope);return;
   }
   const row=e.target.closest('[data-effect-scope]');if(!row)return;
   const scope=row.dataset.effectScope,index=Number(row.dataset.effectIndex);
@@ -577,9 +579,11 @@
   if(e.target.matches('[data-effect-type]')){if((scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill())&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
   else if(e.target.matches('[data-effect-value]')){item.value=Math.max(-999,Math.min(999,Number(e.target.value)||0));renderEffects(scope);}
   else if(e.target.matches('[data-effect-skill]')){item.skill=e.target.value;renderEffects(scope);}
+  else if(e.target.matches('[data-effect-scaling]')){item.scaling=e.target.value==='nex'?'nex':'fixed';renderEffects(scope);}
+  else if(e.target.matches('[data-effect-nex-interval]')){item.nexInterval=[5,10,15,20].includes(Number(e.target.value))?Number(e.target.value):5;renderEffects(scope);}
  });
  const effectsValid=items=>items.every(b=>b.type!=='pericia'||(api()?.skillNames?.()||FALLBACK_SKILLS).includes(b.skill));
- const effectsLabel=items=>items.map(b=>esc([...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].find(([id])=>id===b.type)?.[1]||b.type)+(b.skill?' ('+esc(b.skill)+')':'')+': '+esc((b.value>=0?'+':'')+b.value)).join(' · ');
+ const effectsLabel=items=>items.map(b=>esc([...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].find(([id])=>id===b.type)?.[1]||b.type)+(b.skill?' ('+esc(b.skill)+')':'')+': '+esc((b.value>=0?'+':'')+b.value)+(b.scaling==='nex'?' a cada '+esc(b.nexInterval||5)+'% de NEX':'')).join(' · ');
  const FALLBACK_SKILLS=['Acrobacia','Adestramento','Artes','Atletismo','Atualidades','Ciências','Crime','Diplomacia','Enganação','Fortitude','Furtividade','Iniciativa','Intimidação','Intuição','Investigação','Luta','Medicina','Ocultismo','Percepção','Pilotagem','Pontaria','Profissão','Reflexos','Religião','Sobrevivência','Tática','Tecnologia','Vontade'];
  function loadSkillChoices(){
    const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
