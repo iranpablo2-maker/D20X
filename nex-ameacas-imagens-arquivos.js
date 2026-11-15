@@ -25,7 +25,7 @@ window.NEX_ARQUIVOS_IMAGES={
   "Arquivos Secretos — Junho::Estímulo": "./assets/ameacas/arquivos-secretos/junho/estimulo.webp",
   "Arquivos Secretos — Junho::Experimento Ssabáka": "./assets/ameacas/arquivos-secretos/junho/experimento-ssabaka.webp",
   "Arquivos Secretos — Janeiro::Investido": "./assets/ameacas/arquivos-secretos/janeiro/investido.webp",
-  "Arquivos Secretos — Janeiro::Assecla Wip": "./assets/ameacas/arquivos-secretos/janeiro/assecla-wip.webp",
+  "Arquivos Secretos — Janeiro::Assecla": "./assets/ameacas/arquivos-secretos/janeiro/assecla-wip.webp",
   "Arquivos Secretos — Janeiro::Apóstolo do Sangue": "./assets/ameacas/arquivos-secretos/janeiro/apostolo-do-sangue.webp",
   "Arquivos Secretos — Janeiro::Giovanni Opspor": "./assets/ameacas/arquivos-secretos/janeiro/giovanni-opspor.webp",
   "Arquivos Secretos — Janeiro::Mosto": "./assets/ameacas/arquivos-secretos/janeiro/mosto.webp",
