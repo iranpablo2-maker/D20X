@@ -14,7 +14,23 @@ import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp} from 'https://
  document.head.append(style);
  const all=document.createElement('button');all.id='nexHbShareAll';all.type='button';all.textContent='Compartilhar vários Homebrews';
  const toolbar=mount.querySelector('.nex52-toolbar');
- if(toolbar){toolbar.appendChild(all);all.style.margin='0';all.style.fontSize='12px';all.style.padding='9px 11px';}
+ if(toolbar){
+  // Mantém "Adicionar" isolado no canto direito, como antes do compartilhamento.
+  toolbar.style.display='flex';
+  toolbar.style.justifyContent='space-between';
+  const add=toolbar.querySelector('#nex52Add');
+  if(add)add.style.marginLeft='auto';
+ }
+ // Compartilhamento tem sua própria linha abaixo do campo de busca.
+ const search=mount.querySelector('.nex52-search');
+ if(search){
+  const line=document.createElement('div');
+  line.className='nex-hb-share-actions';
+  line.style.cssText='display:flex;justify-content:flex-end;align-items:center;margin:9px 0 15px;';
+  line.appendChild(all);
+  search.insertAdjacentElement('afterend',line);
+  all.style.cssText='margin:0;font-size:12px;padding:9px 12px;';
+ }
  const modal=document.createElement('dialog');modal.id='nexHbShareDialog';
  modal.innerHTML='<h2 id="nexHbShareHeading">Compartilhar Homebrews</h2><p id="nexHbShareExplain">Escolha o que deseja compartilhar.</p><div class="hb-items" id="nexHbShareItems"></div><div class="hb-actions"><button id="nexHbShareGenerate" type="button">Gerar link</button><button id="nexHbShareImport" type="button" hidden>Importar selecionados</button><button id="nexHbShareClose" type="button">Fechar</button></div><div id="nexHbShareLinkBox" hidden><input type="text" id="nexHbShareLink" readonly aria-label="Link de compartilhamento"><div class="hb-actions"><button id="nexHbShareCopy" type="button">Copiar link</button><button id="nexHbShareDisable" type="button">Desativar link</button></div></div><p id="nexHbShareStatus" role="status"></p>';
  document.body.append(modal);
