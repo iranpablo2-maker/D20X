@@ -12,25 +12,6 @@ import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp} from 'https://
  const style=document.createElement('style');style.textContent='#nexHbShareAll{margin:8px 0 14px;padding:10px 13px;background:#69232e;color:#fff;border:1px solid #a94855;border-radius:7px;cursor:pointer}#nexHbShareDialog{width:min(94vw,650px);max-height:90vh;overflow:auto;background:#151116;color:#fff;border:1px solid #b34d5a;border-radius:11px;padding:18px}#nexHbShareDialog::backdrop{background:#000b}#nexHbShareDialog .hb-option{display:flex;gap:12px;padding:10px;border-bottom:1px solid #432c33}#nexHbShareDialog .hb-option small{display:block;color:#aaa}#nexHbShareDialog .hb-items{max-height:42vh;overflow:auto;border:1px solid #63414b;margin:10px 0;border-radius:5px}#nexHbShareDialog button{padding:9px 12px;border:1px solid #c55d6a;border-radius:6px;color:white;background:#862d3a;cursor:pointer}#nexHbShareDialog .hb-actions{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}#nexHbShareDialog input[type=text]{width:100%;box-sizing:border-box;padding:10px;background:#0e0d10;color:white;border:1px solid #66414a}#nexHbShareDialog [hidden]{display:none!important}#nexHbShareStatus{color:#ffbfc7;min-height:20px}';
  style.textContent+='#nexHbShareDialog .hb-option{display:flex!important;align-items:center!important;justify-content:flex-start!important;gap:12px!important}#nexHbShareDialog .hb-option input[type=checkbox]{appearance:auto!important;-webkit-appearance:checkbox!important;display:inline-block!important;flex:0 0 18px!important;width:18px!important;height:18px!important;min-width:18px!important;min-height:18px!important;max-width:18px!important;max-height:18px!important;margin:0!important;padding:0!important;accent-color:#b23848;transform:none!important;position:static!important}#nexHbShareDialog .hb-option div{flex:1;min-width:0}';
  document.head.append(style);
- const all=document.createElement('button');all.id='nexHbShareAll';all.type='button';all.textContent='Compartilhar vários Homebrews';
- const toolbar=mount.querySelector('.nex52-toolbar');
- if(toolbar){
-  // Mantém "Adicionar" isolado no canto direito, como antes do compartilhamento.
-  toolbar.style.display='flex';
-  toolbar.style.justifyContent='space-between';
-  const add=toolbar.querySelector('#nex52Add');
-  if(add)add.style.marginLeft='auto';
- }
- // Compartilhamento tem sua própria linha abaixo do campo de busca.
- const search=mount.querySelector('.nex52-search');
- if(search){
-  const line=document.createElement('div');
-  line.className='nex-hb-share-actions';
-  line.style.cssText='display:flex;justify-content:flex-end;align-items:center;margin:9px 0 15px;';
-  line.appendChild(all);
-  search.insertAdjacentElement('afterend',line);
-  all.style.cssText='margin:0;font-size:12px;padding:9px 12px;';
- }
  const modal=document.createElement('dialog');modal.id='nexHbShareDialog';
  modal.innerHTML='<h2 id="nexHbShareHeading">Compartilhar Homebrews</h2><p id="nexHbShareExplain">Escolha o que deseja compartilhar.</p><div class="hb-items" id="nexHbShareItems"></div><div class="hb-actions"><button id="nexHbShareGenerate" type="button">Gerar link</button><button id="nexHbShareImport" type="button" hidden>Importar selecionados</button><button id="nexHbShareClose" type="button">Fechar</button></div><div id="nexHbShareLinkBox" hidden><input type="text" id="nexHbShareLink" readonly aria-label="Link de compartilhamento"><div class="hb-actions"><button id="nexHbShareCopy" type="button">Copiar link</button><button id="nexHbShareDisable" type="button">Desativar link</button></div></div><p id="nexHbShareStatus" role="status"></p>';
  document.body.append(modal);
@@ -96,7 +77,6 @@ import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp} from 'https://
    tell('Importados: '+result.added+'. Já importados: '+result.skipped+'. Cada cópia pode ser editada e compartilhada.');
   }catch(e){tell('Falha ao importar: '+e.message);}
  }
- all.addEventListener('click',()=>beginCreate(null));
  document.addEventListener('click',e=>{const btn=e.target.closest('button[data-nex52-share]');if(btn){e.preventDefault();beginCreate([btn.dataset.nex52Share]);}});
  $('nexHbShareGenerate').onclick=generate;$('nexHbShareImport').onclick=importItems;$('nexHbShareClose').onclick=()=>modal.close();
  $('nexHbShareCopy').onclick=async()=>{try{await navigator.clipboard.writeText($('nexHbShareLink').value);tell('Link copiado.');}catch{tell('Copie o link do campo acima.');}};
