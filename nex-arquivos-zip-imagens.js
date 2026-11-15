@@ -58,3 +58,70 @@
  }
  window.NEX_ARQUIVOS_ZIP_IMAGE_URL=imageUrl;
 })();
+/* Pacote de 20 imagens enviado pelo dono do NEX ao GitHub.
+   Os 13 retratos identificados são carregados diretamente do ZIP sem extrair os arquivos no servidor.
+   Os 7 retratos pendentes não são associados indevidamente a nenhuma ameaça. */
+(()=>{
+ const archive="./NEX_20_imagens_organizadas.zip";
+ const folder="assets/ameacas/enviadas/";
+ const mapping={
+  "Arquivos Secretos — Julho::Strzyga":"strzyga.webp",
+  "Arquivos Secretos — Julho::Apóstata":"apostata.webp",
+  "Arquivos Secretos — Julho::Alvira":"alvira.webp",
+  "Arquivos Secretos — Março::Alê":"ale.webp",
+  "Arquivos Secretos — Julho::Incinerado":"incinerado.webp",
+  "Arquivos Secretos — Julho::Sabara":"sabara.webp",
+  "Arquivos Secretos — Janeiro::Cristino":"cristino.webp",
+  "Arquivos Secretos — Julho::Raziel":"raziel.webp",
+  "Arquivos Secretos — Março::Caio":"caio.webp",
+  "Arquivos Secretos — Março::Caíto":"caito.webp",
+  "Arquivos Secretos — Julho::Zéfero":"zefero.webp",
+  "Arquivos Secretos — Julho::O Verdadeiro Raziel":"o-verdadeiro-raziel.webp",
+  "Arquivos Secretos — Abril::Simulacro":"simulacro.webp"
+ };
+ window.NEX_UPLOADED_THREAT_IMAGES=mapping;
+ const urls=new Map();
+ let archivePromise;
+ const u16=(view,n)=>view.getUint16(n,true);
+ const u32=(view,n)=>view.getUint32(n,true);
+ async function readArchive(){
+  const res=await fetch(archive,{cache:"force-cache"});
+  if(!res.ok)throw Error("Arquivo de imagens do NEX não encontrado: "+res.status);
+  const data=await res.arrayBuffer(),v=new DataView(data);
+  let end=-1;
+  for(let i=data.byteLength-22;i>=Math.max(0,data.byteLength-65557);i--){
+   if(u32(v,i)===0x06054b50){end=i;break}
+  }
+  if(end<0)throw Error("Índice do ZIP de retratos inválido");
+  const entries=new Map(),decoder=new TextDecoder();
+  let pos=u32(v,end+16);
+  for(let i=0,count=u16(v,end+10);i<count;i++){
+   if(u32(v,pos)!==0x02014b50)throw Error("Entrada de índice ZIP inválida");
+   const nameLen=u16(v,pos+28),extra=u16(v,pos+30),comment=u16(v,pos+32);
+   const name=decoder.decode(new Uint8Array(data,pos+46,nameLen));
+   entries.set(name,{method:u16(v,pos+10),length:u32(v,pos+20),offset:u32(v,pos+42)});
+   pos+=46+nameLen+extra+comment;
+  }
+  return {data,v,entries};
+ }
+ window.NEX_UPLOADED_THREAT_IMAGE_URL=async key=>{
+  const name=mapping[key];
+  if(!name)return null;
+  if(urls.has(name))return urls.get(name);
+  const pending=(async()=>{
+   const {data,v,entries}=await (archivePromise||(archivePromise=readArchive().catch(e=>{archivePromise=null;throw e})));
+   const entry=entries.get(folder+name);
+   if(!entry)return null;
+   if(u32(v,entry.offset)!==0x04034b50)throw Error("Cabeçalho de retrato ZIP inválido");
+   const start=entry.offset+30+u16(v,entry.offset+26)+u16(v,entry.offset+28);
+   const compressed=data.slice(start,start+entry.length);
+   let raw=compressed;
+   if(entry.method===8){
+    raw=await new Response(new Blob([compressed]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer();
+   }else if(entry.method!==0)throw Error("Compressão ZIP não suportada: "+entry.method);
+   return URL.createObjectURL(new Blob([raw],{type:"image/webp"}));
+  })();
+  urls.set(name,pending);
+  return pending;
+ };
+})();
