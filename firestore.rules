@@ -235,6 +235,19 @@ service cloud.firestore {
       match /privateSheets/{sheetId} {
         allow get, list, create, update, delete: if nexGM(cid);
       }
+      // Mesa virtual da campanha: mestre edita, membros autorizados visualizam.
+      match /tabletop/{sceneId} {
+        allow get: if sceneId == 'state' && nexInCampaign(cid);
+        allow list: if false;
+        allow create, update: if sceneId == 'state' && nexGM(cid)
+          && request.resource.data.keys().hasOnly(['format','map','tokens'])
+          && request.resource.data.format == 'nex-tabletop-v1'
+          && request.resource.data.map is string
+          && request.resource.data.map.size() <= 650000
+          && request.resource.data.tokens is list
+          && request.resource.data.tokens.size() <= 90;
+        allow delete: if false;
+      }
       match /combats/{combatId} {
         allow get, list: if nexInCampaign(cid);
         allow create: if nexGM(cid)
