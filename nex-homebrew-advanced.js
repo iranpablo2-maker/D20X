@@ -344,7 +344,7 @@
    $('nexHbImprovementTarget').value='Armas';
    $('nexHbBonusType').value='ataque';$('nexHbBonusValue').value='+2';
    effectRows=[];renderEffects('main');TRAIL_NEX.forEach(n=>{trailRows[n]=[];renderEffects(String(n));});
-   TRAIL_NEX.forEach(n=>{$('nex53TrailBonusType'+n).value='';$('nex53TrailBonusValue'+n).value='0';});
+
    $('nexHbProtectionDefense').value='1';
    $('nexHbWeaponProficiency').value='Armas Simples';$('nexHbWeaponKind').value='Corpo a Corpo';$('nexHbWeaponWield').value='Uma Mão';
    $('nexHbWeaponDamage').value='';$('nexHbWeaponSecondary').value='';$('nexHbWeaponSecondaryType').value='Normal';
