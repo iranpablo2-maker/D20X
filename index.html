@@ -2536,7 +2536,8 @@ const NEX12_ORIGIN_MAP=Object.fromEntries(NEX12_ORIGINS.map(([name,skill1,skill2
 const NEX12_HB_DEFAULT={name:'Ex-Militar',skills:['Pontaria','Fortitude'],ability:'Veterano de Combate',pvStep:1,damage:2,description:'Você recebe +1 ponto de vida a cada 5% de NEX. Além disso, seus ataques causam +2 pontos de dano.',official:false};
 function nex12Ensure(){
  if(!state.homebrew||!Array.isArray(state.homebrew))state.homebrew=[];
- // Ex-Militar era uma origem de exemplo e não deve voltar após a exclusão.
+ // Limpa cópias antigas da origem de exemplo sem alterar a origem escolhida pela ficha.
+ state.homebrew=state.homebrew.filter(x=>x&&x.name!=='Ex-Militar');
  if(!Array.isArray(state.powers))state.powers=[];
  if(!Array.isArray(state.rituals))state.rituals=[];
  if(!state.trailByClass||typeof state.trailByClass!=='object')state.trailByClass={};
