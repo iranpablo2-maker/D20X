@@ -956,6 +956,20 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel #nexVttCombatDock{right:5px;width:min(320px,calc(100% - 11px));}
 }
 </style>
+<style id="nex-vtt-build-marker-style">
+#roomTabletopPanel #nexVttBuildTag{
+ display:inline-flex;align-items:center;white-space:nowrap;
+ font-size:10px;font-weight:750;letter-spacing:.03em;
+ color:#cdb8ff;background:#322744;border:1px solid #7654a5;border-radius:7px;
+ padding:8px 9px;
+}
+#roomTabletopPanel #nexVttReload{
+ background:#282536!important;color:#e9ddff!important;
+ border:1px solid #6b5b85!important;border-radius:7px!important;padding:9px!important;
+ font-size:11px!important;
+}
+@media(max-width:900px){#roomTabletopPanel #nexVttBuildTag{display:none!important}}
+</style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -1229,7 +1243,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
    <section id="roomTabletopPanel" class="room-panel hide" aria-label="Tabletop da campanha">
-    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><span class="nex-vtt-brand-symbol" aria-hidden="true">◆</span><div class="nex-vtt-brand-copy"><strong>NEX</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
+    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><span class="nex-vtt-brand-symbol" aria-hidden="true">◆</span><div class="nex-vtt-brand-copy"><strong>NEX</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexVttBuildTag" title="Versão do tabletop do NEX">MESA 15/11 · VTT 1.1</span><button type="button" id="nexVttReload" title="Recarregar a interface da mesa">⟳ Recarregar</button><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
     <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
     <div class="nex-vtt-layout"><aside class="nex-vtt-sidebar"><h3>Ferramentas</h3><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
@@ -1302,7 +1316,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115combata10';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115vttdiagnostic11';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -1934,6 +1948,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
  $('nexVttSheetsClose').addEventListener('click',()=>{$('nexVttSheetsPanel').hidden=true;$('nexVttSheetsToggle').setAttribute('aria-expanded','false');});
  $('nexVttSheetsList').addEventListener('click',event=>{const button=event.target.closest('[data-vtt-mini-sheet]');if(button){activeVttMiniSheetId=activeVttMiniSheetId===button.dataset.vttMiniSheet?null:button.dataset.vttMiniSheet;renderVttSheets();}});
+ $('nexVttReload')?.addEventListener('click',()=>{
+  const current=new URL(location.href);
+  current.searchParams.set('vttRefresh',Date.now().toString());
+  location.replace(current.href);
+ });
  $('roomOpenTabletop').addEventListener('click',()=>roomSection('tabletop'));
  $('nexVttExit').addEventListener('click',()=>roomSection('characters'));
  function inviteView(mode,message){
