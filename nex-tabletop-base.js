@@ -178,6 +178,33 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  vttTab('⚄','Rolagem de dados',()=>vttOpen('dice'));
  vttTab('⚙','Configurações do mapa',()=>vttOpen('grid'));
  vttTab('↩','Voltar à campanha',()=>document.getElementById('nexVttExit')?.click());
+ const primaryNav={
+   map:document.getElementById('nexVttNavMap'),
+   sheets:document.getElementById('nexVttNavSheets'),
+   combat:document.getElementById('nexVttNavCombat')
+ };
+ function activatePrimaryNav(section){
+   for(const [id,button] of Object.entries(primaryNav)){
+     if(!button)continue;
+     if(id===section)button.setAttribute('aria-current','page');
+     else button.removeAttribute('aria-current');
+   }
+ }
+ listen(primaryNav.map,'click',()=>{
+   activatePrimaryNav('map');
+   vttOptions.hidden=true;
+   vttTokenInspectorOpen=false;vttSide.hidden=true;
+ });
+ listen(primaryNav.sheets,'click',()=>{
+   activatePrimaryNav('sheets');
+   if(vttRight?.hidden)document.getElementById('nexVttSheetsToggle')?.click();
+   vttOptions.hidden=true;
+ });
+ listen(primaryNav.combat,'click',()=>{
+   activatePrimaryNav('combat');
+   vttOpen('turn');
+ });
+
  vttRight?.prepend(vttTabs);
  const vttRoomTag=document.createElement('div');vttRoomTag.className='nex-vtt-room-tag';
  vttRoomTag.textContent='NEX · '+(document.getElementById('nexVttCampaignName')?.textContent||'Campanha');
