@@ -2536,7 +2536,7 @@ const NEX12_ORIGIN_MAP=Object.fromEntries(NEX12_ORIGINS.map(([name,skill1,skill2
 const NEX12_HB_DEFAULT={name:'Ex-Militar',skills:['Pontaria','Fortitude'],ability:'Veterano de Combate',pvStep:1,damage:2,description:'Você recebe +1 ponto de vida a cada 5% de NEX. Além disso, seus ataques causam +2 pontos de dano.',official:false};
 function nex12Ensure(){
  if(!state.homebrew||!Array.isArray(state.homebrew))state.homebrew=[];
- if(!state.homebrew.some(x=>x.name==='Ex-Militar'))state.homebrew.unshift({...NEX12_HB_DEFAULT});
+ // Ex-Militar era uma origem de exemplo e não deve voltar após a exclusão.
  if(!Array.isArray(state.powers))state.powers=[];
  if(!Array.isArray(state.rituals))state.rituals=[];
  if(!state.trailByClass||typeof state.trailByClass!=='object')state.trailByClass={};
@@ -2568,7 +2568,7 @@ function nexLiveLegacyOrigins(){
    if(Array.isArray(parsed))entries=parsed;
   }
  }catch(error){console.warn('Falha ao consultar origens clássicas',error);}
- return entries.filter(x=>x&&typeof x.name==='string'&&x.name.trim());
+ return entries.filter(x=>x&&typeof x.name==='string'&&x.name.trim()&&x.name!=='Ex-Militar');
 }
 function nex12PopulateOrigins(){
  nex12Ensure();
@@ -2654,7 +2654,7 @@ function nex12Setup(){
  if(b.dataset.nex12Cast){const r=state.rituals.find(x=>x.id===b.dataset.nex12Cast);if(!r)return;const cost=NEX12_BASE_COST[int(r.circle)]+int(r.extra);if(state.peCurrent<cost)return toast('PE insuficiente.');if(!confirm('Confirmar gasto de '+cost+' PE? Verifique a disponibilidade e pré-requisitos com o mestre.'))return;state.peCurrent-=cost;renderStats();save();toast(cost+' PE gastos.');}
  if(b.dataset.nex12EditHb){const o=state.homebrew.find(x=>x.name===b.dataset.nex12EditHb);if(!o)return;$('hbName').value=o.name;$('hbAbility').value=o.ability;$('hbSkill1').value=o.skills[0]||'';$('hbSkill2').value=o.skills[1]||'';$('hbPv').value=o.pvStep;$('hbDamage').value=o.damage;$('hbDescription').value=o.description||'';}
  if(b.dataset.nex12UseHb){state.origin=b.dataset.nex12UseHb;nex12PopulateOrigins();applyClass();renderAttacks();nex12RenderHomebrew();save();toast('Origem aplicada à ficha.');}
- if(b.dataset.nex12DeleteHb){if(b.dataset.nex12DeleteHb==='Ex-Militar')return toast('Ex-Militar faz parte da configuração padrão. Você pode editá-la.');if(!confirm('Excluir esta origem personalizada?'))return;state.homebrew=state.homebrew.filter(x=>x.name!==b.dataset.nex12DeleteHb);if(state.origin===b.dataset.nex12DeleteHb)state.origin='';nex12PopulateOrigins();nex12RenderHomebrew();renderStats();save();document.dispatchEvent(new Event('nex-homebrew-changed'));}
+ if(b.dataset.nex12DeleteHb){if(!confirm('Excluir esta origem personalizada?'))return;state.homebrew=state.homebrew.filter(x=>x.name!==b.dataset.nex12DeleteHb);if(state.origin===b.dataset.nex12DeleteHb)state.origin='';nex12PopulateOrigins();nex12RenderHomebrew();renderStats();save();document.dispatchEvent(new Event('nex-homebrew-changed'));}
  });
  document.addEventListener('change',e=>{if(e.target.matches('[data-field="class"],[data-field="nex"]')){nex12RenderTrail();nex12RenderRitualList();nex12UpdateTabVisibility();}if(e.target.matches('[data-field="origin"]')){renderStats();renderAttacks();nex12UpdateTabVisibility();if(typeof drawAbilities==='function')drawAbilities();}});
  // Rehydrate after importing a JSON from an earlier version.
@@ -2695,10 +2695,11 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   let lib=[],hasSavedLibrary=false;
   try{const stored=localStorage.getItem(HB_KEY);hasSavedLibrary=stored!==null;lib=JSON.parse(stored||'[]');}catch(error){}
   if(!Array.isArray(lib))lib=[];
-  if(hasSavedLibrary){if(!lib.some(x=>x.name==='Ex-Militar'))lib.unshift({...NEX12_HB_DEFAULT});return lib;}
+  // A origem de exemplo Ex-Militar não integra o catálogo e não pode ser recriada automaticamente.
+  lib=lib.filter(x=>x&&x.name!=='Ex-Militar');
+  if(hasSavedLibrary)return lib;
   const gathered=[...(state.homebrew||[]),...agents.flatMap(x=>Array.isArray(x.data?.homebrew)?x.data.homebrew:[])];
-  for(const entry of gathered){if(entry && entry.name && !lib.some(x=>x.name===entry.name))lib.push(entry);}
-  if(!lib.some(x=>x.name==='Ex-Militar'))lib.unshift({...NEX12_HB_DEFAULT});
+  for(const entry of gathered){if(entry && entry.name && entry.name!=='Ex-Militar' && !lib.some(x=>x.name===entry.name))lib.push(entry);}
   return lib;
  }
  function syncHomebrew(){const lib=globalHomebrew();state.homebrew=structuredClone(lib);for(const entry of agents){entry.data.homebrew=structuredClone(lib);}try{localStorage.setItem(HB_KEY,JSON.stringify(lib));}catch(e){console.error(e);}return lib;}
