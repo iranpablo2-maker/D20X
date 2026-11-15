@@ -24,21 +24,22 @@ import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp} from 'https://
   for(const item of items){
    const label=document.createElement('label');label.className='hb-option';
    const input=document.createElement('input');input.type='checkbox';input.value=item.id;input.checked=true;input.disabled=locked;
-   const div=document.createElement('div');const strong=document.createElement('strong');strong.textContent=item.name;const sub=document.createElement('small');sub.textContent=item.type+(item.category?' · '+item.category:'');
+   const div=document.createElement('div');const strong=document.createElement('strong');strong.textContent=item.name;const sub=document.createElement('small');sub.textContent=item.type+(item.type==='item'&&item.category?' · '+item.category:'');
    div.append(strong,sub);label.append(input,div);container.append(label);
   }
  }
  function beginCreate(ids){
   mode='create';packet=null;currentShareId=null;
   $('nexHbShareHeading').textContent=ids?'Compartilhar Homebrew':'Compartilhar vários Homebrews';
-  $('nexHbShareExplain').textContent='Cada importação gera uma cópia que poderá ser editada e compartilhada novamente, sem modificar o original.';
+  $('nexHbShareExplain').hidden=true;
   const items=getItems().filter(item=>!ids||ids.includes(item.id));present(items,!!ids);
   $('nexHbShareGenerate').hidden=false;$('nexHbShareImport').hidden=true;$('nexHbShareLinkBox').hidden=true;
-  tell(items.length?'Selecione até 20 Homebrews.':'Não há Homebrews disponíveis.');modal.showModal();
+  tell(items.length?'':'Não há Homebrews disponíveis.');modal.showModal();
  }
  function beginImport(id,data){
   mode='import';currentShareId=id;packet=data;
   $('nexHbShareHeading').textContent='Homebrews compartilhados';
+  $('nexHbShareExplain').hidden=false;
   $('nexHbShareExplain').textContent='Selecione quais cópias deseja adicionar. Elas serão independentes do original.';
   present(data.items,false);
   $('nexHbShareGenerate').hidden=true;$('nexHbShareImport').hidden=false;$('nexHbShareLinkBox').hidden=true;
