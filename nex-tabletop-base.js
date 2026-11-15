@@ -101,7 +101,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  });
 
  // Expanded Roll20-inspired VTT toolbar; all shared changes use the existing campaign document.
- let vttMode='select',vttZoom=.6,vttDraft=null,vttPan=null,vttColor='#e4677c';
+ let vttMode='select',vttZoom=.85,vttDraft=null,vttPan=null,vttColor='#e4677c';
  const vttBar=document.createElement('nav');vttBar.id='nexVttBar';vttBar.setAttribute('aria-label','Ferramentas da mesa');
  const vttOptions=document.createElement('div');vttOptions.id='nexVttOptions';vttOptions.hidden=true;
  const vttSide=document.createElement('div');vttSide.id='nexVttTokenProperties';vttSide.hidden=true;
@@ -124,18 +124,22 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  '#nexVttFogLayer{position:absolute;inset:0;z-index:4;pointer-events:none;background:rgba(0,0,0,.9)}'+
  '#nexVttFogLayer[hidden]{display:none!important}'+
  '.nex-vtt-hide-grid::before{display:none!important}'+
- '#roomTabletopPanel .nex-vtt-sidebar{display:grid!important;grid-template-columns:47px minmax(0,1fr)!important;column-gap:9px!important;align-content:start!important;padding:10px 8px!important}'+
+ '#roomTabletopPanel .nex-vtt-sidebar{flex:0 0 58px!important;width:58px!important;min-width:58px!important;display:flex!important;flex-direction:column!important;align-items:center!important;padding:7px 4px!important;overflow-x:hidden!important}'+
+ '#roomTabletopPanel .nex-vtt-sidebar>h3,#roomTabletopPanel .nex-vtt-sidebar>#nexTabletopTools,#roomTabletopPanel .nex-vtt-sidebar>#nexTtVariants,#roomTabletopPanel .nex-vtt-sidebar>#nexVttTokenProperties{display:none!important}'+
+ '#roomTabletopPanel .nex-vtt-sidebar #nexVttBar{flex:0 0 auto!important;grid-column:auto!important;grid-row:auto!important;width:49px!important;max-width:49px!important}'+
  '#roomTabletopPanel .nex-vtt-sidebar>h3,#roomTabletopPanel .nex-vtt-sidebar>#nexTabletopTools,#roomTabletopPanel .nex-vtt-sidebar>#nexTtVariants,#roomTabletopPanel .nex-vtt-sidebar>#nexVttTokenProperties{grid-column:2;min-width:0}'+
  '#roomTabletopPanel .nex-vtt-sidebar>h3{grid-row:1;margin:5px 0 9px!important}'+
  '#roomTabletopPanel #nexVttBar{grid-column:1;grid-row:1/span 9;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;align-items:center!important;gap:5px!important;position:sticky;top:0;max-height:calc(100dvh - 100px);overflow-y:auto;overflow-x:hidden;padding:5px 2px!important;border:1px solid #54303e!important;border-radius:7px;background:#1b131a!important}'+
  '#roomTabletopPanel #nexVttBar button{flex:0 0 36px;width:37px!important;min-width:37px!important;height:36px;padding:0!important;font-size:16px!important;display:grid;place-items:center}'+
  '#roomTabletopPanel .nex-vtt-stage{position:relative}'+
- '#roomTabletopPanel .nex-tabletop-wrap{align-items:flex-start!important;justify-content:flex-start!important;padding:24px 64px 24px 24px!important}'+
+ '#roomTabletopPanel .nex-tabletop-wrap{align-items:flex-start!important;justify-content:flex-start!important;padding:16px 60px 16px 16px!important;background:#111013!important}'+
+ '#roomTabletopPanel .nex-tabletop-board{background-color:#2c2930!important;border:1px solid #82777f!important;box-shadow:0 0 0 1px #5f565f,0 8px 32px #0009!important}'+
+ '#roomTabletopPanel .nex-tabletop-board::before{background-image:linear-gradient(to right,rgba(255,255,255,.38) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.38) 1px,transparent 1px)!important}'+
  '#roomTabletopPanel #nexVttZoomRail{position:absolute;z-index:20;right:12px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;padding:9px 6px;border:1px solid #814556;border-radius:10px;background:#21161fdc;box-shadow:0 5px 25px #000a}'+
  '#roomTabletopPanel #nexVttZoomRail button{width:35px;height:35px;border:1px solid #854a5b;border-radius:6px;background:#412431;color:white;font-size:20px}'+
  '#roomTabletopPanel #nexVttZoomValue{min-width:42px}'+
  '#roomTabletopPanel #nexVttOptions{flex:none}'+
- '@media(max-width:650px){#roomTabletopPanel .nex-vtt-sidebar{flex-basis:195px!important;width:195px!important;grid-template-columns:40px minmax(0,1fr)!important}#roomTabletopPanel #nexVttBar button{width:32px!important;min-width:32px!important}#roomTabletopPanel .nex-tabletop-wrap{padding-right:48px!important}#roomTabletopPanel #nexVttZoomRail{right:5px}}';
+ '@media(max-width:650px){#roomTabletopPanel .nex-vtt-sidebar{flex:0 0 46px!important;width:46px!important;min-width:46px!important;padding:4px 2px!important}#roomTabletopPanel .nex-vtt-sidebar #nexVttBar{max-width:40px!important;width:40px!important}#roomTabletopPanel #nexVttBar button{width:32px!important;min-width:32px!important}#roomTabletopPanel .nex-tabletop-wrap{padding-right:48px!important}#roomTabletopPanel #nexVttZoomRail{right:5px}}';
  document.head.append(vttStyle);
  const vttSidebar=tools.closest('.nex-vtt-sidebar');
  vttSidebar?.prepend(vttBar);
@@ -157,6 +161,8 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  const vttZoomMinus=vttButton('−','Diminuir zoom',()=>vttChangeZoom(-.1));
  vttZoomRail.append(vttZoomPlus,vttZoomText,vttZoomMinus);
  vttWrap.parentElement?.append(vttZoomRail);
+ vttButton('＋','Adicionar token',()=>document.getElementById('nexTabletopAddToken')?.click(),!gm);
+ vttButton('▧','Enviar imagem do mapa',()=>document.getElementById('nexTabletopMapFile')?.click(),!gm);
  vttButton('▦','Grade e névoa',()=>vttOpen('grid'),!gm);
  vttButton('♟','Token',()=>vttOpen('token'),!gm);
  vttButton('⚄','Dados',()=>vttOpen('dice'));
