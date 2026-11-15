@@ -179,6 +179,54 @@
   .nex-hb-threat-info p{font-size:13px;margin:5px 0}
   @media(max-width:500px){.nex-hb-threat-main-stats{grid-template-columns:1fr}.nex-hb-threat-avatar{width:84px;height:84px}.nex-hb-threat-sheet-head h2{font-size:18px}.nex-hb-threat-attribute-bar strong{font-size:19px}}
 
+  /* Edição diretamente sobre o desenho da ficha, sem os fieldsets do formulário. */
+  #nex52Editor.nex-hb-editing-threat{width:100%;max-width:100%;background:#141014;border-color:#613440}
+  .nex-hb-editing-threat #nex51Form{display:flex;flex-direction:column;gap:0}
+  .nex-hb-editing-threat #nex52ThreatFields{width:100%;padding:0;margin:0;max-width:none;background:#120f13;border:1px solid #61313c;border-radius:8px;overflow:hidden}
+  .nex-hb-editing-threat #nex52ThreatFields input,.nex-hb-editing-threat #nex52ThreatFields select,.nex-hb-editing-threat #nex52ThreatFields textarea{background:transparent;color:#fff;border:1px solid transparent;border-radius:5px;outline:none;font:inherit;box-shadow:none}
+  .nex-hb-editing-threat #nex52ThreatFields input:hover,.nex-hb-editing-threat #nex52ThreatFields select:hover,.nex-hb-editing-threat #nex52ThreatFields textarea:hover{border-color:#6b3f4c;background:#ffffff08}
+  .nex-hb-editing-threat #nex52ThreatFields input:focus,.nex-hb-editing-threat #nex52ThreatFields select:focus,.nex-hb-editing-threat #nex52ThreatFields textarea:focus{border-color:#d74b64;background:#24191e}
+  .nex-hb-threat-edit-header{display:flex;gap:20px;min-height:168px;padding:22px;background:linear-gradient(100deg,#210e15,#351219 52%,#180c12)}
+  .nex-hb-threat-photo{display:flex;position:relative;flex:0 0 145px;height:145px;border:1px solid #884656;border-radius:9px;overflow:hidden;align-items:center;justify-content:center;background:linear-gradient(135deg,#371920,#160f15)}
+  .nex-hb-threat-photo img{display:block;width:100%;height:100%;object-fit:cover}
+  .nex-hb-threat-photo img[hidden]{display:none}
+  .nex-hb-threat-photo .nex-hb-threat-upload{position:absolute;inset:0;display:grid;place-items:center;background:#08060982;color:white;text-align:center;cursor:pointer;font-size:12px;opacity:0;transition:opacity .12s}
+  .nex-hb-threat-photo:hover .nex-hb-threat-upload,.nex-hb-threat-photo:focus-within .nex-hb-threat-upload{opacity:1}
+  .nex-hb-threat-photo:has(img[hidden]) .nex-hb-threat-upload{opacity:1}
+  .nex-hb-threat-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+  .nex-hb-threat-photo #nexHbThreatRemovePhoto{position:absolute;bottom:3px;right:3px;font-size:10px;padding:4px;background:#591c29}
+  .nex-hb-threat-heading-fields{flex:1;min-width:0;display:flex;flex-direction:column;gap:5px;justify-content:center}
+  .nex-hb-threat-overline{font-size:10px;letter-spacing:.16em;color:#e4a6b5;font-weight:700}
+  .nex-hb-threat-heading-fields #nex53NameField{display:block;margin:0}
+  .nex-hb-threat-heading-fields #nex53NameField>input{font-size:25px;font-weight:800;line-height:1.2;padding:6px 0;width:100%;height:auto;border:0;border-bottom:1px dashed #5e3a44;border-radius:0}
+  .nex-hb-threat-heading-fields #nex53NameField{font-size:0}
+  .nex-hb-threat-heading-info,.nex-hb-threat-heading-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .nex-hb-threat-heading-info label,.nex-hb-threat-heading-badges label{display:flex;gap:5px;align-items:center;font-size:10px;color:#dabac2}
+  .nex-hb-threat-heading-info select,.nex-hb-threat-heading-badges select,.nex-hb-threat-heading-badges input{width:auto;max-width:185px;padding:5px!important;font-size:12px!important;min-height:29px}
+  .nex-hb-threat-heading-badges label{border:1px solid #8e3e51;border-radius:5px;padding:0 5px}
+  .nex-hb-threat-heading-badges input{width:70px!important}
+  .nex-hb-threat-vital-editor{margin:18px 18px 8px;background:#ae253c;border-radius:6px;text-align:center;padding:5px}
+  .nex-hb-threat-vital-editor label{display:inline-flex!important;align-items:center;justify-content:center;color:#fff;font-size:17px;font-weight:800;gap:6px}
+  .nex-hb-threat-vital-editor input{width:90px!important;text-align:right;font-weight:800;font-size:17px;border:0!important;background:transparent!important;padding:5px 0!important}
+  .nex-hb-threat-edit-attributes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;text-align:center;padding:25px 18px}
+  .nex-hb-threat-edit-attributes label{display:flex;flex-direction:column;align-items:center;font-size:12px;color:#cbb3be}
+  .nex-hb-threat-edit-attributes input{text-align:center;font-size:28px!important;font-weight:800!important;max-width:90px;padding:4px!important}
+  .nex-hb-threat-edit-major{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:0 18px 8px}
+  .nex-hb-threat-edit-major label{display:flex;flex-direction:column;border:1px solid #503441;border-radius:7px;padding:9px 12px;color:#bfa2ad;font-size:11px}
+  .nex-hb-threat-edit-major input{font-weight:800!important;font-size:17px!important;width:100%;padding:4px 0!important}
+  .nex-hb-threat-inline-section{padding:12px 18px;margin:0}
+  .nex-hb-threat-inline-section h4{margin:0 0 9px;font-size:16px;font-weight:700;color:#fff}
+  .nex-hb-threat-inline-section textarea{display:block;width:100%;min-height:38px;resize:vertical;padding:9px!important;border:1px solid #443039!important;font-size:13px!important}
+  .nex-hb-threat-edit-line{display:flex!important;align-items:center;justify-content:space-between;gap:9px;margin:5px 0;padding:5px 12px;border:1px solid #433039;border-radius:5px;font-size:13px}
+  .nex-hb-threat-edit-line input{width:min(210px,55%)!important;text-align:right;font-size:13px!important;padding:5px!important}
+  .nex-hb-threat-status-edit,.nex-hb-threat-combat-edit,.nex-hb-threat-description-edit{padding-bottom:20px}
+  .nex-hb-editing-threat #nex55DescriptionField{margin:0!important;width:100%;display:block}
+  .nex-hb-editing-threat #nex55DescriptionField textarea{width:100%;min-height:115px;border:1px solid #443039}
+  .nex-hb-threat-combat-edit #nexHbThreatActions>fieldset{border:1px solid #553240;border-radius:7px;padding:12px;background:#1a1117}
+  .nex-hb-threat-combat-edit #nexHbThreatActions .nex-hb-threat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(max-width:610px){.nex-hb-threat-edit-header{padding:12px;gap:11px}.nex-hb-threat-photo{flex-basis:90px;height:100px}.nex-hb-threat-heading-fields #nex53NameField>input{font-size:19px}.nex-hb-threat-heading-info label,.nex-hb-threat-heading-badges label{font-size:9px}.nex-hb-threat-edit-major{grid-template-columns:1fr}.nex-hb-threat-edit-attributes input{font-size:21px!important}}
+
+
   @media(max-width:600px){.nex-hb-threat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.nex-hb-threat-sheet-head strong{font-size:15px}}
  `;
  document.head.appendChild(threatStyle);
