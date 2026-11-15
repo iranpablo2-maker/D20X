@@ -39,7 +39,7 @@
  function normalizeThreat(x){
   const raw=x?.threatSheet&&typeof x.threatSheet==='object'?x.threatSheet:{};
   const attributes={};
-  THREAT_ATTRS.forEach(([k])=>{attributes[k]=num(raw.attributes?.[k],0,30,1);});
+  THREAT_ATTRS.forEach(([k])=>{attributes[k]=num(raw.attributes?.[k],0,6,1);});
   const out={element:THREAT_ELEMENTS.includes(raw.element)?raw.element:'Sangue',attributes};
   THREAT_NUMERIC.forEach(([k])=>{out[k]=num(raw[k],0,99999,0);});
   THREAT_TESTS.forEach(([k])=>{out[k]=cut(raw[k]??'',90);});
@@ -118,13 +118,24 @@
      return {nex:n,name:cut(saved.name,90),description:cut(saved.description,1600),bonusType:'',bonusValue:0,bonuses:parseEffects(saved.bonuses,saved.bonusType,saved.bonusValue,saved.bonusSkill)};
    }):[]
  });
+ const DELETED_KEY=KEY+'_deleted_ids_v1';
+ function readDeletedIds(){
+  try{const entries=JSON.parse(localStorage.getItem(DELETED_KEY)||'[]');return new Set(Array.isArray(entries)?entries.filter(x=>typeof x==='string'&&/^[\\w-]{3,100}$/.test(x)).slice(-2000):[]);}
+  catch{return new Set();}
+ }
+ function markDeletedId(id){
+  const deleted=readDeletedIds();deleted.add(id);
+  const data=JSON.stringify([...deleted].slice(-2000));localStorage.setItem(DELETED_KEY,data);
+  if(localStorage.getItem(DELETED_KEY)!==data)throw Error('Exclusão não confirmada');
+ }
  function read(){
-   try{const list=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(list)?list.filter(valid).map(normalize):[];}
+   try{const list=JSON.parse(localStorage.getItem(KEY)||'[]');return Array.isArray(list)?list.filter(valid).filter(x=>!readDeletedIds().has(x.id)).map(normalize):[];}
    catch(error){console.warn('NEX: falha ao ler homebrews',error);return [];}
  }
  function write(items){
    if(!Array.isArray(items)||items.length>300||!items.every(valid))throw Error('Biblioteca inválida');
-   const value=JSON.stringify(items.map(normalize));
+   const deleted=readDeletedIds();
+   const value=JSON.stringify(items.filter(x=>!deleted.has(x.id)).map(normalize));
    localStorage.setItem(KEY,value);
    if(localStorage.getItem(KEY)!==value)throw Error('Gravação não confirmada');
  }
@@ -322,7 +333,7 @@
  '<div class="nex-hb-threat-vital-editor"><label><input id="nexHbThreatPvAlias" type="number" min="0" max="99999" value="0" aria-label="PV máximos"> PV</label></div>'+
  '<div class="nex-hb-threat-nav" role="tablist" aria-label="Editar ficha da ameaça"><button type="button" data-threat-editor-tab="status" role="tab" aria-selected="true">STATUS</button><button type="button" data-threat-editor-tab="combate" role="tab" aria-selected="false">COMBATE</button><button type="button" data-threat-editor-tab="descricao" role="tab" aria-selected="false">DESCRIÇÃO</button></div>'+
  '<div data-threat-editor-panel="status" class="nex-hb-threat-status-edit">'+
- '<div class="nex-hb-threat-edit-attributes">'+THREAT_ATTRS.map(([id,label])=>'<label><span>'+id.toUpperCase()+'</span><input type="number" data-nex-threat-attr="'+id+'" aria-label="'+label+'" min="0" max="30" value="1"></label>').join('')+'</div>'+
+ '<div class="nex-hb-threat-edit-attributes">'+THREAT_ATTRS.map(([id,label])=>'<label><span>'+id.toUpperCase()+'</span><input type="number" data-nex-threat-attr="'+id+'" aria-label="'+label+'" min="0" max="6" value="1"></label>').join('')+'</div>'+
  '<div class="nex-hb-threat-edit-major">'+
  '<label><span>Defesa</span><input type="number" data-nex-threat-number="defense" min="0" max="99999" value="0"></label>'+
  '<label><span>Deslocamento</span><input data-nex-threat-text="deslocamento" maxlength="1200" placeholder="Ex.: 9m"></label>'+
@@ -643,7 +654,7 @@
   }).join('');
  }
  function readThreatSheet(){
-  const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=Number(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value)||0;});
+  const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=num(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value,0,6,1);});
   const out={element:$('nexHbThreatElement').value,attributes,actions:threatActions.map(a=>({...a}))};
   THREAT_NUMERIC.forEach(([k])=>{out[k]=Number(mount.querySelector('[data-nex-threat-number="'+k+'"]').value)||0;});
   out.pv=Number($('nexHbThreatPvAlias').value)||0;
@@ -1181,7 +1192,7 @@
    if(btn.dataset.nex52Edit){if(item.type==='maldicao'){tab='paranormal';paranormalSection='maldicoes';}else if(item.type==='item'&&item.category==='Itens Amaldiçoados'){tab='paranormal';paranormalSection='itens';cursedKind=item.cursedKind||'Itens Paranormais';}else if(item.type==='item')itemTab=canonicalCategory(item.category);openEditor(item);return;}
    if(btn.dataset.nex52Delete){
      if(!confirm('Excluir "'+item.name+'" da biblioteca? As fichas que já receberam este conteúdo não serão alteradas.'))return;
-     try{write(read().filter(x=>x.id!==id));renderLibrary();message('Homebrew excluído da biblioteca.');}
+     try{markDeletedId(id);write(read().filter(x=>x.id!==id));if(read().some(x=>x.id===id))throw Error('Ameaça ainda presente após a exclusão');renderLibrary();message('Homebrew excluído da biblioteca.');}
      catch(error){console.error(error);message('Falha ao salvar a exclusão.');}
      return;
    }
