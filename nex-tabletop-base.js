@@ -226,7 +226,9 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  });
  listen(primaryNav.combat,'click',()=>{
    activatePrimaryNav('combat');
-   vttOpen('turn');
+   combatDock.hidden=false;
+   vttOptions.hidden=true;
+   renderCombatDock();
  });
 
  vttRight?.prepend(vttTabs);
@@ -278,7 +280,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  vttButton('▦','Grade e névoa',()=>vttOpen('grid'),!gm);
  vttButton('♟','Token',()=>vttOpen('token'),!gm);
  vttButton('⚄','Dados',()=>vttOpen('dice'));
- vttButton('≡','Iniciativa',()=>vttOpen('turn'));
+ vttButton('≡','Iniciativa',()=>{combatDock.hidden=false;renderCombatDock();});
  vttButton('↶','Desfazer desenho',()=>{if(!gm)return;scene.drawings.pop();render();save();},!gm);
  vttButton('✕','Limpar desenhos',()=>{if(!gm||!confirm('Apagar todos os desenhos?'))return;scene.drawings=[];render();save();},!gm);
  vttButton('↩','Voltar à campanha',()=>document.getElementById('nexVttExit')?.click());
@@ -334,6 +336,97 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
      inp.addEventListener('change',()=>{t[prop]=type==='checkbox'?inp.checked:type==='number'?Number(inp.value)||0:inp.value.slice(0,35);render();save();});
      row.append(inp);vttSide.append(row);
    }
+ }
+ function combatEntry(label){
+   scene.combatLog=[...(scene.combatLog||[]),{id:'evt-'+crypto.randomUUID(),label:String(label).slice(0,150),at:Date.now()}].slice(-40);
+   renderCombatDock();save();
+ }
+ function renderCombatDock(){
+   if(!combatDock||combatDock.hidden)return;
+   combatDock.replaceChildren();
+   const header=document.createElement('div');header.className='nex-vtt-combat-header';
+   const title=document.createElement('strong');title.textContent='⚔ Combate integrado';
+   const close=document.createElement('button');close.type='button';close.textContent='×';close.title='Fechar combate';
+   close.addEventListener('click',()=>{combatDock.hidden=true;vttCombatTargetMode=false;vttCombatTargets.clear();if(primaryNav.map)activatePrimaryNav('map');render();});
+   header.append(title,close);combatDock.append(header);
+   const body=document.createElement('div');body.className='nex-vtt-combat-body';combatDock.append(body);
+   const make=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
+   const stat=make('div','nex-vtt-combat-stat');
+   const actor=selected();
+   stat.textContent=actor?'Token selecionado: '+actor.name+' · PV '+actor.pv+' · PE '+actor.pe+' · SAN '+actor.san:'Selecione um token no mapa para iniciar.';
+   body.append(stat);
+   if(gm){
+     const targetTitle=make('strong','','Alvos');body.append(targetTitle);
+     const targeting=make('button','nex-vtt-action-alt',vttCombatTargetMode?'✓ Selecionando alvos no mapa':'◎ Selecionar alvos no mapa');
+     targeting.type='button';targeting.setAttribute('aria-pressed',String(vttCombatTargetMode));
+     targeting.addEventListener('click',()=>{vttCombatTargetMode=!vttCombatTargetMode;render();});
+     body.append(targeting);
+     const targets=make('p','nex-vtt-combat-targets','Alvos: '+([...vttCombatTargets].map(id=>scene.tokens.find(t=>t.id===id)?.name).filter(Boolean).join(', ')||'Nenhum'));
+     body.append(targets);
+     const all=make('button','nex-vtt-action-alt','Limpar seleção');all.addEventListener('click',()=>{vttCombatTargets.clear();render();});body.append(all);
+     const actions=make('div','nex-vtt-combat-actions');body.append(actions);
+     const actionLabel=make('label','','Efeito');
+     const kind=make('select');
+     for(const [k,label] of [['damage','Aplicar dano em PV'],['heal','Curar PV'],['pe','Ajustar PE'],['san','Ajustar SAN']]){
+       const op=make('option','',label);op.value=k;kind.append(op);
+     }
+     kind.value=vttCombatAction;kind.addEventListener('change',()=>{vttCombatAction=kind.value;});
+     actionLabel.append(kind);actions.append(actionLabel);
+     const amountLabel=make('label','','Quantidade (valores negativos reduzem PE/SAN)');
+     const amount=make('input');amount.type='number';amount.min='-9999';amount.max='9999';amount.step='1';amount.value=String(vttCombatAmount);
+     amount.addEventListener('change',()=>{vttCombatAmount=Math.max(-9999,Math.min(9999,Math.trunc(Number(amount.value)||0)));});
+     amountLabel.append(amount);actions.append(amountLabel);
+     const apply=make('button','nex-vtt-action-primary','Aplicar aos alvos');
+     apply.addEventListener('click',()=>{
+       const chosen=scene.tokens.filter(t=>vttCombatTargets.has(t.id)&&!t.hidden);
+       if(!chosen.length)return message('Selecione pelo menos um alvo no mapa.');
+       const magnitude=Math.max(-9999,Math.min(9999,Math.trunc(Number(amount.value)||0)));
+       if(!magnitude)return message('Informe uma quantidade diferente de zero.');
+       const field=vttCombatAction==='damage'||vttCombatAction==='heal'?'pv':vttCombatAction;
+       if((vttCombatAction==='damage'||vttCombatAction==='heal')&&magnitude<0)return message('Informe um valor positivo de dano ou cura.');
+       for(const t of chosen){
+         const change=vttCombatAction==='damage'?-magnitude:magnitude;
+         const limit=Number(t[field+'Max'])||0;
+         t[field]=Math.max(0,Math.min(limit>0?limit:99999,(Number(t[field])||0)+change));
+       }
+       vttCombatTargetMode=false;
+       combatEntry((vttCombatAction==='damage'?'Dano':vttCombatAction==='heal'?'Cura':vttCombatAction.toUpperCase())+' '+magnitude+' → '+chosen.map(t=>t.name).join(', '));
+       render();
+     });
+     actions.append(apply);
+     const rolls=make('div','nex-vtt-combat-rolls');body.append(rolls);
+     const rollTitle=make('strong','','Teste de ataque');rolls.append(rollTitle);
+     const bonus=make('input');bonus.type='number';bonus.value='0';bonus.setAttribute('aria-label','Bônus do ataque');
+     const roll=make('button','nex-vtt-action-alt','Rolar 1d20 + bônus');
+     roll.addEventListener('click',()=>{
+       const die=new Uint32Array(1);crypto.getRandomValues(die);
+       const result=1+(die[0]%20),added=Math.max(-99,Math.min(99,Math.trunc(Number(bonus.value)||0))),total=result+added;
+       const chosen=scene.tokens.filter(t=>vttCombatTargets.has(t.id)&&!t.hidden);
+       const comparison=chosen.length?' | '+chosen.map(t=>t.name+': '+(t.defense>0?(total>=t.defense?'Acerto':'Falha')+' (Def '+t.defense+')':'Defesa não definida')).join(', '):'';
+       combatEntry((actor?.name||'Ataque')+': d20 '+result+(added>=0?' + ':' - ')+Math.abs(added)+' = '+total+comparison);
+       render();
+     });
+     rolls.append(bonus,roll);
+     const next=make('div','nex-vtt-combat-initiative');body.append(next);
+     next.append(make('strong','','Iniciativa'));
+     next.append(make('p','',scene.turns.join(' → ')||'Nenhuma ordem definida'));
+     const add=make('button','nex-vtt-action-alt','Adicionar token selecionado');
+     add.addEventListener('click',()=>{const t=selected();if(!t||scene.turns.includes(t.name))return;scene.turns.push(t.name);combatEntry(t.name+' entrou na iniciativa');render();});
+     const forward=make('button','nex-vtt-action-alt','Próximo turno');
+     forward.addEventListener('click',()=>{if(!scene.turns.length)return;scene.turns.push(scene.turns.shift());combatEntry('Próximo turno: '+scene.turns[0]);render();});
+     const clearTurns=make('button','nex-vtt-action-alt','Encerrar combate');
+     clearTurns.addEventListener('click',()=>{if(!confirm('Encerrar a iniciativa atual?'))return;scene.turns=[];combatEntry('Iniciativa encerrada');render();});
+     next.append(add,forward,clearTurns);
+   }else{
+     const info=make('p','nex-vtt-combat-stat','Os jogadores acompanham os resultados; somente o mestre pode aplicar efeitos aos tokens por aqui.');
+     body.append(info);
+   }
+   const history=make('div','nex-vtt-combat-history');history.append(make('strong','','Histórico compartilhado'));
+   for(const item of [...(scene.combatLog||[])].reverse().slice(0,20)){
+     history.append(make('p','',item.label));
+   }
+   if(!(scene.combatLog||[]).length)history.append(make('p','','As ações da mesa aparecerão aqui.'));
+   body.append(history);
  }
  function vttOpen(section){
    if(vttOptions.dataset.section===section&&!vttOptions.hidden){vttOptions.hidden=true;return;}
@@ -424,5 +517,5 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   remoteReady=true;render();message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Tabletop disponível nesta sessão. Para sincronização online, atualize as regras do Firestore.');console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();vttResizeObserver?.disconnect();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
 }
