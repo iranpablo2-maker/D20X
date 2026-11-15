@@ -43,6 +43,7 @@ dialog{width:min(95vw,680px);max-height:89vh;overflow:auto;background:#151114;co
  .monster{min-height:88px}
  .monster .emblem{flex-basis:88px;width:88px;min-width:88px;height:88px}
 }
+ .monster .emblem img[data-archive-portrait][data-bilu="true"]{object-fit:contain!important;background:#1a1117!important;padding:3px}
 </style><style id="nex-threat-sheet-ref-v2">
 .threat-sheet{width:min(94vw,560px);max-height:92vh;background:#0d0d10;border:1px solid #672936;border-radius:8px}
 .threat-sheet .sheet-top{min-height:133px;display:flex;gap:15px;align-items:stretch;padding:0;background:var(--art);background-size:cover;background-position:center}
@@ -104,7 +105,7 @@ body.detail-open main{width:min(1250px,100%);padding:8px 10px 28px}
 <div class="meta"><span id="count"></span><span>Fichas por fonte</span></div>
 <div id="list" aria-live="polite"></div>
 <section id="threatDetailView" class="threat-detail-view" hidden aria-label="Ficha da ameaça"><div class="threat-detail-nav"><button id="backToThreats" type="button">‹ Voltar à biblioteca de Ameaças</button></div><iframe id="threatDetailFrame" title="Ficha da ameaça"></iframe></section>
-<p class="note" style="margin-top:18px">Os nomes estão organizados por fonte. Alguns suplementos ainda precisam de conferência página a página para completar o índice. VD, atributos e habilidades não verificados não são inventados.</p></main>
+</main>
 
 <script src="./nex-ameacas-complemento.js?v=20261114e"></script>
 <script src="./nex-ameacas-livro-basico.js?v=20261114basic2"></script>
@@ -160,14 +161,15 @@ function draw(){
  $("count").textContent=items.length+" ameaça(s)";
  list.innerHTML=items.length?items.map(x=>{
  const photo=threatIllustration(x),atlasPortrait=nexArchiveAtlasPortrait(x);
+ const isBilu=x.source==="Arquivos Secretos — Maio"&&x.name==="Bilu";
  const fallback=atlasPortrait?'<div aria-hidden="true" style="position:absolute;inset:0;'+nexArchiveAtlasStyle(atlasPortrait)+'"></div>':'';
  const key=x.source+"::"+x.name;
- const img=photo?'<img data-archive-portrait="'+escape(key)+'" src="'+escape(photo)+'" alt="" loading="lazy" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=0" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#1a1117;opacity:0">':'';
+ const img=photo?'<img data-archive-portrait="'+escape(key)+'" data-bilu="'+isBilu+'" src="'+escape(photo)+'" alt="" loading="lazy" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=0" style="position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBilu?"contain":"cover")+' ;background:#1a1117;opacity:0">':'';
  const portraitKey=x.source+"::"+x.name;
  const pairedImage=window.NEX_FEVEREIRO_FORM_IMAGES?.[portraitKey]?.normal;
- const special=pairedImage?'<img data-february-key="'+escape(portraitKey)+'" src="'+escape(pairedImage)+'?v=20261114faces3" alt="" loading="lazy" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=0;this.dataset.failed=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#160e12;opacity:0">':'';
+ const special=pairedImage?'<img data-february-key="'+escape(portraitKey)+'" src="'+escape(pairedImage)+'?v=20261114faces3" alt="" loading="lazy" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=0;this.dataset.failed=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:'+(isBilu?"contain":"cover")+' ;background:#160e12;opacity:0">':'';
  const visual=fallback+img+special;
- return '<article class="monster" style="--art:'+art(x.element)+'"><div class="emblem" style="position:relative;overflow:hidden">'+visual+'</div><div class="details"><strong>'+escape(x.name)+'</strong><small>'+escape(x.element)+' · '+escape(x.category||"Criatura")+'</small><span class="source">'+escape(x.source)+'</span><small class="source">'+(((window.NEX_THREAT_DETAILS||{})[threatKey(x)]?.variant?"Variação · bônus aplicáveis":hasCoreStats(x)?"Dados básicos disponíveis":"Ficha em conferência"))+'</small></div><button type="button" class="threat-link" data-show-threat="'+encodeURIComponent(threatKey(x))+'" title="Abrir ficha dentro do NEX">Ficha</button></article>';
+ return '<article class="monster" style="--art:'+art(x.element)+'"><div class="emblem" style="position:relative;overflow:hidden">'+visual+'</div><div class="details"><strong>'+escape(x.name)+'</strong><small>'+escape(x.element)+' · '+escape(x.category||"Criatura")+'</small><span class="source">'+escape(x.source)+'</span></div><button type="button" class="threat-link" data-show-threat="'+encodeURIComponent(threatKey(x))+'" title="Abrir ficha dentro do NEX">Ficha</button></article>';
 
  }).join(""):'<div class="empty">Nenhuma ameaça encontrada nesta combinação. Algumas fontes ainda estão em revisão.</div>';
  // Carrega as imagens dos personagens de fevereiro sem mostrar uma miniatura ampliada.
@@ -207,7 +209,7 @@ function openThreatDetail(key){
  if(!records.some(x=>threatKey(x)===key))return;
  document.body.classList.add("detail-open");
  threatDetailView.hidden=false;
- threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&v=20261114ameacas50";
+ threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&v=20261114ameacas51";
  window.scrollTo(0,0);
 }
 function closeThreatDetail(){
