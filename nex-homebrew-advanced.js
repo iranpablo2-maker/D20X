@@ -542,7 +542,7 @@
   if(!allowProgression)list.forEach(b=>{b.scaling='fixed';b.nexInterval=5;});
   const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
   const noSkill=(scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value))||(scope==='main'&&cursedNoSkill());
-  const types=isGeneralBonusScope(scope)?EFFECT_TYPES.filter(([id])=>['dano','ataque','carga'].includes(id)):scope==='improvement'?BONUS_TYPES.filter(([id])=>!noSkill||id!=='pericia'):(scope==='main'&&isCursedEditor()?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].filter(([id],i,arr)=>id&&(!noSkill||id!=='pericia')&&arr.findIndex(([k])=>k===id)===i):EFFECT_TYPES.filter(([id])=>id));
+  const types=isGeneralBonusScope(scope)?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].filter(([id],i,arr)=>['dano','ataque','carga','critico','multiplicador'].includes(id)&&arr.findIndex(([key])=>key===id)===i):scope==='improvement'?BONUS_TYPES.filter(([id])=>!noSkill||id!=='pericia'):(scope==='main'&&isCursedEditor()?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].filter(([id],i,arr)=>id&&(!noSkill||id!=='pericia')&&arr.findIndex(([k])=>k===id)===i):EFFECT_TYPES.filter(([id])=>id));
   $(id).innerHTML=list.map((b,i)=>{
    const editing=effectEditing[scope]===i;
    return '<div class="nex-hb-effect-card" style="border-bottom:1px solid #38383d;padding:7px 0" data-effect-scope="'+esc(scope)+'" data-effect-index="'+i+'">'+
@@ -586,7 +586,7 @@
  mount.addEventListener('change',e=>{
   const row=e.target.closest('[data-effect-scope]');if(!row)return;
   const scope=row.dataset.effectScope,item=getEffects(scope)[Number(row.dataset.effectIndex)];if(!item)return;
-  if(e.target.matches('[data-effect-type]')){if(isGeneralBonusScope(scope)&&!['dano','ataque','carga'].includes(e.target.value))return;if((scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill())&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
+  if(e.target.matches('[data-effect-type]')){if(isGeneralBonusScope(scope)&&!['dano','ataque','carga','critico','multiplicador'].includes(e.target.value))return;if((scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill())&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
   else if(e.target.matches('[data-effect-value]')){item.value=Math.max(-999,Math.min(999,Number(e.target.value)||0));renderEffects(scope);}
   else if(e.target.matches('[data-effect-skill]')){item.skill=e.target.value;renderEffects(scope);}
   else if(e.target.matches('[data-effect-scaling]')){item.scaling=isAbilityBonusScope(scope)&&e.target.value==='nex'?'nex':'fixed';renderEffects(scope);}
@@ -1001,7 +1001,7 @@
      (item.type==='item'&&item.category==='Armas'?'<h4>Características da arma</h4><p>'+esc([item.weaponProficiency,item.weaponKind,item.weaponWield,'Dano '+item.weaponDamage,'Dano secundário '+(item.weaponSecondary||'—'),'Crítico '+item.weaponCritical+' ×'+item.weaponMultiplier,'Tipo de dano '+item.weaponDamageType,'Alcance '+item.weaponRange,'Quantidade '+item.weaponQuantity].join(' · '))+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'?'<h4>Tipo paranormal</h4><p>'+esc(item.cursedKind)+'</p>':'')+
       (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Itens Paranormais'?'<h4>Tag</h4><p>'+esc(item.itemTag||'Acessórios')+'</p>':'')+
-      (item.type==='item'&&(item.category==='Geral'||item.category==='Itens Amaldiçoados'&&item.cursedKind==='Itens Paranormais')&&item.itemTag==='Explosivos'?'<h4>Dados do explosivo</h4><p>'+esc('Dano '+(item.cursedExplosiveDamage||'—')+' · Dano secundário '+(item.cursedExplosiveSecondary||'—')+' · Tipo secundário '+item.cursedExplosiveSecondaryType+' · Multiplicador ×'+item.cursedExplosiveMultiplier+' · Alcance '+(item.cursedExplosiveRange||'—'))+'</p>':'')+
+      (item.type==='item'&&(item.category==='Geral'||item.category==='Itens Amaldiçoados'&&item.cursedKind==='Itens Paranormais')&&item.itemTag==='Explosivos'?'<h4>Dados do explosivo</h4><p>'+esc('Dano '+(item.cursedExplosiveDamage||'—')+' · Dano secundário '+(item.cursedExplosiveSecondary||'—')+(item.category==='Geral'?'':' · Tipo secundário '+item.cursedExplosiveSecondaryType)+' · Multiplicador ×'+item.cursedExplosiveMultiplier+' · Alcance '+(item.cursedExplosiveRange||'—'))+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Munições Amaldiçoadas'?'<p>'+esc(item.cursedAmmoType)+' · '+esc(item.cursedAmmoBonus)+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Acessórios Amaldiçoados'?'<p>'+esc(item.cursedAccessoryType)+' · '+esc(item.cursedAccessoryBenefit)+'</p>':'')+
      (item.type==='item'&&item.customImprovements?.length?'<h4>Melhorias</h4><p>'+item.customImprovements.map(esc).join(' · ')+'</p>':'')+ritualDetails(item)+trailDetails(item);
