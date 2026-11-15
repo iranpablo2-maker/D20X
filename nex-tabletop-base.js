@@ -17,8 +17,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  control.innerHTML='<label>Token selecionado <strong id="nexTtSelected">Nenhum</strong></label><label>Variação <select id="nexTtSlot"></select></label><label>Imagem/GIF da variação <input id="nexTtVariantFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label><button id="nexTtDelete" type="button" class="alt">Excluir token</button>';
  control.className='nex-tabletop-tools';control.hidden=!gm;
  tools.insertAdjacentElement('afterend',control);
- const help=document.createElement('p');help.className='room-note';help.textContent='Selecione um token e pressione 0–9 para trocar sua aparência. PNG, JPG, WebP e GIF são aceitos.';
- board.insertAdjacentElement('afterend',help);
+
  const css=document.createElement('style');css.textContent='#nexTabletopTools[hidden],#nexTtVariants[hidden]{display:none!important}#nexTtVariants{border:1px solid #4e2f38;border-radius:8px;padding:9px;margin:8px 0}#nexTtVariants select{background:#1a1317;color:white;border:1px solid #6c3b49;border-radius:5px;padding:8px;min-width:130px}#nexTabletopBoard .nex-tabletop-token[data-selected="true"]{outline:3px solid #ffbd6d;outline-offset:3px}#nexTabletopBoard .nex-tabletop-token img{width:100%;height:100%;object-fit:cover;border-radius:50%;pointer-events:none}';document.head.append(css);
  const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('option');o.value=k;o.textContent=k===0?'0 · Especial':k+' · Variação';slot.append(o);}
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
@@ -103,5 +102,5 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   remoteReady=true;render();message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Tabletop disponível nesta sessão. Para sincronização online, atualize as regras do Firestore.');console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();help.remove();css.remove();};
+ return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();};
 }
