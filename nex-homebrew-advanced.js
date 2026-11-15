@@ -9,6 +9,8 @@
  const ITEM_CATEGORIES=['Armas','Munições','Proteções','Geral','Itens Amaldiçoados'];
  const CURSED_KINDS=['Armas Amaldiçoadas','Proteções Amaldiçoadas','Munições Amaldiçoadas','Acessórios Amaldiçoados','Itens Paranormais'];
  const IMPROVEMENT_TARGETS=['Armas','Munições','Proteções','Geral'];
+ const EFFECT_TYPES=[['','Sem bônus automático'],['pv','PV máximo'],['pe','PE máximo'],['san','SAN máxima'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Redução de dano'],['pericia','Perícia'],['iniciativa','Iniciativa'],['fortitude','Fortitude'],['reflexos','Reflexos'],['vontade','Vontade'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['carga','Capacidade de carga']];
+ const effectApplicable=x=>['origem','poder_paranormal','poder_geral','poder','habilidade','trilha','maldicao'].includes(x.type)||(x.type==='item'&&x.category==='Itens Amaldiçoados');
  const BONUS_TYPES=[['ataque','Bônus de ataque'],['dano','Bônus de dano'],['critico','Margem de crítico'],['multiplicador','Multiplicador crítico'],['defesa','Defesa'],['resistencia','Redução de dano'],['espacos','Espaços ocupados'],['pericia','Testes de perícia']];
  let customItemImprovements=[];
  const $=id=>document.getElementById(id);
@@ -47,6 +49,8 @@
    bonusType:BONUS_TYPES.some(([id])=>id===x.bonusType)?x.bonusType:'ataque',
    bonusValue:Number.isFinite(Number(x.bonusValue))?Math.max(0,Math.min(10,Number(x.bonusValue))):0,
    bonusSkill:cut(x.bonusSkill||'',60),
+   effectBonusType:EFFECT_TYPES.some(([k])=>k===x.effectBonusType)?x.effectBonusType:'',
+   effectBonusValue:Number.isFinite(Number(x.effectBonusValue))?Math.max(-999,Math.min(999,Number(x.effectBonusValue))):0,
    accessoryBonus:num(x.accessoryBonus,0,10,0),
    accessorySkill:cut(x.accessorySkill||'',60),
    itemTier:['0','I','II','III','IV'].includes(String(x.itemTier||''))?String(x.itemTier):'0',
@@ -69,7 +73,7 @@
    trailAbilities:x.type==='trilha'?TRAIL_NEX.map((n,i)=>{
      const list=Array.isArray(x.trailAbilities)?x.trailAbilities:[];
      const saved=list.find(item=>item&&Number(item.nex)===n)||list[i]||{};
-     return {nex:n,name:cut(saved.name,90),description:cut(saved.description,1600)};
+     return {nex:n,name:cut(saved.name,90),description:cut(saved.description,1600),bonusType:EFFECT_TYPES.some(([k])=>k===saved.bonusType)?saved.bonusType:'',bonusValue:Number.isFinite(Number(saved.bonusValue))?Math.max(-999,Math.min(999,Number(saved.bonusValue))):0};
    }):[]
  });
  function read(){
@@ -178,10 +182,11 @@
  '<div class="nex-hb-bonus-grid"><label>Tipo de bônus<select id="nexHbBonusType">'+BONUS_TYPES.map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('')+'</select></label>'+
  '<label>Valor do bônus<input id="nexHbBonusValue" type="text" maxlength="3" inputmode="numeric" placeholder="+1 até +10" value="+2" required></label><label id="nexHbBonusSkillField" hidden>Perícia beneficiada<select id="nexHbBonusSkill"><option value="">Selecione a perícia</option></select></label></div></div>'+ 
  '<div id="nexHbCurseFields" class="nex52-specific nex52-full" hidden><label>Elemento<select id="nexHbCurseElement"><option>Sangue</option><option>Morte</option><option>Energia</option><option>Conhecimento</option><option>Medo</option></select></label><label>Aplicável a<select id="nexHbCurseTarget"><option>Armas</option><option>Proteções</option><option>Munições</option><option>Acessórios</option><option>Itens Gerais</option></select></label></div>'+ 
+ '<div id="nexHbEffectBonusFields" class="nex52-full nex-hb-bonus-grid" hidden><label>Tipo de bônus<select id="nexHbEffectBonusType">'+EFFECT_TYPES.map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('')+'</select></label><label>Valor do bônus<input id="nexHbEffectBonusValue" type="number" min="-999" max="999" step="1" value="0"></label></div>'+ 
  '<div id="nex53TrailFields" class="nex53-trail-fields nex52-full" hidden><p>Configure o nome e o efeito de cada marco de NEX.</p>'+
  TRAIL_NEX.map((n,i)=>'<fieldset class="nex53-trail-step"><legend>NEX '+n+'% · Habilidade '+(i+1)+'</legend>'+
  '<label>Nome da habilidade<input type="text" id="nex53TrailName'+n+'" maxlength="90" placeholder="Nome da habilidade de '+n+'%"></label>'+
- '<label>Descrição e efeitos<textarea id="nex53TrailDescription'+n+'" maxlength="1600" rows="3" placeholder="Descreva o efeito concedido em '+n+'% de NEX"></textarea></label></fieldset>').join('')+'</div>'+
+ '<label>Descrição e efeitos<textarea id="nex53TrailDescription'+n+'" maxlength="1600" rows="3" placeholder="Descreva o efeito concedido em '+n+'% de NEX"></textarea></label><label>Tipo de bônus<select id="nex53TrailBonusType'+n+'">'+EFFECT_TYPES.map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('')+'</select></label><label>Valor do bônus<input type="number" id="nex53TrailBonusValue'+n+'" min="-999" max="999" step="1" value="0"></label></fieldset>').join('')+'</div>'+
  '<div class="nex55-origin-skills nex52-full" id="nex55OriginSkills" hidden><label>Primeira perícia<select id="nex55Skill1"><option value="">Escolha a primeira perícia</option></select></label>'+
  '<label>Segunda perícia<select id="nex55Skill2"><option value="">Escolha a segunda perícia</option></select></label>'+
  '<p>Ao aplicar esta origem, as duas perícias ficam treinadas (+5) automaticamente na ficha, sem reduzir treinamentos existentes.</p></div>'+
@@ -233,6 +238,7 @@
    $('nexHbImprovementFields').hidden=type!=='melhoria';
    $('nexHbBonusSkillField').hidden=type!=='melhoria'||$('nexHbBonusType').value!=='pericia';
    $('nexHbCurseFields').hidden=type!=='maldicao';
+   $('nexHbEffectBonusFields').hidden=!effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})||type==='trilha';
    if(type==='item')$('nex52Category').value=tab==='paranormal'?'Itens Amaldiçoados':$('nex51Edit').value?$('nex52Category').value:itemTab;
    $('nex52Category').hidden=true;
    const cursed=type==='item'&&(tab==='paranormal'||itemTab==='Itens Amaldiçoados');
@@ -309,6 +315,8 @@
    $('nexHbCursedArtifactRequirement').value='';
    $('nexHbImprovementTarget').value='Armas';
    $('nexHbBonusType').value='ataque';$('nexHbBonusValue').value='+2';
+   $('nexHbEffectBonusType').value='';$('nexHbEffectBonusValue').value='0';
+   TRAIL_NEX.forEach(n=>{$('nex53TrailBonusType'+n).value='';$('nex53TrailBonusValue'+n).value='0';});
    $('nexHbProtectionDefense').value='1';
    $('nexHbWeaponProficiency').value='Armas Simples';$('nexHbWeaponKind').value='Corpo a Corpo';$('nexHbWeaponWield').value='Uma Mão';
    $('nexHbWeaponDamage').value='';$('nexHbWeaponSecondary').value='';$('nexHbWeaponSecondaryType').value='Normal';
@@ -349,6 +357,7 @@
      $('nexHbAccessoryBonus').value=item.accessoryBonus?'+'+item.accessoryBonus:'';$('nexHbAccessorySkill').value=item.accessorySkill||'';
      $('nexHbCursedArtifactRequirement').value=item.cursedArtifactRequirement||'';
      $('nexHbImprovementTarget').value=item.improvementTarget||'Armas';
+     $('nexHbEffectBonusType').value=item.effectBonusType||'';$('nexHbEffectBonusValue').value=String(item.effectBonusValue??0);
      $('nexHbBonusType').value=item.bonusType||'ataque';$('nexHbBonusValue').value='+'+Math.max(1,Math.min(10,item.bonusValue||2));$('nexHbBonusSkill').value=item.bonusSkill||'';
      customItemImprovements=Array.isArray(item.customImprovements)?[...item.customImprovements]:[];renderItemImprovements();
      $('nexHbProtectionDefense').value=String(item.protectionDefense??1);
@@ -372,7 +381,7 @@
      $('nexHbImageUrl').value=item.image?.startsWith('https://')?item.image:'';
      $('nexHbImagePreview').hidden=!item.image;if(item.image)$('nexHbImagePreview').src=item.image;
      if(item.type==='origem'){$('nex55Skill1').value=item.skills?.[0]||'';$('nex55Skill2').value=item.skills?.[1]||'';}
-     if(item.type==='trilha')TRAIL_NEX.forEach((n,i)=>{const step=(item.trailAbilities||[])[i]||{};$('nex53TrailName'+n).value=step.name||'';$('nex53TrailDescription'+n).value=step.description||'';});
+     if(item.type==='trilha')TRAIL_NEX.forEach((n,i)=>{const step=(item.trailAbilities||[])[i]||{};$('nex53TrailName'+n).value=step.name||'';$('nex53TrailDescription'+n).value=step.description||'';$('nex53TrailBonusType'+n).value=step.bonusType||'';$('nex53TrailBonusValue'+n).value=String(step.bonusValue??0);});
      $('nex52EditorTitle').textContent='Editar '+item.name;
    }
    editorFields();$('nex52Editor').hidden=false;
@@ -498,6 +507,8 @@
      '<p class="nex52-detail-meta">'+esc(info.join(' · '))+'</p>'+
      (item.description?'<h4>Descrição</h4><p>'+(item.type==='item'?formattedDescription(item.description):esc(item.description))+'</p>':'<p>Sem descrição.</p>')+
      (item.requirements?'<h4>Pré-requisitos</h4><p>'+esc(item.requirements)+'</p>':'')+
+     (effectApplicable(item)&&item.type!=='trilha'&&item.effectBonusType?'<h4>Bônus configurado</h4><p>'+esc(EFFECT_TYPES.find(([id])=>id===item.effectBonusType)?.[1]||'Bônus')+': '+esc((item.effectBonusValue>=0?'+':'')+item.effectBonusValue)+'</p>':'')+
+     (item.type==='trilha'?'<h4>Bônus por NEX</h4>'+item.trailAbilities.map(a=>'<p>NEX '+esc(a.nex)+'% · '+esc(a.name)+': '+esc(EFFECT_TYPES.find(([id])=>id===a.bonusType)?.[1]||'Sem bônus')+' '+esc(a.bonusType?(a.bonusValue>=0?'+':'')+a.bonusValue:'')+'</p>').join(''):'')+
      (item.type==='melhoria'?'<h4>Efeito configurado</h4><p>'+esc(BONUS_TYPES.find(([id])=>id===item.bonusType)?.[1]||'Bônus')+': '+esc((item.bonusValue>=0?'+':'')+item.bonusValue)+'</p>':'')+
      (item.type==='origem'?'<h4>Perícias treinadas</h4><p>'+esc((item.skills||[]).join(' e ')||'Não configuradas')+'</p>':'')+
      (item.type==='item'&&item.image?'<img class="nex-hb-preview-detail" src="'+esc(item.image)+'" alt="Imagem de '+esc(item.name)+'">':'')+
@@ -658,6 +669,8 @@
      bonusType:type==='melhoria'?$('nexHbBonusType').value:(old?.bonusType||'ataque'),
      bonusValue:type==='melhoria'?Number($('nexHbBonusValue').value.slice(1)):(old?.bonusValue??0),
      bonusSkill:type==='melhoria'&&$('nexHbBonusType').value==='pericia'?$('nexHbBonusSkill').value:(old?.bonusSkill||''),
+     effectBonusType:effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})&&type!=='trilha'?$('nexHbEffectBonusType').value:(old?.effectBonusType||''),
+     effectBonusValue:effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})&&type!=='trilha'?Number($('nexHbEffectBonusValue').value):(old?.effectBonusValue??0),
      protectionDefense:type==='item'&&(tab==='paranormal'&&cursedKind==='Proteções Amaldiçoadas'||itemTab==='Proteções'&&tab!=='paranormal')?Number($('nexHbProtectionDefense').value):(old?.protectionDefense??1),
      weaponProficiency:type==='item'&&(tab==='paranormal'&&cursedKind==='Armas Amaldiçoadas'||itemTab==='Armas'&&tab!=='paranormal')?$('nexHbWeaponProficiency').value:(old?.weaponProficiency||'Armas Simples'),
      weaponKind:type==='item'&&(tab==='paranormal'&&cursedKind==='Armas Amaldiçoadas'||itemTab==='Armas'&&tab!=='paranormal')?$('nexHbWeaponKind').value:(old?.weaponKind||'Corpo a Corpo'),
@@ -674,7 +687,7 @@
      itemSpaces:type==='item'?$('nexHbSpaces').value:(old?.itemSpaces??1),
      itemTag:type==='item'&&itemTab==='Geral'?$('nexHbTag').value:(old?.itemTag||'Acessórios'),
      customImprovements:type==='item'?customItemImprovements:(old?.customImprovements||[]),
-     trailAbilities:type==='trilha'?TRAIL_NEX.map(n=>({nex:n,name:$('nex53TrailName'+n).value,description:$('nex53TrailDescription'+n).value})):(old?.trailAbilities||[]),
+     trailAbilities:type==='trilha'?TRAIL_NEX.map(n=>({nex:n,name:$('nex53TrailName'+n).value,description:$('nex53TrailDescription'+n).value,bonusType:$('nex53TrailBonusType'+n).value,bonusValue:Number($('nex53TrailBonusValue'+n).value)})):(old?.trailAbilities||[]),
      skills:type==='origem'?[$('nex55Skill1').value,$('nex55Skill2').value]:(old?.skills||[])
    });
    const group=record.type==='maldicao'||record.type==='item'&&record.category==='Itens Amaldiçoados'?'paranormal':Object.keys(TABS).find(key=>TABS[key].includes(record.type))||tab;
