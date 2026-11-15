@@ -6,10 +6,18 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  const GRID=48,W=25,H=25;
  board.style.width=(GRID*W)+'px';board.style.height=(GRID*H)+'px';
  const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[]});
- let scene=empty(),selectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false;
+ let scene=empty(),selectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false;
  const handlers=[];
  const listen=(el,type,fn,opts)=>{el?.addEventListener(type,fn,opts);handlers.push(()=>el?.removeEventListener(type,fn,opts));};
+ const saveNotice=document.createElement('div');saveNotice.id='nexVttSyncNotice';saveNotice.hidden=true;
+ const saveText=document.createElement('span');
+ const retrySave=document.createElement('button');retrySave.type='button';retrySave.textContent='Tentar salvar novamente';
+ saveNotice.append(saveText,retrySave);
+ status.insertAdjacentElement('afterend',saveNotice);
  const message=t=>{status.textContent=t;status.classList.toggle('vtt-silent-status',/^Mesa (pronta|sincronizada|salva)/.test(t));};
+ const warnSync=detail=>{saveFailed=true;saveText.textContent=detail;saveNotice.hidden=false;};
+ const clearSync=()=>{saveFailed=false;saveNotice.hidden=true;};
+ listen(retrySave,'click',()=>{if(!gm)return;retrySave.disabled=true;save().finally(()=>{retrySave.disabled=false;});});
  const selected=()=>scene.tokens.find(t=>t.id===selectedId);
  const linkedSheet=t=>t?.linkedSheetId?getSheets().find(s=>s.id===t.linkedSheetId):null;
  const tokenStat=(t,f)=>{const sh=linkedSheet(t);return Math.max(0,Math.trunc(Number(sh?(sh.fullSheet?.[f+'Current']??sh[f]??t[f]):t[f])||0));};
@@ -69,9 +77,16 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
   while(queued&&!disposed){
    queued=false;
    const data=validScene(scene);
-   if(new TextEncoder().encode(JSON.stringify(data)).length>850000){message('Cena muito grande para sincronizar. Reduza o mapa ou as imagens dos tokens.');break;}
-   try{await setDoc(ref,{...data,format:'nex-tabletop-v1'},{merge:false});message('Mesa salva na campanha.');}
-   catch(e){message('Mesa local: não foi possível sincronizar. '+(e.code==='permission-denied'?'Publique as regras atualizadas do Firestore.':String(e.message||e)));}
+   if(new TextEncoder().encode(JSON.stringify(data)).length>850000){message('Cena muito grande para sincronizar. Reduza o mapa ou as imagens dos tokens.');warnSync('Cena muito grande. Reduza as imagens ou os tokens para salvar.');break;}
+   try{await setDoc(ref,{...data,format:'nex-tabletop-v1'},{merge:false});clearSync();message('Mesa salva na campanha.');}
+   catch(e){
+     const denied=e.code==='permission-denied';
+     message('Não foi possível salvar a mesa no Firebase.');
+     warnSync(denied
+       ?'O Firestore recusou o salvamento. Publique firestore.rules no Firebase antes de continuar.'
+       :'Falha na sincronização: '+String(e.message||e).slice(0,140));
+     console.warn('NEX: salvamento da mesa falhou',e);
+   }
   }
   pending=false;
  }
@@ -550,8 +565,8 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  const unsubscribe=onSnapshot(ref,snapshot=>{
   if(disposed||drag||pending)return;
   const data=snapshot.data();if(data)scene=validScene(data);
-  remoteReady=true;render();message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
- },error=>{message('Tabletop disponível nesta sessão. Para sincronização online, atualize as regras do Firestore.');console.warn('NEX Tabletop',error);remoteReady=true;render();});
+  remoteReady=true;render();if(!saveFailed)message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
+ },error=>{message('Não foi possível receber atualizações da mesa.');warnSync(error.code==='permission-denied'?'Acesso negado pelo Firestore. Verifique as regras da campanha.':'Erro de conexão com a mesa: '+String(error.message||error).slice(0,140));console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());control.remove();css.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());saveNotice.remove();control.remove();css.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
 }
