@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.15-vtt-1.3",
-  "build": "20261115linkedtokens13",
-  "description": "Tabletop NEX 1.3: token vinculado seleciona e abre a mini ficha da campanha; recursos de PV, PE e SAN associados a fichas, combate integrado e histórico. Publicar as regras firestore.rules no Firebase para autorizar sincronização de cenas."
+  "version": "2026.11.15-vtt-1.4",
+  "build": "20261115vttsync14",
+  "description": "Mesa NEX 1.4: alerta visível e tentativa de novo salvamento quando a sincronização Firestore falha. Tokens vinculados, mini ficha e combate preservados. Regras Firestore exigem publicação no Firebase."
 }
