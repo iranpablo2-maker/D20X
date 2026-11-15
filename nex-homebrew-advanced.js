@@ -282,7 +282,7 @@
  const effectEditing=Object.create(null);
  function getEffects(scope){return scope==='main'?effectRows:scope==='improvement'?improvementRows:(trailRows[scope]||(trailRows[scope]=[]));}
  function compactEffectLabel(b){
-  const name=({pv:'PV',pe:'PE',san:'SAN',pericia:b.skill||'Perícia',ataque:'Ataque',dano:'Dano',defesa:'Defesa',resistencia:'Redução de dano',iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade',bloqueio:'Bloqueio',esquiva:'Esquiva',carga:'Carga'})[b.type]||b.type;
+  const name=({pv:'PV',pe:'PE',san:'SAN',pericia:b.skill||'Perícia',ataque:'Ataque',dano:'Dano',defesa:'Defesa',resistencia:'Redução de dano',critico:'Margem de crítico',multiplicador:'Multiplicador crítico',espacos:'Espaços',iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade',bloqueio:'Bloqueio',esquiva:'Esquiva',carga:'Carga'})[b.type]||b.type;
   return (Number(b.value)>=0?'+':'')+Number(b.value||0)+' '+name;
  }
  function renderEffects(scope){
@@ -336,7 +336,7 @@
   else if(e.target.matches('[data-effect-skill]')){item.skill=e.target.value;renderEffects(scope);}
  });
  const effectsValid=items=>items.every(b=>b.type!=='pericia'||(api()?.skillNames?.()||FALLBACK_SKILLS).includes(b.skill));
- const effectsLabel=items=>items.map(b=>esc(EFFECT_TYPES.find(([id])=>id===b.type)?.[1]||b.type)+(b.skill?' ('+esc(b.skill)+')':'')+': '+esc((b.value>=0?'+':'')+b.value)).join(' · ');
+ const effectsLabel=items=>items.map(b=>esc([...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].find(([id])=>id===b.type)?.[1]||b.type)+(b.skill?' ('+esc(b.skill)+')':'')+': '+esc((b.value>=0?'+':'')+b.value)).join(' · ');
  const FALLBACK_SKILLS=['Acrobacia','Adestramento','Artes','Atletismo','Atualidades','Ciências','Crime','Diplomacia','Enganação','Fortitude','Furtividade','Iniciativa','Intimidação','Intuição','Investigação','Luta','Medicina','Ocultismo','Percepção','Pilotagem','Pontaria','Profissão','Reflexos','Religião','Sobrevivência','Tática','Tecnologia','Vontade'];
  function loadSkillChoices(){
    const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
