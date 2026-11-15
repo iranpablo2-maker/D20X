@@ -373,8 +373,8 @@
    if(normal){normal.hidden=isCursedWeapon;normal.disabled=isCursedWeapon;}
    if(isCursedWeapon)secondary.value=$('nexHbElement').value;
  }
- $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();}});
- $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();}});
+  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'&&isCursedEditor())$('nexHbCursedExplosion').hidden=!(cursedKind==='Itens Paranormais'&&el.value==='Explosivos');}});
+  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'&&isCursedEditor())$('nexHbCursedExplosion').hidden=!(cursedKind==='Itens Paranormais'&&el.value==='Explosivos');}});
  function renderItemImprovements(){
    const list=$('nex52ImprovementList');if(!list)return;
    list.innerHTML=customItemImprovements.length?customItemImprovements.map((name,i)=>'<span class="nex-hb-improvement-chip">'+esc(name)+' <button type="button" data-nex52-improvement-remove="'+i+'" aria-label="Remover '+esc(name)+'">×</button></span>').join(''):'<small>Nenhuma melhoria homebrew adicionada.</small>';
@@ -609,6 +609,8 @@
      (item.type==='item'&&item.category==='Proteções'?'<h4>Defesa</h4><p>'+esc(item.protectionDefense)+'</p>':'')+
      (item.type==='item'&&item.category==='Armas'?'<h4>Características da arma</h4><p>'+esc([item.weaponProficiency,item.weaponKind,item.weaponWield,'Dano '+item.weaponDamage,'Dano secundário '+(item.weaponSecondary||'—'),'Crítico '+item.weaponCritical+' ×'+item.weaponMultiplier,'Tipo de dano '+item.weaponDamageType,'Alcance '+item.weaponRange,'Quantidade '+item.weaponQuantity].join(' · '))+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'?'<h4>Tipo paranormal</h4><p>'+esc(item.cursedKind)+'</p>':'')+
+      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Itens Paranormais'?'<h4>Tag</h4><p>'+esc(item.itemTag||'Acessórios')+'</p>':'')+
+      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Itens Paranormais'&&item.itemTag==='Explosivos'?'<h4>Dados do explosivo</h4><p>'+esc('Dano '+(item.cursedExplosiveDamage||'—')+' · Dano secundário '+(item.cursedExplosiveSecondary||'—')+' · Tipo secundário '+item.cursedExplosiveSecondaryType+' · Multiplicador ×'+item.cursedExplosiveMultiplier+' · Alcance '+(item.cursedExplosiveRange||'—'))+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Munições Amaldiçoadas'?'<p>'+esc(item.cursedAmmoType)+' · '+esc(item.cursedAmmoBonus)+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Acessórios Amaldiçoados'?'<p>'+esc(item.cursedAccessoryType)+' · '+esc(item.cursedAccessoryBenefit)+'</p>':'')+
      (item.type==='item'&&item.customImprovements?.length?'<h4>Melhorias</h4><p>'+item.customImprovements.map(esc).join(' · ')+'</p>':'')+ritualDetails(item)+trailDetails(item);
@@ -726,6 +728,9 @@
    if(type==='item'&&(tab==='paranormal'?cursedKind==='Proteções Amaldiçoadas':itemTab==='Proteções')&&(!/^\d+$/.test($('nexHbProtectionDefense').value)||Number($('nexHbProtectionDefense').value)>100)){message('Informe defesa válida entre 0 e 100.');return;}
    if(type==='item'&&!cut($('nex51Description').value,2000)){message('Preencha a descrição do item.');return;}
    if(type==='item'&&tab==='paranormal'&&cursedKind==='Armas Amaldiçoadas'&&$('nexHbTier').value==='0'){message('Escolha uma categoria entre I e IV.');return;}
+    if(type==='item'&&isCursedEditor()&&cursedKind==='Itens Paranormais'&&$('nexHbTag').value==='Explosivos'){
+      if(!$('nexHbCursedExplosionDamage').value.trim()||!Number.isInteger(Number($('nexHbCursedExplosionMultiplier').value))||Number($('nexHbCursedExplosionMultiplier').value)<1||Number($('nexHbCursedExplosionMultiplier').value)>20){message('Confira o dano e o multiplicador do explosivo.');return;}
+    }
    if(type==='item'&&(!['0','I','II','III','IV'].includes($('nexHbTier').value)||!/^\d+$/.test($('nexHbSpaces').value)||Number($('nexHbSpaces').value)>100)){message('Categoria ou espaços inválidos.');return;}
    if(type==='poder_paranormal' && !cut($('nex51Description').value,2000)){message('Preencha a descrição do poder paranormal.');return;}
    if(type==='ritual'&&$('nex53RitualType').value==='Dano'&&(Number($('nex53DiscenteCircle').value)<Number($('nex51Circle').value)||Number($('nex53VerdadeiroCircle').value)<Number($('nex53DiscenteCircle').value))){message('O círculo Discente deve ser igual ou superior ao básico; o Verdadeiro não pode ser menor que o Discente.');return;}
@@ -790,7 +795,12 @@
      weaponQuantity:type==='item'&&(tab==='paranormal'&&cursedKind==='Armas Amaldiçoadas'||itemTab==='Armas'&&tab!=='paranormal')?$('nexHbWeaponQuantity').value:(old?.weaponQuantity??1),
      itemTier:type==='item'?$('nexHbTier').value:(old?.itemTier||'0'),
      itemSpaces:type==='item'?$('nexHbSpaces').value:(old?.itemSpaces??1),
-     itemTag:type==='item'&&itemTab==='Geral'?$('nexHbTag').value:(old?.itemTag||'Acessórios'),
+      itemTag:type==='item'&&(tab==='paranormal'||itemTab==='Geral')?$('nexHbTag').value:(old?.itemTag||'Acessórios'),
+      cursedExplosiveDamage:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionDamage').value:(old?.cursedExplosiveDamage||''),
+      cursedExplosiveSecondary:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionSecondary').value:(old?.cursedExplosiveSecondary||''),
+      cursedExplosiveSecondaryType:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionType').value:(old?.cursedExplosiveSecondaryType||'Normal'),
+      cursedExplosiveMultiplier:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionMultiplier').value:(old?.cursedExplosiveMultiplier||'2'),
+      cursedExplosiveRange:type==='item'&&tab==='paranormal'?$('nexHbCursedExplosionRange').value:(old?.cursedExplosiveRange||''),
      customImprovements:type==='item'?customItemImprovements:(old?.customImprovements||[]),
      trailAbilities:type==='trilha'?TRAIL_NEX.map(n=>({nex:n,name:$('nex53TrailName'+n).value,description:$('nex53TrailDescription'+n).value,bonusType:'',bonusValue:0,bonuses:getEffects(String(n))})):(old?.trailAbilities||[]),
      skills:type==='origem'?[$('nex55Skill1').value,$('nex55Skill2').value]:(old?.skills||[])
