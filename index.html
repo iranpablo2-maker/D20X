@@ -2321,26 +2321,36 @@ function normalize(obj){const d=defaults();if(!obj||typeof obj!=='object'||Array
 let state=load();let log=[];let idCounter=Date.now();
 function nexHomebrewBonuses(){
  const totals=Object.create(null);
+ const nex=Math.max(0,Math.min(99,Number(state.nex)||0));
+ const supported=['pv','pe','san','ataque','dano','defesa','resistencia','pericia','iniciativa','fortitude','reflexos','vontade','bloqueio','esquiva','carga'];
+ const apply=(effect)=>{
+   if(!effect||!supported.includes(effect.type))return;
+   const value=Number(effect.value);
+   if(!Number.isFinite(value)||Math.abs(value)>999)return;
+   let multiplier=1;
+   if(effect.scaling==='nex'){
+     const interval=[5,10,15,20].includes(Number(effect.nexInterval))?Number(effect.nexInterval):5;
+     multiplier=Math.floor(nex/interval);
+   }
+   if(multiplier<=0)return;
+   const total=value*multiplier;
+   if(Number.isFinite(total))totals[effect.type]=(totals[effect.type]||0)+total;
+ };
  for(const item of Array.isArray(state.nex51Items)?state.nex51Items:[]){
    if(!item||typeof item!=='object')continue;
-   const apply=(type,value)=>{
-     if(!['pv','pe','san','ataque','dano','defesa','resistencia','pericia','iniciativa','fortitude','reflexos','vontade','bloqueio','esquiva','carga'].includes(type))return;
-     const n=Number(value);if(!Number.isFinite(n)||Math.abs(n)>999)return;
-     totals[type]=(totals[type]||0)+n;
-   };
    if(item.type==='trilha'){
      if(item.className!==state.class||item.name!==state.trail)continue;
-     for(const step of Array.isArray(item.trailAbilities)?item.trailAbilities:[]){
-       if(Number(step.nex)>Number(state.nex))continue;
-       const effects=Array.isArray(step.bonuses)?step.bonuses:(step.bonusType?[{type:step.bonusType,value:step.bonusValue}]:[]);
-       for(const effect of effects)apply(effect.type,effect.value);
+     for(const stage of Array.isArray(item.trailAbilities)?item.trailAbilities:[]){
+       if(Number(stage.nex)>nex)continue;
+       const effects=Array.isArray(stage.bonuses)?stage.bonuses:(stage.bonusType?[{type:stage.bonusType,value:stage.bonusValue}]:[]);
+       for(const effect of effects)apply(effect);
      }
    }else if(item.type==='item'||item.type==='maldicao'){
-     // Efeitos de itens dependem de equipamento/ativação, não os aplicar sem confirmação.
+     // Item ou maldição só aplicam benefícios após confirmação de equipamento/ativação.
      continue;
    }else{
      const effects=Array.isArray(item.effectBonuses)?item.effectBonuses:(item.effectBonusType?[{type:item.effectBonusType,value:item.effectBonusValue}]:[]);
-     for(const effect of effects)apply(effect.type,effect.value);
+     for(const effect of effects)apply(effect);
    }
  }
  return totals;
@@ -4841,7 +4851,7 @@ const PARANORMAL=[
 })();
 </script>
 <script src="nex-duplicate-review.js?v=2055"></script>
-<script src="nex-homebrew-advanced.js?v=20261115threatcards6"></script>
+<script src="nex-homebrew-advanced.js?v=20261115bonusnex1"></script>
 <script src="nex-rituais-metadados.js?v=1"></script>
 <script src="nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script src="nex-rituais-ficha.js?v=20261114arquivosfilter1"></script>
