@@ -1,5 +1,5 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
-export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
+export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getSheets=()=>[],updateResource=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
@@ -11,6 +11,9 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
  const listen=(el,type,fn,opts)=>{el?.addEventListener(type,fn,opts);handlers.push(()=>el?.removeEventListener(type,fn,opts));};
  const message=t=>{status.textContent=t;status.classList.toggle('vtt-silent-status',/^Mesa (pronta|sincronizada|salva)/.test(t));};
  const selected=()=>scene.tokens.find(t=>t.id===selectedId);
+ const linkedSheet=t=>t?.linkedSheetId?getSheets().find(s=>s.id===t.linkedSheetId):null;
+ const tokenStat=(t,f)=>{const sh=linkedSheet(t);return Math.max(0,Math.trunc(Number(sh?(sh.fullSheet?.[f+'Current']??sh[f]??t[f]):t[f])||0));};
+ const tokenMax=(t,f)=>{const sh=linkedSheet(t),raw=sh?.fullSheet||{};const v=raw[f+'Max']??raw['max'+f[0].toUpperCase()+f.slice(1)]??t[f+'Max'];return Math.max(0,Number(v)||0);};
  const isTyping=e=>e.target?.closest?.('input,textarea,select,[contenteditable="true"]');
  tools.hidden=!gm;
  $('nexTabletopRole').textContent=gm?'Mestre':'Jogador';
@@ -26,7 +29,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
   if(!stateOK(data))return empty();
   return {map:typeof data.map==='string'&&data.map.length<650000?data.map:'',drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-1,Math.floor(Number(t.x)||0))),y:Math.max(0,Math.min(H-1,Math.floor(Number(t.y)||0))),
-   variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),
+   variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?t.images.slice(0,10).map(url=>typeof url==='string'&&url.length<300000?url:''):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
   }))};
  }
@@ -38,14 +41,16 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
    if(t.hidden&&!gm)continue;
    const el=document.createElement('button');el.type='button';el.className='nex-tabletop-token';el.dataset.token=t.id;el.dataset.master=String(gm);el.dataset.selected=String(t.id===selectedId);
    el.style.left=(t.x*GRID+4)+'px';el.style.top=(t.y*GRID+4)+'px';el.style.width=((t.size||1)*GRID-8)+'px';el.style.height=((t.size||1)*GRID-8)+'px';el.style.transform='rotate('+t.rotation+'deg)';el.title=t.name+' · Variação '+t.variation;el.setAttribute('aria-label',el.title);
-   const img=t.images[t.variation]||'';
+   const portrait=linkedSheet(t)?.fullSheet?.photo||'';
+   const safePortrait=typeof portrait==='string'&&portrait.length<140000&&(portrait.startsWith('https://')||/^data:image\/(?:png|jpeg|webp);base64,/i.test(portrait))?portrait:'';
+   const img=t.images[t.variation]||safePortrait||'';
    if(img){const image=document.createElement('img');image.src=img;image.alt=t.name;el.appendChild(image);}
    else{const span=document.createElement('span');span.textContent=t.name.slice(0,3).toUpperCase();el.appendChild(span);}
    const resources=document.createElement('span');resources.className='nex-token-resource-bars';
    for(const [name,tone] of [['pv','#df5a66'],['pe','#f6c15a'],['san','#62aad7']]){
-     const current=Math.max(0,Number(t[name])||0),max=Math.max(1,Number(t[name+'Max'])||current||1);
+     const current=tokenStat(t,name),max=Math.max(1,tokenMax(t,name)||current||1);
      const line=document.createElement('i');line.style.background='linear-gradient(to right,'+tone+' '+Math.min(100,Math.round(100*current/max))+'%,#262b36 '+Math.min(100,Math.round(100*current/max))+'%)';
-     line.title=name.toUpperCase()+': '+current+' / '+(t[name+'Max']||'—');
+     line.title=name.toUpperCase()+': '+current+' / '+(tokenMax(t,name)||'—');
      resources.append(line);
    }
    el.append(resources);
@@ -329,11 +334,29 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
    const t=selected();vttSide.hidden=!gm||!t||!vttTokenInspectorOpen;vttSide.replaceChildren();
    if(!gm||!t)return;
    const title=document.createElement('strong');title.textContent='Configurar '+t.name;vttSide.append(title);
+   const linkLabel=document.createElement('label');linkLabel.textContent='Ficha do NEX';
+   const linkSelect=document.createElement('select');
+   const emptyOption=document.createElement('option');emptyOption.value='';emptyOption.textContent='Sem ficha vinculada';linkSelect.append(emptyOption);
+   for(const sh of getSheets()){const opt=document.createElement('option');opt.value=sh.id;opt.textContent=String(sh.name||'Personagem')+(sh.isHidden?' · Oculta':'');linkSelect.append(opt);}
+   linkSelect.value=t.linkedSheetId||'';
+   linkSelect.addEventListener('change',()=>{t.linkedSheetId=linkSelect.value;if(linkedSheet(t))t.name=String(linkedSheet(t).name||t.name).slice(0,35);render();save();});
+   linkLabel.append(linkSelect);vttSide.append(linkLabel);
+   if(linkedSheet(t)){const note=document.createElement('small');note.textContent='PV, PE e SAN sincronizados com a ficha. Os ajustes no combate atualizam a ficha.';vttSide.append(note);}
    const close=document.createElement('button');close.type='button';close.textContent='Fechar ×';close.addEventListener('click',()=>{vttTokenInspectorOpen=false;vttSide.hidden=true;});vttSide.append(close);
    for(const [prop,label,type] of [['name','Nome','text'],['pv','PV atual','number'],['pvMax','PV máximo','number'],['pe','PE atual','number'],['peMax','PE máximo','number'],['san','SAN atual','number'],['sanMax','SAN máximo','number'],['defense','Defesa','number'],['size','Tamanho (1-3)','number'],['rotation','Rotação','number'],['hidden','Oculto aos jogadores','checkbox'],['locked','Bloquear posição','checkbox']]){
      const row=document.createElement('label');row.textContent=label;
-     const inp=document.createElement('input');inp.type=type;if(type==='checkbox')inp.checked=!!t[prop];else inp.value=String(t[prop]??'');
-     inp.addEventListener('change',()=>{t[prop]=type==='checkbox'?inp.checked:type==='number'?Number(inp.value)||0:inp.value.slice(0,35);render();save();});
+     const inp=document.createElement('input');inp.type=type;if(type==='checkbox')inp.checked=!!t[prop];else inp.value=String(['pv','pe','san'].includes(prop)?tokenStat(t,prop):t[prop]??'');
+     inp.addEventListener('change',async()=>{
+       if(['pv','pe','san'].includes(prop)&&linkedSheet(t)){
+         if(!updateResource)return message('Edição da ficha indisponível');
+         inp.disabled=true;
+         try{await updateResource(t.linkedSheetId,prop,Number(inp.value)||0,'set');}
+         catch(error){message('Falha ao editar ficha: '+String(error.message||error));}
+         finally{inp.disabled=false;}render();return;
+       }
+       if(['pvMax','peMax','sanMax'].includes(prop)&&linkedSheet(t)){message('Edite o recurso máximo na ficha completa.');render();return;}
+       t[prop]=type==='checkbox'?inp.checked:type==='number'?Number(inp.value)||0:inp.value.slice(0,35);render();save();
+     });
      row.append(inp);vttSide.append(row);
    }
  }
@@ -353,7 +376,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
    const make=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
    const stat=make('div','nex-vtt-combat-stat');
    const actor=selected();
-   stat.textContent=actor?'Token selecionado: '+actor.name+' · PV '+actor.pv+' · PE '+actor.pe+' · SAN '+actor.san:'Selecione um token no mapa para iniciar.';
+   stat.textContent=actor?'Token selecionado: '+actor.name+' · PV '+tokenStat(actor,'pv')+' · PE '+tokenStat(actor,'pe')+' · SAN '+tokenStat(actor,'san')+(linkedSheet(actor)?' · Ficha vinculada':''):'Selecione um token no mapa para iniciar.';
    body.append(stat);
    if(gm){
      const targetTitle=make('strong','','Alvos');body.append(targetTitle);
@@ -377,20 +400,30 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
      amount.addEventListener('change',()=>{vttCombatAmount=Math.max(-9999,Math.min(9999,Math.trunc(Number(amount.value)||0)));});
      amountLabel.append(amount);actions.append(amountLabel);
      const apply=make('button','nex-vtt-action-primary','Aplicar aos alvos');
-     apply.addEventListener('click',()=>{
+     apply.addEventListener('click',async()=>{
        const chosen=scene.tokens.filter(t=>vttCombatTargets.has(t.id)&&!t.hidden);
        if(!chosen.length)return message('Selecione pelo menos um alvo no mapa.');
        const magnitude=Math.max(-9999,Math.min(9999,Math.trunc(Number(amount.value)||0)));
        if(!magnitude)return message('Informe uma quantidade diferente de zero.');
        const field=vttCombatAction==='damage'||vttCombatAction==='heal'?'pv':vttCombatAction;
        if((vttCombatAction==='damage'||vttCombatAction==='heal')&&magnitude<0)return message('Informe um valor positivo de dano ou cura.');
+       const change=vttCombatAction==='damage'?-magnitude:magnitude;
+       apply.disabled=true;let updated=0;const failed=[];
        for(const t of chosen){
-         const change=vttCombatAction==='damage'?-magnitude:magnitude;
-         const limit=Number(t[field+'Max'])||0;
-         t[field]=Math.max(0,Math.min(limit>0?limit:99999,(Number(t[field])||0)+change));
+         try{
+           if(linkedSheet(t)){
+             if(!updateResource)throw Error('Edição da ficha indisponível');
+             await updateResource(t.linkedSheetId,field,change,'delta');
+           }else{
+             const limit=Number(t[field+'Max'])||0;
+             t[field]=Math.max(0,Math.min(limit>0?limit:99999,(Number(t[field])||0)+change));
+           }
+           updated++;
+         }catch(error){failed.push(t.name+': '+String(error.message||error));}
        }
-       vttCombatTargetMode=false;
-       combatEntry((vttCombatAction==='damage'?'Dano':vttCombatAction==='heal'?'Cura':vttCombatAction.toUpperCase())+' '+magnitude+' → '+chosen.map(t=>t.name).join(', '));
+       apply.disabled=false;vttCombatTargetMode=false;
+       if(updated)combatEntry((vttCombatAction==='damage'?'Dano':vttCombatAction==='heal'?'Cura':vttCombatAction.toUpperCase())+' '+magnitude+' → '+chosen.map(t=>t.name).join(', '));
+       if(failed.length)message('Algumas fichas não foram atualizadas: '+failed.join(' | ').slice(0,190));
        render();
      });
      actions.append(apply);
@@ -511,6 +544,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm}){
    }else if(gm){scene.drawings.push(item);scene.drawings=scene.drawings.slice(-160);render();save();}else renderAdvanced();
  });
 
+ listen(window,'nex:campaign-sheets-updated',()=>{if(!disposed)render();});
  const unsubscribe=onSnapshot(ref,snapshot=>{
   if(disposed||drag||pending)return;
   const data=snapshot.data();if(data)scene=validScene(data);
