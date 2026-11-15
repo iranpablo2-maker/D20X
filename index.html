@@ -2962,7 +2962,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   const sheetOverlay=which==='sheet'&&tabletop;
   if(nexCampaignLiveEdit&&which!=='sheet')finishCampaignLiveEdit();
   $('mainMenu').classList.toggle('hide',which!=='home');
-  $('agentsPanel').classList.toggle('hide',which!=='campaigns'&&which!=='agents');
+  $('agentsPanel').classList.toggle('hide',which!=='agents');
   $('campaignPanel').classList.toggle('hide',which!=='campaigns'&&!sheetOverlay);
   $('threatsPanel').classList.toggle('hide',which!=='threats');
   $('sheetScreen').classList.toggle('hide',which!=='sheet');
