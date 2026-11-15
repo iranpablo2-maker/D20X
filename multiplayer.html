@@ -283,6 +283,19 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 
 #room .nex-assign-label{display:block;margin:5px 0;font-size:11px;color:#c9b4ba;width:100%}
 #room .nex-assign-label select{display:block;margin-top:3px;width:100%;font-size:12px;background:#181317;color:#fff;border:1px solid #653541;border-radius:4px;padding:6px}
+
+/* NEX Tabletop — primeiro módulo de mapa e tokens. */
+.nex-tabletop-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:12px 0;}
+.nex-tabletop-tools label{display:flex;flex-direction:column;gap:5px;color:#e6c1c7;font-size:12px;min-width:155px;}
+.nex-tabletop-tools input{max-width:210px;padding:9px;background:#110e12;color:#fff;border:1px solid #64404a;border-radius:6px;}
+.nex-tabletop-wrap{width:100%;max-width:100%;overflow:auto;background:#08090a;border:1px solid #6b303d;border-radius:11px;padding:12px;touch-action:pan-x pan-y;}
+.nex-tabletop-board{width:768px;height:576px;position:relative;background-color:#221a1e;background-size:100% 100%;background-position:center;background-repeat:no-repeat;box-shadow:0 8px 30px #0008;isolation:isolate;}
+.nex-tabletop-board::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;background-image:linear-gradient(to right,rgba(255,255,255,.22) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.22) 1px,transparent 1px);background-size:48px 48px;}
+.nex-tabletop-token{position:absolute;z-index:2;width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:2px solid #fbe9eb;box-shadow:0 3px 10px #000b;background:#ab364c;color:#fff;border-radius:50%;font-size:12px;font-weight:800;cursor:default;user-select:none;touch-action:none;}
+.nex-tabletop-token[data-master="true"]{cursor:grab;}
+.nex-tabletop-token[data-master="true"]:active{cursor:grabbing;}
+.nex-tabletop-token span{pointer-events:none;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nex-tabletop-token:focus-visible{outline:3px solid #fff;outline-offset:2px;}
 </style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
@@ -551,10 +564,24 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-room-section="characters" aria-pressed="true">Personagens</button>
     <button type="button" data-room-section="players" aria-pressed="false">Jogadores</button>
     <button type="button" data-room-section="combats" aria-pressed="false">Combates</button>
+    <button type="button" data-room-section="tabletop" aria-pressed="false">Tabletop</button>
     <button type="button" data-room-section="manage" id="roomManageTab" aria-pressed="false" class="hide">Gerenciar Jogadores</button>
     <button type="button" data-room-section="master" id="roomMasterTab" aria-pressed="false" class="hide">Escudo do Mestre</button>
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
+   <section id="roomTabletopPanel" class="room-panel hide" aria-label="Tabletop da campanha">
+    <div class="room-panel-head"><h2>Tabletop</h2><span id="nexTabletopRole" class="badge">Tabuleiro</span></div>
+    <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
+    <div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
+      <label>Nome do token <input type="text" id="nexTabletopTokenName" maxlength="35" placeholder="Ex.: Agente, criatura"></label>
+      <button id="nexTabletopAddToken" type="button">Adicionar token</button>
+      <button id="nexTabletopClearTokens" type="button" class="alt">Limpar tokens</button>
+      <label>Mapa <input type="file" id="nexTabletopMapFile" accept="image/png,image/jpeg,image/webp"></label>
+      <button id="nexTabletopRemoveMap" type="button" class="alt">Remover mapa</button>
+    </div>
+    <div class="nex-tabletop-wrap"><div id="nexTabletopBoard" class="nex-tabletop-board" aria-label="Mapa com grade de combate"></div></div>
+    <p class="room-note">Grade de 16 × 12 quadrados. O mestre arrasta os tokens e os jogadores acompanham em tempo real.</p>
+   </section>
    <section id="roomCombatsPanel" class="room-panel hide">
      <div class="room-panel-head"><h3>Combates</h3></div>
      <div id="roomCombats" class="campaign-combats"><p>Nenhum combate cadastrado.</p></div><div id="roomCombatFeedback" role="status" class="room-note"></div>
@@ -1080,11 +1107,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }
  });
  function roomSection(section){
-  const allowed=['characters','master','manage','players','invites','combats'];
+  const allowed=['characters','master','manage','players','invites','combats','tabletop'];
   if(!allowed.includes(section)||(['master','manage','invites'].includes(section)&&!gm))section='characters';
   document.querySelectorAll('[data-room-section]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.roomSection===section)));
   show('roomCharactersPanel',section==='characters');
   show('roomCombatsPanel',section==='combats');
+  show('roomTabletopPanel',section==='tabletop');
   $('roomAgentPicker').hidden=true;
   show('roomPlayersPanel',section==='players');
   show('roomInvitePanel',section==='invites'&&gm);
@@ -1283,6 +1311,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   for(const key of ['roomEditAction','roomCreateCombatAction','roomMasterAction','roomInviteAction'])$(key).hidden=!gm;
   show('leaveCampaign',!gm);
   updateRoomCover();
+  subscribeTabletop(id);
   show('roomMasterTab',gm);show('roomManageTab',gm);roomSection('characters');refreshNexAgents();
   // A permissão de combates é independente da das fichas; falhas ficam restritas à aba.
   unsubs.push(onSnapshot(collection(db,'campaigns',id,'combats'),snapshot=>{
