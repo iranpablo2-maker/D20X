@@ -128,6 +128,32 @@
  }
  const mount=$('nex51AdvancedMount'),sheet=$('nex51SheetMount');
  if(!mount||!sheet)return;
+
+ const threatStyle=document.createElement('style');
+ threatStyle.id='nex-homebrew-threat-sheet-style';
+ threatStyle.textContent=`
+  .nex-hb-threat-editor{display:block;max-width:100%;grid-column:1/-1}
+  .nex-hb-threat-editor[hidden]{display:none}
+  .nex-hb-threat-editor fieldset{border:1px solid #4a3338;border-radius:8px;margin:10px 0;padding:12px;min-width:0;background:rgba(20,13,16,.42)}
+  .nex-hb-threat-editor legend{padding:0 7px;color:#efc0c3;font-weight:700;letter-spacing:.03em}
+  .nex-hb-threat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
+  .nex-hb-threat-grid label{display:flex;flex-direction:column;gap:4px;min-width:0;color:#d6c9cb}
+  .nex-hb-threat-grid input,.nex-hb-threat-grid textarea,.nex-hb-threat-grid select{min-width:0;width:100%;box-sizing:border-box}
+  #nexHbThreatActions>fieldset{margin-top:12px}
+  .nex-hb-threat-sheet{border:1px solid #9a424c;border-radius:10px;overflow:hidden;background:#140f12;margin:10px 0 14px;padding:0 13px 12px}
+  .nex-hb-threat-sheet-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin:0 -13px 11px;padding:13px;background:#47191f;color:#fff}
+  .nex-hb-threat-sheet-head strong{font-size:18px}
+  .nex-hb-threat-sheet h4{margin:12px 0 6px;color:#f4a9b1;font-size:11px;letter-spacing:.08em}
+  .nex-hb-threat-sheet p{white-space:normal;overflow-wrap:anywhere;line-height:1.5}
+  .nex-hb-threat-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px}
+  .nex-hb-threat-stat{border:1px solid #54373c;background:#23191d;border-radius:5px;padding:8px;display:flex;flex-direction:column;gap:4px}
+  .nex-hb-threat-stat small{font-size:10px;color:#d0afb4}
+  .nex-hb-threat-stat strong{font-size:17px}
+  .nex-hb-threat-action{padding:10px;margin:7px 0;border:1px solid #594045;border-radius:5px;background:#22171a}
+  @media(max-width:600px){.nex-hb-threat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.nex-hb-threat-sheet-head strong{font-size:15px}}
+ `;
+ document.head.appendChild(threatStyle);
+
  let tab='ameacas',skillTab='origens',ritualFilter='Todas',itemTab='Armas',paranormalSection='itens',cursedKind='Itens Paranormais',opened=null;
  const titleFor=t=>t==='ameacas'?'Ameaças':t==='habilidades'?'Habilidades':t==='rituais'?'Rituais':t==='paranormal'?'Paranormal':'Itens';
  const currentTypes=()=>tab==='habilidades'?SKILL_TABS[skillTab]:tab==='paranormal'?(paranormalSection==='maldicoes'?['maldicao']:['item']):TABS[tab];
