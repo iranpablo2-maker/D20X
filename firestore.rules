@@ -240,12 +240,22 @@ service cloud.firestore {
         allow get: if sceneId == 'state' && nexInCampaign(cid);
         allow list: if false;
         allow create, update: if sceneId == 'state' && nexGM(cid)
-          && request.resource.data.keys().hasOnly(['format','map','tokens'])
+          && request.resource.data.keys().hasOnly(['format','map','tokens','drawings','fogEnabled','revealed','gridVisible','turns','combatLog'])
           && request.resource.data.format == 'nex-tabletop-v1'
           && request.resource.data.map is string
           && request.resource.data.map.size() <= 650000
           && request.resource.data.tokens is list
-          && request.resource.data.tokens.size() <= 90;
+          && request.resource.data.tokens.size() <= 90
+          && request.resource.data.drawings is list
+          && request.resource.data.drawings.size() <= 160
+          && request.resource.data.revealed is list
+          && request.resource.data.revealed.size() <= 150
+          && request.resource.data.turns is list
+          && request.resource.data.turns.size() <= 90
+          && request.resource.data.combatLog is list
+          && request.resource.data.combatLog.size() <= 40
+          && request.resource.data.fogEnabled is bool
+          && request.resource.data.gridVisible is bool;
         allow delete: if false;
       }
       match /combats/{combatId} {
