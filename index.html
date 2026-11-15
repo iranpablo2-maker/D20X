@@ -2286,7 +2286,12 @@ function nex55AdvancedOrigins(){
  try{
    const entries=JSON.parse(localStorage.getItem('nex_homebrew_advanced_v2051')||'[]');
    if(!Array.isArray(entries))return [];
-   return entries.filter(item=>item?.type==='origem' && typeof item.name==='string' && item.name.trim())
+   // Exclusões registradas pela biblioteca avançada também valem para a ficha.
+   const deletedIds=(()=>{try{
+     const list=JSON.parse(localStorage.getItem('nex_homebrew_advanced_v2051_deleted_ids_v1')||'[]');
+     return new Set(Array.isArray(list)?list:[]);
+   }catch{return new Set();}})();
+   return entries.filter(item=>item?.type==='origem' && typeof item.name==='string' && item.name.trim() && !deletedIds.has(item.id))
      .map(item=>({
        name:item.name.trim(),skills:Array.isArray(item.skills)?[...new Set(item.skills.filter(skill=>SKILL_DATA.some(([name])=>name===skill)))]:[],
        ability:item.name.trim(),description:String(item.description||''),official:false,pvStep:0,damage:0
@@ -2558,7 +2563,7 @@ function nex12PopulateOrigins(){
  const official=NEX12_ORIGINS.map(x=>x[0]);
  const horror=(NEX_EXTRA_ORIGINS.horror||[]).map(x=>x.name);
  const arquivos=(NEX_EXTRA_ORIGINS.arquivos||[]).map(x=>x.name);
- const homebrew=[...(state.homebrew||[]).map(x=>x.name),...nex55AdvancedOrigins().map(x=>x.name)].filter((name,i,arr)=>!official.includes(name)&&!horror.includes(name)&&!arquivos.includes(name)&&arr.indexOf(name)===i);
+ const homebrew=[...globalHomebrew().map(x=>x.name),...nex55AdvancedOrigins().map(x=>x.name)].filter((name,i,arr)=>!official.includes(name)&&!horror.includes(name)&&!arquivos.includes(name)&&arr.indexOf(name)===i);
  const known=[...official,...horror,...arquivos,...homebrew];
  const opt=(x)=>`<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`;
  const source=$('originSource'), select=$('origin'),hint=$('originCategoryHint');
@@ -2569,11 +2574,14 @@ function nex12PopulateOrigins(){
    `<optgroup label="Sobrevivendo ao Horror">${horror.map(opt).join('')}</optgroup>`+
    `<optgroup label="Arquivos Secretos">${arquivos.map(opt).join('')}</optgroup>`+
    `<optgroup label="Homebrew">${homebrew.map(opt).join('')}</optgroup>`+
-   (state.origin&&!known.includes(state.origin)?opt(state.origin):'');
+   '';
  select.value=state.origin||'';
  hint.textContent='Origens oficiais e Homebrew disponíveis no mesmo seletor.';
 }
 
+document.addEventListener('nex-advanced-homebrew-library-changed',()=>{
+ nex12PopulateOrigins();
+});
 const nex12BaseMax=maxValues;
 maxValues=function(){const m=nex12BaseMax();const o=nex12Orig();if(o&&o.name!=='Ex-Militar'&&o.pvStep){const steps=LEVELS.indexOf(int(state.nex))+1;const extra=Math.max(0,Math.min(20,int(o.pvStep)))*steps;m.pv+=extra;m.bonus+=extra;}return m;};
 const nex12OriginalStats=renderStats;
@@ -3355,7 +3363,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  Especialista:{description:'Resolve problemas com conhecimento, perícias e improvisação. É valioso em investigações e desafios técnicos.',style:'Perícias e soluções criativas'},
  Ocultista:{description:'Estuda fenômenos do Outro Lado e canaliza conhecimentos paranormais, aceitando os riscos que isso implica.',style:'Rituais e conhecimento paranormal'}
  };
- function wAvail(category){if(category==='ordem')return NEX12_ORIGINS.map(x=>({name:x[0],skills:[x[1],x[2]].filter(Boolean),ability:x[3],description:NEX12_ORIGIN_DESCRIPTIONS[x[0]]||'',official:true}));if(category==='homebrew'){const legacy=(wDraft.homebrew||[]).map(x=>({name:x.name,skills:x.skills||[],ability:x.ability||'Habilidade personalizada',description:x.description||'',official:false}));return [...legacy,...nex55AdvancedOrigins().filter(x=>!legacy.some(o=>o.name===x.name)&&!NEX12_ORIGIN_MAP[x.name])];}return (NEX_EXTRA_ORIGINS[category]||[]);}
+ function wAvail(category){if(category==='ordem')return NEX12_ORIGINS.map(x=>({name:x[0],skills:[x[1],x[2]].filter(Boolean),ability:x[3],description:NEX12_ORIGIN_DESCRIPTIONS[x[0]]||'',official:true}));if(category==='homebrew'){const legacy=globalHomebrew().map(x=>({name:x.name,skills:x.skills||[],ability:x.ability||'Habilidade personalizada',description:x.description||'',official:false}));return [...legacy,...nex55AdvancedOrigins().filter(x=>!legacy.some(o=>o.name===x.name)&&!NEX12_ORIGIN_MAP[x.name])];}return (NEX_EXTRA_ORIGINS[category]||[]);}
  const W_PARANORMAL_OPTIONS=[...new Set(['Aprender Ritual','Afortunado','Encarar a Morte','Potencial Aprimorado','Resistir a Elemento','Sangue de Ferro','Visão do Oculto',...(window.NEX_SAH?.paranormal||[]).map(x=>x.name)])];
  function wCultistPowerName(){
    if(wDraft.origin!=='Cultista Arrependido')return '';
