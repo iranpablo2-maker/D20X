@@ -352,6 +352,192 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 
 
 
+
+<style id="nex-vtt-lich-inspired-theme">
+/* Original NEX theme inspired by the LICH 2D table layout. No copied proprietary assets. */
+#room #roomTabletopPanel:not(.hide) {
+ --nex-vtt-ink:#e9e8f4;--nex-vtt-muted:#999bb4;--nex-vtt-accent:#a88aff;
+ --nex-vtt-panel:#171923;--nex-vtt-raised:#202330;--nex-vtt-line:#333547;
+ display:flex!important;flex-direction:column!important;background:#0e1019!important;
+ color:var(--nex-vtt-ink)!important;
+}
+#roomTabletopPanel .nex-vtt-heading{
+ display:flex!important;flex:0 0 61px!important;min-height:61px!important;
+ align-items:center!important;gap:20px!important;justify-content:space-between!important;
+ padding:0 18px!important;background:#151720!important;
+ border:0!important;border-bottom:1px solid #343648!important;
+}
+#roomTabletopPanel .nex-vtt-brand{display:flex!important;align-items:center!important;gap:11px!important;flex:none!important;min-width:190px}
+#roomTabletopPanel .nex-vtt-brand-symbol{
+ display:grid;place-items:center;width:37px;height:37px;border:1px solid #8265c7;border-radius:11px;
+ background:linear-gradient(135deg,#3d305e,#221d34);color:#c5b3ff;font-size:23px;
+}
+#roomTabletopPanel .nex-vtt-brand-copy{display:flex;flex-direction:column;gap:0;line-height:1.2}
+#roomTabletopPanel .nex-vtt-brand strong{font:800 19px/1.1 system-ui,sans-serif!important;letter-spacing:.13em!important;color:#f8f5ff!important}
+#roomTabletopPanel .nex-vtt-brand span:not(.nex-vtt-brand-symbol){font-size:10px!important;color:#ada9c5!important;letter-spacing:.04em}
+#roomTabletopPanel .nex-lich-mainnav{display:flex;align-items:center;gap:4px;height:100%;margin-right:auto}
+#roomTabletopPanel .nex-lich-mainnav button{
+ border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:#a8a7bb;
+ padding:0 17px;height:100%;font-size:13px;font-weight:650;white-space:nowrap;
+}
+#roomTabletopPanel .nex-lich-mainnav button:hover{background:#242638;color:#f1efff}
+#roomTabletopPanel .nex-lich-mainnav button[aria-current="page"]{border-bottom-color:#b291ff;color:#e3d7ff;background:#211d30}
+#roomTabletopPanel .nex-vtt-heading-actions{gap:8px!important}
+#roomTabletopPanel #nexVttExit,#roomTabletopPanel #nexVttSheetsToggle{
+ background:#242535!important;color:#e4dff2!important;border:1px solid #464158!important;
+ font-size:12px!important;font-weight:700!important;border-radius:8px!important;padding:9px 12px!important;
+}
+#roomTabletopPanel #nexVttExit:hover,#roomTabletopPanel #nexVttSheetsToggle:hover{border-color:#9783cd!important;background:#343045!important}
+#roomTabletopPanel #nexTabletopRole{background:#2e2544!important;color:#d2c0ff!important;border:1px solid #564574!important;border-radius:20px!important;font-size:10px!important}
+#roomTabletopPanel .nex-vtt-layout{background:#0e1018!important}
+#roomTabletopPanel .nex-vtt-sidebar{
+ flex:0 0 60px!important;width:60px!important;min-width:60px!important;
+ background:#171922!important;border:0!important;border-right:1px solid #343647!important;
+ padding:9px 5px!important;overflow-y:auto!important;overflow-x:hidden!important;
+ scrollbar-width:thin;scrollbar-color:#45465c #181a25;
+}
+#roomTabletopPanel #nexVttBar{
+ width:49px!important;max-width:49px!important;display:flex!important;flex-direction:column!important;
+ gap:7px!important;align-items:center!important;background:transparent!important;
+ border:0!important;padding:0!important;
+}
+#roomTabletopPanel #nexVttBar button{
+ width:41px!important;min-width:41px!important;height:40px!important;flex:0 0 40px!important;
+ border:1px solid transparent!important;border-radius:10px!important;background:transparent!important;
+ color:#b6b8ce!important;box-shadow:none!important;font-size:19px!important;
+}
+#roomTabletopPanel #nexVttBar button:hover{background:#292c3c!important;border-color:#46435b!important;color:white!important}
+#roomTabletopPanel #nexVttBar button[aria-pressed=true]{
+ background:#393154!important;border:1px solid #7f68af!important;color:#e7dcff!important;
+ box-shadow:inset 3px 0 #b294ff!important;
+}
+#roomTabletopPanel .nex-vtt-stage{background:#0d111b!important;position:relative!important;min-width:0!important}
+#roomTabletopPanel .nex-tabletop-wrap{
+ background:radial-gradient(ellipse at 50% 15%,#23283a 0%,#151b2a 47%,#0e111b 100%)!important;
+ align-items:flex-start!important;justify-content:flex-start!important;
+ padding:26px 70px 26px 28px!important;border:0!important;
+ scrollbar-width:thin;scrollbar-color:#515269 #141822;
+}
+#roomTabletopPanel #nexTabletopBoard{
+ border:1px solid #5b617b!important;background-color:#1d2636!important;
+ box-shadow:0 14px 65px #0008,0 0 0 1px #ffffff0c!important;
+ background-size:100% 100%!important;
+}
+#roomTabletopPanel #nexTabletopBoard::before{
+ background-image:linear-gradient(to right,rgba(216,223,252,.16) 1px,transparent 1px),
+ linear-gradient(to bottom,rgba(216,223,252,.16) 1px,transparent 1px)!important;
+ background-size:48px 48px!important;
+}
+#roomTabletopPanel #nexVttZoomRail{
+ top:76px!important;right:15px!important;background:#202332!important;
+ border:1px solid #434760!important;color:#c4c7d9!important;border-radius:13px!important;
+ box-shadow:0 8px 18px #0006!important;
+}
+#roomTabletopPanel #nexVttZoomRail button{background:transparent!important;color:#d9d7ed!important;border:0!important}
+#roomTabletopPanel #nexVttZoomRail button:hover{background:#36384b!important}
+#roomTabletopPanel #nexVttZoomValue{color:#c8c7dc!important}
+#roomTabletopPanel #nexVttZoomSlider{accent-color:#a986ff!important}
+#roomTabletopPanel #nexTabletopMessage{
+ background:#242633e8!important;color:#b6b8cf!important;border:1px solid #414457!important;
+ left:72px!important;bottom:10px!important;
+}
+#roomTabletopPanel .nex-vtt-sheets{
+ flex:0 0 324px!important;width:324px!important;background:#171923!important;color:#f4efff!important;
+ border:0!important;border-left:1px solid #373a4b!important;
+ scrollbar-color:#53536d #171923!important;scrollbar-width:thin;
+}
+#roomTabletopPanel .nex-vtt-right-tabs{background:#1d202e!important;border-bottom:1px solid #353748!important;justify-content:flex-start!important;padding-left:10px!important}
+#roomTabletopPanel .nex-vtt-right-tabs button{color:#afaec5!important;border-radius:8px!important}
+#roomTabletopPanel .nex-vtt-right-tabs button:hover{background:#33354b!important;color:white!important}
+#roomTabletopPanel .nex-vtt-room-tag{
+ background:#211e31!important;color:#bcaff4!important;text-align:left!important;
+ border:0!important;border-bottom:1px solid #333446!important;
+ padding:12px 17px!important;font-size:11px!important;font-weight:750!important;letter-spacing:.07em!important;
+}
+#roomTabletopPanel .nex-vtt-sheets-title{padding:16px 16px 7px!important}
+#roomTabletopPanel .nex-vtt-sheets-title h3{color:#f0edfc!important}
+#roomTabletopPanel .nex-vtt-sheets-title button{color:#a8a6bb!important}
+#roomTabletopPanel .nex-vtt-sheets .room-note{color:#a5a2b7!important;padding:0 16px!important}
+#roomTabletopPanel .nex-vtt-sheets-list{padding:10px 14px!important;gap:8px!important}
+#roomTabletopPanel .nex-vtt-sheet{
+ background:#232637!important;border:1px solid #3e4058!important;border-radius:11px!important;
+ padding:11px!important;color:#f6f2ff!important;box-shadow:none!important;transition:background .15s!important;
+}
+#roomTabletopPanel .nex-vtt-sheet:hover{background:#302d44!important;border-color:#8070b3!important}
+#roomTabletopPanel .nex-vtt-sheet[aria-expanded=true]{outline:1px solid #ac8df0!important;outline-offset:0!important}
+#roomTabletopPanel .nex-vtt-sheet strong{color:#f3efff!important}
+#roomTabletopPanel .nex-vtt-sheet small{color:#a8a2c5!important}
+#roomTabletopPanel .nex-vtt-sheet .nex-vtt-avatar{background:#58447e!important;color:#e5dbff!important}
+#roomTabletopPanel .nex-vtt-sheet-note{color:#a5a1b6!important}
+#roomTabletopPanel .nex-vtt-mini-sheet{
+ background:#202331!important;border:1px solid #45415d!important;color:#f5f1ff!important;
+ margin:7px 14px 18px!important;padding:13px!important;border-radius:12px!important;
+}
+#roomTabletopPanel .nex-vtt-mini-heading strong{color:#f5f1ff!important}
+#roomTabletopPanel .nex-vtt-mini-heading button{color:#bbb2cb!important}
+#roomTabletopPanel .nex-vtt-mini-subtitle{color:#aaa3c6!important}
+#roomTabletopPanel .nex-vtt-mini-vital{background:#2b2e3e!important;border:1px solid #47435f!important}
+#roomTabletopPanel .nex-vtt-mini-vital small{color:#b5a7d6!important}
+#roomTabletopPanel .nex-vtt-mini-vital strong{color:#f6f3ff!important}
+#roomTabletopPanel .nex-vtt-mini-attributes span{background:#33314a!important;color:#e6ddfa!important}
+#roomTabletopPanel .nex-vtt-mini-open{background:#7254b2!important;border:1px solid #967bca!important;color:white!important}
+#roomTabletopPanel .nex-vtt-quick-actions{background:#292c3b!important;border:1px solid #42425c!important}
+#roomTabletopPanel .nex-vtt-quick-title strong{color:#eee8ff!important}
+#roomTabletopPanel .nex-vtt-quick-title small{color:#b1a9c9!important}
+#roomTabletopPanel .nex-vtt-quick-die{background:#353149!important;border:1px solid #5b507b!important;color:#e2d8fa!important}
+#roomTabletopPanel .nex-vtt-quick-die:hover{background:#4b3d67!important}
+#roomTabletopPanel .nex-vtt-quick-result strong{color:#c2a7ff!important}
+#roomTabletopPanel .nex-vtt-quick-result small{color:#b7b5cc!important}
+#roomTabletopPanel #nexVttOptions{
+ background:#242635!important;color:#efebff!important;border:1px solid #52506b!important;
+ box-shadow:0 10px 33px #0008!important;border-radius:12px!important;
+}
+#roomTabletopPanel #nexVttOptions button{
+ background:#38304e!important;color:#eee4ff!important;border:1px solid #7660a2!important;
+}
+#roomTabletopPanel #nexVttOptions select,
+#roomTabletopPanel #nexVttOptions input:not([type=checkbox]):not([type=color]){
+ background:#313348!important;color:#fff!important;border:1px solid #625b7c!important;
+}
+#roomTabletopPanel #nexVttOptions[data-section=measure],
+#roomTabletopPanel #nexVttOptions[data-section=text]{background:#262838!important;color:#f1edff!important}
+#roomTabletopPanel #nexVttOptions[data-section=measure]>small{background:#34384f!important;color:#d0cadd!important}
+#roomTabletopPanel #nexVttDrawMenu{
+ background:#262838!important;color:#f1edff!important;border:1px solid #5a526b!important;
+}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-top,
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-clear-draw{background:#2a2b3a!important;border-color:#474256!important}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-list button{color:#ece9fa!important}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-list button:hover,
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-list button[aria-pressed=true]{background:#3c3855!important}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-clear-draw{color:#ff99b1!important}
+#roomTabletopPanel #nexVttDrawMenu .nex-vtt-draw-top select{background:#3b3d4e!important;color:#e9e6f7!important}
+#roomTabletopPanel #nexVttTokenProperties{
+ background:#242635!important;color:#efebff!important;border:1px solid #5b5471!important;
+}
+#roomTabletopPanel #nexVttTokenProperties input{background:#333447!important;color:white!important;border-color:#65607a!important}
+#roomTabletopPanel #nexVttTokenProperties button{background:#4d3d6d!important;color:white!important}
+@media(max-width:980px){
+ #roomTabletopPanel .nex-lich-mainnav button{padding:0 10px!important;font-size:12px!important}
+ #roomTabletopPanel .nex-vtt-sheets{flex:0 0 270px!important;width:270px!important}
+ #roomTabletopPanel .nex-vtt-brand{min-width:130px!important}
+}
+@media(max-width:700px){
+ #roomTabletopPanel .nex-vtt-heading{padding:0 8px!important;gap:4px!important;min-height:55px!important;flex-basis:55px!important}
+ #roomTabletopPanel .nex-vtt-brand{min-width:80px!important;gap:5px!important}
+ #roomTabletopPanel .nex-vtt-brand-symbol{display:none!important}
+ #roomTabletopPanel .nex-vtt-brand strong{font-size:15px!important}
+ #roomTabletopPanel .nex-vtt-brand-copy>span{display:none!important}
+ #roomTabletopPanel .nex-lich-mainnav button{padding:0 7px!important;font-size:11px!important}
+ #roomTabletopPanel #nexTabletopRole{display:none!important}
+ #roomTabletopPanel #nexVttExit{padding:7px!important;font-size:10px!important}
+ #roomTabletopPanel #nexVttSheetsToggle{display:none!important}
+ #roomTabletopPanel .nex-vtt-sheets{flex:0 0 225px!important;width:225px!important}
+ #roomTabletopPanel .nex-vtt-sidebar{flex:0 0 49px!important;width:49px!important;min-width:49px!important}
+ #roomTabletopPanel #nexVttBar button{width:35px!important;min-width:35px!important}
+ #roomTabletopPanel .nex-tabletop-wrap{padding:12px 53px 12px 12px!important}
+}
+</style>
 <style id="nex-vtt-text-measure-style">
 #roomTabletopPanel #nexVttOptions[data-section="text"]{
  display:flex!important;align-items:center!important;gap:7px!important;
@@ -970,7 +1156,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
    <section id="roomTabletopPanel" class="room-panel hide" aria-label="Tabletop da campanha">
-    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><strong>NEX</strong><span>Tabletop · <span id="nexVttCampaignName">Campanha</span></span></div><div class="nex-vtt-heading-actions"><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
+    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><span class="nex-vtt-brand-symbol" aria-hidden="true">◆</span><div class="nex-vtt-brand-copy"><strong>NEX</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
     <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
     <div class="nex-vtt-layout"><aside class="nex-vtt-sidebar"><h3>Ferramentas</h3><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
