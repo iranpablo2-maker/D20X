@@ -54,6 +54,7 @@
  const valid=x=>x&&typeof x==='object'&&!Array.isArray(x)&&typeof x.id==='string'&&/^[\w-]{3,100}$/.test(x.id)&&Object.hasOwn(LABEL,x.type)&&typeof x.name==='string'&&x.name.trim().length>0;
  const normalize=x=>({
    id:x.id,type:x.type,name:cut(x.name,90),description:cut(x.description,2000),
+   originShareId:cut(x.originShareId||'',100),originItemId:cut(x.originItemId||'',100),originalCreatorUid:cut(x.originalCreatorUid||'',150),
    requirements:cut(x.requirements,650),minNex:num(x.minNex,0,99,5),
    className:['Livre','Geral','Combatente','Especialista','Ocultista'].includes(x.className)?(x.className==='Livre'&&['poder_geral','poder','habilidade'].includes(x.type)?'Geral':x.className):(['poder_geral','poder','habilidade'].includes(x.type)?'Geral':'Livre'),
    ritualType:['Dano','Suporte','Cura'].includes(x.ritualType)?x.ritualType:(x.ritualDice||x.discenteDice||x.verdadeiroDice?'Dano':'Suporte'),
@@ -938,7 +939,7 @@
    return '<article class="nex52-card nex52-card-'+(threat?'threat':item.type==='ritual'?'ritual':item.type==='item'?'item':'ability')+'"'+theme+'>'+
     portrait+'<div class="nex52-card-data"><strong>'+esc(item.name)+'</strong>'+tag+'<span>'+esc(details[0])+'</span><span>'+esc(details[1])+'</span></div>'+
     '<div class="nex52-card-controls"><button type="button" data-nex52-settings="'+esc(item.id)+'" class="nex52-gear" aria-label="Opções para '+esc(item.name)+'" aria-expanded="false">⚙</button>'+
-    '<div class="nex52-settings" data-nex52-menu="'+esc(item.id)+'" hidden><button type="button" data-nex52-edit="'+esc(item.id)+'">Editar</button><button type="button" data-nex52-delete="'+esc(item.id)+'">Excluir</button></div>'+
+    '<div class="nex52-settings" data-nex52-menu="'+esc(item.id)+'" hidden><button type="button" data-nex52-edit="'+esc(item.id)+'">Editar</button><button type="button" data-nex52-share="'+esc(item.id)+'">Compartilhar</button><button type="button" data-nex52-delete="'+esc(item.id)+'">Excluir</button></div>'+
     '<button type="button" class="nex52-open" data-nex52-view="'+esc(item.id)+'">Ficha</button></div></article>';
  }
  function targetOptions(){
@@ -1299,7 +1300,27 @@
    try{api().detach(b.dataset.nex52Detach);renderSheet();message('Homebrew removido da ficha.');}
    catch(error){console.error(error);message('Não foi possível remover o homebrew.');}
  });
- window.NEX51={renderLibrary,renderSheet,readLibrary:read};
+ window.NEX51={renderLibrary,renderSheet,readLibrary:read,
+  importHomebrews:(items,shareId,authorUid)=>{
+   if(!Array.isArray(items)||!items.length||items.length>20||typeof shareId!=='string')throw Error('Pacote inválido');
+   const current=read(),next=current.slice(),deleted=readDeletedIds(),added=[];
+   for(const incoming of items){
+    if(!incoming||!valid(incoming))throw Error('Homebrew compartilhado inválido');
+    if(current.some(x=>x.originShareId===shareId&&x.originItemId===incoming.id))continue;
+    let newId='';
+    do{newId='hb_'+crypto.randomUUID().replace(/-/g,'');}while(deleted.has(newId)||next.some(x=>x.id===newId));
+    const copy=normalize({...incoming,id:newId,originShareId:shareId,originItemId:incoming.id,originalCreatorUid:incoming.originalCreatorUid||authorUid||''});
+    next.push(copy);added.push(copy);
+   }
+   if(added.length){
+    write(next);
+    renderLibrary();
+    document.dispatchEvent(new Event('nex-advanced-homebrew-library-changed'));
+    window.dispatchEvent(new Event('nex-auto-local-change'));
+   }
+   return {added:added.length,skipped:items.length-added.length};
+  }
+ };
  document.addEventListener('nex51-ready',renderLibrary);
  resetForm();renderLibrary();
 })();
