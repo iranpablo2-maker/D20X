@@ -884,6 +884,78 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel .nex-tabletop-wrap{padding:12px 53px 12px 12px!important}
 }
 </style>
+<style id="nex-vtt-combat-integration-style">
+#roomTabletopPanel #nexTabletopBoard .nex-tabletop-token{overflow:visible!important}
+#roomTabletopPanel #nexTabletopBoard .nex-tabletop-token[data-targeted="true"]{
+ outline:3px solid #e4a94b!important;outline-offset:3px!important;
+ filter:drop-shadow(0 0 7px #e4a94b88)!important;
+}
+#roomTabletopPanel .nex-token-resource-bars{
+ display:flex;flex-direction:column;gap:2px;position:absolute;
+ left:3px;right:3px;bottom:-13px;z-index:9;pointer-events:none;
+}
+#roomTabletopPanel .nex-token-resource-bars i{
+ display:block;width:100%;height:3px;border-radius:4px;border:1px solid #12151c99;
+}
+#roomTabletopPanel #nexVttCombatDock[hidden]{display:none!important}
+#roomTabletopPanel #nexVttCombatDock{
+ position:absolute;z-index:60;top:14px;right:62px;
+ width:min(350px,calc(100% - 80px));max-height:calc(100% - 27px);
+ overflow:hidden;display:flex;flex-direction:column;
+ border:1px solid #5d4e81;border-radius:14px;
+ background:#1e2030;color:#f3f0ff;
+ box-shadow:0 12px 45px #000b;
+ font:13px/1.4 system-ui,sans-serif;
+}
+#roomTabletopPanel .nex-vtt-combat-header{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ padding:13px 15px;background:#2c263f;border-bottom:1px solid #55466e;
+}
+#roomTabletopPanel .nex-vtt-combat-header strong{font-size:15px}
+#roomTabletopPanel .nex-vtt-combat-header button{
+ font-size:25px;background:transparent;color:#e8dcff;border:0;padding:0 6px;
+}
+#roomTabletopPanel .nex-vtt-combat-body{
+ display:flex;flex-direction:column;gap:10px;overflow-y:auto;
+ padding:14px;scrollbar-width:thin;scrollbar-color:#5a5572 #202331;
+}
+#roomTabletopPanel .nex-vtt-combat-stat{
+ border:1px solid #48465b;padding:9px;background:#282b3d;color:#c9c6dd;border-radius:8px;font-size:12px;
+}
+#roomTabletopPanel #nexVttCombatDock p{margin:0;font-size:12px}
+#roomTabletopPanel #nexVttCombatDock button{
+ border-radius:7px;padding:9px;border:1px solid #6a5b8d;cursor:pointer;
+ color:#efecff;background:#39344e;
+}
+#roomTabletopPanel #nexVttCombatDock button:hover{background:#4b4267}
+#roomTabletopPanel #nexVttCombatDock button[aria-pressed=true]{background:#664d97;border-color:#9b83d5}
+#roomTabletopPanel #nexVttCombatDock button.nex-vtt-action-primary{background:#8055b9;border-color:#a385d2;font-weight:700}
+#roomTabletopPanel .nex-vtt-combat-targets{color:#cabdeb}
+#roomTabletopPanel .nex-vtt-combat-actions,
+#roomTabletopPanel .nex-vtt-combat-rolls,
+#roomTabletopPanel .nex-vtt-combat-initiative{
+ display:flex;flex-direction:column;gap:7px;padding:12px 0;border-top:1px solid #3d3c51;
+}
+#roomTabletopPanel .nex-vtt-combat-actions label{
+ display:flex;flex-direction:column;gap:5px;color:#ccc5de;font-size:12px;
+}
+#roomTabletopPanel #nexVttCombatDock input,
+#roomTabletopPanel #nexVttCombatDock select{
+ display:block;max-width:none;width:100%;height:35px;
+ padding:7px 9px;background:#303345;border:1px solid #5d5b76;
+ color:#f6f2ff;border-radius:7px;
+}
+#roomTabletopPanel .nex-vtt-combat-history{
+ display:flex;flex-direction:column;gap:7px;padding-top:12px;border-top:1px solid #4c4761;
+}
+#roomTabletopPanel .nex-vtt-combat-history p{
+ padding:9px 10px;background:#292a3c;border-left:3px solid #a38acb;
+ border-radius:5px;color:#d2cde1;overflow-wrap:anywhere;
+}
+@media(max-width:650px){
+ #roomTabletopPanel #nexVttCombatDock{right:5px;width:min(320px,calc(100% - 11px));}
+}
+</style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -1230,7 +1302,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115lichui9';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115combata10';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
