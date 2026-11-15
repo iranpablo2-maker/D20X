@@ -1,5 +1,5 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
-export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getSheets=()=>[],updateResource=null}){
+export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
@@ -108,6 +108,8 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    }
   }
   selectedId=el.dataset.token;render();
+  const linked=linkedSheet(selected());
+  if(linked&&typeof onSelectSheet==='function')onSelectSheet(linked.id);
   if(!gm||selected()?.locked||vttMode!=='select')return;
   drag={id:selectedId,pointer:e.pointerId,startX:selected().x,startY:selected().y};e.preventDefault();
  });
