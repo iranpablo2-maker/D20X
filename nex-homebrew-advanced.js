@@ -565,7 +565,8 @@
   const all=scope==='improvement'?BONUS_TYPES:scope==='main'&&isCursedEditor()?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES]:EFFECT_TYPES;
   const choices=allowed?[...EFFECT_TYPES,...BONUS_TYPES,...CURSED_EXTRA_BONUSES]:all;
   const noSkill=scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill();
-  return choices.filter(([id],i,arr)=>id&&(!allowed||allowed.includes(id))&&(!noSkill||id!=='pericia')&&arr.findIndex(([key])=>key===id)===i);
+  const options=choices.filter(([id],i,arr)=>id&&(!allowed||allowed.includes(id))&&(!noSkill||id!=='pericia')&&arr.findIndex(([key])=>key===id)===i);
+  return allowed?options.sort((a,b)=>allowed.indexOf(a[0])-allowed.indexOf(b[0])):options;
  }
  function renderEffects(scope){
   const list=getEffects(scope),id=scope==='main'?'nexHbEffectBonusList':scope==='improvement'?'nexHbImprovementBonusList':'nex53TrailBonusList'+scope;
