@@ -34,6 +34,15 @@ dialog{width:min(95vw,680px);max-height:89vh;overflow:auto;background:#151114;co
 .sheet-body{padding:21px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-bottom:14px}
 .stat{border:1px solid #55313f;border-radius:7px;padding:10px;background:#24191f}.stat label{display:block;font-size:10px;color:#c8aeb8}.stat strong{font-size:14px}
 @media(max-width:560px){main{padding:15px 11px 40px}.emblem{width:75px;min-width:75px}.details{padding:12px 9px}.monster button{margin:0 9px 10px 0;padding:7px 12px}.stats{grid-template-columns:repeat(2,1fr)}}
+/* Retratos das ameaças: moldura e escala padronizadas. */
+.monster{min-height:112px}
+.monster .emblem{flex:0 0 112px;width:112px;min-width:112px;height:112px;align-self:center;overflow:hidden;position:relative}
+.monster .emblem img[data-archive-portrait],
+.monster .emblem img[data-february-key]{display:block;width:100%!important;height:100%!important;object-fit:cover!important;object-position:center center!important}
+@media(max-width:560px){
+ .monster{min-height:88px}
+ .monster .emblem{flex-basis:88px;width:88px;min-width:88px;height:88px}
+}
 </style><style id="nex-threat-sheet-ref-v2">
 .threat-sheet{width:min(94vw,560px);max-height:92vh;background:#0d0d10;border:1px solid #672936;border-radius:8px}
 .threat-sheet .sheet-top{min-height:133px;display:flex;gap:15px;align-items:stretch;padding:0;background:var(--art);background-size:cover;background-position:center}
@@ -153,10 +162,10 @@ function draw(){
  const photo=threatIllustration(x),atlasPortrait=nexArchiveAtlasPortrait(x);
  const fallback=atlasPortrait?'<div aria-hidden="true" style="position:absolute;inset:0;'+nexArchiveAtlasStyle(atlasPortrait)+'"></div>':'';
  const key=x.source+"::"+x.name;
- const img=photo?'<img data-archive-portrait="'+escape(key)+'" src="'+escape(photo)+'" alt="" loading="lazy" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=0" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#1a1117;opacity:0">':'';
+ const img=photo?'<img data-archive-portrait="'+escape(key)+'" src="'+escape(photo)+'" alt="" loading="lazy" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=0" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#1a1117;opacity:0">':'';
  const portraitKey=x.source+"::"+x.name;
  const pairedImage=window.NEX_FEVEREIRO_FORM_IMAGES?.[portraitKey]?.normal;
- const special=pairedImage?'<img data-february-key="'+escape(portraitKey)+'" src="'+escape(pairedImage)+'?v=20261114faces3" alt="" loading="lazy" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=0;this.dataset.failed=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#160e12;opacity:0">':'';
+ const special=pairedImage?'<img data-february-key="'+escape(portraitKey)+'" src="'+escape(pairedImage)+'?v=20261114faces3" alt="" loading="lazy" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=0;this.dataset.failed=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#160e12;opacity:0">':'';
  const visual=fallback+img+special;
  return '<article class="monster" style="--art:'+art(x.element)+'"><div class="emblem" style="position:relative;overflow:hidden">'+visual+'</div><div class="details"><strong>'+escape(x.name)+'</strong><small>'+escape(x.element)+' · '+escape(x.category||"Criatura")+'</small><span class="source">'+escape(x.source)+'</span><small class="source">'+(((window.NEX_THREAT_DETAILS||{})[threatKey(x)]?.variant?"Variação · bônus aplicáveis":hasCoreStats(x)?"Dados básicos disponíveis":"Ficha em conferência"))+'</small></div><button type="button" class="threat-link" data-show-threat="'+encodeURIComponent(threatKey(x))+'" title="Abrir ficha dentro do NEX">Ficha</button></article>';
 
