@@ -20,8 +20,8 @@
   const src=Array.isArray(items)?items:(type?[{type,value,skill}]:[]);
   return src.slice(0,20).filter(b=>b&&BONUS_TYPES.some(([id])=>id===b.type)).map(b=>({type:b.type,value:Number.isFinite(Number(b.value))?Math.max(-999,Math.min(999,Number(b.value))):0,skill:b.type==='pericia'?cut(b.skill||'',60):'',scaling:b.scaling==='nex'?'nex':'fixed',nexInterval:[5,10,15,20].includes(Number(b.nexInterval))?Number(b.nexInterval):5}));
  };
- const effectApplicable=x=>['origem','poder_paranormal','poder_geral','poder','habilidade','trilha','maldicao'].includes(x.type)||(x.type==='ritual'&&x.ritualType==='Suporte')||(x.type==='item'&&['Itens Amaldiçoados','Geral'].includes(x.category));
- const BONUS_TYPES=[['ataque','Bônus de ataque'],['dano','Bônus de dano'],['critico','Margem de crítico'],['multiplicador','Multiplicador crítico'],['defesa','Defesa'],['resistencia','Redução de dano'],['espacos','Espaços ocupados'],['pericia','Testes de perícia']];
+ const effectApplicable=x=>['origem','poder_paranormal','poder_geral','poder','habilidade','trilha','maldicao'].includes(x.type)||(x.type==='ritual'&&x.ritualType==='Suporte')||(x.type==='item');
+ const BONUS_TYPES=[['ataque','Bônus de ataque'],['dano','Bônus de dano'],['critico','Margem de crítico'],['multiplicador','Multiplicador crítico'],['defesa','Defesa'],['resistencia','Redução de dano'],['espacos','Espaços ocupados'],['carga','Capacidade de carga'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['pericia','Testes de perícia']];
  let customItemImprovements=[];
  let effectRows=[];
  let improvementRows=[];
@@ -424,7 +424,7 @@
  '<label>Aplicável a<select id="nexHbImprovementTarget">'+IMPROVEMENT_TARGETS.map(value=>'<option value="'+esc(value)+'">'+esc(value)+'</option>').join('')+'</select></label>'+
  '<div hidden><select id="nexHbBonusType">'+BONUS_TYPES.map(([id,name])=>'<option value="'+esc(id)+'">'+esc(name)+'</option>').join('')+'</select><input id="nexHbBonusValue" value="+2"><select id="nexHbBonusSkill"><option value="">Selecione a perícia</option></select><span id="nexHbBonusSkillField"></span></div>'+ 
  '<div class="nex52-full"><button type="button" class="btn" data-effect-add="improvement">+ Adicionar bônus</button><div id="nexHbImprovementBonusList"></div></div></div>'+ 
- '<div id="nexHbCurseFields" class="nex52-specific nex52-full" hidden><label>Elemento<select id="nexHbCurseElement"><option>Sangue</option><option>Morte</option><option>Energia</option><option>Conhecimento</option><option>Medo</option></select></label><label>Aplicável a<select id="nexHbCurseTarget"><option>Armas</option><option>Proteções</option><option>Munições</option><option>Acessórios</option><option>Itens Gerais</option></select></label></div>'+ 
+ '<div id="nexHbCurseFields" class="nex52-specific nex52-full" hidden><label>Elemento<select id="nexHbCurseElement"><option>Sangue</option><option>Morte</option><option>Energia</option><option>Conhecimento</option><option>Medo</option></select></label><label>Aplicável a<select id="nexHbCurseTarget"><option>Armas</option><option>Proteções</option><option>Munições</option><option>Itens Gerais</option></select></label></div>'+ 
  '<div id="nexHbEffectBonusHome" class="nex52-full"><div id="nexHbEffectBonusFields" class="nex52-full" hidden><button type="button" class="btn" data-effect-add="main">+ Adicionar bônus</button><div id="nexHbEffectBonusList"></div></div></div>'+
  '<div id="nex53TrailFields" class="nex53-trail-fields nex52-full" hidden><p>Configure o nome e o efeito de cada marco de NEX.</p>'+
  TRAIL_NEX.map((n,i)=>'<fieldset class="nex53-trail-step"><legend>NEX '+n+'% · Habilidade '+(i+1)+'</legend>'+
@@ -495,7 +495,7 @@
    $('nexHbEffectBonusHome').hidden=$('nexHbEffectBonusFields').hidden;
    // O botão permanece fora dos painéis que podem ser ocultados.
    if($('nexHbEffectBonusFields').parentElement!==$('nexHbEffectBonusHome'))$('nexHbEffectBonusHome').appendChild($('nexHbEffectBonusFields'));
-   if(type==='item'&&isCursedEditor())renderEffects('main');
+   if(type==='item'||type==='maldicao')renderEffects('main');
    if(type==='item')$('nex52Category').value=tab==='paranormal'?'Itens Amaldiçoados':$('nex51Edit').value?$('nex52Category').value:itemTab;
    $('nex52Category').hidden=true;
    const cursed=type==='item'&&(tab==='paranormal'||itemTab==='Itens Amaldiçoados');
@@ -536,13 +536,43 @@
   return scope!=='improvement'&&(scope!=='main'||['habilidade','poder','poder_geral','poder_paranormal'].includes($('nex51Type').value));
  }
  function isGeneralBonusScope(scope){return scope==='main'&&$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}
+ const OFFENSIVE_BONUSES=['dano','ataque','carga','critico','multiplicador'];
+ const PROTECTION_BONUSES=['bloqueio','esquiva','resistencia','defesa','espacos'];
+ function allowedBonusTypes(scope){
+  const kind=$('nex51Type').value;
+  if(scope==='improvement'){
+   const target=$('nexHbImprovementTarget').value;
+   if(['Armas','Munições'].includes(target))return OFFENSIVE_BONUSES;
+   if(target==='Proteções')return PROTECTION_BONUSES;
+   return null;
+  }
+  if(scope!=='main')return null;
+  if(kind==='maldicao'){
+   const target=$('nexHbCurseTarget').value;
+   if(['Armas','Munições'].includes(target))return OFFENSIVE_BONUSES;
+   if(target==='Proteções')return PROTECTION_BONUSES;
+   return null;
+  }
+  if(kind!=='item')return null;
+  const target=tab==='paranormal'?cursedKind:itemTab;
+  if(['Armas','Munições','Armas Amaldiçoadas','Munições Amaldiçoadas'].includes(target))return OFFENSIVE_BONUSES;
+  if(['Proteções','Proteções Amaldiçoadas'].includes(target))return PROTECTION_BONUSES;
+  if(target==='Geral'||target==='Itens Paranormais'&&$('nexHbTag').value==='Explosivos')return OFFENSIVE_BONUSES;
+  return null;
+ }
+ function bonusOptions(scope){
+  const allowed=allowedBonusTypes(scope);
+  const all=scope==='improvement'?BONUS_TYPES:scope==='main'&&isCursedEditor()?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES]:EFFECT_TYPES;
+  const choices=allowed?[...EFFECT_TYPES,...BONUS_TYPES,...CURSED_EXTRA_BONUSES]:all;
+  const noSkill=scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill();
+  return choices.filter(([id],i,arr)=>id&&(!allowed||allowed.includes(id))&&(!noSkill||id!=='pericia')&&arr.findIndex(([key])=>key===id)===i);
+ }
  function renderEffects(scope){
   const list=getEffects(scope),id=scope==='main'?'nexHbEffectBonusList':scope==='improvement'?'nexHbImprovementBonusList':'nex53TrailBonusList'+scope;
   const allowProgression=isAbilityBonusScope(scope);
   if(!allowProgression)list.forEach(b=>{b.scaling='fixed';b.nexInterval=5;});
   const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
-  const noSkill=(scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value))||(scope==='main'&&cursedNoSkill());
-  const types=isGeneralBonusScope(scope)?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].filter(([id],i,arr)=>['dano','ataque','carga','critico','multiplicador'].includes(id)&&arr.findIndex(([key])=>key===id)===i):scope==='improvement'?BONUS_TYPES.filter(([id])=>!noSkill||id!=='pericia'):(scope==='main'&&isCursedEditor()?[...EFFECT_TYPES,...CURSED_EXTRA_BONUSES].filter(([id],i,arr)=>id&&(!noSkill||id!=='pericia')&&arr.findIndex(([k])=>k===id)===i):EFFECT_TYPES.filter(([id])=>id));
+  const types=bonusOptions(scope);
   $(id).innerHTML=list.map((b,i)=>{
    const editing=effectEditing[scope]===i;
    return '<div class="nex-hb-effect-card" style="border-bottom:1px solid #38383d;padding:7px 0" data-effect-scope="'+esc(scope)+'" data-effect-index="'+i+'">'+
@@ -564,7 +594,7 @@
   if(add){
    const scope=add.dataset.effectAdd,items=getEffects(scope);
    if(items.length>=20){message('Limite de 20 bônus.');return;}
-   items.push({type:scope==='improvement'||scope==='main'&&(isCursedEditor()||isGeneralBonusScope(scope))?'ataque':'pv',value:1,skill:'',scaling:'fixed',nexInterval:5});effectEditing[scope]=items.length-1;renderEffects(scope);return;
+   items.push({type:bonusOptions(scope)[0]?.[0]||'pv',value:1,skill:'',scaling:'fixed',nexInterval:5});effectEditing[scope]=items.length-1;renderEffects(scope);return;
   }
   const row=e.target.closest('[data-effect-scope]');if(!row)return;
   const scope=row.dataset.effectScope,index=Number(row.dataset.effectIndex);
@@ -586,7 +616,7 @@
  mount.addEventListener('change',e=>{
   const row=e.target.closest('[data-effect-scope]');if(!row)return;
   const scope=row.dataset.effectScope,item=getEffects(scope)[Number(row.dataset.effectIndex)];if(!item)return;
-  if(e.target.matches('[data-effect-type]')){if(isGeneralBonusScope(scope)&&!['dano','ataque','carga','critico','multiplicador'].includes(e.target.value))return;if((scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill())&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
+  if(e.target.matches('[data-effect-type]')){if(!bonusOptions(scope).some(([type])=>type===e.target.value))return;if((scope==='improvement'&&IMPROVEMENT_NO_SKILL.includes($('nexHbImprovementTarget').value)||scope==='main'&&cursedNoSkill())&&e.target.value==='pericia')return;item.type=e.target.value;item.skill='';renderEffects(scope);}
   else if(e.target.matches('[data-effect-value]')){item.value=Math.max(-999,Math.min(999,Number(e.target.value)||0));renderEffects(scope);}
   else if(e.target.matches('[data-effect-skill]')){item.skill=e.target.value;renderEffects(scope);}
   else if(e.target.matches('[data-effect-scaling]')){item.scaling=isAbilityBonusScope(scope)&&e.target.value==='nex'?'nex':'fixed';renderEffects(scope);}
@@ -621,8 +651,8 @@
    if(normal){normal.hidden=isCursedWeapon;normal.disabled=isCursedWeapon;}
    if(isCursedWeapon)secondary.value=$('nexHbElement').value;
  }
-  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
-  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
+  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){if($('nex51Type').value==='item')renderEffects('main');$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
+  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'){if($('nex51Type').value==='item')renderEffects('main');$('nexHbCursedExplosion').hidden=!((isCursedEditor()&&cursedKind==='Itens Paranormais'||$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral')&&el.value==='Explosivos');$('nexHbCursedExplosionType').closest('label').hidden=$('nex51Type').value==='item'&&tab==='itens'&&itemTab==='Geral';}}});
  function renderItemImprovements(){
    const list=$('nex52ImprovementList');if(!list)return;
    list.innerHTML=customItemImprovements.length?customItemImprovements.map((name,i)=>'<span class="nex-hb-improvement-chip">'+esc(name)+' <button type="button" data-nex52-improvement-remove="'+i+'" aria-label="Remover '+esc(name)+'">×</button></span>').join(''):'<small>Nenhuma melhoria homebrew adicionada.</small>';
@@ -1009,6 +1039,7 @@
  }
  $('nex51Type').addEventListener('change',editorFields);
   $('nexHbBonusType').addEventListener('change',()=>{$('nexHbBonusSkillField').hidden=$('nexHbBonusType').value!=='pericia';});
+  $('nexHbCurseTarget').addEventListener('change',()=>{effectEditing.main=null;renderEffects('main');});
   $('nexHbImprovementTarget').addEventListener('change',()=>{
    // A categoria nova começa sem bônus; somente o botão cria um bônus.
    improvementRows=[];
