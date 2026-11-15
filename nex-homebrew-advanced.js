@@ -267,27 +267,59 @@
    syncCursedWeaponElement();
    syncParanormalWeaponTier();
  }
+ const effectEditing=Object.create(null);
  function getEffects(scope){return scope==='main'?effectRows:(trailRows[scope]||(trailRows[scope]=[]));}
+ function compactEffectLabel(b){
+  const name=({pv:'PV',pe:'PE',san:'SAN',pericia:b.skill||'Perícia',ataque:'Ataque',dano:'Dano',defesa:'Defesa',resistencia:'Redução de dano',iniciativa:'Iniciativa',fortitude:'Fortitude',reflexos:'Reflexos',vontade:'Vontade',bloqueio:'Bloqueio',esquiva:'Esquiva',carga:'Carga'})[b.type]||b.type;
+  return (Number(b.value)>=0?'+':'')+Number(b.value||0)+' '+name;
+ }
  function renderEffects(scope){
   const list=getEffects(scope),id=scope==='main'?'nexHbEffectBonusList':'nex53TrailBonusList'+scope;
   const skills=api()?.skillNames?.()||FALLBACK_SKILLS;
-  $(id).innerHTML=list.map((b,i)=>'<div class="nex-hb-bonus-grid" style="border-bottom:1px solid #38383d;padding:9px 0" data-effect-scope="'+esc(scope)+'" data-effect-index="'+i+'">'+
-    '<label>Tipo de bônus<select data-effect-type>'+EFFECT_TYPES.filter(([t])=>t).map(([t,label])=>'<option value="'+esc(t)+'"'+(t===b.type?' selected':'')+'>'+esc(label)+'</option>').join('')+'</select></label>'+
-    '<label>Valor do bônus<input data-effect-value type="number" min="-999" max="999" value="'+esc(b.value)+'"></label>'+
-    '<label'+(b.type==='pericia'?'':' hidden')+'>Perícia beneficiada<select data-effect-skill><option value="">Escolha a perícia</option>'+skills.map(name=>'<option value="'+esc(name)+'"'+(name===b.skill?' selected':'')+'>'+esc(name)+'</option>').join('')+'</select></label>'+
-    '<button type="button" class="btn sm" data-effect-remove>Remover</button></div>').join('');
+  $(id).innerHTML=list.map((b,i)=>{
+   const editing=effectEditing[scope]===i;
+   return '<div class="nex-hb-effect-card" style="border-bottom:1px solid #38383d;padding:7px 0" data-effect-scope="'+esc(scope)+'" data-effect-index="'+i+'">'+
+     '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:space-between">'+
+       '<strong style="font-size:12px">'+esc(compactEffectLabel(b))+'</strong>'+
+       '<span style="display:flex;gap:5px"><button type="button" class="btn sm" data-effect-edit="'+i+'">'+(editing?'Fechar':'Editar')+'</button><button type="button" class="btn sm" data-effect-remove="'+i+'">Remover</button></span></div>'+
+     (editing?'<div class="nex-hb-bonus-grid" style="padding:9px 0;gap:8px">'+
+       '<label>Tipo de bônus<select data-effect-type>'+EFFECT_TYPES.filter(([t])=>t).map(([t,label])=>'<option value="'+esc(t)+'"'+(t===b.type?' selected':'')+'>'+esc(label)+'</option>').join('')+'</select></label>'+
+       '<label>Valor do bônus<input data-effect-value type="number" min="-999" max="999" step="1" value="'+esc(b.value)+'"></label>'+
+       (b.type==='pericia'?'<label>Perícia beneficiada<select data-effect-skill><option value="">Escolha a perícia</option>'+skills.map(name=>'<option value="'+esc(name)+'"'+(name===b.skill?' selected':'')+'>'+esc(name)+'</option>').join('')+'</select></label>':'')+
+       '<button type="button" class="btn primary sm" data-effect-done>Concluir</button></div>':'')+
+     '</div>';
+  }).join('');
  }
  mount.addEventListener('click',e=>{
   const add=e.target.closest('[data-effect-add]');
-  if(add){const scope=add.dataset.effectAdd,items=getEffects(scope);if(items.length>=20){message('Limite de 20 bônus.');return;}items.push({type:'pv',value:1,skill:''});renderEffects(scope);return;}
-  const remove=e.target.closest('[data-effect-remove]');if(remove){const row=remove.closest('[data-effect-scope]');const scope=row.dataset.effectScope;getEffects(scope).splice(Number(row.dataset.effectIndex),1);renderEffects(scope);}
+  if(add){
+   const scope=add.dataset.effectAdd,items=getEffects(scope);
+   if(items.length>=20){message('Limite de 20 bônus.');return;}
+   items.push({type:'pv',value:1,skill:''});effectEditing[scope]=items.length-1;renderEffects(scope);return;
+  }
+  const row=e.target.closest('[data-effect-scope]');if(!row)return;
+  const scope=row.dataset.effectScope,index=Number(row.dataset.effectIndex);
+  if(e.target.closest('[data-effect-remove]')){
+   getEffects(scope).splice(index,1);
+   if(effectEditing[scope]===index)delete effectEditing[scope];
+   else if(effectEditing[scope]>index)effectEditing[scope]--;
+   renderEffects(scope);return;
+  }
+  if(e.target.closest('[data-effect-edit]')){
+   effectEditing[scope]=effectEditing[scope]===index?null:index;renderEffects(scope);return;
+  }
+  if(e.target.closest('[data-effect-done]')){
+   const item=getEffects(scope)[index];
+   if(item.type==='pericia'&&!(api()?.skillNames?.()||FALLBACK_SKILLS).includes(item.skill)){message('Escolha a perícia beneficiada.');return;}
+   effectEditing[scope]=null;renderEffects(scope);
+  }
  });
  mount.addEventListener('change',e=>{
   const row=e.target.closest('[data-effect-scope]');if(!row)return;
   const scope=row.dataset.effectScope,item=getEffects(scope)[Number(row.dataset.effectIndex)];if(!item)return;
   if(e.target.matches('[data-effect-type]')){item.type=e.target.value;item.skill='';renderEffects(scope);}
-  else if(e.target.matches('[data-effect-value]'))item.value=Math.max(-999,Math.min(999,Number(e.target.value)||0));
-  else if(e.target.matches('[data-effect-skill]'))item.skill=e.target.value;
+  else if(e.target.matches('[data-effect-value]')){item.value=Math.max(-999,Math.min(999,Number(e.target.value)||0));renderEffects(scope);}
+  else if(e.target.matches('[data-effect-skill]')){item.skill=e.target.value;renderEffects(scope);}
  });
  const effectsValid=items=>items.every(b=>b.type!=='pericia'||(api()?.skillNames?.()||FALLBACK_SKILLS).includes(b.skill));
  const effectsLabel=items=>items.map(b=>esc(EFFECT_TYPES.find(([id])=>id===b.type)?.[1]||b.type)+(b.skill?' ('+esc(b.skill)+')':'')+': '+esc((b.value>=0?'+':'')+b.value)).join(' · ');
@@ -343,6 +375,7 @@
    $('nexHbCursedArtifactRequirement').value='';
    $('nexHbImprovementTarget').value='Armas';
    $('nexHbBonusType').value='ataque';$('nexHbBonusValue').value='+2';
+   Object.keys(effectEditing).forEach(scope=>delete effectEditing[scope]);
    effectRows=[];renderEffects('main');TRAIL_NEX.forEach(n=>{trailRows[n]=[];renderEffects(String(n));});
 
    $('nexHbProtectionDefense').value='1';
