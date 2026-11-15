@@ -95,10 +95,47 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 }
 </style><style id="nex-hide-realidade-portrait">
 .portrait-switch[hidden]{display:none!important}
+</style><style id="nex-threat-square-photos-final">
+/* Fotografias uniformes em todas as fichas, inclusive imagens do atlas e fotos externas. */
+#hero .portrait-switch{
+  width:144px!important;min-width:144px!important;max-width:144px!important;
+  flex:0 0 144px!important;align-items:stretch!important;
+}
+#hero .portrait{
+  box-sizing:border-box!important;
+  position:relative!important;display:block!important;
+  flex:0 0 144px!important;width:144px!important;height:144px!important;
+  min-width:144px!important;max-width:144px!important;
+  min-height:144px!important;max-height:144px!important;
+  overflow:hidden!important;padding:0!important;
+  background-color:#1a1117!important;background-position:center!important;
+  background-size:cover!important;
+}
+#hero .portrait>img{
+  display:block!important;position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;
+  min-width:100%!important;max-width:100%!important;
+  min-height:100%!important;max-height:100%!important;
+  object-fit:cover!important;object-position:center!important;
+  margin:0!important;padding:0!important;border-radius:0!important;
+}
+#hero .portrait>div[aria-hidden="true"],
+#hero .portrait>div[role="img"]{
+  position:absolute!important;inset:0!important;
+  width:100%!important;height:100%!important;
+  min-width:100%!important;max-width:100%!important;
+  min-height:100%!important;max-height:100%!important;
+  border-radius:0!important;margin:0!important;padding:0!important;
+}
+#hero .portrait-switch[hidden]{display:none!important}
+@media(max-width:620px){
+  #hero .portrait-switch{width:96px!important;min-width:96px!important;max-width:96px!important;flex-basis:96px!important}
+  #hero .portrait{width:96px!important;height:96px!important;min-width:96px!important;max-width:96px!important;min-height:96px!important;max-height:96px!important;flex-basis:96px!important}
+}
 </style></head>
 <body>
 <div class="shell">
-<nav><a id="back" href="./ameacas.html">‹ Voltar às Ameaças</a><span class="brand">N E X</span></nav>
+<nav class="threat-sheet-brand"><span class="brand">N E X</span></nav>
 <div class="card" id="screen" hidden>
 <header class="hero" id="hero"><div class="portrait-switch"><div class="portrait" id="portrait" aria-label="Retrato"></div><button id="formSwitch" class="form-switch" type="button" hidden aria-label="Mostrar outra forma">Mostrar outra ficha</button></div><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div></div></header>
 <div class="hp" id="hpBar" hidden><strong id="hpLabel"></strong></div>
@@ -591,9 +628,6 @@ document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.cl
 
 const embedded=new URLSearchParams(location.search).get("embedded")==="1";
 if(embedded){
- $("back").addEventListener("click",event=>{
-  event.preventDefault();window.parent.postMessage({type:"nex-threat-back"},location.origin);
- });
  document.querySelector(".brand").textContent="NEX | Ficha de Ameaça";
 }
 // Ajusta a altura da ficha para que a biblioteca use a barra de rolagem do site.
