@@ -970,6 +970,23 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 }
 @media(max-width:900px){#roomTabletopPanel #nexVttBuildTag{display:none!important}}
 </style>
+<style id="nex-vtt-resource-editor-style">
+#roomTabletopPanel .nex-vtt-mini-resource-editor{
+ display:flex;flex-direction:column;gap:8px;border-top:1px solid #55516d;
+ padding-top:10px;color:#eee9ff;
+}
+#roomTabletopPanel .nex-vtt-mini-resource-editor strong{font-size:12px}
+#roomTabletopPanel .nex-vtt-mini-edit-rows{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+#roomTabletopPanel .nex-vtt-mini-edit-rows label{font-size:11px;display:flex;flex-direction:column;gap:4px;color:#bab1d8}
+#roomTabletopPanel .nex-vtt-mini-edit-rows input{
+ width:100%;min-width:0;padding:7px 4px;border-radius:5px;background:#30344c;
+ color:#fff;border:1px solid #635e87;text-align:center;
+}
+#roomTabletopPanel .nex-vtt-mini-resource-editor button{
+ padding:9px;background:#614795;border:1px solid #9373cc;
+ border-radius:7px;color:#fff;font-weight:700;cursor:pointer;
+}
+</style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -1316,9 +1333,9 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115vttdiagnostic11';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115linkedtokens12';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
-import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
 const show=(id,on)=>$(id).classList.toggle('hide',!on);
 const notice=msg=>$('notice').textContent=msg||'';
@@ -1334,7 +1351,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  let portraitSyncBusy=false;
  let extraSlotRequests=[],slotPending=false;
  let publicSheets=[],privateSheets=[];
- function refreshRoomSheets(){roomSheets=gm?[...publicSheets,...privateSheets]:publicSheets.slice();drawSheets();drawMembers();renderQuota();renderSlotManagement();renderCombats();renderVttSheets();if(publicSheets.length)syncOwnCharacterPhotos();}
+ function refreshRoomSheets(){roomSheets=gm?[...publicSheets,...privateSheets]:publicSheets.slice();drawSheets();drawMembers();renderQuota();renderSlotManagement();renderCombats();renderVttSheets();window.dispatchEvent(new Event('nex:campaign-sheets-updated'));if(publicSheets.length)syncOwnCharacterPhotos();}
  let activeVttMiniSheetId=null;
  function vttStatValue(sheet,keys){
   const sources=[sheet.fullSheet,sheet].filter(x=>x&&typeof x==='object');
@@ -1374,6 +1391,34 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    tile.append(label,number);vitals.append(tile);
   }
   box.append(vitals);
+  const canEditResource=gm||assignedTo(sheet,uid);
+  if(canEditResource){
+   const controls=document.createElement('div');controls.className='nex-vtt-mini-resource-editor';
+   const editTitle=document.createElement('strong');editTitle.textContent='Recursos da ficha';controls.append(editTitle);
+   const editRows=document.createElement('div');editRows.className='nex-vtt-mini-edit-rows';
+   const names={pv:'PV',pe:'PE',san:'SAN'};
+   const entries={pv:null,pe:null,san:null};
+   for(const field of ['pv','pe','san']){
+     const label=document.createElement('label');label.textContent=names[field];
+     const input=document.createElement('input');input.type='number';input.min='0';input.max='9999';
+     input.value=String(vttStatValue(sheet,[field+'Current',field+'Atual',field]));
+     if(!Number.isFinite(Number(input.value)))input.value=String(sheet[field]??0);
+     label.append(input);editRows.append(label);entries[field]=input;
+   }
+   controls.append(editRows);
+   const save=document.createElement('button');save.type='button';save.textContent='Salvar PV · PE · SAN';
+   save.addEventListener('click',async()=>{
+     const changes=Object.entries(entries).filter(([key,input])=>Number.isInteger(Number(input.value))&&Number(input.value)>=0&&Number(input.value)!==Number(vttStatValue(sheet,[key+'Current',key+'Atual',key])));
+     if(!changes.length)return;
+     save.disabled=true;
+     try{
+       for(const [key,input] of changes)await updateVttSheetResource(sheet.id,key,Number(input.value),'set');
+       save.textContent='Atualizado ✓';
+     }catch(error){save.textContent='Erro ao salvar';notice('Não foi possível atualizar os recursos: '+String(error.message||error));}
+     finally{save.disabled=false;}
+   });
+   controls.append(save);box.append(controls);
+  }
   const attributes=sheet.fullSheet?.attributes||sheet.fullSheet?.atributos||null;
   if(attributes&&typeof attributes==='object'){
    const attrs=document.createElement('div');attrs.className='nex-vtt-mini-attributes';
@@ -1919,8 +1964,29 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    notice('Copie o link selecionado e envie ao jogador.');
   }
  });
+ async function updateVttSheetResource(sheetId,field,amount,mode='set'){
+  if(!roomId||!uid)throw Error('Campanha indisponível.');
+  if(!['pv','pe','san'].includes(field))throw Error('Recurso inválido.');
+  const sheet=roomSheets.find(x=>x.id===sheetId);
+  if(!sheet||!(gm||assignedTo(sheet,uid)))throw Error('Sem permissão para editar esta ficha.');
+  const target=campaignSheetRef(sheet);
+  const value=Math.trunc(Number(amount));
+  if(!Number.isFinite(value)||Math.abs(value)>9999)throw Error('Valor inválido.');
+  await runTransaction(db,async tr=>{
+   const snap=await tr.get(target);
+   if(!snap.exists())throw Error('Ficha não encontrada.');
+   const data=snap.data(),full=data.fullSheet&&typeof data.fullSheet==='object'?data.fullSheet:null;
+   const base=Number(full?.[field+'Current']??data[field])||0;
+   const maxRaw=full?.[field+'Max']??full?.['max'+field[0].toUpperCase()+field.slice(1)];
+   const limit=Number(maxRaw)>0?Math.min(9999,Number(maxRaw)):9999;
+   const next=Math.max(0,Math.min(limit,mode==='delta'?base+value:value));
+   const updates={[field]:Math.trunc(next),updatedAt:serverTimestamp()};
+   if(full)updates['fullSheet.'+field+'Current']=Math.trunc(next);
+   tr.update(target,updates);
+  });
+ }
  function subscribeTabletop(id){
-  try{unsubs.push(mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId:id,gm}));}
+  try{unsubs.push(mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId:id,gm,getSheets:()=>roomSheets,updateResource:updateVttSheetResource}));}
   catch(error){console.error('Falha ao iniciar Tabletop',error);$('nexTabletopMessage').textContent='Falha ao iniciar mesa virtual.';}
  }
  function roomSection(section){
