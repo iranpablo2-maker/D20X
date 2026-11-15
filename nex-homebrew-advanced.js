@@ -641,6 +641,7 @@
    const count=all.filter(x=>currentTypes().includes(x.type)&&(tab!=='paranormal'||paranormalSection==='maldicoes'||x.category==='Itens Amaldiçoados')).length;
    if(!editing&&count>=50){message('Limite de 50 homebrews para esta categoria.');return;}
    if(type==='trilha'&&TRAIL_NEX.some(n=>!cut($('nex53TrailName'+n).value,90))){message('Informe o nome das quatro habilidades da trilha: 10%, 40%, 65% e 99%.');return;}
+    if((type==='trilha'&&!TRAIL_NEX.every(n=>effectsValid(getEffects(String(n)))))||(type!=='trilha'&&effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})&&!effectsValid(effectRows))){message('Escolha a perícia para todos os bônus de perícia.');return;}
    if(type==='melhoria'&&(!BONUS_TYPES.some(([id])=>id===$('nexHbBonusType').value)||!/^\+(?:[1-9]|10)$/.test($('nexHbBonusValue').value))){message('Digite um bônus no formato +1 até +10.');return;}
    if(type==='item'&&tab==='paranormal'&&cursedKind==='Acessórios Amaldiçoados'&&$('nexHbAccessoryBonus').value&&!/^\+(?:[1-9]|10)$/.test($('nexHbAccessoryBonus').value)){message('Digite um bônus no formato +1 até +10.');return;}
    if(type==='melhoria'&&$('nexHbBonusType').value==='pericia'&&!FALLBACK_SKILLS.includes($('nexHbBonusSkill').value)){message('Selecione a perícia beneficiada.');return;}
@@ -697,8 +698,9 @@
      bonusType:type==='melhoria'?$('nexHbBonusType').value:(old?.bonusType||'ataque'),
      bonusValue:type==='melhoria'?Number($('nexHbBonusValue').value.slice(1)):(old?.bonusValue??0),
      bonusSkill:type==='melhoria'&&$('nexHbBonusType').value==='pericia'?$('nexHbBonusSkill').value:(old?.bonusSkill||''),
-     effectBonusType:effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})&&type!=='trilha'?$('nexHbEffectBonusType').value:(old?.effectBonusType||''),
-     effectBonusValue:effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})&&type!=='trilha'?Number($('nexHbEffectBonusValue').value):(old?.effectBonusValue??0),
+     effectBonusType:'',
+     effectBonusValue:0,
+     effectBonuses:type!=='trilha'&&effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})?effectRows:(old?.effectBonuses||[]),
      protectionDefense:type==='item'&&(tab==='paranormal'&&cursedKind==='Proteções Amaldiçoadas'||itemTab==='Proteções'&&tab!=='paranormal')?Number($('nexHbProtectionDefense').value):(old?.protectionDefense??1),
      weaponProficiency:type==='item'&&(tab==='paranormal'&&cursedKind==='Armas Amaldiçoadas'||itemTab==='Armas'&&tab!=='paranormal')?$('nexHbWeaponProficiency').value:(old?.weaponProficiency||'Armas Simples'),
      weaponKind:type==='item'&&(tab==='paranormal'&&cursedKind==='Armas Amaldiçoadas'||itemTab==='Armas'&&tab!=='paranormal')?$('nexHbWeaponKind').value:(old?.weaponKind||'Corpo a Corpo'),
@@ -715,7 +717,7 @@
      itemSpaces:type==='item'?$('nexHbSpaces').value:(old?.itemSpaces??1),
      itemTag:type==='item'&&itemTab==='Geral'?$('nexHbTag').value:(old?.itemTag||'Acessórios'),
      customImprovements:type==='item'?customItemImprovements:(old?.customImprovements||[]),
-     trailAbilities:type==='trilha'?TRAIL_NEX.map(n=>({nex:n,name:$('nex53TrailName'+n).value,description:$('nex53TrailDescription'+n).value,bonusType:$('nex53TrailBonusType'+n).value,bonusValue:Number($('nex53TrailBonusValue'+n).value)})):(old?.trailAbilities||[]),
+     trailAbilities:type==='trilha'?TRAIL_NEX.map(n=>({nex:n,name:$('nex53TrailName'+n).value,description:$('nex53TrailDescription'+n).value,bonusType:'',bonusValue:0,bonuses:getEffects(String(n))})):(old?.trailAbilities||[]),
      skills:type==='origem'?[$('nex55Skill1').value,$('nex55Skill2').value]:(old?.skills||[])
    });
    const group=record.type==='maldicao'||record.type==='item'&&record.category==='Itens Amaldiçoados'?'paranormal':Object.keys(TABS).find(key=>TABS[key].includes(record.type))||tab;
