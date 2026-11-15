@@ -147,7 +147,6 @@ body.detail-open main{width:min(1250px,100%);padding:8px 10px 28px}
 </style></head><body>
 <main><div class="heading"><div><div class="eyebrow">Biblioteca paranormal</div><h1>Ameaças</h1></div></div>
 
-<div class="filters" id="sources" aria-label="Filtrar por livro"></div>
 <div class="filters element" id="elements" aria-label="Filtrar por elemento"></div>
 <input id="search" class="search" placeholder="⌕ Buscar ameaça..." aria-label="Buscar ameaça">
 <div class="meta"><span id="count"></span></div>
@@ -185,14 +184,13 @@ for(let i=records.length-1;i>=0;i--){
 }
 
 
-const sourceOptions=["Todas as fontes","Livro Básico","Sobrevivendo ao Horror","Arquivos Secretos","Homebrew"];
 const elementOrder=["Sangue","Morte","Conhecimento","Energia","Medo","Transmissão","Realidade"];
 const elementOptions=["Todos",...elementOrder];
 const images={Sangue:"../assets/rituais/sangue-fundo.svg",Morte:"../assets/rituais/morte-fundo.svg",Energia:"../assets/rituais/energia-fundo.svg",Conhecimento:"../assets/rituais/conhecimento-fundo.svg",Medo:"../assets/rituais/medo-fundo.svg"};
 for(const key in images)images[key]=images[key].replace("../assets/","./assets/");
-let source="Todas as fontes",element="Todos",search="";
+let element="Todos",search="";
 const $=id=>document.getElementById(id),escape=s=>String(s??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
-const sourceEl=$("sources"),elementsEl=$("elements"),list=$("list");
+const elementsEl=$("elements"),list=$("list");
 function art(e){const path=images[e]||images.Medo;return "linear-gradient(90deg,rgba(6,5,8,.3),rgba(8,6,8,.15)),url('"+path+"')"}
 function drawTabs(node,options,current,attribute){node.innerHTML=options.map(x=>'<button type="button" data-'+attribute+'="'+escape(x)+'" aria-pressed="'+(x===current)+'">'+escape(x)+'</button>').join("")}
 function threatIllustration(x){const k=x.source+"::"+x.name;return (window.NEX_ARQUIVOS_IMAGES||{})[k]||(window.NEX_THREAT_PRIMARY_IMAGES||{})[k]||"";}
@@ -214,10 +212,10 @@ function hasCoreStats(x){
  return !!(d&&((d.vd!=null&&d.pv!=null&&d.defense!=null)||d.variant===true));
 }
 function draw(){
- drawTabs(sourceEl,sourceOptions,source,"source");drawTabs(elementsEl,elementOptions,element,"element");
+ drawTabs(elementsEl,elementOptions,element,"element");
  // Em "Todos", agrupa na sequência de elementos definida, com nomes de A a Z dentro de cada grupo.
  // Nos filtros individuais, preserva a ordem alfabética.
- const filtered=records.filter(x=>!NEX_THREATS_HIDDEN.has(String(x.name||"").trim())).filter(x=>(source==="Todas as fontes"||x.source===source||(source==="Arquivos Secretos"&&x.source.startsWith("Arquivos Secretos — ")))&&(element==="Todos"||x.element===element)&&(!search||(x.name+" "+x.source+" "+x.element).toLocaleLowerCase("pt-BR").includes(search)));
+ const filtered=records.filter(x=>!NEX_THREATS_HIDDEN.has(String(x.name||"").trim())).filter(x=>/^(Livro Básico|Sobrevivendo ao Horror|Arquivos Secretos(?: — .+)?)$/.test(String(x.source||""))&&(element==="Todos"||x.element===element)&&(!search||(x.name+" "+x.source+" "+x.element).toLocaleLowerCase("pt-BR").includes(search)));
  const byName=(a,b)=>a.name.localeCompare(b.name,"pt-BR",{sensitivity:"base",numeric:true});
  const items=element==="Todos"
   ? [...elementOrder.flatMap(category=>filtered.filter(x=>x.element===category).sort(byName)),
@@ -282,7 +280,6 @@ function draw(){
   });
  }
 }
-sourceEl.addEventListener("click",e=>{const b=e.target.closest("[data-source]");if(!b)return;source=b.dataset.source;draw()});
 elementsEl.addEventListener("click",e=>{const b=e.target.closest("[data-element]");if(!b)return;element=b.dataset.element;draw()});
 $("search").addEventListener("input",e=>{search=e.target.value.trim().toLocaleLowerCase("pt-BR");draw()});
 
