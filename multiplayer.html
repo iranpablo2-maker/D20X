@@ -352,6 +352,41 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 
 
 
+<style id="nex-vtt-text-measure-style">
+#roomTabletopPanel #nexVttOptions[data-section="text"]{
+ display:flex!important;align-items:center!important;gap:7px!important;
+ width:min(580px,calc(100% - 80px))!important;max-width:580px!important;flex-wrap:wrap!important;
+ background:#fafafa!important;border-radius:10px!important;border:1px solid #d5d5d5!important;
+ box-shadow:0 3px 14px #0003!important;
+}
+#roomTabletopPanel #nexVttOptions[data-section="text"]>strong{display:none!important}
+#roomTabletopPanel #nexVttOptions[data-section="text"] label{font-size:11px!important}
+#roomTabletopPanel #nexVttOptions[data-section="text"] select{min-width:108px!important}
+#roomTabletopPanel #nexVttOptions[data-section="text"] input[type=number]{width:56px!important}
+#roomTabletopPanel #nexVttOptions[data-section="text"] input[type=color]{width:33px!important;height:31px!important;padding:2px!important}
+#roomTabletopPanel #nexVttOptions[data-section="text"] button{
+ font-family:Georgia,serif!important;font-size:18px!important;font-weight:700!important;
+ background:white!important;border:0!important;color:#222!important;
+}
+#roomTabletopPanel #nexVttOptions[data-section="text"] button[aria-pressed=true]{background:#d4d9ed!important}
+#roomTabletopPanel #nexVttOptions[data-section="text"] small{flex-basis:100%!important;color:#666!important}
+#roomTabletopPanel #nexVttOptions[data-section="measure"]{
+ width:315px!important;max-width:calc(100% - 75px)!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:10px!important;
+ padding:15px!important;background:#fff!important;color:#343039!important;
+}
+#roomTabletopPanel #nexVttOptions[data-section="measure"]>strong{font-size:17px!important}
+#roomTabletopPanel #nexVttOptions[data-section="measure"] label{
+ width:100%!important;display:flex!important;align-items:center!important;justify-content:space-between!important;
+ font-size:12px!important;gap:8px!important;
+}
+#roomTabletopPanel #nexVttOptions[data-section="measure"] select{min-width:135px!important;max-width:150px!important}
+#roomTabletopPanel #nexVttOptions[data-section="measure"] input[type=checkbox]{width:18px!important;height:18px!important;accent-color:#dc2d97!important}
+#roomTabletopPanel #nexVttOptions[data-section="measure"]>small{
+ padding:10px!important;margin:0 -15px -15px!important;
+ background:#edf5fc!important;text-align:center!important;color:#565665!important;
+}
+</style>
 <style id="nex-vtt-mini-sheet-style">
 #roomTabletopPanel #nexVttMiniSheet[hidden]{display:none!important}
 #roomTabletopPanel .nex-vtt-mini-sheet{
@@ -987,7 +1022,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115drawmenu6';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115minisheet7';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
