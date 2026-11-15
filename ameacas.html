@@ -143,6 +143,7 @@ body.detail-open main{width:min(1250px,100%);padding:8px 10px 28px}
 <script src="./nex-ameacas-julho.js?v=20261115jul4"></script>
 <script src="./nex-arquivos-ameacas-faltantes.js?v=20261114completas2"></script>
 <script src="./nex-sah-ameacas-faltantes.js?v=20261115sah18"></script>
+<script src="./nex-ameacas-realidade-basico.js?v=20261115basicreality1"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos3"></script>
 <script src="./nex-arquivos-atlas-lote2.js?v=nov14lote2a"></script>
 <script>
@@ -152,6 +153,7 @@ records.push(...[{"name":"Assecla","element":"Realidade","source":"Arquivos Secr
 records.push(...(window.NEX_JULY_THREATS||[]));
 records.push(...(window.NEX_SECRET_MISSING_THREATS||[]).filter(x=>!records.some(y=>y.name===x.name&&y.source===x.source)));
 records.push(...(window.NEX_SAH_ADDITIONAL_THREATS||[]).filter(x=>!records.some(y=>y.name===x.name&&y.source===x.source)));
+records.push(...(window.NEX_BASIC_REALITY_THREATS||[]).filter(x=>!records.some(y=>y.name===x.name&&y.source===x.source)));
 // Remoção definitiva de entradas duplicadas/inexistentes, inclusive quando plugins antigos as recadastram.
 const NEX_THREATS_HIDDEN=new Set(["Doppelganger Monstruoso","O Verdadeiro Raziel"]);
 for(let i=records.length-1;i>=0;i--){
@@ -257,7 +259,7 @@ function openThreatDetail(key){
  document.body.classList.add("detail-open");
  threatDetailView.hidden=false;
  threatDetailFrame.style.height="800px";
- threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&v=20261115ameacas60";
+ threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&v=20261115ameacas61";
  window.scrollTo(0,0);
 }
 function closeThreatDetail(){
