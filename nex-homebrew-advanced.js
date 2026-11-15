@@ -259,8 +259,9 @@
    $('nexHbBonusSkillField').hidden=type!=='melhoria'||$('nexHbBonusType').value!=='pericia';
    $('nexHbCurseFields').hidden=type!=='maldicao';
    $('nexHbEffectBonusFields').hidden=!effectApplicable({type,category:tab==='paranormal'?'Itens Amaldiçoados':$('nex52Category').value})||type==='trilha';
-   if(type==='item'&&isCursedEditor())$('nexHbCursedForm').appendChild($('nexHbEffectBonusFields'));
-   else $('nexHbEffectBonusHome').appendChild($('nexHbEffectBonusFields'));
+   $('nexHbEffectBonusHome').hidden=$('nexHbEffectBonusFields').hidden;
+   // O botão permanece fora dos painéis que podem ser ocultados.
+   if($('nexHbEffectBonusFields').parentElement!==$('nexHbEffectBonusHome'))$('nexHbEffectBonusHome').appendChild($('nexHbEffectBonusFields'));
    if(type==='item'&&isCursedEditor())renderEffects('main');
    if(type==='item')$('nex52Category').value=tab==='paranormal'?'Itens Amaldiçoados':$('nex51Edit').value?$('nex52Category').value:itemTab;
    $('nex52Category').hidden=true;
@@ -278,8 +279,8 @@
    $('nexHbParanormalExtras').hidden=type!=='item'||tab!=='paranormal'||weapon||protection;
    $('nexHbAmmoExtras').hidden=cursedKind!=='Munições Amaldiçoadas';
    $('nexHbAccessoryExtras').hidden=true;
-   $('nexHbCursedTagField').hidden=cursedKind!=='Itens Paranormais';
-   $('nexHbCursedExplosion').hidden=!(cursed&&cursedKind==='Itens Paranormais'&&$('nexHbTag').value==='Explosivos');
+   $('nexHbCursedTagField').hidden=!cursed;
+   $('nexHbCursedExplosion').hidden=!(cursed&&$('nexHbTag').value==='Explosivos');
    $('nexHbArtifactExtras').hidden=cursedKind!=='Itens Paranormais';
    $('nexHbSharedImprovements').hidden=type!=='item'||!(general||protection||weapon);
    ['nexHbProtectionDefense','nexHbWeaponDamage','nexHbWeaponCritical','nexHbWeaponMultiplier'].forEach(id=>{ $(id).required=protection&&id==='nexHbProtectionDefense'||weapon&&id!=='nexHbProtectionDefense'; });
@@ -373,8 +374,8 @@
    if(normal){normal.hidden=isCursedWeapon;normal.disabled=isCursedWeapon;}
    if(isCursedWeapon)secondary.value=$('nexHbElement').value;
  }
-  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'&&isCursedEditor())$('nexHbCursedExplosion').hidden=!(cursedKind==='Itens Paranormais'&&el.value==='Explosivos');}});
-  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'&&isCursedEditor())$('nexHbCursedExplosion').hidden=!(cursedKind==='Itens Paranormais'&&el.value==='Explosivos');}});
+  $('nex52ItemFields').addEventListener('input',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'&&isCursedEditor())$('nexHbCursedExplosion').hidden=el.value!=='Explosivos';}});
+  $('nex52ItemFields').addEventListener('change',event=>{const el=event.target.closest('[data-hb-sync]');if(el&&$(el.dataset.hbSync)){$(el.dataset.hbSync).value=el.value;if(el.dataset.hbSync==='nexHbElement')syncCursedWeaponElement();if(el.dataset.hbSync==='nexHbTag'&&isCursedEditor())$('nexHbCursedExplosion').hidden=el.value!=='Explosivos';}});
  function renderItemImprovements(){
    const list=$('nex52ImprovementList');if(!list)return;
    list.innerHTML=customItemImprovements.length?customItemImprovements.map((name,i)=>'<span class="nex-hb-improvement-chip">'+esc(name)+' <button type="button" data-nex52-improvement-remove="'+i+'" aria-label="Remover '+esc(name)+'">×</button></span>').join(''):'<small>Nenhuma melhoria homebrew adicionada.</small>';
