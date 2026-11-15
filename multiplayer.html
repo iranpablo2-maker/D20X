@@ -1427,7 +1427,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomCombatsPanel',section==='combats');
   show('roomTabletopPanel',section==='tabletop');
   document.documentElement.classList.toggle('nex-vtt-active',section==='tabletop');
-  if(section==='tabletop'){$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';renderVttSheets();}
+  if(section==='tabletop'){$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';const tag=document.querySelector('.nex-vtt-room-tag');if(tag)tag.textContent='NEX · '+$('nexVttCampaignName').textContent;renderVttSheets();}
   if(window.parent!==window){
    try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:section==='tabletop'},location.origin);}catch(error){}
   }
