@@ -987,6 +987,22 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  border-radius:7px;color:#fff;font-weight:700;cursor:pointer;
 }
 </style>
+<style id="nex-vtt-sync-warning-style">
+#roomTabletopPanel #nexVttSyncNotice[hidden]{display:none!important}
+#roomTabletopPanel #nexVttSyncNotice{
+ position:absolute;left:70px;bottom:55px;z-index:70;
+ display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+ max-width:min(580px,calc(100vw - 95px));padding:12px 13px;
+ border:1px solid #da9b54;background:#362817;color:#ffe5b7;
+ border-radius:11px;box-shadow:0 10px 28px #0008;font-size:12px;
+}
+#roomTabletopPanel #nexVttSyncNotice span{flex:1;min-width:170px}
+#roomTabletopPanel #nexVttSyncNotice button{
+ background:#a66d2e;color:#fff1da;border:1px solid #d8aa69;
+ padding:8px 10px;border-radius:7px;font-size:12px;font-weight:700;
+}
+#roomTabletopPanel #nexVttSyncNotice button:disabled{opacity:.5}
+</style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -1260,7 +1276,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
    <section id="roomTabletopPanel" class="room-panel hide" aria-label="Tabletop da campanha">
-    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><span class="nex-vtt-brand-symbol" aria-hidden="true">◆</span><div class="nex-vtt-brand-copy"><strong>NEX</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexVttBuildTag" title="Versão do tabletop do NEX">MESA 15/11 · VTT 1.3</span><button type="button" id="nexVttReload" title="Recarregar a interface da mesa">⟳ Recarregar</button><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
+    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><span class="nex-vtt-brand-symbol" aria-hidden="true">◆</span><div class="nex-vtt-brand-copy"><strong>NEX</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexVttBuildTag" title="Versão do tabletop do NEX">MESA 15/11 · VTT 1.4</span><button type="button" id="nexVttReload" title="Recarregar a interface da mesa">⟳ Recarregar</button><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
     <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
     <div class="nex-vtt-layout"><aside class="nex-vtt-sidebar"><h3>Ferramentas</h3><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
@@ -1333,7 +1349,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115linkedtokens13';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261115vttsync14';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
