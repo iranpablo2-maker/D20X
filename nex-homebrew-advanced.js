@@ -179,7 +179,7 @@
  '<label>Multiplicador<input id="nexHbWeaponMultiplier" maxlength="10" value="2" required></label>'+
  '<label>Tipo de Dano<select id="nexHbWeaponDamageType"><option>Corte</option><option>Perfuração</option><option>Impacto</option><option>Balístico</option><option>Fogo</option><option>Energia</option><option>Morte</option><option>Sangue</option><option>Conhecimento</option><option>Medo</option></select></label>'+
  '<label>Alcance<input id="nexHbWeaponRange" maxlength="60" placeholder="Toque, Curto, Médio..."></label>'+
- '<label>Categoria base*<select data-hb-sync="nexHbTier"><option value="0">0</option><option>I</option><option>II</option><option>III</option><option>IV</option></select></label>'+
+ '<label>Categoria base<select data-hb-sync="nexHbTier"><option value="0">0</option><option>I</option><option>II</option><option>III</option><option>IV</option></select></label>'+
  '<label>Espaços<input type="number" min="0" max="100" data-hb-sync="nexHbSpaces" value="1"></label>'+
  '<label>Quantidade<input id="nexHbWeaponQuantity" type="number" min="1" max="9999" value="1"></label></div></section>'+
  '<section class="nex-hb-special-form" id="nexHbProtectionForm" hidden><div class="nex-hb-protection-fields">'+
