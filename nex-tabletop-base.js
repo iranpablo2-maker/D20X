@@ -359,10 +359,27 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  function vttButton(label,title,callback,disabled=false){const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);b.disabled=disabled;b.addEventListener('click',callback);vttBar.append(b);return b;}
  function vttSetMode(mode){vttMode=mode;for(const [key,button] of vttButtons)button.setAttribute('aria-pressed',String(key===mode));if(drawToggle)drawToggle.setAttribute('aria-pressed',String(drawingModes.has(mode)));vttOptions.hidden=true;board.style.cursor=mode==='select'?'default':mode==='pan'?'grab':'crosshair';}
  vttButton('☰','Abrir ou recolher o painel de fichas',()=>document.getElementById('nexVttSheetsToggle')?.click());
- for(const [mode,symbol,title] of [['select','✋','Move'],['pan','✋','Mover mapa'],['text','T','Texto'],['measure','⌁','Medir distância'],['marker','⌖','Marcador'],['fog','◐','Revelar névoa']]){
-   vttButtons.set(mode,vttButton(symbol,title,()=>{vttSetMode(mode);if(mode==='text')vttOpen('text');if(mode==='measure')vttOpen('measure');},!gm&&!['select','pan','measure'].includes(mode)));
+ for(const [mode,symbol,title] of [['select','✋','Move'],['pan','✋','Mover mapa'],['text','T','Texto'],['measure','📏','Medir distância'],['marker','⌖','Marcador'],['fog','◐','Revelar névoa']]){
+   vttButtons.set(mode,vttButton(symbol,title,()=>{
+     // Clicar na ferramenta ativa novamente fecha suas opções e volta ao Move.
+     if(vttMode===mode){
+       vttOptions.hidden=true;
+       closeDrawMenu();
+       if(mode!=='select')vttSetMode('select');
+       return;
+     }
+     closeDrawMenu();
+     vttSetMode(mode);
+     if(mode==='text')vttOpen('text');
+     if(mode==='measure')vttOpen('measure');
+   },!gm&&!['select','pan','measure'].includes(mode)));
  }
- drawToggle=vttButton('✎','Desenhar: abrir ferramentas',()=>{drawMenuRefresh();showDrawMenu();},!gm);
+ drawToggle=vttButton('✎','Desenhar: abrir ferramentas',()=>{
+   // O próprio ícone de Desenhar abre e fecha o menu.
+   if(!drawMenu.hidden){closeDrawMenu();if(drawingModes.has(vttMode))vttSetMode('select');return;}
+   if(drawingModes.has(vttMode)){vttSetMode('select');vttOptions.hidden=true;return;}
+   vttOptions.hidden=true;drawMenuRefresh();showDrawMenu();
+ },!gm);
  drawToggle.setAttribute('aria-expanded','false');drawToggle.setAttribute('aria-controls','nexVttDrawMenu');
  const textTool=vttButtons.get('text');
  vttBar.insertBefore(drawToggle,textTool);
