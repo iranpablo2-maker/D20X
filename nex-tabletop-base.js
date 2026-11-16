@@ -17,8 +17,9 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,camp
  }
  mapGeometry();
  function updateMapGeometry(){
-   if(lastMapSource===scene.map)return;
-   const src=scene.map;lastMapSource=src;const loadId=++mapLoadId;
+   const src=visibleMediaSource(scene.map);
+   if(lastMapSource===src)return;
+   lastMapSource=src;const loadId=++mapLoadId;
    if(!src){mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();board.style.visibility='visible';return;}
    // Do not show tokens against the temporary 1200px fallback canvas.
    // Reveal the board only after the map's real aspect ratio is known.
@@ -136,7 +137,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  // explicit group metadata. No changes to older saved scenes are required.
  function libraryAssets(){
   const assets=(scene.library?.tokenImages||[]).map(a=>({
-   id:a.id,name:a.name,src:a.src,groupId:a.groupId||'',slot:a.slot??1
+   id:a.id,name:a.name,src:visibleMediaSource(a.src),groupId:a.groupId||'',slot:a.slot??1
   }));
   const byId=new Map(assets.map(a=>[a.id,a]));
   for(const token of scene.tokens){
@@ -153,7 +154,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  function render(){
   if(disposed)return;
   board.querySelectorAll('.nex-tabletop-token').forEach(n=>n.remove());
-  board.style.backgroundImage=scene.map?'url("'+scene.map.replace(/"/g,'')+'")':'none';
+  const resolvedMap=visibleMediaSource(scene.map);
+  board.style.backgroundImage=resolvedMap?'url("'+resolvedMap.replace(/"/g,'')+'")':'none';
   updateMapGeometry();
   for(const t of scene.tokens){
    if(t.hidden&&!gm)continue;
@@ -167,7 +169,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const safePortrait=typeof portrait==='string'&&(portrait.startsWith('https://')||/^data:image\/(?:png|jpeg|webp);base64,/i.test(portrait))?portrait:'';
    const selectedImage=t.images[t.variation]||'';
    const storedAsset=selectedImage.startsWith('asset:')?scene.library?.tokenImages?.find(a=>a.id===selectedImage.slice(6)):null;
-   const img=(storedAsset?.src||(selectedImage.startsWith('asset:')?'':selectedImage))||safePortrait||'';
+   const tokenSource=storedAsset?.src||(selectedImage.startsWith('asset:')?'':selectedImage);
+   const img=visibleMediaSource(tokenSource)||safePortrait||'';
    if(img){const image=document.createElement('img');image.src=img;image.alt=t.name;el.appendChild(image);}
    else{const span=document.createElement('span');span.textContent=t.name.slice(0,3).toUpperCase();el.appendChild(span);}
 
@@ -277,9 +280,23 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const t={id:'tt_'+crypto.randomUUID(),name,x,y,variation:1,images:[],size:1,widthCells:1.5,heightCells:1.5,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,defense:0,hidden:false,locked:false};scene.tokens.push(t);selectedId=t.id;$('nexTabletopTokenName').value='';render();save();
  });
  listen($('nexTabletopClearTokens'),'click',()=>{if(!gm||!confirm('Remover todos os tokens desta cena?'))return;scene.tokens=[];selectedId=null;render();save();});
- listen($('nexTabletopRemoveMap'),'click',()=>{if(!gm)return;scene.map='';render();save();});
- listen($('nexTabletopMapFile'),'change',e=>{
-  if(!gm)return;reader(e.target.files?.[0],390000,data=>{scene.map=data;render();save();});e.target.value='';
+ listen($('nexTabletopRemoveMap'),'click',async()=>{
+  if(!gm)return;
+  const old=scene.map;scene.map='';render();await save();
+  if(!saveFailed)await deleteMediaParts(old);
+ });
+ listen($('nexTabletopMapFile'),'change',async e=>{
+  const file=e.target.files?.[0];e.target.value='';
+  if(!gm||!file)return;
+  if(uploading){message('Outro envio está em andamento.');return;}
+  uploading++;
+  try{
+   message('Enviando mapa...');const uploaded=await uploadMedia(file,'map');
+   const old=scene.map;scene.map=uploaded;render();
+   uploading=Math.max(0,uploading-1);await save();
+   if(!saveFailed){await deleteMediaParts(old);message('Mapa salvo e disponível no PC e celular.');}
+  }catch(error){message('Falha ao enviar mapa: '+String(error.code||error.message||error).slice(0,110));}
+  finally{uploading=Math.max(0,uploading-1);}
  });
  // Biblioteca compartilhada da cena; tokens referenciam o recurso para evitar cópias duplicadas.
  const libraryBytes=()=>new TextEncoder().encode(JSON.stringify(validScene(scene))).length;
