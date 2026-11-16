@@ -31,6 +31,26 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  }
  const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
  let scene=empty(),selectedId=null,resizeSelectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false,uploading=0,localDirty=false;
+ const backupKey='nex-vtt-pending:'+campaignId;
+ let recoveredBackup=null;
+ try{
+  const raw=localStorage.getItem(backupKey);
+  if(raw){
+   const parsed=JSON.parse(raw);
+   if(parsed?.format==='nex-tabletop-pending-v1'&&Array.isArray(parsed.scene?.tokens))recoveredBackup=parsed.scene;
+  }
+ }catch(error){console.warn('NEX VTT: backup local indisponível',error);}
+ if(recoveredBackup){scene=validScene(recoveredBackup);localDirty=true;queued=true;}
+ function saveBackup(){
+  if(!gm||disposed)return;
+  try{
+   localStorage.setItem(backupKey,JSON.stringify({format:'nex-tabletop-pending-v1',scene:validScene(scene),savedAt:Date.now()}));
+  }catch(error){
+   console.warn('NEX VTT: sem espaço para backup local',error);
+   warnSync('Sem espaço para backup local. Não atualize a página até a mesa ser salva no Firebase.');
+  }
+ }
+ function clearBackup(){try{localStorage.removeItem(backupKey);}catch(_){}}
  const handlers=[];
  const listen=(el,type,fn,opts)=>{el?.addEventListener(type,fn,opts);handlers.push(()=>el?.removeEventListener(type,fn,opts));};
  const saveNotice=document.createElement('div');saveNotice.id='nexVttSyncNotice';saveNotice.hidden=true;
@@ -151,7 +171,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  async function save(){
   if(!gm||disposed)return;
-  queued=true;localDirty=true;if(!remoteReady||uploading||pending)return;
+  queued=true;localDirty=true;saveBackup();if(!remoteReady||uploading||pending)return;
   pending=true;
   while(queued&&!disposed){
    queued=false;
@@ -165,7 +185,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      // can have empty slots (0-9), which must never reach Firebase as undefined.
      const clean=JSON.parse(JSON.stringify(payload));
      await setDoc(ref,clean,{merge:false});
-     localDirty=queued;clearSync();message('Mesa salva na campanha.');
+     if(!queued){localDirty=false;clearBackup();}
+     else localDirty=true;
+     clearSync();message('Mesa salva na campanha.');
    }
    catch(e){
      localDirty=true;
