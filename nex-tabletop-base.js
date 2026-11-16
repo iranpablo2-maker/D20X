@@ -40,7 +40,6 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    if(parsed?.format==='nex-tabletop-pending-v1'&&Array.isArray(parsed.scene?.tokens))recoveredBackup=parsed.scene;
   }
  }catch(error){console.warn('NEX VTT: backup local indisponível',error);}
- if(recoveredBackup){scene=validScene(recoveredBackup);localDirty=true;queued=true;}
  function saveBackup(){
   if(!gm||disposed)return;
   try{
@@ -123,6 +122,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    images:Array.isArray(t.images)?Array.from({length:Math.min(10,t.images.length)},(_,i)=>{const url=t.images[i];return typeof url==='string'&&url.length<650000?url:'';}):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),widthCells:Math.max(.5,Math.min(10,Number(t.widthCells)||Number(t.size)||1)),heightCells:Math.max(.5,Math.min(10,Number(t.heightCells)||Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
   }))};
  }
+ if(recoveredBackup){scene=validScene(recoveredBackup);localDirty=true;queued=true;}
  function render(){
   if(disposed)return;
   board.querySelectorAll('.nex-tabletop-token').forEach(n=>n.remove());
