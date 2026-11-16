@@ -330,15 +330,30 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const ids=new Set(derived.filter(a=>group?a.groupId===groupId:a.id===assetId).map(a=>a.id));
    if(!ids.size)return;
    scene.library.tokenImages=scene.library.tokenImages.filter(a=>!ids.has(a.id));
-   for(const token of scene.tokens){
+   // Remove tokens that lose their last image, rather than leaving a
+   // text-only placeholder (e.g. "MIN") on the board.
+   const removedTokenIds=new Set();
+   scene.tokens=scene.tokens.filter(token=>{
+    let affected=false;
     for(let i=0;i<(token.images||[]).length;i++){
-     if(ids.has(String(token.images[i]||'').replace(/^asset:/,'')))token.images[i]='';
+     if(ids.has(String(token.images[i]||'').replace(/^asset:/,''))){
+      token.images[i]='';
+      affected=true;
+     }
     }
-    if(!token.images?.[token.variation]){
-     const first=token.images?.findIndex(Boolean)??-1;
-     token.variation=first>=0?first:1;
+    if(!affected)return true;
+    const available=token.images.findIndex(image=>typeof image==='string'&&image.length>0);
+    if(available<0){
+     removedTokenIds.add(token.id);
+     return false;
     }
-   }
+    if(!token.images[token.variation])token.variation=available;
+    return true;
+   });
+   if(removedTokenIds.has(selectedId))selectedId=null;
+   if(removedTokenIds.has(resizeSelectedId))resizeSelectedId=null;
+   if(removedTokenIds.has(drag?.id))drag=null;
+   if(removedTokenIds.size)closeTokenMenu();
    render();save();
   }
  });
