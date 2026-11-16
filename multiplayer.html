@@ -1584,6 +1584,9 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-atmosphere-strength input{min-width:0;flex:1}
 #roomTabletopPanel .nex-vtt-atmosphere-strength output{min-width:40px;text-align:right}
 #roomTabletopPanel .nex-vtt-atmosphere-controls .nex-vtt-atmosphere-animation{display:flex;flex-direction:row;align-items:center;gap:7px}
+</style><style id="nex-vtt-atmosphere-upload-controls">
+#roomTabletopPanel .nex-vtt-atmosphere-buttons{display:flex;flex-direction:column;gap:7px}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-atmosphere-buttons button{width:100%!important;min-height:34px!important;white-space:normal!important}
 </style><script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -2241,7 +2244,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmosphere151';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmosphereupload160';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -3045,10 +3048,25 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     atmosphereControls.className='nex-vtt-atmosphere-controls';libraryBody.append(atmosphereControls);
     const effectLabel=document.createElement('label');effectLabel.textContent='Efeito';
     const effect=document.createElement('select');effect.setAttribute('aria-label','Efeito de atmosfera');
-    for(const [value,name] of [['none','Nenhum'],['mist','Névoa'],['rain','Chuva'],['snow','Neve'],['dark','Escuridão'],['embers','Brasas']]){
+    for(const [value,name] of [['none','Nenhum'],['mist','Névoa'],['rain','Chuva'],['snow','Neve'],['dark','Escuridão'],['embers','Brasas'],['custom','Imagem/GIF enviado']]){
      const option=document.createElement('option');option.value=value;option.textContent=name;effect.append(option);
     }
     effect.disabled=!gm;effectLabel.append(effect);atmosphereControls.append(effectLabel);
+    const customActions=document.createElement('div');customActions.className='nex-vtt-atmosphere-buttons';
+    const atmosphereUpload=document.createElement('input');atmosphereUpload.type='file';
+    atmosphereUpload.accept='image/png,image/jpeg,image/webp,image/gif';
+    atmosphereUpload.hidden=true;atmosphereControls.append(atmosphereUpload);
+    atmosphereUpload.addEventListener('change',event=>{
+     const file=event.target.files?.[0];event.target.value='';
+     if(file)window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-upload',{detail:{file}}));
+    });
+    const uploadAtmo=document.createElement('button');uploadAtmo.type='button';
+    uploadAtmo.textContent='＋ Adicionar atmosfera';uploadAtmo.disabled=!gm;
+    uploadAtmo.addEventListener('click',()=>atmosphereUpload.click());
+    const removeAtmo=document.createElement('button');removeAtmo.type='button';
+    removeAtmo.textContent='Remover imagem';removeAtmo.disabled=!gm;
+    removeAtmo.addEventListener('click',()=>window.dispatchEvent(new Event('nex:vtt-atmosphere-remove')));
+    customActions.append(uploadAtmo,removeAtmo);atmosphereControls.append(customActions);
     const strengthLabel=document.createElement('label');strengthLabel.textContent='Intensidade';
     const strength=document.createElement('input');strength.type='range';strength.min='0';strength.max='100';strength.step='5';
     strength.setAttribute('aria-label','Intensidade da atmosfera');strength.disabled=!gm;
