@@ -289,14 +289,14 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const file=e.target.files?.[0];e.target.value='';
   if(!gm||!file)return;
   if(uploading){message('Outro envio está em andamento.');return;}
-  uploading++;
+  uploading++;let released=false;
   try{
    message('Enviando mapa...');const uploaded=await uploadMedia(file,'map');
    const old=scene.map;scene.map=uploaded;render();
-   uploading=Math.max(0,uploading-1);await save();
+   uploading=Math.max(0,uploading-1);released=true;await save();
    if(!saveFailed){await deleteMediaParts(old);message('Mapa salvo e disponível no PC e celular.');}
   }catch(error){message('Falha ao enviar mapa: '+String(error.code||error.message||error).slice(0,110));}
-  finally{uploading=Math.max(0,uploading-1);}
+  finally{if(!released)uploading=Math.max(0,uploading-1);}
  });
  // Biblioteca compartilhada da cena; tokens referenciam o recurso para evitar cópias duplicadas.
  const libraryBytes=()=>new TextEncoder().encode(JSON.stringify(validScene(scene))).length;
@@ -406,9 +406,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   try{
    message('Preparando imagens dos tokens...');
    for(const file of files){
-    let data=null;
-    await reader(file,45000,src=>{data=src;});
-    if(!data){failed=true;break;}
+    const data=await uploadMedia(file,'asset');
     const pos=variations?(group?null:nextPosition()):nextPosition();
     if(!group&&variations&&!pos || !variations&&!pos){message('Não há espaço disponível para novos tokens.');failed=true;break;}
     const asset={id:'asset_'+crypto.randomUUID(),name:String(file.name||'Imagem').slice(0,90),src:data,groupId:variations?(group?.id||''): '',slot:variations?(added===9?0:added+1):1};
@@ -420,7 +418,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     token.images[variant]='asset:'+asset.id;
     if(!scene.tokens.includes(token))scene.tokens.push(token);
     if(libraryBytes()>850000){
-     scene.library.tokenImages.shift();
+     scene.library.tokenImages.shift();await deleteMediaParts(data);
      if(beforeImage===undefined)delete token.images[variant];else token.images[variant]=beforeImage;
      if(!added)scene.tokens=scene.tokens.filter(t=>t!==token);
      message('Limite de armazenamento da cena atingido. As imagens restantes não foram adicionadas.');
@@ -441,21 +439,42 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    }else if(!failed)message('Nenhum token foi adicionado.');
   }
  });
- listen(window,'nex:vtt-token-library-upload',event=>{
-  if(!gm)return;
-  const file=event.detail?.file;if(!file)return;
+ listen(window,'nex:vtt-token-library-upload',async event=>{
+  const file=event.detail?.file;
+  if(!gm||!file||!remoteReady)return;
   if((scene.library?.tokenImages?.length||0)>=20){message('A biblioteca já possui 20 imagens.');return;}
-  reader(file,45000,data=>{
+  if(uploading){message('Outro envio está em andamento.');return;}
+  uploading++;let src=null;
+  try{
+   src=await uploadMedia(file,'asset');
    scene.library??={tokenImages:[]};
-   const item={id:'asset_'+crypto.randomUUID(),name:String(file.name||'Imagem').slice(0,90),src:data};
+   const item={id:'asset_'+crypto.randomUUID(),name:String(file.name||'Imagem').slice(0,90),src};
    scene.library.tokenImages.unshift(item);
-   if(libraryBytes()>850000){scene.library.tokenImages.shift();message('A cena está cheia. Não foi possível salvar essa imagem.');libraryState();return;}
-   render();save();
-  });
+   if(libraryBytes()>850000){
+    scene.library.tokenImages.shift();await deleteMediaParts(src);src=null;
+    message('A cena está cheia.');return;
+   }
+  }catch(error){message('Erro ao enviar imagem: '+String(error.code||error.message||error).slice(0,100));return;}
+  finally{uploading=Math.max(0,uploading-1);}
+  render();await save();
  });
- listen($('nexTtVariantFile'),'change',e=>{
-  const id=selectedId,variant=Number(slot.value);if(!gm||!id)return;
-  reader(e.target.files?.[0],190000,data=>{const t=scene.tokens.find(x=>x.id===id);if(!t)return;const oldImage=t.images[variant],oldVariation=t.variation;t.images[variant]=data;t.variation=variant;if(libraryBytes()>850000){t.images[variant]=oldImage;t.variation=oldVariation;message('A imagem excede a capacidade da cena. Escolha outra menor.');return;}render();save();});e.target.value='';
+ listen($('nexTtVariantFile'),'change',async e=>{
+  const file=e.target.files?.[0],id=selectedId,variant=Number(slot.value);
+  e.target.value='';
+  if(!gm||!id||!file||uploading||!remoteReady)return;
+  uploading++;let data;
+  try{data=await uploadMedia(file,'asset');}
+  catch(error){message('Erro ao adicionar variação: '+String(error.code||error.message||error).slice(0,100));return;}
+  finally{uploading=Math.max(0,uploading-1);}
+  const t=scene.tokens.find(x=>x.id===id);if(!t){await deleteMediaParts(data);return;}
+  const old=t.images[variant],oldVariation=t.variation;
+  t.images[variant]=data;t.variation=variant;
+  if(libraryBytes()>850000){
+   t.images[variant]=old;t.variation=oldVariation;await deleteMediaParts(data);
+   message('A cena está cheia.');return;
+  }
+  render();await save();
+  if(!saveFailed&&old!==data)await deleteMediaParts(old);
  });
  listen(slot,'change',()=>{const t=selected();if(!gm||!t)return;t.variation=Number(slot.value);render();save();});
  listen($('nexTtDelete'),'click',()=>{if(!gm||!selectedId)return;scene.tokens=scene.tokens.filter(t=>t.id!==selectedId);selectedId=null;render();save();});
