@@ -240,7 +240,7 @@ service cloud.firestore {
         allow get: if sceneId == 'state' && nexInCampaign(cid);
         allow list: if false;
         allow create, update: if sceneId == 'state' && nexGM(cid)
-          && request.resource.data.keys().hasOnly(['format','map','tokens','drawings','atmosphere','fogEnabled','revealed','gridVisible','turns','combatLog','library'])
+          && request.resource.data.keys().hasOnly(['format','map','tokens','drawings','atmosphere','atmosphereLayers','fogEnabled','revealed','gridVisible','turns','combatLog','library'])
           && (!('library' in request.resource.data) || (
             request.resource.data.library is map
             && request.resource.data.library.keys().hasOnly(['tokenImages'])
@@ -256,6 +256,10 @@ service cloud.firestore {
             && request.resource.data.atmosphere.intensity <= 100
             && request.resource.data.atmosphere.animated is bool
             && (!('image' in request.resource.data.atmosphere) || (request.resource.data.atmosphere.image is string && request.resource.data.atmosphere.image.size() <= 180000))
+          ))
+          && (!('atmosphereLayers' in request.resource.data) || (
+            request.resource.data.atmosphereLayers is list
+            && request.resource.data.atmosphereLayers.size() <= 8
           ))
           && request.resource.data.format == 'nex-tabletop-v1'
           && request.resource.data.map is string
