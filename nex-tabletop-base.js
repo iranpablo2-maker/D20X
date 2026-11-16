@@ -1,6 +1,6 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261116hybrid1';
-export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,campaignId,uid,gm,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
+export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId,uid,gm,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
@@ -870,14 +870,29 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(!match)throw Error('Imagem inválida.');
   const body=match[2],count=Math.ceil(body.length/ATMOSPHERE_CHUNK_SIZE);
   if(count<1||count>32)throw Error('Imagem grande demais para sincronizar.');
+  if(!navigator.onLine)throw Error('Sem conexão com a internet. Reconecte antes de enviar.');
   const id=prefix+'_'+crypto.randomUUID(),saved=[];
+  // Agrupa documentos em lotes de até 8: muito menos viagens de rede
+  // do que aguardar uma chamada setDoc para cada parte do GIF.
+  // Cada lote é atômico, evitando partes salvas pela metade.
   try{
-   for(let i=0;i<count;i++){
-    await setDoc(mediaChunkRef(id,i),{chunk:body.slice(i*ATMOSPHERE_CHUNK_SIZE,(i+1)*ATMOSPHERE_CHUNK_SIZE)},{merge:false});
-    saved.push(i);
+   const GROUP_SIZE=8;
+   for(let start=0;start<count;start+=GROUP_SIZE){
+    const end=Math.min(start+GROUP_SIZE,count);
+    message('Enviando '+file.name+': partes '+(start+1)+'–'+end+' de '+count+'...');
+    const batch=writeBatch(db);
+    for(let i=start;i<end;i++){
+     batch.set(mediaChunkRef(id,i),{chunk:body.slice(i*ATMOSPHERE_CHUNK_SIZE,(i+1)*ATMOSPHERE_CHUNK_SIZE)});
+    }
+    await batch.commit();
+    for(let i=start;i<end;i++)saved.push(i);
    }
   }catch(error){
-   for(const i of saved)try{await deleteDoc(mediaChunkRef(id,i));}catch(_){}
+   // Evite apagar arquivos caso o navegador tenha ficado offline no meio
+   // da operação: uma escrita pendente poderá ser confirmada ao reconectar.
+   if(navigator.onLine){
+    for(const i of saved)try{await deleteDoc(mediaChunkRef(id,i));}catch(_){}
+   }
    throw error;
   }
   const src='firestore:'+id+':'+count+':'+match[1];
@@ -946,7 +961,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   try{
    for(const file of files){
     let src;
-    try{message('Enviando atmosfera: '+file.name);src=await uploadMedia(file,'atmo');}
+    try{message('Preparando atmosfera: '+file.name);src=await uploadMedia(file,'atmo');}
     catch(error){message('Falha no envio: '+String(error.code||error.message||error).slice(0,110));break;}
     const item={id:mediaDescriptor(src).id,name:String(file.name||'Atmosfera').slice(0,90),src,enabled:true,opacity:100};
     scene.atmosphereLayers??=[];scene.atmosphereLayers.push(item);
