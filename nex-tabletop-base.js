@@ -837,6 +837,47 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  vttResizeObserver?.observe(vttWrap.parentElement||vttWrap);
  vttChangeZoom(0);vttSetMode('select');
  requestAnimationFrame(()=>vttFitZoom());
+ // NEX VTT mobile pinch gesture: zoom the board (not the browser) using two fingers.
+ // Apply zoom through the existing controller so slider, percentage and tokens stay in sync.
+ let vttPinch=null;
+ const vttTouchDistance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+ const vttTouchCenter=(a,b)=>({x:(a.clientX+b.clientX)/2,y:(a.clientY+b.clientY)/2});
+ const vttIsTouchDevice=()=>matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
+ const vttPinchStart=e=>{
+   if(!vttIsTouchDevice()||e.touches.length!==2)return;
+   const [a,b]=e.touches;
+   vttPinch={distance:Math.max(1,vttTouchDistance(a,b)),center:vttTouchCenter(a,b)};
+   vttManualZoom=true;
+   vttPan=null;vttDraft=null;
+   if(e.cancelable)e.preventDefault();
+ };
+ const vttPinchMove=e=>{
+   if(!vttPinch||e.touches.length!==2)return;
+   if(e.cancelable)e.preventDefault();
+   const [a,b]=e.touches;
+   const distance=Math.max(1,vttTouchDistance(a,b));
+   const center=vttTouchCenter(a,b);
+   const oldZoom=vttZoom;
+   // Read board coordinates under the previous midpoint before changing scale.
+   const before=board.getBoundingClientRect();
+   const anchorX=(vttPinch.center.x-before.left)/oldZoom;
+   const anchorY=(vttPinch.center.y-before.top)/oldZoom;
+   vttChangeZoom(oldZoom*(distance/vttPinch.distance)-oldZoom);
+   const after=board.getBoundingClientRect();
+   // Keep the same map location under the moving midpoint, including panning.
+   vttWrap.scrollLeft+=after.left+anchorX*vttZoom-center.x;
+   vttWrap.scrollTop+=after.top+anchorY*vttZoom-center.y;
+   vttPinch={distance,center};
+ };
+ const vttPinchEnd=e=>{
+   if(!vttPinch)return;
+   if(e.touches.length!==2)vttPinch=null;
+ };
+ listen(vttWrap,'touchstart',vttPinchStart,{passive:false});
+ listen(vttWrap,'touchmove',vttPinchMove,{passive:false});
+ listen(vttWrap,'touchend',vttPinchEnd,{passive:true});
+ listen(vttWrap,'touchcancel',vttPinchEnd,{passive:true});
+
  const vttEl=(tag,attrs,parent)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);parent.append(n);return n;};
  function vttPaint(d,layer){
    const attrs={stroke:d.color||'#3157f5','stroke-width':d.width||3,fill:(d.filled&&['rectangle','circle'].includes(d.type))?(d.color||'#3157f5'):'none','fill-opacity':d.filled?'.3':'1','stroke-linecap':'round'};
