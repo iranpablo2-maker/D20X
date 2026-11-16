@@ -2409,7 +2409,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function setVttSidebarCollapsed(collapsed){
   vttToolsCollapsed=!!collapsed;
   vttSidebarPanel.dataset.toolsCollapsed=String(vttToolsCollapsed);
-  vttSidebarToggle.textContent=vttToolsCollapsed?'›':'‹';
+  vttSidebarToggle.textContent=vttToolsCollapsed?'›':'☰';
   vttSidebarToggle.setAttribute('aria-expanded',String(!vttToolsCollapsed));
   vttSidebarToggle.setAttribute('aria-label',vttToolsCollapsed?'Abrir barra de ferramentas':'Fechar barra de ferramentas');
   vttSidebarToggle.title=vttToolsCollapsed?'Abrir barra de ferramentas':'Fechar barra de ferramentas';
@@ -2417,7 +2417,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   window.dispatchEvent(new Event('resize'));
  }
  vttSidebarPanel.dataset.toolsCollapsed=String(vttToolsCollapsed);
- vttSidebarToggle.textContent=vttToolsCollapsed?'›':'‹';
+ vttSidebarToggle.textContent=vttToolsCollapsed?'›':'☰';
  vttSidebarToggle.setAttribute('aria-expanded',String(!vttToolsCollapsed));
  vttSidebarToggle.title=vttToolsCollapsed?'Abrir barra de ferramentas':'Fechar barra de ferramentas';
  vttSidebarToggle.setAttribute('aria-label',vttSidebarToggle.title);
