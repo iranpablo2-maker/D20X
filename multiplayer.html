@@ -3060,6 +3060,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      if(!row)continue;
      const toggle=row.querySelector('[data-atmosphere-toggle]');
      if(toggle){toggle.textContent=layer.enabled?'ON':'OFF';toggle.setAttribute('aria-pressed',String(layer.enabled));}
+     const thumb=row.querySelector('img.nex-vtt-art-thumb');
+     if(thumb&&layer.src&&thumb.getAttribute('src')!==layer.src)thumb.src=layer.src;
      const range=row.querySelector('input[type="range"]');
      if(range&&range.dataset.atmosphereOpacity!==focused)range.value=String(layer.opacity);
      const output=row.querySelector('output');if(output)output.textContent=layer.opacity+'%';
