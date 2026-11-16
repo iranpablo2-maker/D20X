@@ -2629,6 +2629,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   };
   let tokenLibraryState={assets:[],selectedId:null,selectedName:'',variation:1,tokenCount:0,isMaster:false};
   let tokenChosenVariation=1;
+  const expandedTokenGroups=new Set();
   const tokenLibraryUpload=document.createElement('input');
   tokenLibraryUpload.type='file';tokenLibraryUpload.multiple=true;tokenLibraryUpload.accept='image/png,image/jpeg,image/webp,image/gif';
   tokenLibraryUpload.hidden=true;tokenLibraryUpload.setAttribute('aria-label','Selecionar imagens de tokens');
@@ -2681,13 +2682,14 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     selectedLabel.textContent=tokenLibraryState.selectedId?
       'Token selecionado: '+tokenLibraryState.selectedName:'Nenhum token selecionado';
     selectedInfo.append(selectedLabel);
-    if(gm&&tokenLibraryState.selectedId){
+    const availableVariations=tokenLibraryState.availableVariations||[];
+    if(gm&&tokenLibraryState.selectedId&&availableVariations.length>1){
      const row=document.createElement('label');row.textContent='Variação ';
-     const select=document.createElement('select');select.setAttribute('aria-label','Variação a editar');
-     for(let i=0;i<10;i++){
+     const select=document.createElement('select');select.setAttribute('aria-label','Variações cadastradas');
+     for(const i of availableVariations){
       const opt=document.createElement('option');opt.value=i;opt.textContent=i===0?'0 · Especial':String(i);select.append(opt);
      }
-     select.value=String(tokenChosenVariation);
+     select.value=String(availableVariations.includes(tokenChosenVariation)?tokenChosenVariation:availableVariations[0]);
      select.addEventListener('change',()=>{
       tokenChosenVariation=Number(select.value);
       tokenLibraryAction('set-variation',null,tokenChosenVariation);
@@ -2701,20 +2703,61 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     if(!assets.length){
      const empty=document.createElement('p');empty.textContent='Nenhum token adicionado. Use Adicionar token para começar.';libraryBody.append(empty);
     }
+    const groups=new Map();
     for(const asset of assets){
+     const groupId=asset.groupId||asset.id;
+     if(!groups.has(groupId))groups.set(groupId,[]);
+     groups.get(groupId).push(asset);
+    }
+    const makeRow=(asset,{child=false,hasChildren=false,groupId='',grouped=false}={})=>{
      const row=document.createElement('div');row.className='nex-vtt-art-row nex-vtt-token-asset';
+     if(child){row.style.paddingLeft='22px';row.style.background='rgba(255,255,255,.035)';}
+     if(hasChildren){
+      const expand=document.createElement('button');expand.type='button';
+      const opened=expandedTokenGroups.has(groupId);
+      expand.textContent=opened?'▾':'▸';
+      expand.setAttribute('aria-expanded',String(opened));
+      expand.setAttribute('aria-label',opened?'Ocultar variações':'Mostrar variações');
+      expand.title=opened?'Ocultar variações':'Mostrar variações';
+      expand.style.cssText='min-width:22px;padding:2px 4px;border:0;background:transparent;color:#e2e8ff';
+      expand.addEventListener('click',()=>{
+       if(expandedTokenGroups.has(groupId))expandedTokenGroups.delete(groupId);else expandedTokenGroups.add(groupId);
+       openLibraryLayer('tokens');
+      });
+      row.append(expand);
+     }
      const thumb=document.createElement('img');thumb.className='nex-vtt-art-thumb';thumb.src=asset.src;thumb.alt='';
-     const label=document.createElement('span');label.textContent=asset.name;label.className='nex-vtt-asset-name';
+     const label=document.createElement('span');
+     label.textContent=child?'Variação '+(asset.slot===0?'0 · Especial':asset.slot)+' · '+asset.name:asset.name;
+     label.className='nex-vtt-asset-name';
      row.append(thumb,label);
      if(gm){
       const commands=document.createElement('div');commands.className='nex-vtt-asset-actions';
       const create=document.createElement('button');create.type='button';create.textContent='Add';
-      create.title='Criar token com esta imagem';
+      create.title='Adicionar token com esta imagem à mesa';
       create.addEventListener('click',()=>tokenLibraryAction('create',asset.id));
-      commands.append(create);
-      row.append(commands);
+      const del=document.createElement('button');del.type='button';del.textContent='Excluir';
+      del.title=grouped&&!child?'Excluir token e suas imagens da biblioteca':'Excluir imagem da biblioteca';
+      del.addEventListener('click',()=>{
+       const all=grouped&&!child;
+       if(!confirm(all?'Excluir o token principal e todas as variações desta biblioteca?':'Excluir esta imagem da biblioteca?'))return;
+       window.dispatchEvent(new CustomEvent('nex:vtt-token-library-action',{detail:{action:'delete-asset',assetId:asset.id,deleteGroup:all}}));
+      });
+      commands.append(create,del);row.append(commands);
      }
      libraryBody.append(row);
+    };
+    for(const [groupId,items] of groups){
+     const grouped=items.length>1&&!!items[0].groupId;
+     const ordered=[...items].sort((a,b)=>{
+      const rank=v=>v.slot===1?0:v.slot===0?10:(v.slot??1);
+      return rank(a)-rank(b);
+     });
+     const primary=ordered[0];
+     makeRow(primary,{hasChildren:grouped,groupId,grouped});
+     if(grouped&&expandedTokenGroups.has(groupId)){
+      for(const sub of ordered.slice(1))makeRow(sub,{child:true,groupId,grouped});
+     }
     }
    }else{
     const note=document.createElement('p');note.textContent=gm?'Controles exclusivos do mestre.':'Esta área é exclusiva do mestre.';libraryBody.append(note);
