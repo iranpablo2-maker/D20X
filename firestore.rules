@@ -240,12 +240,21 @@ service cloud.firestore {
         allow get: if sceneId == 'state' && nexInCampaign(cid);
         allow list: if false;
         allow create, update: if sceneId == 'state' && nexGM(cid)
-          && request.resource.data.keys().hasOnly(['format','map','tokens','drawings','fogEnabled','revealed','gridVisible','turns','combatLog','library'])
+          && request.resource.data.keys().hasOnly(['format','map','tokens','drawings','atmosphere','fogEnabled','revealed','gridVisible','turns','combatLog','library'])
           && (!('library' in request.resource.data) || (
             request.resource.data.library is map
             && request.resource.data.library.keys().hasOnly(['tokenImages'])
             && request.resource.data.library.tokenImages is list
             && request.resource.data.library.tokenImages.size() <= 20
+          ))
+          && (!('atmosphere' in request.resource.data) || (
+            request.resource.data.atmosphere is map
+            && request.resource.data.atmosphere.keys().hasOnly(['type','intensity','animated'])
+            && request.resource.data.atmosphere.type in ['none','mist','rain','snow','dark','embers']
+            && request.resource.data.atmosphere.intensity is int
+            && request.resource.data.atmosphere.intensity >= 0
+            && request.resource.data.atmosphere.intensity <= 100
+            && request.resource.data.atmosphere.animated is bool
           ))
           && request.resource.data.format == 'nex-tabletop-v1'
           && request.resource.data.map is string
