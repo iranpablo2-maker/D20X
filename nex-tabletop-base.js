@@ -35,7 +35,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    img.onerror=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();render();board.style.visibility='visible';};
    img.src=src;
  }
- const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
+ const empty=()=>({map:'',tokens:[],drawings:[],atmosphere:{type:'none',intensity:45,animated:true},fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
  let scene=empty(),selectedId=null,resizeSelectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false,uploading=0,localDirty=false;
  const backupKey='nex-vtt-pending:'+campaignId;
  let recoveredBackup=null;
@@ -122,7 +122,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
  function validScene(data){
   if(!stateOK(data))return empty();
-  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&data.map.length<650000?data.map:'',drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
+  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&data.map.length<650000?data.map:'',atmosphere:{type:['none','mist','rain','snow','dark','embers'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Math.max(0,Math.min(100,Math.round(Number(data.atmosphere?.intensity) || 0))),animated:data.atmosphere?.animated!==false},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-.5,Math.round((Number(t.x)||0)*4)/4)),y:Math.max(0,Math.min(H-.5,Math.round((Number(t.y)||0)*4)/4)),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?Array.from({length:Math.min(10,t.images.length)},(_,i)=>{const url=t.images[i];return typeof url==='string'&&url.length<650000?url:'';}):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),widthCells:Math.max(.5,Math.min(10,Number(t.widthCells)||Number(t.size)||1)),heightCells:Math.max(.5,Math.min(10,Number(t.heightCells)||Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
@@ -624,7 +624,23 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  vttStyle.textContent='#nexVttDrawLayer,#nexVttMeasureLayer{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}'+
  '#nexVttDrawLayer{z-index:1}#nexVttMeasureLayer{z-index:4}'+
  '#nexVttFogLayer{position:absolute;inset:0;z-index:4;pointer-events:none;background:rgba(0,0,0,.9)}'+
- '#nexVttFogLayer[hidden]{display:none!important}.nex-vtt-hide-grid::before{display:none!important}';
+ '#nexVttFogLayer[hidden]{display:none!important}.nex-vtt-hide-grid::before{display:none!important}'+
+ '#nexVttAtmosphereLayer{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;isolation:isolate}'+
+ '#nexVttAtmosphereLayer[hidden]{display:none!important}'+
+ '#nexVttAtmosphereLayer::before,#nexVttAtmosphereLayer::after{content:"";position:absolute;inset:-15%;pointer-events:none}'+
+ '#nexVttAtmosphereLayer::after{display:none}'+
+ '#nexVttAtmosphereLayer[data-effect="mist"]::before{opacity:calc(var(--nex-atmosphere-strength)*.7);background:radial-gradient(ellipse at 20% 30%,#dfe5f7ad,transparent 45%),radial-gradient(ellipse at 78% 65%,#b9c7d8b8,transparent 50%),radial-gradient(ellipse at 42% 78%,#e2e8f0aa,transparent 44%);background-size:130% 130%}'+
+ '#nexVttAtmosphereLayer[data-effect="rain"]::before{opacity:calc(var(--nex-atmosphere-strength)*.8);background:repeating-linear-gradient(104deg,transparent 0px,transparent 16px,#b4cbf0 17px,transparent 19px,transparent 36px);background-size:190px 190px}'+
+ '#nexVttAtmosphereLayer[data-effect="snow"]::before{opacity:var(--nex-atmosphere-strength);background-image:radial-gradient(2px 2px at 15px 30px,#fff 95%,transparent),radial-gradient(3px 3px at 80px 90px,#eaf6ff 95%,transparent),radial-gradient(2px 2px at 130px 25px,#fff 95%,transparent);background-size:150px 130px}'+
+ '#nexVttAtmosphereLayer[data-effect="dark"]::before{inset:0;background:#050611;opacity:calc(var(--nex-atmosphere-strength)*.85)}'+
+ '#nexVttAtmosphereLayer[data-effect="embers"]::before{opacity:var(--nex-atmosphere-strength);background-image:radial-gradient(3px 3px at 10px 30px,#ff8f3e 95%,transparent),radial-gradient(2px 2px at 75px 90px,#fcca6b 95%,transparent),radial-gradient(3px 3px at 130px 50px,#fd592e 95%,transparent);background-size:160px 140px}'+
+ '@keyframes nexAtmoDrift{to{background-position:250px 170px}}'+
+ '@keyframes nexAtmoRain{to{background-position:-90px 300px}}'+
+ '#nexVttAtmosphereLayer[data-animated="true"][data-effect="mist"]::before{animation:nexAtmoDrift 35s linear infinite alternate}'+
+ '#nexVttAtmosphereLayer[data-animated="true"][data-effect="rain"]::before{animation:nexAtmoRain 2.8s linear infinite}'+
+ '#nexVttAtmosphereLayer[data-animated="true"][data-effect="snow"]::before{animation:nexAtmoRain 18s linear infinite}'+
+ '#nexVttAtmosphereLayer[data-animated="true"][data-effect="embers"]::before{animation:nexAtmoDrift 12s linear infinite alternate-reverse}'+
+ '@media(prefers-reduced-motion:reduce){#nexVttAtmosphereLayer::before{animation:none!important}}';
  document.head.append(vttStyle);
  const vttSidebar=tools.closest('.nex-vtt-sidebar');
  vttSidebar?.prepend(vttBar);
@@ -755,7 +771,32 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  vttRight?.insertBefore(vttRoomTag,vttRight.querySelector('.nex-vtt-sheets-title'));
  const vttSVG=(id)=>{const node=document.createElementNS('http://www.w3.org/2000/svg','svg');node.id=id;node.setAttribute('viewBox','0 0 '+(GRID*W)+' '+(GRID*H));board.append(node);return node;};
  const vttLayer=vttSVG('nexVttDrawLayer'),vttMeasure=vttSVG('nexVttMeasureLayer');
+ const atmosphereLayer=document.createElement('div');
+ atmosphereLayer.id='nexVttAtmosphereLayer';atmosphereLayer.hidden=true;atmosphereLayer.setAttribute('aria-hidden','true');
+ board.append(atmosphereLayer);
  const vttFog=document.createElement('div');vttFog.id='nexVttFogLayer';vttFog.hidden=true;board.append(vttFog);
+ function applyAtmosphere(){
+  const state=scene.atmosphere||{type:'none',intensity:45,animated:true};
+  const type=['mist','rain','snow','dark','embers'].includes(state.type)?state.type:'none';
+  atmosphereLayer.hidden=type==='none'||state.intensity<=0;
+  atmosphereLayer.dataset.effect=type;
+  atmosphereLayer.dataset.animated=String(state.animated!==false);
+  atmosphereLayer.style.setProperty('--nex-atmosphere-strength',String(Math.max(0,Math.min(100,state.intensity||0))/100));
+  window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-state',{detail:{type,intensity:state.intensity,animated:state.animated!==false,isMaster:gm}}));
+ }
+ listen(window,'nex:vtt-atmosphere-request',()=>{
+  const state=scene.atmosphere||{type:'none',intensity:45,animated:true};
+  window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-state',{detail:{...state,isMaster:gm}}));
+ });
+ listen(window,'nex:vtt-atmosphere-update',event=>{
+  if(!gm)return;
+  const prev=scene.atmosphere||{type:'none',intensity:45,animated:true};
+  const patch=event.detail||{};
+  const type=['none','mist','rain','snow','dark','embers'].includes(patch.type)?patch.type:prev.type;
+  const intensity=Number.isFinite(Number(patch.intensity))?Math.max(0,Math.min(100,Math.round(Number(patch.intensity)))):prev.intensity;
+  scene.atmosphere={type,intensity,animated:typeof patch.animated==='boolean'?patch.animated:prev.animated};
+  applyAtmosphere();save();
+ });
  const vttLog=document.createElement('div');vttLog.style.cssText='position:absolute;bottom:6px;right:6px;background:#171015ee;color:#fff;z-index:8;padding:8px;border-radius:5px;pointer-events:none;font-size:12px';vttLog.hidden=true;board.append(vttLog);
  const vttButtons=new Map();
  function vttButton(label,title,callback,disabled=false){const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);b.disabled=disabled;b.addEventListener('click',callback);vttBar.append(b);return b;}
@@ -977,6 +1018,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    vttLayer.replaceChildren();for(const d of scene.drawings)vttPaint(d,vttLayer);
    if(vttDraft&&vttMode!=='measure')vttPaint(vttDraft,vttLayer);
    board.classList.toggle('nex-vtt-hide-grid',!scene.gridVisible);
+   applyAtmosphere();
    vttFog.hidden=!scene.fogEnabled;
    if(scene.fogEnabled){
      const holes=scene.revealed.map(p=>'radial-gradient(circle 63px at '+p.x+'px '+p.y+'px,transparent 98%,black 100%)');
@@ -1206,5 +1248,5 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   remoteReady=true;render();if(queued)save();else if(!saveFailed)message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Não foi possível receber atualizações da mesa.');warnSync(error.code==='permission-denied'?'Acesso negado pelo Firestore. Verifique as regras da campanha.':'Erro de conexão com a mesa: '+String(error.message||error).slice(0,140));console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();};
 }
