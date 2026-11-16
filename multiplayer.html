@@ -2269,7 +2269,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmofirestore220';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116hybrid230';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -2922,7 +2922,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   });
  }
  function subscribeTabletop(id){
-  try{unsubs.push(mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,campaignId:id,gm,getSheets:()=>roomSheets,updateResource:updateVttSheetResource,onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
+  try{unsubs.push(mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,campaignId:id,uid,gm,getSheets:()=>roomSheets,updateResource:updateVttSheetResource,onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
   catch(error){console.error('Falha ao iniciar Tabletop',error);$('nexTabletopMessage').textContent='Falha ao iniciar mesa virtual.';}
  }
  function roomSection(section){
