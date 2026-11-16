@@ -2241,7 +2241,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmosphere150';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmosphere151';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -3006,8 +3006,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   });
   const tokenLibraryAction=(action,assetId,variation=tokenChosenVariation)=>
    window.dispatchEvent(new CustomEvent('nex:vtt-token-library-action',{detail:{action,assetId,variation}}));
+  let currentAtmosphereState=null;
   window.addEventListener('nex:vtt-atmosphere-state',event=>{
-   window.nexVttAtmosphereState=event.detail;
+   currentAtmosphereState=event.detail;
    const panel=libraryBody.querySelector('.nex-vtt-atmosphere-controls');
    if(!panel)return;
    const effect=panel.querySelector('select');
@@ -3071,7 +3072,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      strengthValue.textContent=strength.value+'%';animated.checked=state.animated!==false;
     };
     // The latest scene state is read when this panel opens and after sync events.
-    if(window.nexVttAtmosphereState)fillAtmosphere(window.nexVttAtmosphereState);
+    if(currentAtmosphereState)fillAtmosphere(currentAtmosphereState);
     else{effect.value='none';strength.value='45';animated.checked=true;}
     window.dispatchEvent(new Event('nex:vtt-atmosphere-request'));
    }else if(layer==='tokens'){
