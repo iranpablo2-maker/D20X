@@ -7,7 +7,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,camp
  const GRID=48,W=25,H=25;
  const mediaCache=createVttMediaCache(uid,campaignId);
  const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
- let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,mapLoadId=0;
+ let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,renderedMapSource=null,mapLoadId=0;
  function mapGeometry(){
    board.style.setProperty('--nex-board-width',mapWidth+'px');
    board.style.setProperty('--nex-board-height',mapHeight+'px');
@@ -155,7 +155,10 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(disposed)return;
   board.querySelectorAll('.nex-tabletop-token').forEach(n=>n.remove());
   const resolvedMap=visibleMediaSource(scene.map);
-  board.style.backgroundImage=resolvedMap?'url("'+resolvedMap.replace(/"/g,'')+'")':'none';
+  if(renderedMapSource!==resolvedMap){
+   board.style.backgroundImage=resolvedMap?'url("'+resolvedMap.replace(/"/g,'')+'")':'none';
+   renderedMapSource=resolvedMap;
+  }
   updateMapGeometry();
   for(const t of scene.tokens){
    if(t.hidden&&!gm)continue;
