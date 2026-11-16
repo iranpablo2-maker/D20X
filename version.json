@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.15-vtt-1.5",
-  "build": "20261115visiblevtt15",
-  "description": "Redesign visível do tabletop: barra de ações persistente para Personagens, Combate, Dados, Mapa e Token; identificador de cena; melhorias de contraste; preservação da integração das fichas e sincronização."
+  "version": "2026.11.16-vtt-2.0",
+  "build": "20261116interface20",
+  "description": "Nova interface do tabletop NEX: layout escuro consolidado, barra superior e painel de personagens redimensionável com teclado, largura salva e modo compacto responsivo."
 }
