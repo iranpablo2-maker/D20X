@@ -2982,7 +2982,16 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const mainClose=$('nexVttMainClose');
   const libraryBody=$('nexVttLibraryBody');
   const libraryTabs=[...mainMenu.querySelectorAll('[data-nex-library-layer]')];
-  const updateMenu=show=>{mainMenu.hidden=!show;mainMenuToggle.setAttribute('aria-expanded',String(show));};
+  const updateMenu=show=>{
+   mainMenu.hidden=!show;
+   mainMenuToggle.setAttribute('aria-expanded',String(show));
+   // Rebuild the active Art Library tab after the campaign's GM role loads.
+   // The first UI render happens before openCampaign sets gm=true.
+   if(show&&mainMenu.querySelector('[data-nex-main-page="art"]')?.hidden===false){
+    const active=libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer||'mapa';
+    openLibraryLayer(active);
+   }
+  };
   const addLibraryButton=(label,onClick)=>{
    const button=document.createElement('button');button.type='button';button.textContent=label;
    button.addEventListener('click',onClick);libraryBody.append(button);return button;
@@ -3133,6 +3142,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
   }
   menuTabs.forEach(btn=>btn.addEventListener('click',()=>{showMainTab(btn.dataset.nexMainTab);if(btn.dataset.nexMainTab==='art')window.dispatchEvent(new Event('nex:vtt-token-library-request'));}));
+  // Refresh the role-sensitive buttons whenever the Art tab is opened.
   mainMenuToggle.addEventListener('click',()=>updateMenu(mainMenu.hidden));
   mainClose.addEventListener('click',()=>updateMenu(false));
   $('nexVttMenuSheets').addEventListener('click',()=>{$('nexVttSheetsToggle').click();});
