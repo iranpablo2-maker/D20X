@@ -383,7 +383,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  const vttZoomSlider=document.createElement('input');vttZoomSlider.type='range';vttZoomSlider.id='nexVttZoomSlider';vttZoomSlider.min='25';vttZoomSlider.max='200';vttZoomSlider.step='1';vttZoomSlider.setAttribute('aria-label','Escala de zoom do mapa');
  vttZoomSlider.addEventListener('input',()=>{vttManualZoom=true;vttChangeZoom(Number(vttZoomSlider.value)/100-vttZoom);});
  const vttZoomFit=vttButton('⊡','Ajustar todo o mapa à tela',()=>{vttManualZoom=false;vttFitZoom();});
- vttZoomRail.append(vttZoomFit,vttZoomPlus,vttZoomSlider,vttZoomText,vttZoomMinus);
+ vttZoomRail.append(vttZoomMinus,vttZoomSlider,vttZoomText,vttZoomPlus,vttZoomFit);
  vttWrap.parentElement?.append(vttZoomRail);
  vttButton('＋','Adicionar token',()=>{
    const name=prompt('Nome do token:','Token');
