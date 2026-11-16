@@ -16,7 +16,10 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  function updateMapGeometry(){
    if(lastMapSource===scene.map)return;
    const src=scene.map;lastMapSource=src;const loadId=++mapLoadId;
-   if(!src){mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();return;}
+   if(!src){mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();board.style.visibility='visible';return;}
+   // Do not show tokens against the temporary 1200px fallback canvas.
+   // Reveal the board only after the map's real aspect ratio is known.
+   board.style.visibility='hidden';
    const img=new Image();
    img.onload=()=>{
      if(disposed||loadId!==mapLoadId)return;
@@ -25,8 +28,9 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
      mapHeight=Math.max(120,Math.round((GRID*H)*Math.min(1,1/ratio)));
      mapGeometry();
      if(typeof vttFitZoom==='function')vttFitZoom();
+     board.style.visibility='visible';
    };
-   img.onerror=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();};
+   img.onerror=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();board.style.visibility='visible';};
    img.src=src;
  }
  const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
@@ -132,7 +136,10 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    if(t.hidden&&!gm)continue;
    const el=document.createElement('button');el.type='button';el.className='nex-tabletop-token';el.dataset.token=t.id;el.dataset.master=String(gm);el.dataset.selected=String(t.id===selectedId);el.dataset.resizeSelected=String(gm&&t.id===resizeSelectedId&&!t.locked);
    const cw=mapWidth/W,ch=mapHeight/H;
-   el.style.left=(t.x*cw)+'px';el.style.top=(t.y*ch)+'px';el.style.width=((t.widthCells||t.size||1)*cw)+'px';el.style.height=((t.heightCells||t.size||1)*ch)+'px';el.style.transform='rotate('+t.rotation+'deg)';el.title=t.name+' · Variação '+t.variation;el.setAttribute('aria-label',el.title);
+   // Keep tokens square even when a rectangular map has different X/Y cell sizes.
+   // Their saved grid coordinates remain unchanged.
+   const unit=Math.min(cw,ch);
+   el.style.left=(t.x*cw)+'px';el.style.top=(t.y*ch)+'px';el.style.width=((t.widthCells||t.size||1)*unit)+'px';el.style.height=((t.heightCells||t.size||1)*unit)+'px';el.style.transform='rotate('+t.rotation+'deg)';el.title=t.name+' · Variação '+t.variation;el.setAttribute('aria-label',el.title);
    const portrait=linkedSheet(t)?.fullSheet?.photo||'';
    const safePortrait=typeof portrait==='string'&&(portrait.startsWith('https://')||/^data:image\/(?:png|jpeg|webp);base64,/i.test(portrait))?portrait:'';
    const selectedImage=t.images[t.variation]||'';
@@ -140,14 +147,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const img=(storedAsset?.src||(selectedImage.startsWith('asset:')?'':selectedImage))||safePortrait||'';
    if(img){const image=document.createElement('img');image.src=img;image.alt=t.name;el.appendChild(image);}
    else{const span=document.createElement('span');span.textContent=t.name.slice(0,3).toUpperCase();el.appendChild(span);}
-   const resources=document.createElement('span');resources.className='nex-token-resource-bars';
-   for(const [name,tone] of [['pv','#df5a66'],['pe','#f6c15a'],['san','#62aad7']]){
-     const current=tokenStat(t,name),max=Math.max(1,tokenMax(t,name)||current||1);
-     const line=document.createElement('i');line.style.background='linear-gradient(to right,'+tone+' '+Math.min(100,Math.round(100*current/max))+'%,#262b36 '+Math.min(100,Math.round(100*current/max))+'%)';
-     line.title=name.toUpperCase()+': '+current+' / '+(tokenMax(t,name)||'—');
-     resources.append(line);
-   }
-   el.append(resources);
+
    if(gm&&t.id===resizeSelectedId&&!t.locked){
     for(const handle of ['nw','n','ne','e','se','s','sw','w']){
      const grip=document.createElement('span');grip.className='nex-token-resize-handle';
