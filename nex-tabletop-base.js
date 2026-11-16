@@ -1,9 +1,12 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
-export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,campaignId,gm,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
+import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261116hybrid1';
+export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,campaignId,uid,gm,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
  const GRID=48,W=25,H=25;
+ const mediaCache=createVttMediaCache(uid,campaignId);
+ const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
  let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,mapLoadId=0;
  function mapGeometry(){
    board.style.setProperty('--nex-board-width',mapWidth+'px');
@@ -122,7 +125,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
  function validScene(data){
   if(!stateOK(data))return empty();
-  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&data.map.length<650000?data.map:'',atmosphereLayers:Array.isArray(data.atmosphereLayers)?data.atmosphereLayers.slice(0,8).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(a.src.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)||(a.src.startsWith('storage:campaigns/'+campaignId+'/atmospheres/')&&/^atmo_[a-zA-Z0-9_-]+$/.test(a.src.slice(('storage:campaigns/'+campaignId+'/atmospheres/').length))||/^firestore:atmo_[a-zA-Z0-9_-]+:(?:[1-9]|[12][0-9]|3[0-2]):(?:gif|png|jpeg|webp)$/.test(a.src)))).map(a=>({id:a.id.slice(0,100),name:String(a.name||'Atmosfera').slice(0,90),src:a.src,enabled:a.enabled!==false,opacity:Math.max(0,Math.min(100,Math.round(Number.isFinite(Number(a.opacity))&&a.opacity!=null?Number(a.opacity):100)))})):(typeof data.atmosphere?.image==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)&&data.atmosphere.image.length<=180000?[{id:'atmo_legacy',name:'Atmosfera anterior',src:data.atmosphere.image,enabled:data.atmosphere.type!=='none',opacity:Math.max(0,Math.min(100,Number(data.atmosphere.intensity)??100))}]:[]),atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
+  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000||/^firestore:asset_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(a.src))).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&(data.map.length<650000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.map)||/^firestore:map_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(data.map))?data.map:'',atmosphereLayers:Array.isArray(data.atmosphereLayers)?data.atmosphereLayers.slice(0,8).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(a.src.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)||(a.src.startsWith('storage:campaigns/'+campaignId+'/atmospheres/')&&/^atmo_[a-zA-Z0-9_-]+$/.test(a.src.slice(('storage:campaigns/'+campaignId+'/atmospheres/').length))||/^firestore:atmo_[a-zA-Z0-9_-]+:(?:[1-9]|[12][0-9]|3[0-2]):(?:gif|png|jpeg|webp)$/.test(a.src)))).map(a=>({id:a.id.slice(0,100),name:String(a.name||'Atmosfera').slice(0,90),src:a.src,enabled:a.enabled!==false,opacity:Math.max(0,Math.min(100,Math.round(Number.isFinite(Number(a.opacity))&&a.opacity!=null?Number(a.opacity):100)))})):(typeof data.atmosphere?.image==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)&&data.atmosphere.image.length<=180000?[{id:'atmo_legacy',name:'Atmosfera anterior',src:data.atmosphere.image,enabled:data.atmosphere.type!=='none',opacity:Math.max(0,Math.min(100,Number(data.atmosphere.intensity)??100))}]:[]),atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-.5,Math.round((Number(t.x)||0)*4)/4)),y:Math.max(0,Math.min(H-.5,Math.round((Number(t.y)||0)*4)/4)),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?Array.from({length:Math.min(10,t.images.length)},(_,i)=>{const url=t.images[i];return typeof url==='string'&&url.length<650000?url:'';}):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),widthCells:Math.max(.5,Math.min(10,Number(t.widthCells)||Number(t.size)||1)),heightCells:Math.max(.5,Math.min(10,Number(t.heightCells)||Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
@@ -778,49 +781,76 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  atmosphereLayer.id='nexVttAtmosphereLayer';atmosphereLayer.hidden=true;atmosphereLayer.setAttribute('aria-hidden','true');
  board.append(atmosphereLayer);
  const vttFog=document.createElement('div');vttFog.id='nexVttFogLayer';vttFog.hidden=true;board.append(vttFog);
- const atmosphereSourceCache=new Map();
- const pendingAtmosphereSources=new Map();
- // The Firestore free tier supports documents up to 1 MiB; store each original
- // GIF/image as base64 pieces in individually permissioned documents.
- const ATMOSPHERE_CHUNK_SIZE=240000;
- const ATMOSPHERE_FILE_LIMIT=5*1024*1024;
+ const ATMOSPHERE_CHUNK_SIZE=240000,ATMOSPHERE_FILE_LIMIT=5*1024*1024;
  const mediaDescriptor=src=>{
-  const match=/^firestore:(atmo_[A-Za-z0-9_-]+):([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.exec(src||'');
-  if(!match)return null;
-  return {id:match[1],count:Number(match[2]),mime:match[3]};
+  const match=/^firestore:((?:atmo|map|asset)_[A-Za-z0-9_-]+):([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.exec(src||'');
+  return match?{id:match[1],count:Number(match[2]),mime:match[3]}:null;
  };
- const mediaChunkRef=(id,index)=>doc(db,'campaigns',campaignId,'tabletopMedia',id,'chunks',String(index).padStart(3,'0'));
- const legacyStoragePrefix='campaigns/'+campaignId+'/atmospheres/';
- const legacyStoragePath=src=>
-   typeof src==='string'&&src.startsWith('storage:'+legacyStoragePrefix)?src.slice(8):null;
- function visibleAtmosphereSource(item){
-  if(typeof item.src!=='string')return '';
-  if(item.src.startsWith('data:image/'))return item.src;
-  const info=mediaDescriptor(item.src);
-  if(!info)return '';
-  if(atmosphereSourceCache.has(item.src))return atmosphereSourceCache.get(item.src);
-  if(!pendingAtmosphereSources.has(item.src)){
-   const load=(async()=>{
-    const parts=[];
-    for(let i=0;i<info.count;i++){
-     const snap=await getDoc(mediaChunkRef(info.id,i));
-     if(!snap.exists())throw Error('Parte '+(i+1)+' não encontrada');
-     const data=snap.data();
-     if(typeof data?.chunk!=='string'||data.chunk.length>ATMOSPHERE_CHUNK_SIZE)throw Error('Parte inválida');
-     parts.push(data.chunk);
+ const mediaChunkRef=(id,i)=>doc(db,'campaigns',campaignId,'tabletopMedia',id,'chunks',String(i).padStart(3,'0'));
+ function visibleMediaSource(src){
+  if(typeof src!=='string')return '';
+  if(src.startsWith('data:image/')||src.startsWith('https://'))return src;
+  const info=mediaDescriptor(src);
+  if(!info||mediaFailed.has(src))return '';
+  if(mediaMemory.has(src))return mediaMemory.get(src);
+  if(!mediaPending.has(src)){
+   const task=(async()=>{
+    let image=await mediaCache.read(src);
+    if(!image){
+     const parts=[];
+     for(let i=0;i<info.count;i++){
+      const snap=await getDoc(mediaChunkRef(info.id,i));
+      if(!snap.exists())throw Error('Parte de imagem não encontrada');
+      const chunk=snap.data()?.chunk;
+      if(typeof chunk!=='string'||chunk.length>ATMOSPHERE_CHUNK_SIZE)throw Error('Parte inválida');
+      parts.push(chunk);
+     }
+     image='data:image/'+info.mime+';base64,'+parts.join('');
+     void mediaCache.put(src,image);
     }
-    const mime='image/'+info.mime;
-    const url='data:'+mime+';base64,'+parts.join('');
-    if(disposed)return;
-    atmosphereSourceCache.set(item.src,url);
-    applyAtmosphere();
-   })().catch(err=>{
-    if(!disposed)message('Falha ao carregar atmosfera: '+String(err.code||err.message||err).slice(0,100));
-   }).finally(()=>pendingAtmosphereSources.delete(item.src));
-   pendingAtmosphereSources.set(item.src,load);
+    if(!disposed){mediaMemory.set(src,image);render();libraryState();}
+   })().catch(error=>{
+    mediaFailed.add(src);
+    if(!disposed)message('Erro ao carregar arquivo: '+String(error.code||error.message||error).slice(0,100));
+   }).finally(()=>mediaPending.delete(src));
+   mediaPending.set(src,task);
   }
   return '';
  }
+ async function uploadMedia(file,prefix){
+  if(!/^image\/(gif|png|jpeg|webp)$/.test(file?.type||''))throw Error('Selecione PNG, JPG, WebP ou GIF.');
+  if(file.size>ATMOSPHERE_FILE_LIMIT)throw Error('O limite por arquivo é 5 MB.');
+  const data=await new Promise((resolve,reject)=>{
+   const reader=new FileReader();reader.onload=()=>resolve(reader.result);
+   reader.onerror=()=>reject(Error('Não foi possível ler a imagem'));reader.readAsDataURL(file);
+  });
+  const match=/^data:image\/(gif|png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(data);
+  if(!match)throw Error('Imagem inválida.');
+  const body=match[2],count=Math.ceil(body.length/ATMOSPHERE_CHUNK_SIZE);
+  if(count<1||count>32)throw Error('Imagem grande demais para sincronizar.');
+  const id=prefix+'_'+crypto.randomUUID(),saved=[];
+  try{
+   for(let i=0;i<count;i++){
+    await setDoc(mediaChunkRef(id,i),{chunk:body.slice(i*ATMOSPHERE_CHUNK_SIZE,(i+1)*ATMOSPHERE_CHUNK_SIZE)},{merge:false});
+    saved.push(i);
+   }
+  }catch(error){
+   for(const i of saved)try{await deleteDoc(mediaChunkRef(id,i));}catch(_){}
+   throw error;
+  }
+  const src='firestore:'+id+':'+count+':'+match[1];
+  mediaMemory.set(src,data);void mediaCache.put(src,data);
+  return src;
+ }
+ async function deleteMediaParts(src){
+  const info=mediaDescriptor(src);if(!info)return;
+  let errors=0;
+  for(let i=0;i<info.count;i++)try{await deleteDoc(mediaChunkRef(info.id,i));}
+  catch(error){errors++;console.warn('NEX mídia: falha ao excluir parte',error);}
+  mediaMemory.delete(src);mediaFailed.delete(src);void mediaCache.remove(src);
+  if(errors)message('Imagem removida, mas '+errors+' parte(s) não foram excluídas do Firestore.');
+ }
+ const visibleAtmosphereSource=item=>visibleMediaSource(item.src);
  function applyAtmosphere(){
   const layers=scene.atmosphereLayers||[];
   const ids=new Set(layers.map(a=>a.id));
@@ -846,17 +876,6 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    layers:layers.map(a=>({id:a.id,name:a.name,src:visibleAtmosphereSource(a),enabled:a.enabled,opacity:a.opacity})),isMaster:gm
   }}));
  }
- async function deleteMediaParts(src){
-  const info=mediaDescriptor(src);
-  if(!info)return;
-  let failures=0;
-  for(let i=0;i<info.count;i++){
-   try{await deleteDoc(mediaChunkRef(info.id,i));}
-   catch(e){failures++;console.warn('Falha ao excluir parte de atmosfera',e);}
-  }
-  atmosphereSourceCache.delete(src);
-  if(failures)message('Atmosfera removida da mesa, mas '+failures+' parte(s) não foram excluídas do banco.');
- }
  listen(window,'nex:vtt-atmosphere-request',()=>applyAtmosphere());
  listen(window,'nex:vtt-atmosphere-layer-action',async event=>{
   if(!gm)return;
@@ -876,55 +895,26 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   }
  });
  listen(window,'nex:vtt-atmosphere-upload',async event=>{
-  if(!gm||!remoteReady){message('Aguarde a mesa carregar para adicionar atmosferas.');return;}
-  if(!getDoc||!deleteDoc){message('O suporte a arquivos de atmosfera não está pronto.');return;}
+  if(!gm||!remoteReady){message('Aguarde a mesa carregar.');return;}
   const files=Array.from(event.detail?.files||(event.detail?.file?[event.detail.file]:[])).filter(Boolean);
   if(!files.length)return;
-  if((scene.atmosphereLayers?.length||0)+files.length>8){message('O máximo é de 8 atmosferas por cena.');return;}
+  if((scene.atmosphereLayers?.length||0)+files.length>8){message('Máximo de 8 atmosferas por cena.');return;}
   if(uploading){message('Outro envio está em andamento.');return;}
-  uploading++;
-  let added=0;
+  uploading++;let added=0;
   try{
    for(const file of files){
-    if(!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){message('Use PNG, JPG, WebP ou GIF.');break;}
-    if(file.size>ATMOSPHERE_FILE_LIMIT){message('O limite por atmosfera é 5 MB no plano gratuito.');break;}
-    const original=await new Promise((resolve,reject)=>{
-     const r=new FileReader();r.onload=()=>resolve(r.result);
-     r.onerror=()=>reject(Error('Não foi possível ler a imagem'));r.readAsDataURL(file);
-    });
-    const match=/^data:image\/(png|jpeg|webp|gif);base64,([A-Za-z0-9+/=]+)$/.exec(original);
-    if(!match){message('Arquivo inválido ou formato de imagem não suportado.');break;}
-    const content=match[2],count=Math.ceil(content.length/ATMOSPHERE_CHUNK_SIZE);
-    if(!count||count>32){message('Arquivo muito grande para dividir em partes.');break;}
-    const id='atmo_'+crypto.randomUUID(),saved=[];
-    try{
-     for(let i=0;i<count;i++){
-      message('Enviando '+file.name+': parte '+(i+1)+' de '+count);
-      await setDoc(mediaChunkRef(id,i),{chunk:content.slice(i*ATMOSPHERE_CHUNK_SIZE,(i+1)*ATMOSPHERE_CHUNK_SIZE)},{merge:false});
-      saved.push(i);
-     }
-    }catch(e){
-     message('Erro ao gravar GIF no Firestore: '+String(e.code||e.message||e).slice(0,100));
-     for(const i of saved){try{await deleteDoc(mediaChunkRef(id,i))}catch(_){}}
-     break;
-    }
-    const mime=match[1],refString='firestore:'+id+':'+count+':'+mime;
-    const item={id,name:String(file.name||'Atmosfera').slice(0,90),src:refString,enabled:true,opacity:100};
-    scene.atmosphereLayers??=[];
-    scene.atmosphereLayers.push(item);
+    let src;
+    try{message('Enviando atmosfera: '+file.name);src=await uploadMedia(file,'atmo');}
+    catch(error){message('Falha no envio: '+String(error.code||error.message||error).slice(0,110));break;}
+    const item={id:mediaDescriptor(src).id,name:String(file.name||'Atmosfera').slice(0,90),src,enabled:true,opacity:100};
+    scene.atmosphereLayers??=[];scene.atmosphereLayers.push(item);
     if(new TextEncoder().encode(JSON.stringify(validScene(scene))).length>850000){
-     scene.atmosphereLayers.pop();
-     for(const i of saved){try{await deleteDoc(mediaChunkRef(id,i))}catch(_){}}
-     message('Cena muito grande para salvar. Exclua outros itens da mesa.');
-     break;
+     scene.atmosphereLayers.pop();await deleteMediaParts(src);message('Cena cheia.');break;
     }
-    atmosphereSourceCache.set(refString,original);
     added++;
    }
-  }catch(e){message('Erro ao enviar atmosfera: '+String(e.code||e.message||e).slice(0,100));}
-  finally{
-   uploading=Math.max(0,uploading-1);
-   if(added){applyAtmosphere();await save();if(!saveFailed)message(added+' atmosfera(s) enviada(s) e salva(s).');}
+  }finally{uploading=Math.max(0,uploading-1);
+   if(added){applyAtmosphere();await save();if(!saveFailed)message(added+' atmosfera(s) salva(s) e sincronizada(s).');}
   }
  });
  // Compatibilidade com a opção antiga de remover toda a atmosfera.
