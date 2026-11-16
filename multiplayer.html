@@ -1921,7 +1921,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116steadyzoom90';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116tokenstable100';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -2709,12 +2709,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
       create.title='Criar token com esta imagem';
       create.addEventListener('click',()=>tokenLibraryAction('create',asset.id));
       commands.append(create);
-      if(tokenLibraryState.selectedId){
-       const apply=document.createElement('button');apply.type='button';apply.textContent='Aplicar';
-       apply.title='Aplicar imagem à variação '+tokenChosenVariation;
-       apply.addEventListener('click',()=>tokenLibraryAction('apply',asset.id,tokenChosenVariation));
-       commands.append(apply);
-      }
       row.append(commands);
      }
      libraryBody.append(row);
