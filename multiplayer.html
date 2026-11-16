@@ -3914,7 +3914,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }
  };
  const watch=new MutationObserver(refresh);
- watch.observe(panel,{childList:true,subtree:true});
+ const toolbar=panel.querySelector('.nex-vtt-sidebar');
+ if(toolbar)watch.observe(toolbar,{childList:true,subtree:true});
  window.addEventListener('resize',refresh);
  refresh();
 })();
