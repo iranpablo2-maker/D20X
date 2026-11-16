@@ -1587,6 +1587,22 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 </style><style id="nex-vtt-atmosphere-upload-controls">
 #roomTabletopPanel .nex-vtt-atmosphere-buttons{display:flex;flex-direction:column;gap:7px}
 #roomTabletopPanel #nexVttMainMenu .nex-vtt-atmosphere-buttons button{width:100%!important;min-height:34px!important;white-space:normal!important}
+</style><style id="nex-vtt-atmosphere-row-v2">
+#roomTabletopPanel .nex-vtt-atmosphere-row[hidden]{display:none!important}
+#roomTabletopPanel .nex-vtt-atmosphere-item{display:flex!important;align-items:center!important;gap:8px!important}
+#roomTabletopPanel .nex-vtt-atmosphere-item .nex-vtt-asset-name{flex:1;min-width:0;font-size:12px;overflow-wrap:anywhere}
+#roomTabletopPanel .nex-vtt-atmosphere-item .nex-vtt-art-thumb{display:grid!important;place-items:center;font-size:20px}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-atmosphere-item button[data-atmosphere-toggle]{
+ min-width:49px!important;width:49px!important;min-height:29px!important;padding:3px 6px!important;
+ font-size:11px!important;font-weight:700!important
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-atmosphere-item button[data-atmosphere-toggle][aria-pressed="true"]{
+ background:#315945!important;border-color:#65b98a!important;color:#e0ffed!important
+}
+#roomTabletopPanel .nex-vtt-atmosphere-opacity-label{display:block!important;font-size:12px!important;margin-top:9px}
+#roomTabletopPanel .nex-vtt-atmosphere-opacity-line{display:flex;align-items:center;gap:9px;margin-top:8px}
+#roomTabletopPanel .nex-vtt-atmosphere-opacity-line input{flex:1;min-width:0;accent-color:#98baff;cursor:pointer}
+#roomTabletopPanel .nex-vtt-atmosphere-opacity-line output{min-width:34px;text-align:right;font-size:11px}
 </style><script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -2244,7 +2260,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmospheresimple170';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmorow181';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -3018,6 +3034,37 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   });
   const tokenLibraryAction=(action,assetId,variation=tokenChosenVariation)=>
    window.dispatchEvent(new CustomEvent('nex:vtt-token-library-action',{detail:{action,assetId,variation}}));
+  let currentAtmosphereState={type:'none',intensity:100,animated:true,image:'',isMaster:false};
+  let lastAtmosphereType='custom';
+  const atmosphereNames={mist:'Névoa',rain:'Chuva',snow:'Neve',dark:'Escuridão',embers:'Brasas',custom:'Atmosfera enviada'};
+  const sendAtmosphere=(patch,previewOnly=false)=>
+   window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-update',{detail:{...patch,previewOnly}}));
+  function syncAtmosphereControls(){
+   const panel=libraryBody.querySelector('.nex-vtt-atmosphere-controls');
+   if(!panel)return;
+   const state=currentAtmosphereState;
+   const hasEffect=!!state.image||state.type!=='none';
+   const row=panel.querySelector('[data-atmosphere-row]');
+   if(row)row.hidden=!hasEffect;
+   const thumb=panel.querySelector('[data-atmosphere-thumb]');
+   if(thumb){thumb.style.backgroundImage=state.image?'url("'+state.image.replace(/"/g,'')+'")':'none';
+    thumb.textContent=state.image?'':(state.type==='rain'?'🌧':state.type==='snow'?'❄':state.type==='embers'?'🔥':'☁');}
+   const name=panel.querySelector('[data-atmosphere-name]');
+   if(name)name.textContent=state.image?'Atmosfera enviada':(atmosphereNames[state.type]||'Atmosfera');
+   const toggle=panel.querySelector('[data-atmosphere-toggle]');
+   const isOn=state.type!=='none'&&(state.type!=='custom'||!!state.image);
+   if(toggle){toggle.textContent=isOn?'ON':'OFF';toggle.setAttribute('aria-pressed',String(isOn));toggle.title=isOn?'Desativar atmosfera':'Ativar atmosfera';}
+   const opacity=panel.querySelector('[data-atmosphere-opacity]');
+   if(opacity&&!opacity.matches(':active'))opacity.value=String(state.intensity??100);
+   const percent=panel.querySelector('[data-atmosphere-percent]');
+   if(percent)percent.textContent=(state.intensity??100)+'%';
+  }
+  window.addEventListener('nex:vtt-atmosphere-state',event=>{
+   if(!event.detail)return;
+   currentAtmosphereState=event.detail;
+   if(currentAtmosphereState.type&&currentAtmosphereState.type!=='none')lastAtmosphereType=currentAtmosphereState.type;
+   syncAtmosphereControls();
+  });
   function openLibraryLayer(layer){
    libraryTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexLibraryLayer===layer)));
    libraryBody.replaceChildren();
@@ -3043,22 +3090,52 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     atmosphereTitle.textContent='Camada de atmosfera';libraryBody.append(atmosphereTitle);
     const atmosphereControls=document.createElement('section');
     atmosphereControls.className='nex-vtt-atmosphere-controls';libraryBody.append(atmosphereControls);
-    const customActions=document.createElement('div');customActions.className='nex-vtt-atmosphere-buttons';
     const atmosphereUpload=document.createElement('input');atmosphereUpload.type='file';
-    atmosphereUpload.accept='image/png,image/jpeg,image/webp,image/gif';
-    atmosphereUpload.hidden=true;atmosphereControls.append(atmosphereUpload);
+    atmosphereUpload.accept='image/png,image/jpeg,image/webp,image/gif';atmosphereUpload.hidden=true;
+    atmosphereControls.append(atmosphereUpload);
     atmosphereUpload.addEventListener('change',event=>{
      const file=event.target.files?.[0];event.target.value='';
      if(file)window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-upload',{detail:{file}}));
     });
-    const uploadAtmo=document.createElement('button');uploadAtmo.type='button';
-    uploadAtmo.textContent='＋ Adicionar atmosfera';uploadAtmo.disabled=!gm;
-    uploadAtmo.addEventListener('click',()=>atmosphereUpload.click());
-    const removeAtmo=document.createElement('button');removeAtmo.type='button';
-    removeAtmo.textContent='Remover imagem';removeAtmo.disabled=!gm;
-    removeAtmo.addEventListener('click',()=>window.dispatchEvent(new Event('nex:vtt-atmosphere-remove')));
-    customActions.append(uploadAtmo,removeAtmo);atmosphereControls.append(customActions);
-
+    const actions=document.createElement('div');actions.className='nex-vtt-atmosphere-buttons';
+    const upload=document.createElement('button');upload.type='button';upload.textContent='＋ Adicionar atmosfera';
+    upload.disabled=!gm;upload.addEventListener('click',()=>atmosphereUpload.click());
+    const remove=document.createElement('button');remove.type='button';remove.textContent='Remover imagem';
+    remove.disabled=!gm;remove.addEventListener('click',()=>{
+     if(!confirm('Remover a imagem e o efeito de atmosfera da cena?'))return;
+     window.dispatchEvent(new Event('nex:vtt-atmosphere-remove'));
+    });
+    actions.append(upload,remove);atmosphereControls.append(actions);
+    const atmosphereRow=document.createElement('div');atmosphereRow.className='nex-vtt-atmosphere-row';
+    atmosphereRow.dataset.atmosphereRow='';atmosphereControls.append(atmosphereRow);
+    const top=document.createElement('div');top.className='nex-vtt-art-row nex-vtt-atmosphere-item';
+    const thumb=document.createElement('div');thumb.className='nex-vtt-art-thumb';
+    thumb.dataset.atmosphereThumb='';thumb.setAttribute('aria-hidden','true');
+    const name=document.createElement('span');name.className='nex-vtt-asset-name';name.dataset.atmosphereName='';
+    const toggle=document.createElement('button');toggle.type='button';toggle.dataset.atmosphereToggle='';
+    toggle.disabled=!gm;toggle.addEventListener('click',()=>{
+     const state=currentAtmosphereState;
+     const on=state.type!=='none';
+     const type=on?'none':(state.image?'custom':lastAtmosphereType);
+     sendAtmosphere({type});
+    });
+    top.append(thumb,name,toggle);atmosphereRow.append(top);
+    const opacityLabel=document.createElement('label');opacityLabel.className='nex-vtt-atmosphere-opacity-label';
+    opacityLabel.textContent='Opacidade';
+    const opacityLine=document.createElement('div');opacityLine.className='nex-vtt-atmosphere-opacity-line';
+    const opacity=document.createElement('input');opacity.type='range';opacity.min='0';opacity.max='100';
+    opacity.step='1';opacity.dataset.atmosphereOpacity='';
+    opacity.setAttribute('aria-label','Opacidade da atmosfera');opacity.disabled=!gm;
+    const percent=document.createElement('output');percent.dataset.atmospherePercent='';
+    const opacityUpdate=previewOnly=>{
+     percent.textContent=opacity.value+'%';
+     sendAtmosphere({intensity:Number(opacity.value)},previewOnly);
+    };
+    opacity.addEventListener('input',()=>opacityUpdate(true));
+    opacity.addEventListener('change',()=>opacityUpdate(false));
+    opacityLine.append(opacity,percent);opacityLabel.append(opacityLine);atmosphereRow.append(opacityLabel);
+    syncAtmosphereControls();
+    window.dispatchEvent(new Event('nex:vtt-atmosphere-request'));
    }else if(layer==='tokens'){
     if(gm){
      const actions=document.createElement('div');actions.className='nex-vtt-art-actions nex-vtt-token-upload-actions';libraryBody.append(actions);
