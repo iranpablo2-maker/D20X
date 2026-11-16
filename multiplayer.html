@@ -1568,6 +1568,14 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  line-height:1.4!important;
  font-size:12px!important;
 }
+</style><style id="nex-vtt-hide-characters-panel-temp">
+/* Temporário: ocultar painel lateral de personagens sem afetar fichas salvas. */
+#roomTabletopPanel #nexVttSheetsPanel,
+#roomTabletopPanel #nexVttResizeHandle,
+#roomTabletopPanel #nexVttSheetsToggle,
+#roomTabletopPanel #nexVttQuickSheets,
+#roomTabletopPanel #nexVttMenuSheets{display:none!important}
+#roomTabletopPanel .nex-vtt-stage{flex:1 1 auto!important;min-width:0!important}
 </style><script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -2860,7 +2868,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
  }
  setVttWidth(vttSavedWidth);
- if(vttMobile())vttSheetPanel.hidden=true;
+ // Painel de Personagens temporariamente recolhido no Tabletop.
+ // As fichas e os dados da campanha permanecem intactos.
+ vttSheetPanel.hidden=true;
  syncVttPanels();
  let vttResizeStart=null;
  vttResize.addEventListener('pointerdown',event=>{
