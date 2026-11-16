@@ -7,6 +7,12 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const GRID=48,W=25,H=25;
  const mediaCache=createVttMediaCache(uid,campaignId);
  const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
+ // Escolha explícita por navegador. Não altera a nuvem nem arquivos anteriores.
+ const localMediaKey='nex-vtt-media-mode:'+String(uid||'')+':'+String(campaignId||'');
+ let mediaMode='local';
+ try{mediaMode=localStorage.getItem(localMediaKey)==='cloud'?'cloud':'local';}catch(_){} 
+ const localMediaPattern=/^local:(?:atmo|map|asset)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp)$/;
+ const isLocalMedia=src=>typeof src==='string'&&localMediaPattern.test(src);
  let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,renderedMapSource=null,mapLoadId=0;
  function mapGeometry(){
    board.style.setProperty('--nex-board-width',mapWidth+'px');
@@ -126,7 +132,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
  function validScene(data){
   if(!stateOK(data))return empty();
-  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000||/^firestore:asset_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(a.src))).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&(data.map.length<650000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.map)||/^firestore:map_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(data.map))?data.map:'',atmosphereLayers:Array.isArray(data.atmosphereLayers)?data.atmosphereLayers.slice(0,8).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(a.src.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)||(a.src.startsWith('storage:campaigns/'+campaignId+'/atmospheres/')&&/^atmo_[a-zA-Z0-9_-]+$/.test(a.src.slice(('storage:campaigns/'+campaignId+'/atmospheres/').length))||/^firestore:atmo_[a-zA-Z0-9_-]+:(?:[1-9]|[12][0-9]|3[0-2]):(?:gif|png|jpeg|webp)$/.test(a.src)))).map(a=>({id:a.id.slice(0,100),name:String(a.name||'Atmosfera').slice(0,90),src:a.src,enabled:a.enabled!==false,opacity:Math.max(0,Math.min(100,Math.round(Number.isFinite(Number(a.opacity))&&a.opacity!=null?Number(a.opacity):100)))})):(typeof data.atmosphere?.image==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)&&data.atmosphere.image.length<=180000?[{id:'atmo_legacy',name:'Atmosfera anterior',src:data.atmosphere.image,enabled:data.atmosphere.type!=='none',opacity:Math.max(0,Math.min(100,Number(data.atmosphere.intensity)??100))}]:[]),atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
+  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000||/^firestore:asset_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src))).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&(data.map.length<650000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.map)||/^firestore:map_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(data.map)||isLocalMedia(data.map))?data.map:'',atmosphereLayers:Array.isArray(data.atmosphereLayers)?data.atmosphereLayers.slice(0,8).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(a.src.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)||(a.src.startsWith('storage:campaigns/'+campaignId+'/atmospheres/')&&/^atmo_[a-zA-Z0-9_-]+$/.test(a.src.slice(('storage:campaigns/'+campaignId+'/atmospheres/').length))||/^firestore:atmo_[a-zA-Z0-9_-]+:(?:[1-9]|[12][0-9]|3[0-2]):(?:gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)))).map(a=>({id:a.id.slice(0,100),name:String(a.name||'Atmosfera').slice(0,90),src:a.src,enabled:a.enabled!==false,opacity:Math.max(0,Math.min(100,Math.round(Number.isFinite(Number(a.opacity))&&a.opacity!=null?Number(a.opacity):100)))})):(typeof data.atmosphere?.image==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)&&data.atmosphere.image.length<=180000?[{id:'atmo_legacy',name:'Atmosfera anterior',src:data.atmosphere.image,enabled:data.atmosphere.type!=='none',opacity:Math.max(0,Math.min(100,Number(data.atmosphere.intensity)??100))}]:[]),atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-.5,Math.round((Number(t.x)||0)*4)/4)),y:Math.max(0,Math.min(H-.5,Math.round((Number(t.y)||0)*4)/4)),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?Array.from({length:Math.min(10,t.images.length)},(_,i)=>{const url=t.images[i];return typeof url==='string'&&url.length<650000?url:'';}):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),widthCells:Math.max(.5,Math.min(10,Number(t.widthCells)||Number(t.size)||1)),heightCells:Math.max(.5,Math.min(10,Number(t.heightCells)||Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
@@ -298,7 +304,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    message('Enviando mapa...');const uploaded=await uploadMedia(file,'map');
    const old=scene.map;scene.map=uploaded;render();
    uploading=Math.max(0,uploading-1);released=true;await save();
-   if(!saveFailed){await deleteMediaParts(old);message('Mapa salvo e disponível no PC e celular.');}
+   if(!saveFailed){await deleteMediaParts(old);message(isLocalMedia(uploaded)?'Mapa salvo neste dispositivo (não compartilhado).':'Mapa salvo e disponível no PC e celular.');}
   }catch(error){message('Falha ao enviar mapa: '+String(error.code||error.message||error).slice(0,110));}
   finally{if(!released)uploading=Math.max(0,uploading-1);}
  });
@@ -829,16 +835,36 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   return match?{id:match[1],count:Number(match[2]),mime:match[3]}:null;
  };
  const mediaChunkRef=(id,i)=>doc(db,'campaigns',campaignId,'tabletopMedia',id,'chunks',String(i).padStart(3,'0'));
+ if(gm){
+  const mediaModeLabel=document.createElement('label');
+  mediaModeLabel.style.cssText='display:inline-flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;flex-wrap:wrap;color:#e8e8e8';
+  mediaModeLabel.textContent='Salvar novas imagens: ';
+  const selector=document.createElement('select');
+  selector.setAttribute('aria-label','Destino das novas imagens do Tabletop');
+  for(const [value,name] of [['local','Neste dispositivo (não compartilha)'],['cloud','Nuvem (compartilha com jogadores)']]){
+   const option=document.createElement('option');option.value=value;option.textContent=name;selector.append(option);
+  }
+  selector.value=mediaMode;
+  selector.addEventListener('change',()=>{
+   mediaMode=selector.value;
+   try{localStorage.setItem(localMediaKey,mediaMode);}catch(_){}
+   message(mediaMode==='local'?'Modo local: novas imagens só aparecem neste dispositivo.':'Modo nuvem: novas imagens sincronizam com os jogadores.');
+  });
+  mediaModeLabel.append(selector);
+  const mapInput=$('nexTabletopMapFile');
+  (mapInput?.parentElement||tools).append(mediaModeLabel);
+ }
  function visibleMediaSource(src){
   if(typeof src!=='string')return '';
   if(src.startsWith('data:image/')||src.startsWith('https://'))return src;
-  const info=mediaDescriptor(src);
-  if(!info||mediaFailed.has(src))return '';
+  const local=isLocalMedia(src);
+  const info=local?null:mediaDescriptor(src);
+  if((!local&&!info)||mediaFailed.has(src))return '';
   if(mediaMemory.has(src))return mediaMemory.get(src);
   if(!mediaPending.has(src)){
    const task=(async()=>{
     let image=await mediaCache.read(src);
-    if(!image){
+    if(!image&&!local){
      const parts=[];
      for(let i=0;i<info.count;i++){
       const snap=await getDoc(mediaChunkRef(info.id,i));
@@ -850,6 +876,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      image='data:image/'+info.mime+';base64,'+parts.join('');
      void mediaCache.put(src,image);
     }
+    if(!image&&local)throw Error('Arquivo salvo somente no dispositivo original. Peça ao mestre para compartilhar pela nuvem.');
     if(!disposed){mediaMemory.set(src,image);render();libraryState();}
    })().catch(error=>{
     mediaFailed.add(src);
@@ -868,6 +895,15 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   });
   const match=/^data:image\/(gif|png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(data);
   if(!match)throw Error('Imagem inválida.');
+  if(mediaMode==='local'){
+   const src='local:'+prefix+'_'+crypto.randomUUID()+':'+match[1];
+   // Nunca inserir a imagem base64 na cena do Firestore.
+   // Somente a referência é sincronizada. Outros dispositivos não possuem o arquivo.
+   const stored=await mediaCache.put(src,data,true);
+   if(!stored)throw Error('Não foi possível salvar no dispositivo. Verifique o espaço e as permissões do navegador.');
+   mediaMemory.set(src,data);
+   return src;
+  }
   const body=match[2],count=Math.ceil(body.length/ATMOSPHERE_CHUNK_SIZE);
   if(count<1||count>32)throw Error('Imagem grande demais para sincronizar.');
   if(!navigator.onLine)throw Error('Sem conexão com a internet. Reconecte antes de enviar.');
@@ -900,6 +936,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   return src;
  }
  async function deleteMediaParts(src){
+  if(isLocalMedia(src)){
+   mediaMemory.delete(src);mediaFailed.delete(src);await mediaCache.remove(src);return;
+  }
   const info=mediaDescriptor(src);if(!info)return;
   let errors=0;
   for(let i=0;i<info.count;i++)try{await deleteDoc(mediaChunkRef(info.id,i));}
@@ -963,7 +1002,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     let src;
     try{message('Preparando atmosfera: '+file.name);src=await uploadMedia(file,'atmo');}
     catch(error){message('Falha no envio: '+String(error.code||error.message||error).slice(0,110));break;}
-    const item={id:mediaDescriptor(src).id,name:String(file.name||'Atmosfera').slice(0,90),src,enabled:true,opacity:100};
+    const item={id:isLocalMedia(src)?src.split(':')[1]:mediaDescriptor(src).id,name:String(file.name||'Atmosfera').slice(0,90),src,enabled:true,opacity:100};
     scene.atmosphereLayers??=[];scene.atmosphereLayers.push(item);
     if(new TextEncoder().encode(JSON.stringify(validScene(scene))).length>850000){
      scene.atmosphereLayers.pop();await deleteMediaParts(src);message('Cena cheia.');break;
@@ -971,7 +1010,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     added++;
    }
   }finally{uploading=Math.max(0,uploading-1);
-   if(added){applyAtmosphere();await save();if(!saveFailed)message(added+' atmosfera(s) salva(s) e sincronizada(s).');}
+   if(added){applyAtmosphere();await save();if(!saveFailed)message(added+' atmosfera(s) salva(s) '+(mediaMode==='local'?'somente neste dispositivo.':'e sincronizada(s).'));}
   }
  });
  // Compatibilidade com a opção antiga de remover toda a atmosfera.
