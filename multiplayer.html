@@ -1542,6 +1542,32 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttMainResizeGrip:active{background:rgba(160,145,205,.22)}
 #roomTabletopPanel #nexVttSheetsCornerToggle{right:calc(min(var(--nex-vtt-menu-width,340px),100% - 52px) + 7px)!important}
 #roomTabletopPanel:has(#nexVttMainMenu[hidden]) #nexVttSheetsCornerToggle{right:9px!important}
+</style><style id="nex-vtt-token-upload-layout-fix">
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-token-upload-actions{
+ display:grid!important;
+ grid-template-columns:minmax(0,1fr)!important;
+ width:100%!important;
+ gap:8px!important;
+ justify-content:stretch!important;
+ align-items:stretch!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-token-upload-actions>button{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ height:auto!important;
+ min-height:34px!important;
+ padding:8px 10px!important;
+ white-space:normal!important;
+ overflow:visible!important;
+ overflow-wrap:break-word!important;
+ word-break:normal!important;
+ text-align:center!important;
+ line-height:1.4!important;
+ font-size:12px!important;
+}
 </style><script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -2719,7 +2745,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     }
    }else if(layer==='tokens'){
     if(gm){
-     const actions=document.createElement('div');actions.className='nex-vtt-art-actions';libraryBody.append(actions);
+     const actions=document.createElement('div');actions.className='nex-vtt-art-actions nex-vtt-token-upload-actions';libraryBody.append(actions);
      const separate=addLibraryButton('＋ Adicionar token',()=>{tokenUploadMode='separate';tokenLibraryUpload.click();});
      const variations=addLibraryButton('＋ Adicionar token com variação',()=>{tokenUploadMode='variations';tokenLibraryUpload.click();});
      actions.append(separate,variations);
