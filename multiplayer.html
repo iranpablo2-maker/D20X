@@ -1532,6 +1532,16 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttMainMenu .nex-vtt-token-asset .nex-vtt-asset-actions button{
  min-height:26px!important;height:26px!important;padding:3px 5px!important;font-size:10px!important;border-radius:4px!important
 }
+</style><style id="nex-vtt-menu-resizable-20261116">
+#roomTabletopPanel #nexVttMainMenu{width:min(var(--nex-vtt-menu-width,340px),calc(100% - 52px))!important;min-width:260px!important}
+#roomTabletopPanel #nexVttMainResizeGrip{
+ position:absolute;top:0;bottom:0;left:0;width:9px;z-index:170;
+ cursor:ew-resize;touch-action:none;background:transparent;
+}
+#roomTabletopPanel #nexVttMainResizeGrip:hover,
+#roomTabletopPanel #nexVttMainResizeGrip:active{background:rgba(160,145,205,.22)}
+#roomTabletopPanel #nexVttSheetsCornerToggle{right:calc(min(var(--nex-vtt-menu-width,340px),100% - 52px) + 7px)!important}
+#roomTabletopPanel:has(#nexVttMainMenu[hidden]) #nexVttSheetsCornerToggle{right:9px!important}
 </style><script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -1921,7 +1931,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116groupvariations120';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116menusizetokens130';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -2618,6 +2628,43 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  vttSidebarToggle.setAttribute('aria-label',vttSidebarToggle.title);
  vttSidebarToggle.addEventListener('click',()=>setVttSidebarCollapsed(!vttToolsCollapsed));
   const mainMenu=$('nexVttMainMenu');
+  // Draggable left edge: preserve panel width across page reloads.
+  const menuWidthKey='nex-vtt-main-menu-width-v1';
+  const clampMenuWidth=value=>Math.max(260,Math.min(Math.max(260,window.innerWidth-52),Math.min(760,Math.round(Number(value)||340))));
+  const setMenuWidth=(value,persist=false)=>{
+   const width=clampMenuWidth(value);
+   mainMenu.style.setProperty('--nex-vtt-menu-width',width+'px');
+   if(persist){try{localStorage.setItem(menuWidthKey,String(width));}catch(error){console.warn('NEX: largura do menu não foi salva',error);}}
+   return width;
+  };
+  try{setMenuWidth(localStorage.getItem(menuWidthKey)||340);}catch(error){setMenuWidth(340);}
+  const menuResizeGrip=document.createElement('div');
+  menuResizeGrip.id='nexVttMainResizeGrip';
+  menuResizeGrip.setAttribute('role','separator');
+  menuResizeGrip.setAttribute('aria-label','Arrastar para ajustar largura do Menu Principal');
+  menuResizeGrip.setAttribute('aria-orientation','vertical');
+  menuResizeGrip.title='Arraste para ajustar a largura do menu';
+  mainMenu.prepend(menuResizeGrip);
+  let menuResizeDrag=null;
+  menuResizeGrip.addEventListener('pointerdown',event=>{
+   if(event.button!==0)return;
+   menuResizeDrag={pointerId:event.pointerId,startX:event.clientX,startWidth:mainMenu.getBoundingClientRect().width};
+   menuResizeGrip.setPointerCapture?.(event.pointerId);
+   event.preventDefault();
+  });
+  menuResizeGrip.addEventListener('pointermove',event=>{
+   if(!menuResizeDrag||event.pointerId!==menuResizeDrag.pointerId)return;
+   setMenuWidth(menuResizeDrag.startWidth+menuResizeDrag.startX-event.clientX);
+  });
+  const finishMenuResize=event=>{
+   if(!menuResizeDrag||event.pointerId!==menuResizeDrag.pointerId)return;
+   menuResizeDrag=null;
+   setMenuWidth(mainMenu.getBoundingClientRect().width,true);
+  };
+  menuResizeGrip.addEventListener('pointerup',finishMenuResize);
+  menuResizeGrip.addEventListener('pointercancel',finishMenuResize);
+  window.addEventListener('resize',()=>setMenuWidth(mainMenu.getBoundingClientRect().width));
+
   const mainMenuToggle=$('nexVttSheetsCornerToggle');
   const mainClose=$('nexVttMainClose');
   const libraryBody=$('nexVttLibraryBody');
@@ -2677,26 +2724,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      const variations=addLibraryButton('＋ Adicionar token com variação',()=>{tokenUploadMode='variations';tokenLibraryUpload.click();});
      actions.append(separate,variations);
     }
-    const selectedInfo=document.createElement('div');selectedInfo.className='nex-vtt-token-selection';
-    const selectedLabel=document.createElement('strong');
-    selectedLabel.textContent=tokenLibraryState.selectedId?
-      'Token selecionado: '+tokenLibraryState.selectedName:'Nenhum token selecionado';
-    selectedInfo.append(selectedLabel);
-    const availableVariations=tokenLibraryState.availableVariations||[];
-    if(gm&&tokenLibraryState.selectedId&&availableVariations.length>1){
-     const row=document.createElement('label');row.textContent='Variação ';
-     const select=document.createElement('select');select.setAttribute('aria-label','Variações cadastradas');
-     for(const i of availableVariations){
-      const opt=document.createElement('option');opt.value=i;opt.textContent=i===0?'0 · Especial':String(i);select.append(opt);
-     }
-     select.value=String(availableVariations.includes(tokenChosenVariation)?tokenChosenVariation:availableVariations[0]);
-     select.addEventListener('change',()=>{
-      tokenChosenVariation=Number(select.value);
-      tokenLibraryAction('set-variation',null,tokenChosenVariation);
-     });
-     row.append(select);selectedInfo.append(row);
-    }
-    libraryBody.append(selectedInfo);
     const heading=document.createElement('strong');heading.className='nex-vtt-art-list-title';
     heading.textContent='Imagens da biblioteca';libraryBody.append(heading);
     const assets=tokenLibraryState.assets||[];
