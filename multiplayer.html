@@ -1055,6 +1055,16 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 </style>
 <style id="nex-vtt-2-layout-style">
 /* NEX VTT 2.1 - one unified workspace with an adjustable sheet sidebar. */
+/* Layout sem cabeçalho: só a seta da barra lateral fica visível.
+   Os botões originais permanecem no DOM para compatibilidade com os handlers. */
+#roomTabletopPanel .nex-vtt-heading,
+#roomTabletopPanel .nex-vtt-subheading{
+ display:none!important;
+ height:0!important;min-height:0!important;
+ flex:0 0 0!important;margin:0!important;padding:0!important;
+ border:0!important;
+}
+
 #room #roomTabletopPanel:not(.hide){--nex-sheet-width:328px;background:#0d1017!important;color:#f2f0f7!important}
 #roomTabletopPanel .nex-vtt-heading{display:flex!important;flex:0 0 65px!important;min-height:65px!important;background:#141923!important;border-bottom:1px solid #303a4b!important}
 #roomTabletopPanel .nex-vtt-brand-symbol{background:#491d28!important;color:#ffaeb7!important;border-color:#b74f64!important}
