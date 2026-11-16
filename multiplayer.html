@@ -3693,4 +3693,98 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
 })();
 </script>
+<!-- nex-vtt-mobile-resizable-menu -->
+<style id="nex-vtt-mobile-resizable-menu-style">
+@media (max-width:900px) and (pointer:coarse){
+ #roomTabletopPanel #nexVttMainMenu{--nex-mobile-menu-size:70dvh}
+ #roomTabletopPanel #nexVttMobileMenuGrip{
+  display:flex!important;align-items:center!important;justify-content:center!important;
+  flex:0 0 24px!important;min-height:24px!important;position:relative!important;
+  background:#242a3c!important;touch-action:none!important;cursor:ns-resize!important;
+  z-index:10!important;user-select:none!important;
+ }
+ #roomTabletopPanel #nexVttMobileMenuGrip::after{
+  content:"";display:block;width:54px;height:5px;border-radius:9px;background:#9b9fb9;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-scroll{flex:1 1 auto!important;min-height:0!important}
+}
+@media (max-width:600px) and (pointer:coarse) and (orientation:portrait){
+ #roomTabletopPanel #nexVttMainMenu{
+  height:var(--nex-mobile-menu-size,70dvh)!important;
+  max-height:calc(100dvh - 65px)!important;
+ }
+}
+@media (max-width:900px) and (pointer:coarse) and (orientation:landscape){
+ #roomTabletopPanel #nexVttMainMenu{
+  width:var(--nex-mobile-menu-width,min(310px,45vw))!important;
+  max-width:calc(100vw - 64px)!important;
+ }
+ #roomTabletopPanel #nexVttMobileMenuGrip{
+  position:absolute!important;left:0!important;top:0!important;bottom:0!important;
+  width:20px!important;height:auto!important;min-height:0!important;
+  cursor:ew-resize!important;z-index:16!important;
+ }
+ #roomTabletopPanel #nexVttMobileMenuGrip::after{width:5px;height:48px}
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs,
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-scroll{margin-left:20px!important}
+}
+@media (min-width:901px), (pointer:fine){
+ #roomTabletopPanel #nexVttMobileMenuGrip{display:none!important}
+}
+</style>
+<script>
+(function(){
+ const menu=document.getElementById('nexVttMainMenu');
+ if(!menu)return;
+ const mobile=()=>matchMedia('(max-width:900px) and (pointer:coarse)').matches;
+ const portrait=()=>matchMedia('(orientation:portrait)').matches;
+ const grip=document.createElement('div');
+ grip.id='nexVttMobileMenuGrip';grip.setAttribute('role','separator');
+ grip.setAttribute('aria-label','Arraste para ajustar o tamanho do Menu Principal');
+ grip.setAttribute('aria-orientation','horizontal');
+ grip.title='Arraste para redimensionar o Menu Principal';
+ menu.prepend(grip);
+ const heightKey='nex-vtt-mobile-menu-height-v1';
+ const widthKey='nex-vtt-mobile-menu-width-v1';
+ let gesture=null;
+ const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+ const applySaved=()=>{
+  if(!mobile())return;
+  try{
+   const h=Number(localStorage.getItem(heightKey));
+   const w=Number(localStorage.getItem(widthKey));
+   if(h>0)menu.style.setProperty('--nex-mobile-menu-size',clamp(h,180,innerHeight-65)+'px');
+   if(w>0)menu.style.setProperty('--nex-mobile-menu-width',clamp(w,220,innerWidth-64)+'px');
+  }catch(_){}
+ };
+ applySaved();
+ grip.addEventListener('pointerdown',e=>{
+  if(!mobile()||e.button!==0)return;
+  gesture={id:e.pointerId,x:e.clientX,y:e.clientY,height:menu.getBoundingClientRect().height,width:menu.getBoundingClientRect().width,isPortrait:portrait()};
+  grip.setAttribute('aria-orientation',gesture.isPortrait?'horizontal':'vertical');
+  try{grip.setPointerCapture(e.pointerId);}catch(_){}
+  e.preventDefault();e.stopPropagation();
+ });
+ grip.addEventListener('pointermove',e=>{
+  if(!gesture||gesture.id!==e.pointerId)return;
+  if(gesture.isPortrait){
+   const h=clamp(gesture.height+gesture.y-e.clientY,180,Math.max(180,innerHeight-65));
+   menu.style.setProperty('--nex-mobile-menu-size',h+'px');
+  }else{
+   const w=clamp(gesture.width+gesture.x-e.clientX,220,Math.max(220,innerWidth-64));
+   menu.style.setProperty('--nex-mobile-menu-width',w+'px');
+  }
+  e.preventDefault();
+ });
+ const finish=e=>{
+  if(!gesture||gesture.id!==e.pointerId)return;
+  const dimension=gesture.isPortrait?menu.getBoundingClientRect().height:menu.getBoundingClientRect().width;
+  try{localStorage.setItem(gesture.isPortrait?heightKey:widthKey,String(Math.round(dimension)));}catch(_){}
+  gesture=null;
+ };
+ grip.addEventListener('pointerup',finish);
+ grip.addEventListener('pointercancel',finish);
+ window.addEventListener('resize',applySaved);
+})();
+</script>
 </body></html>
