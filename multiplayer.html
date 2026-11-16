@@ -2897,7 +2897,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomCombatsPanel',section==='combats');
   show('roomTabletopPanel',section==='tabletop');
   document.documentElement.classList.toggle('nex-vtt-active',section==='tabletop');
-  if(section==='tabletop'){$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';const tag=document.querySelector('.nex-vtt-room-tag');if(tag)tag.textContent='NEX · '+$('nexVttCampaignName').textContent;renderVttSheets();}
+  if(section==='tabletop'){$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';const tag=document.querySelector('.nex-vtt-room-tag');if(tag)tag.textContent='NEX · '+$('nexVttCampaignName').textContent;renderVttSheets();if(window.matchMedia('(max-width:900px) and (pointer:coarse)').matches)setVttSidebarCollapsed(true);}
   if(window.parent!==window){
    try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:section==='tabletop'},location.origin);}catch(error){}
   }
@@ -2911,8 +2911,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  const vttSidebarToggle=$('nexVttSidebarToggle');
  const vttSidebarPanel=$('roomTabletopPanel');
  const vttSidebarKey='nex-vtt-tools-collapsed-v21';
- let vttToolsCollapsed=false;
- // Menu começa recolhido para todos os usuários.
+ let vttToolsCollapsed=window.matchMedia('(max-width:900px) and (pointer:coarse)').matches;
+ // Somente no celular o menu inicia recolhido; PC mantém o estado anterior.
  function setVttSidebarCollapsed(collapsed){
   vttToolsCollapsed=!!collapsed;
   vttSidebarPanel.dataset.toolsCollapsed=String(vttToolsCollapsed);
@@ -3834,7 +3834,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  description.textContent='Jogue na horizontal para aproveitar melhor o mapa. Você também pode continuar com o celular em pé.';
  const continueButton=document.createElement('button');continueButton.type='button';continueButton.textContent='Continuar em pé';
  hint.append(symbol,heading,description,continueButton);
- panel.querySelector('#nexVttWorkspace')?.append(full,hint);
+ panel.querySelector('#nexVttBar')?.append(full);
+ panel.querySelector('#nexVttWorkspace')?.append(hint);
  const dismissedKey='nex-mobile-landscape-hint-dismissed';
  let dismissed=false;
  try{dismissed=sessionStorage.getItem(dismissedKey)==='1';}catch(_){}
@@ -3863,6 +3864,59 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  window.addEventListener('orientationchange',update);
  new MutationObserver(update).observe(panel,{attributes:true,attributeFilter:['class']});
  update();
+})();
+</script>
+<!-- nex-mobile-tools-closed-icons-v2 -->
+<style id="nex-mobile-tools-closed-icons-v2-style">
+/* Regras exclusivas do celular: a versão de PC não recebe estas alterações. */
+@media (max-width:900px) and (pointer:coarse) {
+ #roomTabletopPanel #nexMobileFullscreen{
+  position:static!important;left:auto!important;right:auto!important;top:auto!important;
+  transform:none!important;z-index:auto!important;
+  width:44px!important;min-width:44px!important;height:44px!important;
+  margin:0!important;padding:0!important;border:1px solid transparent!important;
+  border-radius:9px!important;background:transparent!important;box-shadow:none!important;
+  color:#e9e6f5!important;display:grid!important;place-items:center!important;
+  font:24px/1 system-ui,sans-serif!important;
+ }
+ #roomTabletopPanel #nexVttBar #nexMobileFullscreen[hidden]{display:none!important}
+ #roomTabletopPanel #nexVttBar button[title="Move"] svg,
+ #roomTabletopPanel #nexVttBar button[title="Medir distância"] svg {
+  display:block!important;width:24px!important;height:24px!important;
+  stroke:currentColor!important;fill:none!important;stroke-width:1.8!important;
+  stroke-linecap:round!important;stroke-linejoin:round!important;
+ }
+ #roomTabletopPanel[data-tools-collapsed="true"] .nex-vtt-sidebar{display:none!important}
+}
+</style>
+<script>
+(function(){
+ // Os mesmos botões de ferramentas da mesa; só substituímos o desenho no celular.
+ const mobile=()=>matchMedia('(max-width:900px) and (pointer:coarse)').matches;
+ const panel=document.getElementById('roomTabletopPanel');
+ if(!panel)return;
+ const icons={
+  'Move':'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 13V6a1.7 1.7 0 0 1 3.4 0v5-7a1.7 1.7 0 0 1 3.4 0v7-5a1.7 1.7 0 0 1 3.4 0v6-3a1.7 1.7 0 0 1 3.4 0v7c0 4-3 7-7 7h-2c-2.8 0-4.5-1.6-6.1-3.6l-3.5-4.5a1.8 1.8 0 0 1 2.7-2.4L8 13Z"/></svg>',
+  'Medir distância':'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="8" rx="1.5" transform="rotate(-32 12 12)"/><path d="m9 9 2 3m1-5 2 3m1-5 2 3m-8 8 2 3"/></svg>'
+ };
+ const original=new Map();
+ const refresh=()=>{
+  const bar=panel.querySelector('#nexVttBar');if(!bar)return;
+  for(const [title,svg] of Object.entries(icons)){
+   const button=Array.from(bar.querySelectorAll('button')).find(b=>b.title===title);
+   if(!button)continue;
+   if(mobile()){
+    if(!original.has(button))original.set(button,button.innerHTML);
+    if(button.dataset.nexMobileIcon!==title){button.innerHTML=svg;button.dataset.nexMobileIcon=title;}
+   }else if(original.has(button)){
+    button.innerHTML=original.get(button);original.delete(button);delete button.dataset.nexMobileIcon;
+   }
+  }
+ };
+ const watch=new MutationObserver(refresh);
+ watch.observe(panel,{childList:true,subtree:true});
+ window.addEventListener('resize',refresh);
+ refresh();
 })();
 </script>
 </body></html>
