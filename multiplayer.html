@@ -3787,4 +3787,81 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  window.addEventListener('resize',applySaved);
 })();
 </script>
+<!-- nex-mobile-landscape-hint-20261116 -->
+<style id="nex-mobile-landscape-hint-style">
+@media (max-width:900px) and (pointer:coarse){
+ #roomTabletopPanel #nexMobileFullscreen{
+  position:absolute!important;left:50%!important;top:8px!important;transform:translateX(-50%)!important;
+  width:43px!important;height:43px!important;min-width:43px!important;z-index:172!important;
+  padding:0!important;border:1px solid #58667f!important;border-radius:10px!important;
+  background:#263143ee!important;color:#fff!important;font:23px/1 system-ui,sans-serif!important;
+  display:grid!important;place-items:center!important;box-shadow:0 5px 15px #0008!important;
+ }
+ #roomTabletopPanel #nexMobileRotateHint[hidden]{display:none!important}
+ #roomTabletopPanel #nexMobileRotateHint{
+  position:absolute!important;inset:0!important;z-index:200!important;
+  display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;
+  gap:13px!important;padding:24px!important;text-align:center!important;
+  background:#121824f2!important;color:#f5f5fa!important;
+ }
+ #roomTabletopPanel #nexMobileRotateHint .nex-rotate-symbol{font-size:47px!important;line-height:1.2!important}
+ #roomTabletopPanel #nexMobileRotateHint strong{font-size:20px!important}
+ #roomTabletopPanel #nexMobileRotateHint p{font-size:13px!important;max-width:300px!important;line-height:1.5!important;color:#c5c9d9!important}
+ #roomTabletopPanel #nexMobileRotateHint button{
+  min-height:44px!important;padding:10px 18px!important;border-radius:9px!important;
+  border:1px solid #8a718f!important;background:#51394e!important;color:white!important;font-weight:700!important
+ }
+}
+@media (min-width:901px), (pointer:fine){
+ #roomTabletopPanel #nexMobileFullscreen,
+ #roomTabletopPanel #nexMobileRotateHint{display:none!important}
+}
+</style>
+<script>
+(function(){
+ const panel=document.getElementById('roomTabletopPanel');
+ if(!panel)return;
+ const mobile=()=>matchMedia('(max-width:900px) and (pointer:coarse)').matches;
+ const portrait=()=>matchMedia('(orientation:portrait)').matches;
+ const full=document.createElement('button');
+ full.id='nexMobileFullscreen';full.type='button';full.textContent='⛶';
+ full.title='Alternar tela cheia';full.setAttribute('aria-label','Alternar tela cheia');
+ const hint=document.createElement('div');hint.id='nexMobileRotateHint';hint.hidden=true;
+ const symbol=document.createElement('span');symbol.className='nex-rotate-symbol';symbol.textContent='↻';
+ const heading=document.createElement('strong');heading.textContent='Vire o celular';
+ const description=document.createElement('p');
+ description.textContent='Jogue na horizontal para aproveitar melhor o mapa. Você também pode continuar com o celular em pé.';
+ const continueButton=document.createElement('button');continueButton.type='button';continueButton.textContent='Continuar em pé';
+ hint.append(symbol,heading,description,continueButton);
+ panel.querySelector('#nexVttWorkspace')?.append(full,hint);
+ const dismissedKey='nex-mobile-landscape-hint-dismissed';
+ let dismissed=false;
+ try{dismissed=sessionStorage.getItem(dismissedKey)==='1';}catch(_){}
+ const update=()=>{
+  const active=!panel.classList.contains('hide');
+  const show=active&&mobile()&&portrait()&&!dismissed;
+  hint.hidden=!show;
+  full.hidden=!active||!mobile();
+  full.textContent=document.fullscreenElement?'⤢':'⛶';
+  full.setAttribute('aria-label',document.fullscreenElement?'Sair da tela cheia':'Abrir tela cheia');
+ };
+ continueButton.addEventListener('click',()=>{
+  dismissed=true;
+  try{sessionStorage.setItem(dismissedKey,'1');}catch(_){}
+  update();
+ });
+ full.addEventListener('click',async()=>{
+  try{
+   if(document.fullscreenElement){await document.exitFullscreen();}
+   else if(panel.requestFullscreen){await panel.requestFullscreen();}
+  }catch(error){console.info('NEX mobile: tela cheia não permitida pelo navegador.',error);}
+  update();
+ });
+ document.addEventListener('fullscreenchange',update);
+ window.addEventListener('resize',update);
+ window.addEventListener('orientationchange',update);
+ new MutationObserver(update).observe(panel,{attributes:true,attributeFilter:['class']});
+ update();
+})();
+</script>
 </body></html>
