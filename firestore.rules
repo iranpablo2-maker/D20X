@@ -236,6 +236,22 @@ service cloud.firestore {
         allow get, list, create, update, delete: if nexGM(cid);
       }
       // Mesa virtual da campanha: mestre edita, membros autorizados visualizam.
+      // GIFs/imagens de atmosfera divididos em partes pequenas no Firestore.
+      // Evita Cloud Storage e mantém leitura restrita aos membros da campanha.
+      match /tabletopMedia/{mediaId}/chunks/{chunkId} {
+        allow get: if nexInCampaign(cid)
+          && mediaId.matches('atmo_[A-Za-z0-9_-]+')
+          && chunkId.matches('[0-9]{3}');
+        allow list: if false;
+        allow create, update: if nexGM(cid)
+          && mediaId.matches('atmo_[A-Za-z0-9_-]+')
+          && chunkId.matches('[0-9]{3}')
+          && request.resource.data.keys().hasOnly(['chunk'])
+          && request.resource.data.chunk is string
+          && request.resource.data.chunk.size() > 0
+          && request.resource.data.chunk.size() <= 240000;
+        allow delete: if nexGM(cid);
+      }
       match /tabletop/{sceneId} {
         allow get: if sceneId == 'state' && nexInCampaign(cid);
         allow list: if false;
