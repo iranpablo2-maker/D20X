@@ -830,8 +830,23 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  function vttFitZoom(){
    if(vttManualZoom||!vttWrap.getClientRects().length)return;
-   // offsetWidth/Height do not change when a scrollbar appears. clientWidth/
-   // clientHeight do, which previously alternated between two zoom levels.
+   // Mobile-only: fill the available viewport, avoiding large empty areas.
+   // Pan remains available for exploring the cropped edges.
+   if(window.matchMedia('(pointer:coarse) and (max-width:900px)').matches){
+     const width=vttWrap.clientWidth,height=vttWrap.clientHeight;
+     if(width<100||height<100||!mapWidth||!mapHeight)return;
+     const target=Math.max((width-20)/mapWidth,(height-20)/mapHeight);
+     const next=Math.max(.25,Math.min(2,Math.floor(target*100)/100));
+     if(Math.abs(next-vttZoom)>=.01)vttChangeZoom(next-vttZoom);
+     requestAnimationFrame(()=>{
+       if(disposed||vttManualZoom||!vttWrap.isConnected)return;
+       vttWrap.scrollLeft=Math.max(0,(vttWrap.scrollWidth-vttWrap.clientWidth)/2);
+       vttWrap.scrollTop=Math.max(0,(vttWrap.scrollHeight-vttWrap.clientHeight)/2);
+     });
+     return;
+   }
+   // Desktop: exactly the previous fitting algorithm.
+   // offsetWidth/Height do not change when a scrollbar appears.
    const width=vttWrap.offsetWidth-36,height=vttWrap.offsetHeight-36;
    if(width<150||height<150)return;
    const fits=Math.min((width-90)/mapWidth,(height-45)/mapHeight);
