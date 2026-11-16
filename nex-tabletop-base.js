@@ -625,7 +625,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  '#nexVttDrawLayer{z-index:1}#nexVttMeasureLayer{z-index:4}'+
  '#nexVttFogLayer{position:absolute;inset:0;z-index:4;pointer-events:none;background:rgba(0,0,0,.9)}'+
  '#nexVttFogLayer[hidden]{display:none!important}.nex-vtt-hide-grid::before{display:none!important}'+
- '#nexVttAtmosphereLayer{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;isolation:isolate}'+
+ '#roomTabletopPanel #nexTabletopBoard #nexVttAtmosphereLayer{position:absolute;inset:0;z-index:7!important;pointer-events:none!important;overflow:hidden;isolation:isolate}'+
  '#nexVttAtmosphereLayer[hidden]{display:none!important}'+
  '#nexVttAtmosphereLayer[data-effect="custom"]{background-repeat:no-repeat;background-position:center;background-size:100% 100%;opacity:var(--nex-atmosphere-strength)}'+
  '#nexVttAtmosphereLayer::before,#nexVttAtmosphereLayer::after{content:"";position:absolute;inset:-15%;pointer-events:none}'+
