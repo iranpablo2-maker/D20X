@@ -30,7 +30,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    img.src=src;
  }
  const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
- let scene=empty(),selectedId=null,resizeSelectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false;
+ let scene=empty(),selectedId=null,resizeSelectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false,uploading=0,localDirty=false;
  const handlers=[];
  const listen=(el,type,fn,opts)=>{el?.addEventListener(type,fn,opts);handlers.push(()=>el?.removeEventListener(type,fn,opts));};
  const saveNotice=document.createElement('div');saveNotice.id='nexVttSyncNotice';saveNotice.hidden=true;
@@ -74,6 +74,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  #roomTabletopPanel #nexTabletopBoard .nex-tabletop-token[data-resize-selected="true"]::after{
   content:'';position:absolute;inset:0;border:1px solid #91b7fc;pointer-events:none;
  }
+ #roomTabletopPanel #nexTabletopBoard .nex-tabletop-token:not([data-resize-selected="true"]) .nex-token-resize-handle{display:none!important}
  #roomTabletopPanel #nexTabletopBoard .nex-token-resize-handle{
   position:absolute!important;z-index:15!important;
   display:block!important;box-sizing:border-box!important;
@@ -150,14 +151,15 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  async function save(){
   if(!gm||disposed)return;
-  queued=true;if(pending)return;
+  queued=true;localDirty=true;if(!remoteReady||uploading||pending)return;
   pending=true;
   while(queued&&!disposed){
    queued=false;
    const data=validScene(scene);
-   if(new TextEncoder().encode(JSON.stringify(data)).length>850000){message('Cena muito grande para sincronizar. Reduza o mapa ou as imagens dos tokens.');warnSync('Cena muito grande. Reduza as imagens ou os tokens para salvar.');break;}
-   try{await setDoc(ref,{...data,format:'nex-tabletop-v1'},{merge:false});clearSync();message('Mesa salva na campanha.');}
+   if(new TextEncoder().encode(JSON.stringify(data)).length>850000){localDirty=true;message('Cena muito grande para sincronizar. Reduza o mapa ou as imagens dos tokens.');warnSync('Cena muito grande. Reduza as imagens ou os tokens para salvar.');break;}
+   try{await setDoc(ref,{...data,format:'nex-tabletop-v1'},{merge:false});localDirty=queued;clearSync();message('Mesa salva na campanha.');}
    catch(e){
+     localDirty=true;
      const denied=e.code==='permission-denied';
      message('Não foi possível salvar a mesa no Firebase.');
      warnSync(denied
@@ -169,7 +171,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   pending=false;
  }
  const reader=async(file,max,done)=>{
+  if(!remoteReady){message('A mesa ainda está carregando. Tente novamente após carregar.');return;}
   if(!file||!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){message('Escolha uma imagem PNG, JPG, WebP ou GIF.');return;}
+  uploading++;
   const readOriginal=()=>new Promise((resolve,reject)=>{
    const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Leitura da imagem falhou'));r.readAsDataURL(file);
   });
@@ -208,7 +212,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    done(optimized);
   }catch(error){
    message('Não foi possível preparar a imagem: '+String(error.message||error));
-  }finally{bitmap?.close?.();}
+  }finally{bitmap?.close?.();uploading=Math.max(0,uploading-1);if(queued&&remoteReady&&!pending)save();}
  };
  listen($('nexTabletopAddToken'),'click',()=>{
   if(!gm)return;const name=$('nexTabletopTokenName').value.trim().slice(0,35)||'Token';
@@ -278,7 +282,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  });
  listen($('nexTtVariantFile'),'change',e=>{
   const id=selectedId,variant=Number(slot.value);if(!gm||!id)return;
-  reader(e.target.files?.[0],190000,data=>{const t=scene.tokens.find(x=>x.id===id);if(!t)return;t.images[variant]=data;t.variation=variant;render();save();});e.target.value='';
+  reader(e.target.files?.[0],190000,data=>{const t=scene.tokens.find(x=>x.id===id);if(!t)return;const oldImage=t.images[variant],oldVariation=t.variation;t.images[variant]=data;t.variation=variant;if(libraryBytes()>850000){t.images[variant]=oldImage;t.variation=oldVariation;message('A imagem excede a capacidade da cena. Escolha outra menor.');return;}render();save();});e.target.value='';
  });
  listen(slot,'change',()=>{const t=selected();if(!gm||!t)return;t.variation=Number(slot.value);render();save();});
  listen($('nexTtDelete'),'click',()=>{if(!gm||!selectedId)return;scene.tokens=scene.tokens.filter(t=>t.id!==selectedId);selectedId=null;render();save();});
@@ -379,7 +383,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const token=scene.tokens.find(t=>t.id===el.dataset.token);
   if(token){selectedId=token.id;resizeSelectedId=token.locked?null:token.id;render();openTokenMenu(event,token);}
  });
- listen(document,'pointerdown',event=>{if(!tokenMenu.hidden&&!tokenMenu.contains(event.target))closeTokenMenu();});
+ listen(document,'pointerdown',event=>{if(!tokenMenu.hidden&&!tokenMenu.contains(event.target))closeTokenMenu();if(event.button===0&&!event.target.closest('#nexTabletopBoard .nex-token-resize-handle')&&resizeSelectedId!==null){resizeSelectedId=null;render();}});
  listen(document,'keydown',event=>{if(event.key==='Escape')closeTokenMenu();});
 
  listen(board,'pointerdown',e=>{
@@ -396,12 +400,12 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      render();return;
    }
   }
-  selectedId=el.dataset.token;render();
+  const handle=e.target.closest('[data-resize]')?.dataset.resize;
+  selectedId=el.dataset.token;if(!handle)render();
   const linked=linkedSheet(selected());
   if(linked&&typeof onSelectSheet==='function')onSelectSheet(linked.id);
   if(!gm||selected()?.locked||vttMode!=='select')return;
   const t=selected();
-  const handle=e.target.closest('[data-resize]')?.dataset.resize;
   if(handle){
    drag={id:selectedId,pointer:e.pointerId,kind:'resize',handle,
      startX:t.x,startY:t.y,startWidth:t.widthCells||t.size||1,startHeight:t.heightCells||t.size||1,
@@ -912,8 +916,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  listen(window,'nex:campaign-sheets-updated',()=>{if(!disposed)render();});
  const unsubscribe=onSnapshot(ref,snapshot=>{
   if(disposed||drag||pending)return;
-  const data=snapshot.data();if(data)scene=validScene(data);
-  remoteReady=true;render();if(!saveFailed)message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
+  const data=snapshot.data();
+  if(!localDirty&&!uploading&&data)scene=validScene(data);
+  remoteReady=true;render();if(queued)save();else if(!saveFailed)message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Não foi possível receber atualizações da mesa.');warnSync(error.code==='permission-denied'?'Acesso negado pelo Firestore. Verifique as regras da campanha.':'Erro de conexão com a mesa: '+String(error.message||error).slice(0,140));console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
  return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
