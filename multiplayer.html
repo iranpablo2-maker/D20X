@@ -3889,8 +3889,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  }
  #roomTabletopPanel[data-tools-collapsed="false"] #nexVttBar #nexMobileFullscreen:not([hidden]){
   display:grid!important;place-items:center!important;
-  flex:0 0 44px!important;width:44px!important;min-width:44px!important;
+  align-self:stretch!important;justify-self:stretch!important;
+  flex:0 0 44px!important;width:100%!important;min-width:0!important;max-width:100%!important;
   height:44px!important;min-height:44px!important;
+  margin:0 auto!important;padding:0!important;text-align:center!important;
  }
  #roomTabletopPanel #nexVttBar #nexMobileFullscreen[hidden]{display:none!important}
  #roomTabletopPanel #nexVttBar button[title="Move"] svg,
