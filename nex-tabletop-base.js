@@ -29,7 +29,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    img.onerror=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();};
    img.src=src;
  }
- const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[]});
+ const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
  let scene=empty(),selectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false;
  const handlers=[];
  const listen=(el,type,fn,opts)=>{el?.addEventListener(type,fn,opts);handlers.push(()=>el?.removeEventListener(type,fn,opts));};
@@ -59,7 +59,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
  function validScene(data){
   if(!stateOK(data))return empty();
-  return {map:typeof data.map==='string'&&data.map.length<650000?data.map:'',drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
+  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src})):[]},map:typeof data.map==='string'&&data.map.length<650000?data.map:'',drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-1,Math.floor(Number(t.x)||0))),y:Math.max(0,Math.min(H-1,Math.floor(Number(t.y)||0))),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?t.images.slice(0,10).map(url=>typeof url==='string'&&url.length<650000?url:''):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
@@ -77,7 +77,9 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    el.style.left=(t.x*cw+edge)+'px';el.style.top=(t.y*ch+edge)+'px';el.style.width=((t.size||1)*cw-2*edge)+'px';el.style.height=((t.size||1)*ch-2*edge)+'px';el.style.transform='rotate('+t.rotation+'deg)';el.title=t.name+' · Variação '+t.variation;el.setAttribute('aria-label',el.title);
    const portrait=linkedSheet(t)?.fullSheet?.photo||'';
    const safePortrait=typeof portrait==='string'&&(portrait.startsWith('https://')||/^data:image\/(?:png|jpeg|webp);base64,/i.test(portrait))?portrait:'';
-   const img=t.images[t.variation]||safePortrait||'';
+   const selectedImage=t.images[t.variation]||'';
+   const storedAsset=selectedImage.startsWith('asset:')?scene.library?.tokenImages?.find(a=>a.id===selectedImage.slice(6)):null;
+   const img=(storedAsset?.src||(selectedImage.startsWith('asset:')?'':selectedImage))||safePortrait||'';
    if(img){const image=document.createElement('img');image.src=img;image.alt=t.name;el.appendChild(image);}
    else{const span=document.createElement('span');span.textContent=t.name.slice(0,3).toUpperCase();el.appendChild(span);}
    const resources=document.createElement('span');resources.className='nex-token-resource-bars';
@@ -96,6 +98,11 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
   refreshSceneStatus();
   const t=selected();$('nexTtSelected').textContent=t?t.name:'Nenhum';slot.disabled=!t;slot.value=String(t?.variation??1);
   $('nexTtVariantFile').disabled=!t;$('nexTtDelete').disabled=!t;
+  window.dispatchEvent(new CustomEvent('nex:vtt-token-library-state',{detail:{
+   assets:(scene.library?.tokenImages||[]).map(a=>({id:a.id,name:a.name,src:a.src})),
+   selectedId:t?.id||null,selectedName:t?.name||'',variation:t?.variation??1,
+   tokenCount:scene.tokens.length,isMaster:gm
+  }}));
  }
  async function save(){
   if(!gm||disposed)return;
@@ -169,6 +176,61 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  listen($('nexTabletopRemoveMap'),'click',()=>{if(!gm)return;scene.map='';render();save();});
  listen($('nexTabletopMapFile'),'change',e=>{
   if(!gm)return;reader(e.target.files?.[0],390000,data=>{scene.map=data;render();save();});e.target.value='';
+ });
+ // Biblioteca compartilhada da cena; tokens referenciam o recurso para evitar cópias duplicadas.
+ const libraryBytes=()=>new TextEncoder().encode(JSON.stringify(validScene(scene))).length;
+ const libraryState=()=>window.dispatchEvent(new CustomEvent('nex:vtt-token-library-state',{detail:{
+  assets:(scene.library?.tokenImages||[]).map(a=>({id:a.id,name:a.name,src:a.src})),
+  selectedId:selectedId||null,selectedName:selected()?.name||'',variation:selected()?.variation??1,
+  tokenCount:scene.tokens.length,isMaster:gm
+ }}));
+ const changeTokenAsset=(assetId,variation)=>{
+  if(!gm)return;
+  const t=selected(),asset=scene.library?.tokenImages?.find(a=>a.id===assetId);
+  if(!t||!asset){message('Selecione um token e uma imagem da biblioteca.');return;}
+  const v=Math.max(0,Math.min(9,Math.trunc(Number(variation)||0)));
+  const oldImages=[...t.images],oldVariation=t.variation;
+  t.images[v]='asset:'+asset.id;t.variation=v;
+  if(libraryBytes()>850000){t.images=oldImages;t.variation=oldVariation;message('Não há espaço para esta alteração na cena.');return;}
+  render();save();
+ };
+ const createTokenFromAsset=assetId=>{
+  if(!gm)return;
+  const asset=scene.library?.tokenImages?.find(a=>a.id===assetId);
+  if(!asset||scene.tokens.length>=90){message('Imagem não encontrada ou limite de tokens atingido.');return;}
+  const occupied=new Set(scene.tokens.map(t=>t.x+','+t.y));
+  let pos=null;for(let y=1;y<H&&!pos;y++)for(let x=1;x<W;x++)if(!occupied.has(x+','+y)){pos={x,y};break;}
+  if(!pos){message('Não há espaço disponível para outro token.');return;}
+  const token={id:'tt_'+crypto.randomUUID(),name:asset.name.replace(/\.[^.]+$/,'').slice(0,35)||'Token',
+   ...pos,variation:1,images:[],size:1,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,
+   defense:0,hidden:false,locked:false,linkedSheetId:''};
+  token.images[1]='asset:'+asset.id;
+  const previousSelection=selectedId;scene.tokens.push(token);selectedId=token.id;
+  if(libraryBytes()>850000){scene.tokens.pop();selectedId=previousSelection;message('A cena não tem espaço para esse token.');return;}
+  render();save();
+ };
+ listen(window,'nex:vtt-token-library-request',libraryState);
+ listen(window,'nex:vtt-token-library-action',event=>{
+  if(!gm)return;
+  const {action,assetId,variation}=event.detail||{};
+  if(action==='create')createTokenFromAsset(assetId);
+  if(action==='apply')changeTokenAsset(assetId,variation);
+  if(action==='set-variation'){
+   const t=selected();if(!t)return;
+   t.variation=Math.max(0,Math.min(9,Math.trunc(Number(variation)||0)));render();save();
+  }
+ });
+ listen(window,'nex:vtt-token-library-upload',event=>{
+  if(!gm)return;
+  const file=event.detail?.file;if(!file)return;
+  if((scene.library?.tokenImages?.length||0)>=20){message('A biblioteca já possui 20 imagens.');return;}
+  reader(file,45000,data=>{
+   scene.library??={tokenImages:[]};
+   const item={id:'asset_'+crypto.randomUUID(),name:String(file.name||'Imagem').slice(0,90),src:data};
+   scene.library.tokenImages.unshift(item);
+   if(libraryBytes()>850000){scene.library.tokenImages.shift();message('A cena está cheia. Não foi possível salvar essa imagem.');libraryState();return;}
+   render();save();
+  });
  });
  listen($('nexTtVariantFile'),'change',e=>{
   const id=selectedId,variant=Number(slot.value);if(!gm||!id)return;
