@@ -692,20 +692,28 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  vttButton('✕','Limpar desenhos',()=>{if(!gm||!confirm('Apagar todos os desenhos?'))return;scene.drawings=[];render();save();},!gm);
  vttButton('↩','Voltar à campanha',()=>document.getElementById('nexVttExit')?.click());
  function vttChangeZoom(d){
-   vttZoom=Math.min(2,Math.max(.25,Math.round((vttZoom+d)*100)/100));
+   const next=Math.min(2,Math.max(.25,Math.round((vttZoom+d)*100)/100));
+   // Avoid rewriting the zoom on repeated ResizeObserver / Firestore renders.
+   if(next===vttZoom&&board.style.zoom===String(next))return;
+   vttZoom=next;
    board.style.zoom=String(vttZoom);
    vttZoomText.textContent=Math.round(vttZoom*100)+'%';
    vttZoomSlider.value=String(Math.round(vttZoom*100));
  }
  function vttFitZoom(){
-   if(vttManualZoom)return;
-   const width=vttWrap.clientWidth, height=vttWrap.clientHeight;
+   if(vttManualZoom||!vttWrap.getClientRects().length)return;
+   // offsetWidth/Height do not change when a scrollbar appears. clientWidth/
+   // clientHeight do, which previously alternated between two zoom levels.
+   const width=vttWrap.offsetWidth-36,height=vttWrap.offsetHeight-36;
    if(width<150||height<150)return;
    const fits=Math.min((width-90)/mapWidth,(height-45)/mapHeight);
-   vttChangeZoom(Math.max(.25,Math.min(1.5,Math.floor(fits*100)/100))-vttZoom);
+   const next=Math.max(.25,Math.min(1.5,Math.floor(fits*100)/100));
+   if(Math.abs(next-vttZoom)>=.01)vttChangeZoom(next-vttZoom);
  }
+ // Observe the stage, rather than the scrollable map canvas, so zoom itself
+ // does not trigger another fit calculation.
  const vttResizeObserver=typeof ResizeObserver==='function'?new ResizeObserver(()=>vttFitZoom()):null;
- vttResizeObserver?.observe(vttWrap);
+ vttResizeObserver?.observe(vttWrap.parentElement||vttWrap);
  vttChangeZoom(0);vttSetMode('select');
  requestAnimationFrame(()=>vttFitZoom());
  const vttEl=(tag,attrs,parent)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);parent.append(n);return n;};
