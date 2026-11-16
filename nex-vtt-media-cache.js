@@ -27,10 +27,10 @@ export function createVttMediaCache(uid,campaignId){
    }catch(_){resolve(null);}
   });
  }
- async function put(src,data){
+ async function put(src,data,persistent=false){
   if(typeof data!=='string'||data.length>8*1024*1024)return false;
   const database=await db();if(!database)return false;
-  const value={key:key(src),data,size:data.length*2,timestamp:Date.now()};
+  const value={key:key(src),data,size:data.length*2,timestamp:Date.now(),persistent:!!persistent};
   const success=await new Promise(resolve=>{
    try{
     const tx=database.transaction(STORE,'readwrite');
@@ -38,7 +38,7 @@ export function createVttMediaCache(uid,campaignId){
     tx.oncomplete=()=>resolve(true);tx.onerror=()=>resolve(false);tx.onabort=()=>resolve(false);
    }catch(_){resolve(false);}
   });
-  if(success)void trim();
+  if(success&&!persistent)void trim();
   return success;
  }
  async function remove(src){
@@ -55,10 +55,11 @@ export function createVttMediaCache(uid,campaignId){
    const rows=await new Promise(resolve=>{
     try{const r=database.transaction(STORE,'readonly').objectStore(STORE).getAll();r.onsuccess=()=>resolve(r.result||[]);r.onerror=()=>resolve([]);}catch(_){resolve([]);}
    });
-   let total=rows.reduce((sum,row)=>sum+(row.size||0),0);
+   let total=rows.filter(row=>!row.persistent).reduce((sum,row)=>sum+(row.size||0),0);
    if(total<=MAX_BYTES)return;
    rows.sort((a,b)=>(a.timestamp||0)-(b.timestamp||0));
    for(const row of rows){
+    if(row.persistent)continue;
     if(total<=MAX_BYTES*.8)break;
     await new Promise(resolve=>{
      try{const tx=database.transaction(STORE,'readwrite');tx.objectStore(STORE).delete(row.key);tx.oncomplete=resolve;tx.onerror=resolve;}catch(_){resolve();}
