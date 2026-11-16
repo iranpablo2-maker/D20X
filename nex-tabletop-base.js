@@ -129,6 +129,24 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   }))};
  }
  if(recoveredBackup){scene=validScene(recoveredBackup);localDirty=true;queued=true;}
+ // Infer groups for token collections created before the library gained
+ // explicit group metadata. No changes to older saved scenes are required.
+ function libraryAssets(){
+  const assets=(scene.library?.tokenImages||[]).map(a=>({
+   id:a.id,name:a.name,src:a.src,groupId:a.groupId||'',slot:a.slot??1
+  }));
+  const byId=new Map(assets.map(a=>[a.id,a]));
+  for(const token of scene.tokens){
+   const refs=(token.images||[]).map((src,i)=>({id:typeof src==='string'&&src.startsWith('asset:')?src.slice(6):'',slot:i}))
+    .filter(x=>byId.has(x.id));
+   if(refs.length<2)continue;
+   for(const item of refs){
+    const asset=byId.get(item.id);
+    if(!asset.groupId){asset.groupId=token.id;asset.slot=item.slot;}
+   }
+  }
+  return assets;
+ }
  function render(){
   if(disposed)return;
   board.querySelectorAll('.nex-tabletop-token').forEach(n=>n.remove());
@@ -166,7 +184,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const t=selected();$('nexTtSelected').textContent=t?t.name:'Nenhum';slot.disabled=!t;slot.value=String(t?.variation??1);
   $('nexTtVariantFile').disabled=!t;$('nexTtDelete').disabled=!t;
   window.dispatchEvent(new CustomEvent('nex:vtt-token-library-state',{detail:{
-   assets:(scene.library?.tokenImages||[]).map(a=>({id:a.id,name:a.name,src:a.src,groupId:a.groupId||'',slot:a.slot??1})),
+   assets:libraryAssets(),
    selectedId:t?.id||null,selectedName:t?.name||'',variation:t?.variation??1,
    tokenCount:scene.tokens.length,isMaster:gm,availableVariations:(selected()?.images||[]).map((img,i)=>img?i:null).filter(i=>i!==null),availableVariations:(t?.images||[]).map((img,i)=>img?i:null).filter(i=>i!==null)
   }}));
@@ -263,7 +281,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  // Biblioteca compartilhada da cena; tokens referenciam o recurso para evitar cópias duplicadas.
  const libraryBytes=()=>new TextEncoder().encode(JSON.stringify(validScene(scene))).length;
  const libraryState=()=>window.dispatchEvent(new CustomEvent('nex:vtt-token-library-state',{detail:{
-  assets:(scene.library?.tokenImages||[]).map(a=>({id:a.id,name:a.name,src:a.src,groupId:a.groupId||'',slot:a.slot??1})),
+  assets:libraryAssets(),
   selectedId:selectedId||null,selectedName:selected()?.name||'',variation:selected()?.variation??1,
   tokenCount:scene.tokens.length,isMaster:gm
  }}));
@@ -306,8 +324,10 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(action==='delete-asset'){
    const asset=scene.library?.tokenImages?.find(a=>a.id===assetId);
    if(!asset)return;
-   const group=!!event.detail?.deleteGroup&&!!asset.groupId;
-   const ids=new Set((scene.library?.tokenImages||[]).filter(a=>group?a.groupId===asset.groupId:a.id===assetId).map(a=>a.id));
+   const derived=libraryAssets();
+   const groupId=derived.find(a=>a.id===assetId)?.groupId||'';
+   const group=!!event.detail?.deleteGroup&&!!groupId;
+   const ids=new Set(derived.filter(a=>group?a.groupId===groupId:a.id===assetId).map(a=>a.id));
    if(!ids.size)return;
    scene.library.tokenImages=scene.library.tokenImages.filter(a=>!ids.has(a.id));
    for(const token of scene.tokens){
