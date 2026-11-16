@@ -1,0 +1,27 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Somente membros da campanha podem obter os efeitos.
+    function isMember(campaignId) {
+      return request.auth != null && (
+        firestore.get(/databases/(default)/documents/campaigns/$(campaignId)).data.gmUid == request.auth.uid ||
+        firestore.exists(/databases/(default)/documents/campaigns/$(campaignId)/members/$(request.auth.uid))
+      );
+    }
+    function isMaster(campaignId) {
+      return request.auth != null &&
+        firestore.get(/databases/(default)/documents/campaigns/$(campaignId)).data.gmUid == request.auth.uid;
+    }
+    match /campaigns/{campaignId}/atmospheres/{fileId} {
+      allow get: if isMember(campaignId);
+      allow list: if false;
+      allow create: if isMaster(campaignId)
+        && fileId.matches('atmo_[A-Za-z0-9_-]+')
+        && request.resource.size > 0
+        && request.resource.size <= 15 * 1024 * 1024
+        && request.resource.contentType.matches('image/(gif|png|jpeg|webp)');
+      allow update: if false;
+      allow delete: if isMaster(campaignId);
+    }
+  }
+}
