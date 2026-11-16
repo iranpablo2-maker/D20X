@@ -1514,6 +1514,24 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-main-tabs button svg{display:block;width:22px;height:22px;margin:auto;color:inherit;flex:none}
 #roomTabletopPanel .nex-vtt-main-tabs button[data-nex-main-tab="chat"] svg,
 #roomTabletopPanel .nex-vtt-main-tabs button[data-nex-main-tab="art"] svg{width:23px;height:23px}
+</style><style id="nex-vtt-token-library-style-39">
+#roomTabletopPanel .nex-vtt-token-selection{
+ padding:9px 8px!important;border:1px solid #424962!important;border-radius:7px!important;
+ display:flex!important;flex-direction:column!important;gap:7px!important;background:#212638!important
+}
+#roomTabletopPanel .nex-vtt-token-selection strong{font-size:11px!important;overflow-wrap:anywhere}
+#roomTabletopPanel .nex-vtt-token-selection label{font-size:11px!important;display:flex;gap:8px;align-items:center}
+#roomTabletopPanel .nex-vtt-token-selection select{
+ background:#171c28;color:#fff;border:1px solid #636581;border-radius:5px;padding:4px
+}
+#roomTabletopPanel .nex-vtt-token-asset{display:flex!important;align-items:center!important;gap:7px!important}
+#roomTabletopPanel .nex-vtt-token-asset .nex-vtt-asset-name{
+ font-size:11px!important;overflow:hidden;text-overflow:ellipsis;overflow-wrap:anywhere;flex:1 1 0;min-width:0
+}
+#roomTabletopPanel .nex-vtt-token-asset .nex-vtt-asset-actions{display:flex;flex:0 0 auto;gap:3px}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-token-asset .nex-vtt-asset-actions button{
+ min-height:26px!important;height:26px!important;padding:3px 5px!important;font-size:10px!important;border-radius:4px!important
+}
 </style><script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -2609,6 +2627,26 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    const button=document.createElement('button');button.type='button';button.textContent=label;
    button.addEventListener('click',onClick);libraryBody.append(button);return button;
   };
+  let tokenLibraryState={assets:[],selectedId:null,selectedName:'',variation:1,tokenCount:0,isMaster:false};
+  let tokenChosenVariation=1;
+  const tokenLibraryUpload=document.createElement('input');
+  tokenLibraryUpload.type='file';tokenLibraryUpload.accept='image/png,image/jpeg,image/webp,image/gif';
+  tokenLibraryUpload.hidden=true;tokenLibraryUpload.setAttribute('aria-label','Enviar imagem de token');
+  mainMenu.append(tokenLibraryUpload);
+  tokenLibraryUpload.addEventListener('change',event=>{
+   const file=event.target.files?.[0];
+   if(file)window.dispatchEvent(new CustomEvent('nex:vtt-token-library-upload',{detail:{file}}));
+   event.target.value='';
+  });
+  window.addEventListener('nex:vtt-token-library-state',event=>{
+   const next=event.detail;if(!next)return;
+   if(tokenLibraryState.selectedId!==next.selectedId)tokenChosenVariation=next.variation??1;
+   tokenLibraryState=next;
+   if(mainMenu.querySelector('[data-nex-main-page="art"]')?.hidden===false&&
+     libraryTabs.find(btn=>btn.dataset.nexLibraryLayer==='tokens')?.getAttribute('aria-pressed')==='true')openLibraryLayer('tokens');
+  });
+  const tokenLibraryAction=(action,assetId,variation=tokenChosenVariation)=>
+   window.dispatchEvent(new CustomEvent('nex:vtt-token-library-action',{detail:{action,assetId,variation}}));
   function openLibraryLayer(layer){
    libraryTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexLibraryLayer===layer)));
    libraryBody.replaceChildren();
@@ -2631,20 +2669,56 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      const empty=document.createElement('p');empty.textContent='Nenhuma imagem de mapa adicionada.';libraryBody.append(empty);
     }
    }else if(layer==='tokens'){
-    const note=document.createElement('p');note.textContent='Personagens e criaturas sobre o mapa.';libraryBody.append(note);
     if(gm){
-     const input=document.createElement('input');input.type='text';input.maxLength=35;input.placeholder='Nome do token';input.setAttribute('aria-label','Nome do token');libraryBody.append(input);
-     addLibraryButton('Adicionar token',()=>{$('nexTabletopTokenName').value=input.value;$('nexTabletopAddToken')?.click();input.value='';});
-     addLibraryButton('Imagem do token selecionado',()=>{$('nexTtVariantFile')?.click();});
-    }else{const note=document.createElement('p');note.textContent='Os tokens são controlados conforme as permissões da campanha.';libraryBody.append(note);}
-    const images=[...$('nexTabletopBoard').querySelectorAll('.nex-tabletop-token img')];
-    const heading=document.createElement('strong');heading.className='nex-vtt-art-list-title';heading.textContent='Imagens dos tokens';libraryBody.append(heading);
-    for(const img of images){
-     const item=document.createElement('div');item.className='nex-vtt-art-row';
-     const thumb=document.createElement('img');thumb.className='nex-vtt-art-thumb';thumb.src=img.src;thumb.alt='';
-     const label=document.createElement('span');label.textContent=img.alt||'Token';item.append(thumb,label);libraryBody.append(item);
+     const actions=document.createElement('div');actions.className='nex-vtt-art-actions';libraryBody.append(actions);
+     const upload=addLibraryButton('☁ Upload',()=>tokenLibraryUpload.click());actions.append(upload);
     }
-    if(!images.length){const empty=document.createElement('p');empty.textContent='Nenhuma imagem de token visível.';libraryBody.append(empty);}
+    const selectedInfo=document.createElement('div');selectedInfo.className='nex-vtt-token-selection';
+    const selectedLabel=document.createElement('strong');
+    selectedLabel.textContent=tokenLibraryState.selectedId?
+      'Token selecionado: '+tokenLibraryState.selectedName:'Nenhum token selecionado';
+    selectedInfo.append(selectedLabel);
+    if(gm&&tokenLibraryState.selectedId){
+     const row=document.createElement('label');row.textContent='Variação ';
+     const select=document.createElement('select');select.setAttribute('aria-label','Variação a editar');
+     for(let i=0;i<10;i++){
+      const opt=document.createElement('option');opt.value=i;opt.textContent=i===0?'0 · Especial':String(i);select.append(opt);
+     }
+     select.value=String(tokenChosenVariation);
+     select.addEventListener('change',()=>{
+      tokenChosenVariation=Number(select.value);
+      tokenLibraryAction('set-variation',null,tokenChosenVariation);
+     });
+     row.append(select);selectedInfo.append(row);
+    }
+    libraryBody.append(selectedInfo);
+    const heading=document.createElement('strong');heading.className='nex-vtt-art-list-title';
+    heading.textContent='Recent Uploads';libraryBody.append(heading);
+    const assets=tokenLibraryState.assets||[];
+    if(!assets.length){
+     const empty=document.createElement('p');empty.textContent='Nenhuma imagem enviada. Use Upload para começar.';libraryBody.append(empty);
+    }
+    for(const asset of assets){
+     const row=document.createElement('div');row.className='nex-vtt-art-row nex-vtt-token-asset';
+     const thumb=document.createElement('img');thumb.className='nex-vtt-art-thumb';thumb.src=asset.src;thumb.alt='';
+     const label=document.createElement('span');label.textContent=asset.name;label.className='nex-vtt-asset-name';
+     row.append(thumb,label);
+     if(gm){
+      const commands=document.createElement('div');commands.className='nex-vtt-asset-actions';
+      const create=document.createElement('button');create.type='button';create.textContent='Add';
+      create.title='Criar token com esta imagem';
+      create.addEventListener('click',()=>tokenLibraryAction('create',asset.id));
+      commands.append(create);
+      if(tokenLibraryState.selectedId){
+       const apply=document.createElement('button');apply.type='button';apply.textContent='Aplicar';
+       apply.title='Aplicar imagem à variação '+tokenChosenVariation;
+       apply.addEventListener('click',()=>tokenLibraryAction('apply',asset.id,tokenChosenVariation));
+       commands.append(apply);
+      }
+      row.append(commands);
+     }
+     libraryBody.append(row);
+    }
    }else{
     const note=document.createElement('p');note.textContent=gm?'Controles exclusivos do mestre.':'Esta área é exclusiva do mestre.';libraryBody.append(note);
     if(gm){
@@ -2658,7 +2732,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    menuTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexMainTab===name)));
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
   }
-  menuTabs.forEach(btn=>btn.addEventListener('click',()=>showMainTab(btn.dataset.nexMainTab)));
+  menuTabs.forEach(btn=>btn.addEventListener('click',()=>{showMainTab(btn.dataset.nexMainTab);if(btn.dataset.nexMainTab==='art')window.dispatchEvent(new Event('nex:vtt-token-library-request'));}));
   mainMenuToggle.addEventListener('click',()=>updateMenu(mainMenu.hidden));
   mainClose.addEventListener('click',()=>updateMenu(false));
   $('nexVttMenuSheets').addEventListener('click',()=>{$('nexVttSheetsToggle').click();});
@@ -2666,7 +2740,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('nexVttMenuDice').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Dados"]')?.click();});
   $('nexVttMenuSettings').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Grade e névoa"]')?.click();});
   $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
-  libraryTabs.forEach(btn=>btn.addEventListener('click',()=>openLibraryLayer(btn.dataset.nexLibraryLayer)));
+  libraryTabs.forEach(btn=>btn.addEventListener('click',()=>{openLibraryLayer(btn.dataset.nexLibraryLayer);if(btn.dataset.nexLibraryLayer==='tokens')window.dispatchEvent(new Event('nex:vtt-token-library-request'));}));
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!mainMenu.hidden)updateMenu(false);});
   openLibraryLayer('mapa');showMainTab('chat');
   const vttPanelElement=$('roomTabletopPanel');
