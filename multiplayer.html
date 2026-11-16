@@ -1603,6 +1603,15 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-atmosphere-opacity-line{display:flex;align-items:center;gap:9px;margin-top:8px}
 #roomTabletopPanel .nex-vtt-atmosphere-opacity-line input{flex:1;min-width:0;accent-color:#98baff;cursor:pointer}
 #roomTabletopPanel .nex-vtt-atmosphere-opacity-line output{min-width:34px;text-align:right;font-size:11px}
+</style><style id="nex-vtt-atmosphere-library-multi">
+#roomTabletopPanel .nex-vtt-atmosphere-list{display:flex;flex-direction:column;gap:12px}
+#roomTabletopPanel .nex-vtt-atmosphere-entry{padding:8px;border:1px solid #44485d;border-radius:6px;min-width:0}
+#roomTabletopPanel .nex-vtt-atmosphere-entry .nex-vtt-art-row{gap:5px!important}
+#roomTabletopPanel .nex-vtt-atmosphere-entry .nex-vtt-asset-name{min-width:0!important;overflow-wrap:anywhere;flex:1;font-size:11px}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-atmosphere-entry button{
+ flex:0 0 auto!important;width:auto!important;min-width:0!important;padding:5px!important;font-size:10px!important;
+}
+#roomTabletopPanel .nex-vtt-atmosphere-entry input[type="range"]{max-width:100%;min-width:0}
 </style><script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -2260,7 +2269,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmoabove190';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmomulti200';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -3034,36 +3043,63 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   });
   const tokenLibraryAction=(action,assetId,variation=tokenChosenVariation)=>
    window.dispatchEvent(new CustomEvent('nex:vtt-token-library-action',{detail:{action,assetId,variation}}));
-  let currentAtmosphereState={type:'none',intensity:100,animated:true,image:'',isMaster:false};
-  let lastAtmosphereType='custom';
-  const atmosphereNames={mist:'Névoa',rain:'Chuva',snow:'Neve',dark:'Escuridão',embers:'Brasas',custom:'Atmosfera enviada'};
-  const sendAtmosphere=(patch,previewOnly=false)=>
-   window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-update',{detail:{...patch,previewOnly}}));
-  function syncAtmosphereControls(){
-   const panel=libraryBody.querySelector('.nex-vtt-atmosphere-controls');
-   if(!panel)return;
-   const state=currentAtmosphereState;
-   const hasEffect=!!state.image||state.type!=='none';
-   const row=panel.querySelector('[data-atmosphere-row]');
-   if(row)row.hidden=!hasEffect;
-   const thumb=panel.querySelector('[data-atmosphere-thumb]');
-   if(thumb){thumb.style.backgroundImage=state.image?'url("'+state.image.replace(/"/g,'')+'")':'none';
-    thumb.textContent=state.image?'':(state.type==='rain'?'🌧':state.type==='snow'?'❄':state.type==='embers'?'🔥':'☁');}
-   const name=panel.querySelector('[data-atmosphere-name]');
-   if(name)name.textContent=state.image?'Atmosfera enviada':(atmosphereNames[state.type]||'Atmosfera');
-   const toggle=panel.querySelector('[data-atmosphere-toggle]');
-   const isOn=state.type!=='none'&&(state.type!=='custom'||!!state.image);
-   if(toggle){toggle.textContent=isOn?'ON':'OFF';toggle.setAttribute('aria-pressed',String(isOn));toggle.title=isOn?'Desativar atmosfera':'Ativar atmosfera';}
-   const opacity=panel.querySelector('[data-atmosphere-opacity]');
-   if(opacity&&!opacity.matches(':active'))opacity.value=String(state.intensity??100);
-   const percent=panel.querySelector('[data-atmosphere-percent]');
-   if(percent)percent.textContent=(state.intensity??100)+'%';
+  let currentAtmosphereLayers=[];
+  const atmosphereAction=(action,id,extra={})=>
+   window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-layer-action',{detail:{action,id,...extra}}));
+  function renderAtmosphereItems(){
+   const list=libraryBody.querySelector('[data-nex-atmosphere-list]');
+   if(!list)return;
+   const focused=libraryBody.querySelector('[data-atmosphere-opacity]:active')?.dataset.atmosphereOpacity;
+   const oldIds=Array.from(list.children).map(child=>child.dataset.layerId);
+   const newIds=currentAtmosphereLayers.map(layer=>layer.id);
+   // Keep the active range input mounted while sliding, to avoid losing pointer capture.
+   if(focused&&oldIds.join('|')===newIds.join('|')){
+    for(const layer of currentAtmosphereLayers){
+     const row=Array.from(list.children).find(node=>node.dataset.layerId===layer.id);
+     if(!row)continue;
+     const toggle=row.querySelector('[data-atmosphere-toggle]');
+     if(toggle){toggle.textContent=layer.enabled?'ON':'OFF';toggle.setAttribute('aria-pressed',String(layer.enabled));}
+     const output=row.querySelector('output');if(output)output.textContent=layer.opacity+'%';
+    }
+    return;
+   }
+   list.replaceChildren();
+   if(!currentAtmosphereLayers.length){
+    const empty=document.createElement('p');empty.textContent='Nenhuma atmosfera adicionada.';
+    list.append(empty);return;
+   }
+   for(const layer of currentAtmosphereLayers){
+    const row=document.createElement('div');row.className='nex-vtt-atmosphere-entry';row.dataset.layerId=layer.id;
+    const top=document.createElement('div');top.className='nex-vtt-art-row nex-vtt-atmosphere-item';
+    const thumb=document.createElement('img');thumb.className='nex-vtt-art-thumb';thumb.src=layer.src;thumb.alt='';
+    const name=document.createElement('span');name.className='nex-vtt-asset-name';name.textContent=layer.name;
+    const toggle=document.createElement('button');toggle.type='button';toggle.dataset.atmosphereToggle='';
+    toggle.textContent=layer.enabled?'ON':'OFF';toggle.setAttribute('aria-pressed',String(layer.enabled));
+    toggle.disabled=!gm;toggle.addEventListener('click',()=>atmosphereAction('toggle',layer.id));
+    const remove=document.createElement('button');remove.type='button';remove.textContent='Excluir';
+    remove.disabled=!gm;remove.title='Excluir esta atmosfera permanentemente';
+    remove.addEventListener('click',()=>{
+     if(confirm('Excluir esta atmosfera da biblioteca e do mapa?'))atmosphereAction('delete',layer.id);
+    });
+    top.append(thumb,name,toggle,remove);row.append(top);
+    const label=document.createElement('label');label.className='nex-vtt-atmosphere-opacity-label';label.textContent='Opacidade';
+    const line=document.createElement('div');line.className='nex-vtt-atmosphere-opacity-line';
+    const range=document.createElement('input');range.type='range';range.min='0';range.max='100';range.step='1';
+    range.value=String(layer.opacity);range.dataset.atmosphereOpacity=layer.id;range.disabled=!gm;
+    range.setAttribute('aria-label','Opacidade de '+layer.name);
+    const output=document.createElement('output');output.textContent=layer.opacity+'%';
+    range.addEventListener('input',()=>{
+     output.textContent=range.value+'%';
+     atmosphereAction('opacity',layer.id,{opacity:Number(range.value),previewOnly:true});
+    });
+    range.addEventListener('change',()=>atmosphereAction('opacity',layer.id,{opacity:Number(range.value)}));
+    line.append(range,output);label.append(line);row.append(label);list.append(row);
+   }
   }
   window.addEventListener('nex:vtt-atmosphere-state',event=>{
    if(!event.detail)return;
-   currentAtmosphereState=event.detail;
-   if(currentAtmosphereState.type&&currentAtmosphereState.type!=='none')lastAtmosphereType=currentAtmosphereState.type;
-   syncAtmosphereControls();
+   currentAtmosphereLayers=event.detail.layers||[];
+   renderAtmosphereItems();
   });
   function openLibraryLayer(layer){
    libraryTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexLibraryLayer===layer)));
@@ -3090,51 +3126,22 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     atmosphereTitle.textContent='Camada de atmosfera';libraryBody.append(atmosphereTitle);
     const atmosphereControls=document.createElement('section');
     atmosphereControls.className='nex-vtt-atmosphere-controls';libraryBody.append(atmosphereControls);
-    const atmosphereUpload=document.createElement('input');atmosphereUpload.type='file';
-    atmosphereUpload.accept='image/png,image/jpeg,image/webp,image/gif';atmosphereUpload.hidden=true;
-    atmosphereControls.append(atmosphereUpload);
-    atmosphereUpload.addEventListener('change',event=>{
-     const file=event.target.files?.[0];event.target.value='';
-     if(file)window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-upload',{detail:{file}}));
+    const uploadInput=document.createElement('input');uploadInput.type='file';uploadInput.multiple=true;
+    uploadInput.accept='image/png,image/jpeg,image/webp,image/gif';uploadInput.hidden=true;
+    atmosphereControls.append(uploadInput);
+    uploadInput.addEventListener('change',event=>{
+     const files=Array.from(event.target.files||[]);event.target.value='';
+     if(files.length)window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-upload',{detail:{files}}));
     });
-    const actions=document.createElement('div');actions.className='nex-vtt-atmosphere-buttons';
-    const upload=document.createElement('button');upload.type='button';upload.textContent='＋ Adicionar atmosfera';
-    upload.disabled=!gm;upload.addEventListener('click',()=>atmosphereUpload.click());
-    const remove=document.createElement('button');remove.type='button';remove.textContent='Remover imagem';
-    remove.disabled=!gm;remove.addEventListener('click',()=>{
-     if(!confirm('Remover a imagem e o efeito de atmosfera da cena?'))return;
-     window.dispatchEvent(new Event('nex:vtt-atmosphere-remove'));
-    });
-    actions.append(upload,remove);atmosphereControls.append(actions);
-    const atmosphereRow=document.createElement('div');atmosphereRow.className='nex-vtt-atmosphere-row';
-    atmosphereRow.dataset.atmosphereRow='';atmosphereControls.append(atmosphereRow);
-    const top=document.createElement('div');top.className='nex-vtt-art-row nex-vtt-atmosphere-item';
-    const thumb=document.createElement('div');thumb.className='nex-vtt-art-thumb';
-    thumb.dataset.atmosphereThumb='';thumb.setAttribute('aria-hidden','true');
-    const name=document.createElement('span');name.className='nex-vtt-asset-name';name.dataset.atmosphereName='';
-    const toggle=document.createElement('button');toggle.type='button';toggle.dataset.atmosphereToggle='';
-    toggle.disabled=!gm;toggle.addEventListener('click',()=>{
-     const state=currentAtmosphereState;
-     const on=state.type!=='none';
-     const type=on?'none':(state.image?'custom':lastAtmosphereType);
-     sendAtmosphere({type});
-    });
-    top.append(thumb,name,toggle);atmosphereRow.append(top);
-    const opacityLabel=document.createElement('label');opacityLabel.className='nex-vtt-atmosphere-opacity-label';
-    opacityLabel.textContent='Opacidade';
-    const opacityLine=document.createElement('div');opacityLine.className='nex-vtt-atmosphere-opacity-line';
-    const opacity=document.createElement('input');opacity.type='range';opacity.min='0';opacity.max='100';
-    opacity.step='1';opacity.dataset.atmosphereOpacity='';
-    opacity.setAttribute('aria-label','Opacidade da atmosfera');opacity.disabled=!gm;
-    const percent=document.createElement('output');percent.dataset.atmospherePercent='';
-    const opacityUpdate=previewOnly=>{
-     percent.textContent=opacity.value+'%';
-     sendAtmosphere({intensity:Number(opacity.value)},previewOnly);
-    };
-    opacity.addEventListener('input',()=>opacityUpdate(true));
-    opacity.addEventListener('change',()=>opacityUpdate(false));
-    opacityLine.append(opacity,percent);opacityLabel.append(opacityLine);atmosphereRow.append(opacityLabel);
-    syncAtmosphereControls();
+    if(gm){
+     const actions=document.createElement('div');actions.className='nex-vtt-atmosphere-buttons';
+     const upload=document.createElement('button');upload.type='button';upload.textContent='＋ Adicionar atmosfera';
+     upload.addEventListener('click',()=>uploadInput.click());actions.append(upload);
+     atmosphereControls.append(actions);
+    }
+    const atmosphereList=document.createElement('div');atmosphereList.dataset.nexAtmosphereList='';
+    atmosphereList.className='nex-vtt-atmosphere-list';atmosphereControls.append(atmosphereList);
+    renderAtmosphereItems();
     window.dispatchEvent(new Event('nex:vtt-atmosphere-request'));
    }else if(layer==='tokens'){
     if(gm){
