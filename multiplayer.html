@@ -2269,18 +2269,19 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmomulti201';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmostorage210';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
+import {getStorage,ref as storageRef,uploadBytes,getDownloadURL,deleteObject} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-storage.js';
 const $=id=>document.getElementById(id);
 const show=(id,on)=>$(id).classList.toggle('hide',!on);
 const notice=msg=>$('notice').textContent=msg||'';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const cfg=window.NEX_FIREBASE_CONFIG;
 if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
- let auth,db;
+ let auth,db,storage;
  try{
-  const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);
+  const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);storage=getStorage(app);
  }catch(err){show('setup',true);notice('Configuração Firebase inválida.');throw err;}
  let uid=null,roomId='',gm=false,roomData=null,roomMembers=[],roomSheets=[],roomRequests=[],unsubs=[],editing=null,campaignUnsub=null,myCampaigns=[],privateShield=true,roomCombats=[],playerCampaigns=[],joinedUnsub=null,combatRollUnsubs=[],inviteUnsub=null,inviteState='checking';
  const localPortraits=new Map();
@@ -2922,7 +2923,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   });
  }
  function subscribeTabletop(id){
-  try{unsubs.push(mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId:id,gm,getSheets:()=>roomSheets,updateResource:updateVttSheetResource,onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
+  try{unsubs.push(mountNexTabletop({db,doc,onSnapshot,setDoc,storage,storageRef,uploadBytes,getDownloadURL,deleteObject,campaignId:id,gm,getSheets:()=>roomSheets,updateResource:updateVttSheetResource,onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
   catch(error){console.error('Falha ao iniciar Tabletop',error);$('nexTabletopMessage').textContent='Falha ao iniciar mesa virtual.';}
  }
  function roomSection(section){
