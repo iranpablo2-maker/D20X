@@ -565,7 +565,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      startX:t.x,startY:t.y,startWidth:t.widthCells||t.size||1,startHeight:t.heightCells||t.size||1,
      originClientX:e.clientX,originClientY:e.clientY};
   }else{
-   drag={id:selectedId,pointer:e.pointerId,kind:'move',startX:t.x,startY:t.y};
+   drag={id:selectedId,pointer:e.pointerId,kind:'move',startX:t.x,startY:t.y,
+     ...(e.pointerType==='touch'&&window.matchMedia('(pointer:coarse) and (max-width:900px)').matches
+       ?{mobileOffsetX:e.clientX-el.getBoundingClientRect().left,mobileOffsetY:e.clientY-el.getBoundingClientRect().top}:{})};
   }
   // Capture on the stable board, because render() replaces token elements.
   try{board.setPointerCapture(e.pointerId);}catch(_){}
@@ -589,8 +591,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     t.y=Math.round(edgeY*4)/4;t.heightCells=Math.max(min,Math.round((drag.startY+drag.startHeight-t.y)*4)/4);
    }
   }else{
-   t.x=Math.max(0,Math.min(W-(t.widthCells||t.size||1),Math.floor((e.clientX-rect.left)/cellX)));
-   t.y=Math.max(0,Math.min(H-(t.heightCells||t.size||1),Math.floor((e.clientY-rect.top)/cellY)));
+   const touchX=e.clientX-(drag.mobileOffsetX||0),touchY=e.clientY-(drag.mobileOffsetY||0);
+   t.x=Math.max(0,Math.min(W-(t.widthCells||t.size||1),Math.floor((touchX-rect.left)/cellX)));
+   t.y=Math.max(0,Math.min(H-(t.heightCells||t.size||1),Math.floor((touchY-rect.top)/cellY)));
   }
   render();
  });
@@ -846,7 +849,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  let vttPinch=null;
  const vttTouchDistance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
  const vttTouchCenter=(a,b)=>({x:(a.clientX+b.clientX)/2,y:(a.clientY+b.clientY)/2});
- const vttIsTouchDevice=()=>matchMedia('(pointer:coarse)').matches||navigator.maxTouchPoints>0;
+ const vttIsTouchDevice=()=>matchMedia('(pointer:coarse) and (max-width:900px)').matches;
  const vttPinchStart=e=>{
    if(!vttIsTouchDevice()||e.touches.length!==2)return;
    const [a,b]=e.touches;
