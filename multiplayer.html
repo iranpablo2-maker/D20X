@@ -3141,7 +3141,14 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    menuTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexMainTab===name)));
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
   }
-  menuTabs.forEach(btn=>btn.addEventListener('click',()=>{showMainTab(btn.dataset.nexMainTab);if(btn.dataset.nexMainTab==='art')window.dispatchEvent(new Event('nex:vtt-token-library-request'));}));
+  menuTabs.forEach(btn=>btn.addEventListener('click',()=>{
+   showMainTab(btn.dataset.nexMainTab);
+   if(btn.dataset.nexMainTab==='art'){
+    const active=libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer||'mapa';
+    openLibraryLayer(active);
+    if(active==='tokens')window.dispatchEvent(new Event('nex:vtt-token-library-request'));
+   }
+  }));
   // Refresh the role-sensitive buttons whenever the Art tab is opened.
   mainMenuToggle.addEventListener('click',()=>updateMenu(mainMenu.hidden));
   mainClose.addEventListener('click',()=>updateMenu(false));
