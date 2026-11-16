@@ -271,7 +271,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(!gm)return;const name=$('nexTabletopTokenName').value.trim().slice(0,35)||'Token';
   const taken=new Set(scene.tokens.map(t=>t.x+','+t.y));let x=1,y=1;
   outer:for(let row=1;row<H;row++)for(let col=1;col<W;col++)if(!taken.has(col+','+row)){x=col;y=row;break outer;}
-  const t={id:'tt_'+crypto.randomUUID(),name,x,y,variation:1,images:[],size:1,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,defense:0,hidden:false,locked:false};scene.tokens.push(t);selectedId=t.id;$('nexTabletopTokenName').value='';render();save();
+  const t={id:'tt_'+crypto.randomUUID(),name,x,y,variation:1,images:[],size:1,widthCells:1.5,heightCells:1.5,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,defense:0,hidden:false,locked:false};scene.tokens.push(t);selectedId=t.id;$('nexTabletopTokenName').value='';render();save();
  });
  listen($('nexTabletopClearTokens'),'click',()=>{if(!gm||!confirm('Remover todos os tokens desta cena?'))return;scene.tokens=[];selectedId=null;render();save();});
  listen($('nexTabletopRemoveMap'),'click',()=>{if(!gm)return;scene.map='';render();save();});
@@ -303,7 +303,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   let pos=null;for(let y=1;y<H&&!pos;y++)for(let x=1;x<W;x++)if(!occupied.has(x+','+y)){pos={x,y};break;}
   if(!pos){message('Não há espaço disponível para outro token.');return;}
   const token={id:'tt_'+crypto.randomUUID(),name:asset.name.replace(/\.[^.]+$/,'').slice(0,35)||'Token',
-   ...pos,variation:1,images:[],size:1,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,
+   ...pos,variation:1,images:[],size:1,widthCells:1.5,heightCells:1.5,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,
    defense:0,hidden:false,locked:false,linkedSheetId:''};
   token.images[1]='asset:'+asset.id;
   const previousSelection=selectedId;scene.tokens.push(token);selectedId=token.id;
@@ -362,7 +362,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   };
   const createToken=(name,pos)=>({
    id:'tt_'+crypto.randomUUID(),name:String(name||'Token').replace(/\.[^.]+$/,'').slice(0,35)||'Token',
-   ...pos,variation:1,images:[],size:1,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,
+   ...pos,variation:1,images:[],size:1,widthCells:1.5,heightCells:1.5,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,
    defense:0,hidden:false,locked:false,linkedSheetId:''
   });
   scene.library??={tokenImages:[]};
