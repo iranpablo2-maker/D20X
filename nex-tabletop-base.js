@@ -30,7 +30,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    img.src=src;
  }
  const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
- let scene=empty(),selectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false;
+ let scene=empty(),selectedId=null,resizeSelectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false;
  const handlers=[];
  const listen=(el,type,fn,opts)=>{el?.addEventListener(type,fn,opts);handlers.push(()=>el?.removeEventListener(type,fn,opts));};
  const saveNotice=document.createElement('div');saveNotice.id='nexVttSyncNotice';saveNotice.hidden=true;
@@ -71,7 +71,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  #roomTabletopPanel #nexTabletopBoard .nex-tabletop-token[data-selected="true"]{
   outline:none!important;outline-offset:0!important;
  }
- #roomTabletopPanel #nexTabletopBoard .nex-tabletop-token[data-selected="true"]::after{
+ #roomTabletopPanel #nexTabletopBoard .nex-tabletop-token[data-resize-selected="true"]::after{
   content:'';position:absolute;inset:0;border:1px solid #91b7fc;pointer-events:none;
  }
  #roomTabletopPanel #nexTabletopBoard .nex-token-resize-handle{
@@ -109,7 +109,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   updateMapGeometry();
   for(const t of scene.tokens){
    if(t.hidden&&!gm)continue;
-   const el=document.createElement('button');el.type='button';el.className='nex-tabletop-token';el.dataset.token=t.id;el.dataset.master=String(gm);el.dataset.selected=String(t.id===selectedId);
+   const el=document.createElement('button');el.type='button';el.className='nex-tabletop-token';el.dataset.token=t.id;el.dataset.master=String(gm);el.dataset.selected=String(t.id===selectedId);el.dataset.resizeSelected=String(gm&&t.id===resizeSelectedId&&!t.locked);
    const cw=mapWidth/W,ch=mapHeight/H;
    el.style.left=(t.x*cw)+'px';el.style.top=(t.y*ch)+'px';el.style.width=((t.widthCells||t.size||1)*cw)+'px';el.style.height=((t.heightCells||t.size||1)*ch)+'px';el.style.transform='rotate('+t.rotation+'deg)';el.title=t.name+' · Variação '+t.variation;el.setAttribute('aria-label',el.title);
    const portrait=linkedSheet(t)?.fullSheet?.photo||'';
@@ -127,7 +127,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      resources.append(line);
    }
    el.append(resources);
-   if(gm&&t.id===selectedId&&!t.locked){
+   if(gm&&t.id===resizeSelectedId&&!t.locked){
     for(const handle of ['nw','n','ne','e','se','s','sw','w']){
      const grip=document.createElement('span');grip.className='nex-token-resize-handle';
      grip.dataset.resize=handle;grip.title='Redimensionar token';grip.setAttribute('aria-hidden','true');
@@ -377,14 +377,17 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   event.preventDefault();
   if(!gm)return;
   const token=scene.tokens.find(t=>t.id===el.dataset.token);
-  if(token){selectedId=token.id;openTokenMenu(event,token);}
+  if(token){selectedId=token.id;resizeSelectedId=token.locked?null:token.id;render();openTokenMenu(event,token);}
  });
  listen(document,'pointerdown',event=>{if(!tokenMenu.hidden&&!tokenMenu.contains(event.target))closeTokenMenu();});
  listen(document,'keydown',event=>{if(event.key==='Escape')closeTokenMenu();});
 
  listen(board,'pointerdown',e=>{
-  const el=e.target.closest('[data-token]');if(!el)return;
+  const el=e.target.closest('[data-token]');
   if(e.button!==0)return;
+  const resizing=!!e.target.closest('[data-resize]');
+  if(!resizing&&resizeSelectedId!==null){resizeSelectedId=null;if(!el)render();}
+  if(!el)return;
   if(vttCombatTargetMode&&gm){
    const target=scene.tokens.find(t=>t.id===el.dataset.token);
    if(target&&!target.hidden){
