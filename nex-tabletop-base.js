@@ -159,13 +159,22 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    // Firestore rejects undefined even when JSON.stringify would omit it in the size check.
    const data=JSON.parse(JSON.stringify(validScene(scene)));
    if(new TextEncoder().encode(JSON.stringify(data)).length>850000){localDirty=true;message('Cena muito grande para sincronizar. Reduza o mapa ou as imagens dos tokens.');warnSync('Cena muito grande. Reduza as imagens ou os tokens para salvar.');break;}
-   try{await setDoc(ref,{...data,format:'nex-tabletop-v1'},{merge:false});localDirty=queued;clearSync();message('Mesa salva na campanha.');}
+   try{
+     const payload={...data,format:'nex-tabletop-v1'};
+     // Always pass a plain serializable object to Firestore. Token variants
+     // can have empty slots (0-9), which must never reach Firebase as undefined.
+     const clean=JSON.parse(JSON.stringify(payload));
+     await setDoc(ref,clean,{merge:false});
+     localDirty=queued;clearSync();message('Mesa salva na campanha.');
+   }
    catch(e){
      localDirty=true;
      const denied=e.code==='permission-denied';
+     const invalid=String(e.message||'').includes('Unsupported field value: undefined');
      message('Não foi possível salvar a mesa no Firebase.');
      warnSync(denied
        ?'O Firestore recusou o salvamento. Publique firestore.rules no Firebase antes de continuar.'
+       :invalid?'Falha ao validar dados do token. Atualize a página para carregar o NEX corrigido (VTT 20261116.7).'
        :'Falha na sincronização: '+String(e.message||e).slice(0,140));
      console.warn('NEX: salvamento da mesa falhou',e);
    }
