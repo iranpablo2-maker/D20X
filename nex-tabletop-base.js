@@ -925,11 +925,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  listen(document,'pointerup',e=>{
   if(!vttMobile()||e.pointerType!=='touch')return;
   if(mobileLongPress?.pointer===e.pointerId)clearMobileLongPress();
-  // The existing token handler updates scene; this shows touch resize grips.
-  if(!drag&&selectedId&&vttMode==='select'&&!vttPinch){
+  // A short tap selects only; the blue resize grips are long-press only.
+  // Keep active resize handles visible after a resize; do not create them on tap.
+  if(!drag&&vttMode==='select'&&!vttPinch&&resizeSelectedId){
    const token=selected();
-   resizeSelectedId=gm&&token&&!token.locked?token.id:null;
-   render();
+   if(!token||token.id!==resizeSelectedId||token.locked){resizeSelectedId=null;render();}
   }
  });
  listen(document,'pointercancel',e=>{if(mobileLongPress?.pointer===e.pointerId)clearMobileLongPress();});
