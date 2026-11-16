@@ -86,7 +86,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  #roomTabletopPanel #nexTabletopBoard .nex-tabletop-token{
   border:0!important;border-radius:0!important;box-shadow:none!important;
   background:transparent!important;overflow:visible!important;padding:0!important;
-  box-sizing:border-box!important;outline:none!important;
+  box-sizing:border-box!important;outline:none!important;touch-action:none!important;
  }
  #roomTabletopPanel #nexTabletopBoard .nex-tabletop-token img{
   width:100%!important;height:100%!important;object-fit:contain!important;
@@ -537,7 +537,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const token=scene.tokens.find(t=>t.id===el.dataset.token);
   if(token){selectedId=token.id;resizeSelectedId=token.locked?null:token.id;render();openTokenMenu(event,token);}
  });
- listen(document,'pointerdown',event=>{if(!tokenMenu.hidden&&!tokenMenu.contains(event.target))closeTokenMenu();if(event.button===0&&!event.target.closest('#nexTabletopBoard .nex-token-resize-handle')&&resizeSelectedId!==null){resizeSelectedId=null;render();}});
+ listen(document,'pointerdown',event=>{if(!tokenMenu.hidden&&!tokenMenu.contains(event.target))closeTokenMenu();if(event.button===0&&!drag&&!event.target.closest('#nexTabletopBoard .nex-tabletop-token')&&resizeSelectedId!==null){resizeSelectedId=null;render();}});
  listen(document,'keydown',event=>{if(event.key==='Escape')closeTokenMenu();});
 
  listen(board,'pointerdown',e=>{
@@ -555,7 +555,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    }
   }
   const handle=e.target.closest('[data-resize]')?.dataset.resize;
-  selectedId=el.dataset.token;if(!handle)render();
+  selectedId=el.dataset.token; // Keep the touched DOM node alive until gesture end.
   const linked=linkedSheet(selected());
   if(linked&&typeof onSelectSheet==='function')onSelectSheet(linked.id);
   if(!gm||selected()?.locked||vttMode!=='select')return;
@@ -567,6 +567,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   }else{
    drag={id:selectedId,pointer:e.pointerId,kind:'move',startX:t.x,startY:t.y};
   }
+  // Capture on the stable board, because render() replaces token elements.
+  try{board.setPointerCapture(e.pointerId);}catch(_){}
   e.preventDefault();
  });
  listen(document,'pointermove',e=>{
@@ -595,9 +597,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  listen(document,'pointerup',e=>{if(!drag||drag.pointer!==e.pointerId)return;
   const token=scene.tokens.find(t=>t.id===drag.id);
   if(token&&vttMeasureMovement){const squares=Math.hypot(token.x-drag.startX,token.y-drag.startY);vttLog.hidden=false;vttLog.textContent=token.name+': '+squares.toFixed(1)+' quadrados';}
-  drag=null;save();
+  drag=null;
+  try{if(board.hasPointerCapture(e.pointerId))board.releasePointerCapture(e.pointerId);}catch(_){}
+  render();save();
  });
- listen(document,'pointercancel',()=>{if(drag){drag=null;save();}});
+ listen(document,'pointercancel',e=>{if(drag&&drag.pointer===e.pointerId){drag=null;render();save();}});
  listen(document,'keydown',e=>{
   if(!gm||!selectedId||isTyping(e)||e.altKey||e.ctrlKey||e.metaKey||!(/^[0-9]$/).test(e.key))return;
   const t=selected();if(!t||!t.images?.[Number(e.key)])return;t.variation=Number(e.key);render();save();e.preventDefault();
@@ -848,7 +852,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const [a,b]=e.touches;
    vttPinch={distance:Math.max(1,vttTouchDistance(a,b)),center:vttTouchCenter(a,b)};
    vttManualZoom=true;
-   vttPan=null;vttDraft=null;
+   vttPan=null;vttDraft=null;drag=null;
    if(e.cancelable)e.preventDefault();
  };
  const vttPinchMove=e=>{
