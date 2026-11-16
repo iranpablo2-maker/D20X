@@ -1487,6 +1487,29 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel #nexVttMainMenu{width:min(300px,calc(100% - 42px))!important}
  #roomTabletopPanel #nexVttSheetsCornerToggle{right:calc(min(300px,100% - 42px) + 5px)!important}
 }
+</style><style id="nex-vtt-small-art-actions-36">
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-art-actions{
+ display:flex!important;flex-direction:row!important;gap:6px!important;
+ align-items:center!important;justify-content:flex-end!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-art-actions button{
+ flex:0 1 auto!important;width:auto!important;min-width:0!important;
+ min-height:28px!important;height:28px!important;
+ padding:3px 7px!important;font-size:10px!important;font-weight:600!important;
+ border:1px solid #5b5b69!important;border-radius:4px!important;
+ background:#343746!important;white-space:nowrap!important;
+}
+#roomTabletopPanel .nex-vtt-art-list-title{font-size:12px;margin:9px 0 1px;color:#e4dce9}
+#roomTabletopPanel .nex-vtt-art-row{
+ display:flex!important;align-items:center!important;gap:9px!important;
+ min-height:39px!important;padding:4px 3px!important;border-bottom:1px solid #383d4b!important;
+ font-size:11px!important;color:#e9e7f1!important;overflow-wrap:anywhere!important;
+}
+#roomTabletopPanel .nex-vtt-art-thumb{
+ display:block!important;width:30px!important;height:30px!important;min-width:30px!important;
+ object-fit:contain!important;background-position:center!important;background-size:contain!important;
+ background-repeat:no-repeat!important;border-radius:3px!important;background-color:#252b37!important;
+}
 </style><script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -2586,11 +2609,23 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    libraryTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexLibraryLayer===layer)));
    libraryBody.replaceChildren();
    if(layer==='mapa'){
-    const note=document.createElement('p');note.textContent='Imagem de fundo do tabuleiro.';libraryBody.append(note);
     if(gm){
-     addLibraryButton('Enviar imagem do mapa',()=>{$('nexTabletopMapFile')?.click();});
-     addLibraryButton('Remover mapa',()=>{if(confirm('Remover o mapa atual?'))$('nexTabletopRemoveMap')?.click();});
-    }else{const note=document.createElement('p');note.textContent='Somente o mestre pode alterar o mapa.';libraryBody.append(note);}
+     const actions=document.createElement('div');actions.className='nex-vtt-art-actions';libraryBody.append(actions);
+     const upload=addLibraryButton('☁ Enviar imagem do mapa',()=>{$('nexTabletopMapFile')?.click();});
+     const remove=addLibraryButton('Remover mapa',()=>{if(confirm('Remover o mapa atual?'))$('nexTabletopRemoveMap')?.click();});
+     actions.append(upload,remove);
+    }
+    const title=document.createElement('strong');title.className='nex-vtt-art-list-title';title.textContent='Imagens no mapa';libraryBody.append(title);
+    const board=$('nexTabletopBoard');
+    const current=board?.style.backgroundImage||'';
+    if(current&&current!=='none'){
+     const item=document.createElement('div');item.className='nex-vtt-art-row';
+     const thumb=document.createElement('div');thumb.className='nex-vtt-art-thumb';thumb.style.backgroundImage=current;
+     const label=document.createElement('span');label.textContent='Mapa atual';
+     item.append(thumb,label);libraryBody.append(item);
+    }else{
+     const empty=document.createElement('p');empty.textContent='Nenhuma imagem de mapa adicionada.';libraryBody.append(empty);
+    }
    }else if(layer==='tokens'){
     const note=document.createElement('p');note.textContent='Personagens e criaturas sobre o mapa.';libraryBody.append(note);
     if(gm){
@@ -2598,6 +2633,14 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      addLibraryButton('Adicionar token',()=>{$('nexTabletopTokenName').value=input.value;$('nexTabletopAddToken')?.click();input.value='';});
      addLibraryButton('Imagem do token selecionado',()=>{$('nexTtVariantFile')?.click();});
     }else{const note=document.createElement('p');note.textContent='Os tokens são controlados conforme as permissões da campanha.';libraryBody.append(note);}
+    const images=[...$('nexTabletopBoard').querySelectorAll('.nex-tabletop-token img')];
+    const heading=document.createElement('strong');heading.className='nex-vtt-art-list-title';heading.textContent='Imagens dos tokens';libraryBody.append(heading);
+    for(const img of images){
+     const item=document.createElement('div');item.className='nex-vtt-art-row';
+     const thumb=document.createElement('img');thumb.className='nex-vtt-art-thumb';thumb.src=img.src;thumb.alt='';
+     const label=document.createElement('span');label.textContent=img.alt||'Token';item.append(thumb,label);libraryBody.append(item);
+    }
+    if(!images.length){const empty=document.createElement('p');empty.textContent='Nenhuma imagem de token visível.';libraryBody.append(empty);}
    }else{
     const note=document.createElement('p');note.textContent=gm?'Controles exclusivos do mestre.':'Esta área é exclusiva do mestre.';libraryBody.append(note);
     if(gm){
