@@ -1969,7 +1969,8 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs{
   flex:0 0 50px!important;min-height:50px!important;
  }
- #roomTabletopPanel #nexVttSheetsCornerToggle{
+ #roomTabletopPanel #nexVttSheetsCornerToggle,
+ #roomTabletopPanel:has(#nexVttMainMenu:not([hidden])) #nexVttSheetsCornerToggle{
   right:8px!important;top:8px!important;
  }
  #roomTabletopPanel .nex-vtt-sidebar{
