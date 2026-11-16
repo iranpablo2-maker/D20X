@@ -784,18 +784,18 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   atmosphereLayer.style.backgroundImage=type==='custom'&&state.image?'url("'+state.image.replace(/"/g,'')+'")':'none';
   atmosphereLayer.dataset.animated=String(state.animated!==false);
   atmosphereLayer.style.setProperty('--nex-atmosphere-strength',String(Math.max(0,Math.min(100,state.intensity||0))/100));
-  window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-state',{detail:{type,intensity:state.intensity,animated:state.animated!==false,hasImage:!!state.image,isMaster:gm}}));
+  window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-state',{detail:{type,intensity:state.intensity,animated:state.animated!==false,image:state.image||'',hasImage:!!state.image,isMaster:gm}}));
  }
  listen(window,'nex:vtt-atmosphere-request',()=>{
-  const state=scene.atmosphere||{type:'none',intensity:45,animated:true};
-  window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-state',{detail:{...state,isMaster:gm}}));
+  const state=scene.atmosphere||{type:'none',intensity:45,animated:true,image:''};
+  window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-state',{detail:{...state,hasImage:!!state.image,isMaster:gm}}));
  });
  listen(window,'nex:vtt-atmosphere-update',event=>{
   if(!gm)return;
   const prev=scene.atmosphere||{type:'none',intensity:45,animated:true};
   const patch=event.detail||{};
   const type=['none','mist','rain','snow','dark','embers','custom'].includes(patch.type)?patch.type:prev.type;
-  const intensity=Number.isFinite(Number(patch.intensity))?Math.max(0,Math.min(100,Math.round(Number(patch.intensity)))):prev.intensity;
+  const intensity=patch.intensity!==undefined&&Number.isFinite(Number(patch.intensity))?Math.max(0,Math.min(100,Math.round(Number(patch.intensity)))):prev.intensity;
   scene.atmosphere={type,intensity,animated:typeof patch.animated==='boolean'?patch.animated:prev.animated,image:prev.image||''};
   applyAtmosphere();save();
  });
