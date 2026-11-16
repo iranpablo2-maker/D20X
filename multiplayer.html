@@ -1875,6 +1875,131 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel #nexVttZoomRail button{height:32px!important;min-height:32px!important}
 }
 </style>
+<!-- nex-vtt-mobile-v2-touch-layout -->
+<style id="nex-vtt-mobile-v2-touch-layout">
+/* ONLY phones and touch screens <= 900px. Do not change desktop layout. */
+@media (max-width:900px) and (pointer:coarse){
+ html:has(#roomTabletopPanel:not(.hide)),
+ body:has(#roomTabletopPanel:not(.hide)){
+  overscroll-behavior:none!important;
+ }
+ #room #roomTabletopPanel:not(.hide){height:100dvh!important}
+ #roomTabletopPanel #nexVttWorkspace,
+ #roomTabletopPanel .nex-vtt-stage{min-height:0!important}
+ /* Pan by one finger is owned by the tabletop rather than document scrolling. */
+ #roomTabletopPanel .nex-tabletop-wrap,
+ #roomTabletopPanel #nexTabletopBoard{
+  touch-action:none!important;overscroll-behavior:contain!important;
+ }
+ #roomTabletopPanel .nex-tabletop-token,
+ #roomTabletopPanel .nex-token-resize-handle{
+  touch-action:none!important;-webkit-user-select:none!important;user-select:none!important;
+ }
+ #roomTabletopPanel #nexTabletopBoard .nex-tabletop-token[data-resize-selected=true] .nex-token-resize-handle{
+  width:20px!important;height:20px!important;min-width:20px!important;min-height:20px!important;
+  border:2px solid #3c6ba9!important;border-radius:3px!important;
+  background:#91b7fc!important;z-index:25!important;
+ }
+ #roomTabletopPanel .nex-token-resize-handle[data-resize="nw"]{top:-10px!important;left:-10px!important}
+ #roomTabletopPanel .nex-token-resize-handle[data-resize="n"]{top:-10px!important;left:calc(50% - 10px)!important}
+ #roomTabletopPanel .nex-token-resize-handle[data-resize="ne"]{top:-10px!important;right:-10px!important}
+ #roomTabletopPanel .nex-token-resize-handle[data-resize="e"]{top:calc(50% - 10px)!important;right:-10px!important}
+ #roomTabletopPanel .nex-token-resize-handle[data-resize="se"]{bottom:-10px!important;right:-10px!important}
+ #roomTabletopPanel .nex-token-resize-handle[data-resize="s"]{bottom:-10px!important;left:calc(50% - 10px)!important}
+ #roomTabletopPanel .nex-token-resize-handle[data-resize="sw"]{bottom:-10px!important;left:-10px!important}
+ #roomTabletopPanel .nex-token-resize-handle[data-resize="w"]{top:calc(50% - 10px)!important;left:-10px!important}
+ #roomTabletopPanel #nexVttMainMenu{
+  display:flex!important;flex-direction:column!important;
+  width:min(360px,calc(100vw - 56px))!important;
+  max-width:calc(100vw - 56px)!important;
+ }
+ #roomTabletopPanel #nexVttMainMenu[hidden]{display:none!important}
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-scroll{
+  min-height:0!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{
+  display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:5px!important;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs button{
+  min-width:0!important;min-height:43px!important;padding:6px 2px!important;
+  font-size:12px!important;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-art-row,
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-token-asset{
+  display:flex!important;align-items:center!important;flex-wrap:wrap!important;
+  min-width:0!important;gap:7px!important;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-art-row *,
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-token-asset *{
+  max-width:100%;overflow-wrap:anywhere;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-art-actions{
+  display:grid!important;grid-template-columns:1fr!important;gap:7px!important;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-art-actions button{
+  width:100%!important;min-width:0!important;min-height:44px!important;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs button{
+  min-height:42px!important;
+ }
+ #roomTabletopPanel .nex-vtt-sidebar,
+ #roomTabletopPanel[data-tools-collapsed=false] .nex-vtt-sidebar{
+  max-height:calc(100dvh - 65px)!important;
+ }
+ #roomTabletopPanel #nexVttBar button[title="Medir distância"],
+ #roomTabletopPanel #nexVttBar button[title="Move"]{
+  touch-action:manipulation!important;min-height:44px!important;
+ }
+ #roomTabletopPanel #nexVttOptions[data-section="measure"]{
+  max-height:min(65dvh,400px)!important;overflow-y:auto!important;
+ }
+}
+@media (max-width:600px) and (pointer:coarse) and (orientation:portrait){
+ /* The art library acts as a bottom sheet in narrow portrait view. */
+ #roomTabletopPanel #nexVttMainMenu{
+  position:absolute!important;left:0!important;right:0!important;
+  top:auto!important;bottom:0!important;width:100%!important;min-width:0!important;
+  max-width:100%!important;height:min(70dvh,600px)!important;
+  max-height:calc(100dvh - 65px)!important;
+  border:0!important;border-top:1px solid #505971!important;
+  border-radius:16px 16px 0 0!important;
+  box-shadow:0 -15px 38px #000a!important;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs{
+  flex:0 0 50px!important;min-height:50px!important;
+ }
+ #roomTabletopPanel #nexVttSheetsCornerToggle{
+  right:8px!important;top:8px!important;
+ }
+ #roomTabletopPanel .nex-vtt-sidebar{
+  max-height:calc(100dvh - 75px)!important;
+ }
+}
+@media (max-width:900px) and (pointer:coarse) and (orientation:landscape){
+ /* In landscape, maximize the playfield and use compact side drawers. */
+ #roomTabletopPanel #nexVttMainMenu{
+  top:0!important;bottom:0!important;left:auto!important;right:0!important;
+  width:min(310px,45vw)!important;min-width:0!important;max-width:45vw!important;
+  height:100%!important;max-height:100%!important;
+  border-radius:0!important;
+ }
+ #roomTabletopPanel .nex-vtt-sidebar,
+ #roomTabletopPanel[data-tools-collapsed=false] .nex-vtt-sidebar{
+  width:min(210px,38vw)!important;min-width:0!important;
+  max-width:38vw!important;top:48px!important;
+  max-height:calc(100dvh - 54px)!important;
+ }
+ #roomTabletopPanel #nexVttZoomRail{
+  height:39px!important;bottom:5px!important;
+  width:min(240px,45vw)!important;
+ }
+ #roomTabletopPanel #nexVttZoomRail button{
+  min-width:30px!important;width:30px!important;
+  min-height:30px!important;height:30px!important;
+ }
+}
+</style>
 </head>
 <body>
 <script>
