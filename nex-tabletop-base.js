@@ -816,7 +816,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   }
   if(!image||image.length>180000){message('Imagem de atmosfera muito grande. Escolha outra menor.');return;}
   const previous=scene.atmosphere||{type:'none',intensity:45,animated:true,image:''};
-  scene.atmosphere={...previous,type:'custom',intensity:previous.intensity||45,image};
+  scene.atmosphere={...previous,type:'custom',intensity:100,animated:true,image};
   if(new TextEncoder().encode(JSON.stringify(validScene(scene))).length>850000){
    scene.atmosphere=previous;
    message('A cena não tem espaço para esta atmosfera. Remova imagens não utilizadas ou use uma imagem menor.');return;
