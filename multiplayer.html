@@ -2269,7 +2269,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmomulti200';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116atmomulti201';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -3052,13 +3052,15 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    const focused=libraryBody.querySelector('[data-atmosphere-opacity]:active')?.dataset.atmosphereOpacity;
    const oldIds=Array.from(list.children).map(child=>child.dataset.layerId);
    const newIds=currentAtmosphereLayers.map(layer=>layer.id);
-   // Keep the active range input mounted while sliding, to avoid losing pointer capture.
-   if(focused&&oldIds.join('|')===newIds.join('|')){
+   // Update existing controls without remounting them: keep slider drag uninterrupted.
+   if(oldIds.join('|')===newIds.join('|')){
     for(const layer of currentAtmosphereLayers){
      const row=Array.from(list.children).find(node=>node.dataset.layerId===layer.id);
      if(!row)continue;
      const toggle=row.querySelector('[data-atmosphere-toggle]');
      if(toggle){toggle.textContent=layer.enabled?'ON':'OFF';toggle.setAttribute('aria-pressed',String(layer.enabled));}
+     const range=row.querySelector('input[type="range"]');
+     if(range&&range.dataset.atmosphereOpacity!==focused)range.value=String(layer.opacity);
      const output=row.querySelector('output');if(output)output.textContent=layer.opacity+'%';
     }
     return;
