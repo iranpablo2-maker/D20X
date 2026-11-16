@@ -1921,7 +1921,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116tokenstable100';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116batchtokens110';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -2630,13 +2630,14 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   let tokenLibraryState={assets:[],selectedId:null,selectedName:'',variation:1,tokenCount:0,isMaster:false};
   let tokenChosenVariation=1;
   const tokenLibraryUpload=document.createElement('input');
-  tokenLibraryUpload.type='file';tokenLibraryUpload.accept='image/png,image/jpeg,image/webp,image/gif';
-  tokenLibraryUpload.hidden=true;tokenLibraryUpload.setAttribute('aria-label','Enviar imagem de token');
+  tokenLibraryUpload.type='file';tokenLibraryUpload.multiple=true;tokenLibraryUpload.accept='image/png,image/jpeg,image/webp,image/gif';
+  tokenLibraryUpload.hidden=true;tokenLibraryUpload.setAttribute('aria-label','Selecionar imagens de tokens');
+  let tokenUploadMode='separate';
   mainMenu.append(tokenLibraryUpload);
   tokenLibraryUpload.addEventListener('change',event=>{
-   const file=event.target.files?.[0];
-   if(file)window.dispatchEvent(new CustomEvent('nex:vtt-token-library-upload',{detail:{file}}));
+   const files=Array.from(event.target.files||[]);
    event.target.value='';
+   if(files.length)window.dispatchEvent(new CustomEvent('nex:vtt-token-library-batch',{detail:{files,mode:tokenUploadMode}}));
   });
   window.addEventListener('nex:vtt-token-library-state',event=>{
    const next=event.detail;if(!next)return;
@@ -2671,7 +2672,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    }else if(layer==='tokens'){
     if(gm){
      const actions=document.createElement('div');actions.className='nex-vtt-art-actions';libraryBody.append(actions);
-     const upload=addLibraryButton('☁ Upload',()=>tokenLibraryUpload.click());actions.append(upload);
+     const separate=addLibraryButton('＋ Adicionar token',()=>{tokenUploadMode='separate';tokenLibraryUpload.click();});
+     const variations=addLibraryButton('＋ Adicionar token com variação',()=>{tokenUploadMode='variations';tokenLibraryUpload.click();});
+     actions.append(separate,variations);
     }
     const selectedInfo=document.createElement('div');selectedInfo.className='nex-vtt-token-selection';
     const selectedLabel=document.createElement('strong');
@@ -2693,10 +2696,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     }
     libraryBody.append(selectedInfo);
     const heading=document.createElement('strong');heading.className='nex-vtt-art-list-title';
-    heading.textContent='Recent Uploads';libraryBody.append(heading);
+    heading.textContent='Imagens da biblioteca';libraryBody.append(heading);
     const assets=tokenLibraryState.assets||[];
     if(!assets.length){
-     const empty=document.createElement('p');empty.textContent='Nenhuma imagem enviada. Use Upload para começar.';libraryBody.append(empty);
+     const empty=document.createElement('p');empty.textContent='Nenhum token adicionado. Use Adicionar token para começar.';libraryBody.append(empty);
     }
     for(const asset of assets){
      const row=document.createElement('div');row.className='nex-vtt-art-row nex-vtt-token-asset';
