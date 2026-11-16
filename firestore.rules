@@ -240,11 +240,11 @@ service cloud.firestore {
       // Evita Cloud Storage e mantém leitura restrita aos membros da campanha.
       match /tabletopMedia/{mediaId}/chunks/{chunkId} {
         allow get: if nexInCampaign(cid)
-          && mediaId.matches('atmo_[A-Za-z0-9_-]+')
+          && mediaId.matches('(atmo|map|asset)_[A-Za-z0-9_-]+')
           && chunkId.matches('[0-9]{3}');
         allow list: if false;
         allow create, update: if nexGM(cid)
-          && mediaId.matches('atmo_[A-Za-z0-9_-]+')
+          && mediaId.matches('(atmo|map|asset)_[A-Za-z0-9_-]+')
           && chunkId.matches('[0-9]{3}')
           && request.resource.data.keys().hasOnly(['chunk'])
           && request.resource.data.chunk is string
