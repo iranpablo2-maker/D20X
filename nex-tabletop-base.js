@@ -331,7 +331,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   render();save();
  };
  listen(window,'nex:vtt-token-library-request',libraryState);
- listen(window,'nex:vtt-token-library-action',event=>{
+ listen(window,'nex:vtt-token-library-action',async event=>{
   if(!gm)return;
   const {action,assetId,variation}=event.detail||{};
   if(action==='create')createTokenFromAsset(assetId);
@@ -349,6 +349,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const group=!!event.detail?.deleteGroup&&!!groupId;
    const ids=new Set(derived.filter(a=>group?a.groupId===groupId:a.id===assetId).map(a=>a.id));
    if(!ids.size)return;
+   const deletedSources=scene.library.tokenImages.filter(a=>ids.has(a.id)).map(a=>a.src);
    scene.library.tokenImages=scene.library.tokenImages.filter(a=>!ids.has(a.id));
    // Remove tokens that lose their last image, rather than leaving a
    // text-only placeholder (e.g. "MIN") on the board.
@@ -374,7 +375,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    if(removedTokenIds.has(resizeSelectedId))resizeSelectedId=null;
    if(removedTokenIds.has(drag?.id))drag=null;
    if(removedTokenIds.size)closeTokenMenu();
-   render();save();
+   render();await save();
+   if(!saveFailed)for(const src of new Set(deletedSources))await deleteMediaParts(src);
   }
  });
  // Multi-image import: separate tokens or numbered images for one token.
@@ -954,11 +956,13 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   }
  });
  // Compatibilidade com a opção antiga de remover toda a atmosfera.
- listen(window,'nex:vtt-atmosphere-remove',()=>{
+ listen(window,'nex:vtt-atmosphere-remove',async()=>{
   if(!gm)return;
+  const removed=(scene.atmosphereLayers||[]).map(a=>a.src);
   scene.atmosphereLayers=[];
   scene.atmosphere={type:'none',intensity:100,animated:true,image:''};
-  applyAtmosphere();save();
+  applyAtmosphere();await save();
+  if(!saveFailed)for(const src of new Set(removed))await deleteMediaParts(src);
  });
  const vttLog=document.createElement('div');vttLog.style.cssText='position:absolute;bottom:6px;right:6px;background:#171015ee;color:#fff;z-index:8;padding:8px;border-radius:5px;pointer-events:none;font-size:12px';vttLog.hidden=true;board.append(vttLog);
  const vttButtons=new Map();
