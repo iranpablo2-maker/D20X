@@ -38,7 +38,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
   return {map:typeof data.map==='string'&&data.map.length<650000?data.map:'',drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-1,Math.floor(Number(t.x)||0))),y:Math.max(0,Math.min(H-1,Math.floor(Number(t.y)||0))),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
-   images:Array.isArray(t.images)?t.images.slice(0,10).map(url=>typeof url==='string'&&url.length<300000?url:''):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
+   images:Array.isArray(t.images)?t.images.slice(0,10).map(url=>typeof url==='string'&&url.length<650000?url:''):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
   }))};
  }
  function render(){
@@ -50,7 +50,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    const el=document.createElement('button');el.type='button';el.className='nex-tabletop-token';el.dataset.token=t.id;el.dataset.master=String(gm);el.dataset.selected=String(t.id===selectedId);
    el.style.left=(t.x*GRID+4)+'px';el.style.top=(t.y*GRID+4)+'px';el.style.width=((t.size||1)*GRID-8)+'px';el.style.height=((t.size||1)*GRID-8)+'px';el.style.transform='rotate('+t.rotation+'deg)';el.title=t.name+' · Variação '+t.variation;el.setAttribute('aria-label',el.title);
    const portrait=linkedSheet(t)?.fullSheet?.photo||'';
-   const safePortrait=typeof portrait==='string'&&portrait.length<140000&&(portrait.startsWith('https://')||/^data:image\/(?:png|jpeg|webp);base64,/i.test(portrait))?portrait:'';
+   const safePortrait=typeof portrait==='string'&&(portrait.startsWith('https://')||/^data:image\/(?:png|jpeg|webp);base64,/i.test(portrait))?portrait:'';
    const img=t.images[t.variation]||safePortrait||'';
    if(img){const image=document.createElement('img');image.src=img;image.alt=t.name;el.appendChild(image);}
    else{const span=document.createElement('span');span.textContent=t.name.slice(0,3).toUpperCase();el.appendChild(span);}
@@ -91,10 +91,47 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
   }
   pending=false;
  }
- const reader=(file,max,done)=>{
-  if(!file||!/^image\/(png|jpeg|webp|gif)$/.test(file.type))return message('Escolha uma imagem PNG, JPG, WebP ou GIF.');
-  if(file.size>max)return message('Arquivo muito grande. Limite: '+Math.round(max/1024)+' KB.');
-  const r=new FileReader();r.onload=()=>{if(typeof r.result==='string')done(r.result);};r.onerror=()=>message('Não foi possível ler a imagem.');r.readAsDataURL(file);
+ const reader=async(file,max,done)=>{
+  if(!file||!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){message('Escolha uma imagem PNG, JPG, WebP ou GIF.');return;}
+  const readOriginal=()=>new Promise((resolve,reject)=>{
+   const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Leitura da imagem falhou'));r.readAsDataURL(file);
+  });
+  let bitmap;
+  try{
+   // No arbitrary input-file size cap: automatically encode to a safe size
+   // for the existing Firestore scene document instead of rejecting the upload.
+   if(file.size*1.38<max){
+    const original=await readOriginal();
+    if(typeof original==='string'&&original.length<=max){done(original);return;}
+   }
+   bitmap=await createImageBitmap(file);
+   let width=bitmap.width,height=bitmap.height;
+   if(!width||!height)throw Error('Imagem inválida');
+   const dimension=max>200000?2200:820;
+   const scale=Math.min(1,dimension/Math.max(width,height));
+   width=Math.max(1,Math.round(width*scale));height=Math.max(1,Math.round(height*scale));
+   const canvas=document.createElement('canvas');
+   let optimized='';
+   for(let attempt=0;attempt<16;attempt++){
+    canvas.width=width;canvas.height=height;
+    const ctx=canvas.getContext('2d');
+    if(!ctx)throw Error('Canvas indisponível');
+    ctx.clearRect(0,0,width,height);
+    ctx.drawImage(bitmap,0,0,width,height);
+    const quality=Math.max(.37,.83-attempt*.055);
+    optimized=canvas.toDataURL('image/webp',quality);
+    if(!optimized.startsWith('data:image/webp'))optimized=canvas.toDataURL('image/jpeg',quality);
+    if(optimized.length<=max)break;
+    const reduction=optimized.length>max*1.9?.68:.85;
+    width=Math.max(1,Math.round(width*reduction));
+    height=Math.max(1,Math.round(height*reduction));
+   }
+   if(optimized.length>max)throw Error('Imagem não pôde ser otimizada para esta cena');
+   if(file.type==='image/gif')message('GIF grande: o NEX salvou uma imagem estática otimizada. Para manter a animação, use um GIF menor.');
+   done(optimized);
+  }catch(error){
+   message('Não foi possível preparar a imagem: '+String(error.message||error));
+  }finally{bitmap?.close?.();}
  };
  listen($('nexTabletopAddToken'),'click',()=>{
   if(!gm)return;const name=$('nexTabletopTokenName').value.trim().slice(0,35)||'Token';
