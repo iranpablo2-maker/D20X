@@ -1,5 +1,5 @@
 {
-  "version": "2026.11.16-vtt-2.0",
-  "build": "20261116interface20",
-  "description": "Nova interface do tabletop NEX: layout escuro consolidado, barra superior e painel de personagens redimensionável com teclado, largura salva e modo compacto responsivo."
+  "version": "2026.11.16-vtt-2.1",
+  "build": "20261116cleanvtt21",
+  "description": "Remove barra superior repetida, ferramentas laterais recolhíveis por seta, importar imagens grandes com otimização automática para caber no Firestore."
 }
