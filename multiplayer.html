@@ -1398,7 +1398,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  gap:3px!important;padding:0 0 8px!important;margin:0!important;overflow:visible!important;
 }
 #roomTabletopPanel #nexVttBar button{display:none!important}
-#roomTabletopPanel #nexVttBar button[title="Selecionar"],
+#roomTabletopPanel #nexVttBar button[title="Move"],
 #roomTabletopPanel #nexVttBar button[title="Desenhar: abrir ferramentas"],
 #roomTabletopPanel #nexVttBar button[title="Texto"],
 #roomTabletopPanel #nexVttBar button[title="Medir distância"]{
@@ -1408,6 +1408,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  font-size:25px!important;padding:0!important;
 }
 #roomTabletopPanel .nex-vtt-sidebar>h3,
+#roomTabletopPanel[data-tools-collapsed="false"] .nex-vtt-sidebar>h3,
 #roomTabletopPanel #nexTabletopTools,
 #roomTabletopPanel #nexTtVariants{display:none!important}
 </style>
@@ -1687,7 +1688,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <div class="nex-vtt-heading"><div class="nex-vtt-brand"><span class="nex-vtt-brand-symbol" aria-hidden="true">◆</span><div class="nex-vtt-brand-copy"><strong>NEX</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexVttBuildTag" title="Versão do tabletop do NEX">NEX VTT 2.0</span><button type="button" id="nexVttReload" title="Recarregar a interface da mesa">⟳ Recarregar</button><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
     <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
-    <div class="nex-vtt-layout" id="nexVttWorkspace"><button id="nexVttSidebarToggle" type="button" aria-controls="nexTabletopTools" aria-expanded="false" title="Abrir ferramentas" aria-label="Abrir ferramentas">›</button><button id="nexVttSheetsCornerToggle" type="button" aria-controls="nexVttSheetsPanel" aria-expanded="true" title="Abrir ou fechar painel de fichas" aria-label="Abrir ou fechar painel de fichas">☰</button><aside class="nex-vtt-sidebar"><h3>Ferramentas</h3><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
+    <div class="nex-vtt-layout" id="nexVttWorkspace"><button id="nexVttSidebarToggle" type="button" aria-controls="nexTabletopTools" aria-expanded="false" title="Abrir ferramentas" aria-label="Abrir ferramentas">›</button><button id="nexVttSheetsCornerToggle" type="button" aria-controls="nexVttSheetsPanel" aria-expanded="true" title="Abrir ou fechar painel de fichas" aria-label="Abrir ou fechar painel de fichas">☰</button><aside class="nex-vtt-sidebar"><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
       <label>Nome do token <input type="text" id="nexTabletopTokenName" maxlength="35" placeholder="Ex.: Agente, criatura"></label>
       <button id="nexTabletopAddToken" type="button">Adicionar token</button>
       <button id="nexTabletopClearTokens" type="button" class="alt">Limpar tokens</button>
@@ -1758,7 +1759,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116zoomcompact27';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261116movearrow32';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -2441,7 +2442,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function setVttSidebarCollapsed(collapsed){
   vttToolsCollapsed=!!collapsed;
   vttSidebarPanel.dataset.toolsCollapsed=String(vttToolsCollapsed);
-  vttSidebarToggle.textContent=vttToolsCollapsed?'›':'☰';
+  vttSidebarToggle.textContent=vttToolsCollapsed?'›':'‹';
   vttSidebarToggle.setAttribute('aria-expanded',String(!vttToolsCollapsed));
   vttSidebarToggle.setAttribute('aria-label',vttToolsCollapsed?'Abrir barra de ferramentas':'Fechar barra de ferramentas');
   vttSidebarToggle.title=vttToolsCollapsed?'Abrir barra de ferramentas':'Fechar barra de ferramentas';
@@ -2449,7 +2450,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   window.dispatchEvent(new Event('resize'));
  }
  vttSidebarPanel.dataset.toolsCollapsed=String(vttToolsCollapsed);
- vttSidebarToggle.textContent=vttToolsCollapsed?'›':'☰';
+ vttSidebarToggle.textContent=vttToolsCollapsed?'›':'‹';
  vttSidebarToggle.setAttribute('aria-expanded',String(!vttToolsCollapsed));
  vttSidebarToggle.title=vttToolsCollapsed?'Abrir barra de ferramentas':'Fechar barra de ferramentas';
  vttSidebarToggle.setAttribute('aria-label',vttSidebarToggle.title);
