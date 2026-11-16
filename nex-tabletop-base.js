@@ -303,6 +303,69 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    t.variation=Math.max(0,Math.min(9,Math.trunc(Number(variation)||0)));render();save();
   }
  });
+ // Multi-image import: separate tokens or numbered images for one token.
+ // The existing 20-asset / 850KB document caps are checked before committing.
+ listen(window,'nex:vtt-token-library-batch',async event=>{
+  if(!gm||!remoteReady){message('Aguarde a mesa carregar antes de adicionar tokens.');return;}
+  const files=Array.from(event.detail?.files||[]).filter(file=>file&&/^image\/(png|jpeg|webp|gif)$/.test(file.type));
+  const variations=event.detail?.mode==='variations';
+  if(!files.length){message('Selecione imagens PNG, JPG, WebP ou GIF.');return;}
+  if(variations&&files.length>10){message('Um token pode ter no máximo 10 imagens (variações 0 a 9). Selecione até 10.');return;}
+  if(!variations&&scene.tokens.length+files.length>90){message('A mesa aceita no máximo 90 tokens. Selecione menos arquivos.');return;}
+  if((scene.library?.tokenImages?.length||0)+files.length>20){message('A biblioteca aceita no máximo 20 imagens por cena. Selecione menos arquivos.');return;}
+  if(uploading){message('Outro envio está em andamento.');return;}
+  const occupied=new Set(scene.tokens.map(t=>t.x+','+t.y));
+  const nextPosition=()=>{
+   for(let y=1;y<H;y++)for(let x=1;x<W;x++){
+    if(!occupied.has(x+','+y)){occupied.add(x+','+y);return {x,y};}
+   }
+   return null;
+  };
+  const createToken=(name,pos)=>({
+   id:'tt_'+crypto.randomUUID(),name:String(name||'Token').replace(/\.[^.]+$/,'').slice(0,35)||'Token',
+   ...pos,variation:1,images:[],size:1,rotation:0,pv:0,pe:0,san:0,pvMax:0,peMax:0,sanMax:0,
+   defense:0,hidden:false,locked:false,linkedSheetId:''
+  });
+  scene.library??={tokenImages:[]};
+  let added=0,group=null,failed=false;
+  uploading++;
+  try{
+   message('Preparando imagens dos tokens...');
+   for(const file of files){
+    let data=null;
+    await reader(file,45000,src=>{data=src;});
+    if(!data){failed=true;break;}
+    const pos=variations?(group?null:nextPosition()):nextPosition();
+    if(!group&&variations&&!pos || !variations&&!pos){message('Não há espaço disponível para novos tokens.');failed=true;break;}
+    const asset={id:'asset_'+crypto.randomUUID(),name:String(file.name||'Imagem').slice(0,90),src:data};
+    const token=variations?(group||(group=createToken(asset.name,pos))):createToken(asset.name,pos);
+    const variant=variations?(added===9?0:added+1):1;
+    const beforeImage=token.images[variant];
+    scene.library.tokenImages.unshift(asset);
+    token.images[variant]='asset:'+asset.id;
+    if(!scene.tokens.includes(token))scene.tokens.push(token);
+    if(libraryBytes()>850000){
+     scene.library.tokenImages.shift();
+     if(beforeImage===undefined)delete token.images[variant];else token.images[variant]=beforeImage;
+     if(!added)scene.tokens=scene.tokens.filter(t=>t!==token);
+     message('Limite de armazenamento da cena atingido. As imagens restantes não foram adicionadas.');
+     failed=true;break;
+    }
+    added++;
+   }
+  }catch(error){
+   failed=true;
+   message('Erro ao adicionar imagens: '+String(error.message||error).slice(0,110));
+  }finally{
+   uploading=Math.max(0,uploading-1);
+   if(added){
+    selectedId=group?.id||scene.tokens[scene.tokens.length-1]?.id||null;
+    render();
+    await save();
+    if(!saveFailed)message(variations?'Token com '+added+' variações adicionado.':'Adicionados '+added+' tokens à mesa.');
+   }else if(!failed)message('Nenhum token foi adicionado.');
+  }
+ });
  listen(window,'nex:vtt-token-library-upload',event=>{
   if(!gm)return;
   const file=event.detail?.file;if(!file)return;
