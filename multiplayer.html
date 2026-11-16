@@ -3834,7 +3834,15 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  description.textContent='Jogue na horizontal para aproveitar melhor o mapa. Você também pode continuar com o celular em pé.';
  const continueButton=document.createElement('button');continueButton.type='button';continueButton.textContent='Continuar em pé';
  hint.append(symbol,heading,description,continueButton);
- panel.querySelector('#nexVttBar')?.append(full);
+ // A barra é criada quando o Tabletop da campanha termina de carregar.
+ // Anexar depois evita perder o botão quando ela ainda não existe.
+ const attachFullscreen=()=>{
+  const bar=panel.querySelector('#nexVttBar');
+  if(bar&&full.parentElement!==bar)bar.append(full);
+ };
+ attachFullscreen();
+ const sidebar=panel.querySelector('.nex-vtt-sidebar');
+ if(sidebar)new MutationObserver(attachFullscreen).observe(sidebar,{childList:true});
  panel.querySelector('#nexVttWorkspace')?.append(hint);
  const dismissedKey='nex-mobile-landscape-hint-dismissed';
  let dismissed=false;
@@ -3878,6 +3886,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   border-radius:9px!important;background:transparent!important;box-shadow:none!important;
   color:#e9e6f5!important;display:grid!important;place-items:center!important;
   font:24px/1 system-ui,sans-serif!important;
+ }
+ #roomTabletopPanel[data-tools-collapsed="false"] #nexVttBar #nexMobileFullscreen:not([hidden]){
+  display:grid!important;place-items:center!important;
+  flex:0 0 44px!important;width:44px!important;min-width:44px!important;
+  height:44px!important;min-height:44px!important;
  }
  #roomTabletopPanel #nexVttBar #nexMobileFullscreen[hidden]{display:none!important}
  #roomTabletopPanel #nexVttBar button[title="Move"] svg,
