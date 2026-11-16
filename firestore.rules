@@ -249,12 +249,13 @@ service cloud.firestore {
           ))
           && (!('atmosphere' in request.resource.data) || (
             request.resource.data.atmosphere is map
-            && request.resource.data.atmosphere.keys().hasOnly(['type','intensity','animated'])
-            && request.resource.data.atmosphere.type in ['none','mist','rain','snow','dark','embers']
+            && request.resource.data.atmosphere.keys().hasOnly(['type','intensity','animated','image'])
+            && request.resource.data.atmosphere.type in ['none','mist','rain','snow','dark','embers','custom']
             && request.resource.data.atmosphere.intensity is int
             && request.resource.data.atmosphere.intensity >= 0
             && request.resource.data.atmosphere.intensity <= 100
             && request.resource.data.atmosphere.animated is bool
+            && (!('image' in request.resource.data.atmosphere) || (request.resource.data.atmosphere.image is string && request.resource.data.atmosphere.image.size() <= 180000))
           ))
           && request.resource.data.format == 'nex-tabletop-v1'
           && request.resource.data.map is string
