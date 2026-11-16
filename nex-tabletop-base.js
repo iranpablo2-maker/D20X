@@ -882,6 +882,62 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  listen(vttWrap,'touchend',vttPinchEnd,{passive:true});
  listen(vttWrap,'touchcancel',vttPinchEnd,{passive:true});
 
+ // Mobile-specific gestures; desktop keeps all of its original event handlers.
+ const vttMobile=()=>window.matchMedia('(pointer:coarse) and (max-width:900px)').matches;
+ let mobileLongPress=null;
+ const clearMobileLongPress=()=>{if(mobileLongPress){clearTimeout(mobileLongPress.timer);mobileLongPress=null;}};
+ listen(board,'pointerdown',e=>{
+  if(!vttMobile()||e.pointerType!=='touch'||e.button!==0)return;
+  const el=e.target.closest('.nex-tabletop-token[data-token]');
+  if(el&&gm&&vttMode==='select'){
+   clearMobileLongPress();
+   const press={id:el.dataset.token,pointer:e.pointerId,x:e.clientX,y:e.clientY,timer:null};
+   press.timer=setTimeout(()=>{
+    if(mobileLongPress!==press||vttPinch||!gm)return;
+    // Long-press opens the existing token menu, without moving the token.
+    drag=null;selectedId=press.id;
+    const token=scene.tokens.find(t=>t.id===press.id);
+    if(token){
+     resizeSelectedId=token.locked?null:token.id;
+     render();
+     openTokenMenu({clientX:press.x,clientY:press.y},token);
+    }
+    mobileLongPress=null;
+   },550);
+   mobileLongPress=press;
+   return;
+  }
+  // One-finger panning starts on empty map while Move is selected.
+  // The two-finger pinch handler cancels this movement automatically.
+  if(!el&&vttMode==='select'&&!vttPinch){
+   vttPan={pointer:e.pointerId,x:e.clientX,y:e.clientY,left:vttWrap.scrollLeft,top:vttWrap.scrollTop};
+   try{board.setPointerCapture(e.pointerId);}catch(_){}
+   e.preventDefault();
+  }
+ });
+ listen(document,'pointermove',e=>{
+  if(!vttMobile()||!mobileLongPress||e.pointerId!==mobileLongPress.pointer)return;
+  if(Math.hypot(e.clientX-mobileLongPress.x,e.clientY-mobileLongPress.y)>12)clearMobileLongPress();
+ });
+ listen(document,'pointerup',e=>{
+  if(!vttMobile()||e.pointerType!=='touch')return;
+  if(mobileLongPress?.pointer===e.pointerId)clearMobileLongPress();
+  // The existing token handler updates scene; this shows touch resize grips.
+  if(!drag&&selectedId&&vttMode==='select'&&!vttPinch)render();
+ });
+ listen(document,'pointercancel',e=>{if(mobileLongPress?.pointer===e.pointerId)clearMobileLongPress();});
+ listen(vttWrap,'touchstart',e=>{if(vttMobile()&&e.touches.length>1)clearMobileLongPress();},{passive:true});
+ // In ruler mode the board must receive the whole gesture even if the finger
+ // leaves the first grid square. Keep the desktop pointer behavior unchanged.
+ listen(board,'pointerdown',e=>{
+  if(!vttMobile()||e.pointerType!=='touch'||e.button!==0||e.target.closest('[data-token]'))return;
+  if(vttMode==='measure'||vttMode==='pan'){
+   try{board.setPointerCapture(e.pointerId);}catch(_){}
+   if(e.cancelable)e.preventDefault();
+  }
+ });
+
+
  const vttEl=(tag,attrs,parent)=>{const n=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);parent.append(n);return n;};
  function vttPaint(d,layer){
    const attrs={stroke:d.color||'#3157f5','stroke-width':d.width||3,fill:(d.filled&&['rectangle','circle'].includes(d.type))?(d.color||'#3157f5'):'none','fill-opacity':d.filled?'.3':'1','stroke-linecap':'round'};
