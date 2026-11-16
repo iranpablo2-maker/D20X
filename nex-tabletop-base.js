@@ -926,7 +926,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(!vttMobile()||e.pointerType!=='touch')return;
   if(mobileLongPress?.pointer===e.pointerId)clearMobileLongPress();
   // The existing token handler updates scene; this shows touch resize grips.
-  if(!drag&&selectedId&&vttMode==='select'&&!vttPinch)render();
+  if(!drag&&selectedId&&vttMode==='select'&&!vttPinch){
+   const token=selected();
+   resizeSelectedId=gm&&token&&!token.locked?token.id:null;
+   render();
+  }
  });
  listen(document,'pointercancel',e=>{if(mobileLongPress?.pointer===e.pointerId)clearMobileLongPress();});
  listen(vttWrap,'touchstart',e=>{if(vttMobile()&&e.touches.length>1)clearMobileLongPress();},{passive:true});
