@@ -1272,6 +1272,36 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttSheetsCornerToggle:hover,
 #roomTabletopPanel #nexVttSidebarToggle:hover{background:#533349!important}
 </style>
+<style id="nex-vtt-bottom-zoom-26">
+/* Zoom horizontal no canto inferior direito, sem alterar os menus superiores. */
+#roomTabletopPanel .nex-vtt-stage{position:relative!important}
+#roomTabletopPanel #nexVttZoomRail{
+ position:absolute!important;z-index:95!important;
+ top:auto!important;bottom:13px!important;right:14px!important;left:auto!important;
+ transform:none!important;
+ display:flex!important;flex-direction:row!important;align-items:center!important;justify-content:center!important;
+ width:min(326px,calc(100% - 28px))!important;
+ height:43px!important;min-height:43px!important;max-height:43px!important;
+ padding:5px 8px!important;gap:7px!important;
+ background:#202332ee!important;border:1px solid #434760!important;border-radius:10px!important;
+ box-shadow:0 5px 20px #0008!important;
+}
+#roomTabletopPanel #nexVttZoomRail button{
+ flex:0 0 27px!important;width:27px!important;height:29px!important;
+ min-width:27px!important;padding:0!important;
+}
+#roomTabletopPanel #nexVttZoomSlider{
+ writing-mode:horizontal-tb!important;direction:ltr!important;
+ flex:1 1 auto!important;min-width:35px!important;width:auto!important;
+ height:20px!important;min-height:0!important;margin:0!important;
+}
+#roomTabletopPanel #nexVttZoomValue{
+ flex:0 0 38px!important;min-width:38px!important;font-size:11px!important;
+}
+@media(max-width:600px){
+ #roomTabletopPanel #nexVttZoomRail{right:7px!important;bottom:8px!important;width:min(290px,calc(100% - 14px))!important}
+}
+</style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
