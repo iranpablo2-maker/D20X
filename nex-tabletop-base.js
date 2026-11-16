@@ -122,7 +122,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
  function validScene(data){
   if(!stateOK(data))return empty();
-  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src})):[]},map:typeof data.map==='string'&&data.map.length<650000?data.map:'',drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
+  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&data.map.length<650000?data.map:'',drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-.5,Math.round((Number(t.x)||0)*4)/4)),y:Math.max(0,Math.min(H-.5,Math.round((Number(t.y)||0)*4)/4)),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?Array.from({length:Math.min(10,t.images.length)},(_,i)=>{const url=t.images[i];return typeof url==='string'&&url.length<650000?url:'';}):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),widthCells:Math.max(.5,Math.min(10,Number(t.widthCells)||Number(t.size)||1)),heightCells:Math.max(.5,Math.min(10,Number(t.heightCells)||Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
@@ -166,9 +166,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const t=selected();$('nexTtSelected').textContent=t?t.name:'Nenhum';slot.disabled=!t;slot.value=String(t?.variation??1);
   $('nexTtVariantFile').disabled=!t;$('nexTtDelete').disabled=!t;
   window.dispatchEvent(new CustomEvent('nex:vtt-token-library-state',{detail:{
-   assets:(scene.library?.tokenImages||[]).map(a=>({id:a.id,name:a.name,src:a.src})),
+   assets:(scene.library?.tokenImages||[]).map(a=>({id:a.id,name:a.name,src:a.src,groupId:a.groupId||'',slot:a.slot??1})),
    selectedId:t?.id||null,selectedName:t?.name||'',variation:t?.variation??1,
-   tokenCount:scene.tokens.length,isMaster:gm
+   tokenCount:scene.tokens.length,isMaster:gm,availableVariations:(selected()?.images||[]).map((img,i)=>img?i:null).filter(i=>i!==null),availableVariations:(t?.images||[]).map((img,i)=>img?i:null).filter(i=>i!==null)
   }}));
  }
  async function save(){
@@ -263,7 +263,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  // Biblioteca compartilhada da cena; tokens referenciam o recurso para evitar cópias duplicadas.
  const libraryBytes=()=>new TextEncoder().encode(JSON.stringify(validScene(scene))).length;
  const libraryState=()=>window.dispatchEvent(new CustomEvent('nex:vtt-token-library-state',{detail:{
-  assets:(scene.library?.tokenImages||[]).map(a=>({id:a.id,name:a.name,src:a.src})),
+  assets:(scene.library?.tokenImages||[]).map(a=>({id:a.id,name:a.name,src:a.src,groupId:a.groupId||'',slot:a.slot??1})),
   selectedId:selectedId||null,selectedName:selected()?.name||'',variation:selected()?.variation??1,
   tokenCount:scene.tokens.length,isMaster:gm
  }}));
@@ -299,8 +299,27 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(action==='create')createTokenFromAsset(assetId);
   if(action==='apply')changeTokenAsset(assetId,variation);
   if(action==='set-variation'){
-   const t=selected();if(!t)return;
-   t.variation=Math.max(0,Math.min(9,Math.trunc(Number(variation)||0)));render();save();
+   const t=selected(),v=Math.max(0,Math.min(9,Math.trunc(Number(variation)||0)));
+   if(!t||!t.images?.[v])return;
+   t.variation=v;render();save();
+  }
+  if(action==='delete-asset'){
+   const asset=scene.library?.tokenImages?.find(a=>a.id===assetId);
+   if(!asset)return;
+   const group=!!event.detail?.deleteGroup&&!!asset.groupId;
+   const ids=new Set((scene.library?.tokenImages||[]).filter(a=>group?a.groupId===asset.groupId:a.id===assetId).map(a=>a.id));
+   if(!ids.size)return;
+   scene.library.tokenImages=scene.library.tokenImages.filter(a=>!ids.has(a.id));
+   for(const token of scene.tokens){
+    for(let i=0;i<(token.images||[]).length;i++){
+     if(ids.has(String(token.images[i]||'').replace(/^asset:/,'')))token.images[i]='';
+    }
+    if(!token.images?.[token.variation]){
+     const first=token.images?.findIndex(Boolean)??-1;
+     token.variation=first>=0?first:1;
+    }
+   }
+   render();save();
   }
  });
  // Multi-image import: separate tokens or numbered images for one token.
@@ -337,9 +356,10 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     if(!data){failed=true;break;}
     const pos=variations?(group?null:nextPosition()):nextPosition();
     if(!group&&variations&&!pos || !variations&&!pos){message('Não há espaço disponível para novos tokens.');failed=true;break;}
-    const asset={id:'asset_'+crypto.randomUUID(),name:String(file.name||'Imagem').slice(0,90),src:data};
+    const asset={id:'asset_'+crypto.randomUUID(),name:String(file.name||'Imagem').slice(0,90),src:data,groupId:variations?(group?.id||''): '',slot:variations?(added===9?0:added+1):1};
     const token=variations?(group||(group=createToken(asset.name,pos))):createToken(asset.name,pos);
     const variant=variations?(added===9?0:added+1):1;
+    if(variations)asset.groupId=token.id;
     const beforeImage=token.images[variant];
     scene.library.tokenImages.unshift(asset);
     token.images[variant]='asset:'+asset.id;
@@ -451,15 +471,16 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   add('Colar',()=>{
    closeTokenMenu();pasteTokenAt(copiedToken,token);
   },!copiedToken||scene.tokens.length>=90);
-  const variationButton=add('Variação  ▸',()=>{
+  const availableSlots=(token.images||[]).map((image,index)=>image?index:null).filter(index=>index!==null);
+  const variationButton=availableSlots.length>1?add('Variação  ▸',()=>{
    list.hidden=!list.hidden;
    variationButton.setAttribute('aria-expanded',String(!list.hidden));
    const rect=tokenMenu.getBoundingClientRect();
    tokenMenu.style.top=Math.max(5,Math.min(window.innerHeight-rect.height-5,rect.top))+'px';
-  });
-  variationButton.setAttribute('aria-expanded','false');
-  const list=document.createElement('div');list.className='nex-vtt-variation-list';list.hidden=true;tokenMenu.append(list);
-  for(let i=0;i<10;i++){
+  }):null;
+  if(variationButton)variationButton.setAttribute('aria-expanded','false');
+  const list=document.createElement('div');list.className='nex-vtt-variation-list';list.hidden=true;if(variationButton)tokenMenu.append(list);
+  for(const i of availableSlots){
    const button=document.createElement('button');button.type='button';button.textContent=String(i);
    button.title='Variação '+i;button.setAttribute('aria-label','Variação '+i);
    button.setAttribute('aria-pressed',String(token.variation===i));
@@ -544,7 +565,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  listen(document,'pointercancel',()=>{if(drag){drag=null;save();}});
  listen(document,'keydown',e=>{
   if(!gm||!selectedId||isTyping(e)||e.altKey||e.ctrlKey||e.metaKey||!(/^[0-9]$/).test(e.key))return;
-  const t=selected();if(!t)return;t.variation=Number(e.key);render();save();e.preventDefault();
+  const t=selected();if(!t||!t.images?.[Number(e.key)])return;t.variation=Number(e.key);render();save();e.preventDefault();
  });
 
  // Expanded Roll20-inspired VTT toolbar; all shared changes use the existing campaign document.
