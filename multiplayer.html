@@ -1187,6 +1187,28 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  }
  #roomTabletopPanel #nexVttSidebarToggle{right:4px!important}
 }
+/* Imagem do mestre define o formato do tabuleiro (grade ainda 25 × 25). */
+#roomTabletopPanel #nexTabletopBoard{
+ width:var(--nex-board-width,1200px)!important;
+ height:var(--nex-board-height,1200px)!important;
+ background-size:100% 100%!important;
+}
+#roomTabletopPanel #nexTabletopBoard::before{
+ background-size:var(--nex-grid-width,4%) var(--nex-grid-height,4%)!important;
+}
+/* Barra recolhida não ocupa a lateral: somente seta flutuante. */
+#roomTabletopPanel[data-tools-collapsed="true"] .nex-vtt-sidebar{
+ position:absolute!important;z-index:80!important;
+ top:0!important;left:0!important;
+ flex:0 0 0!important;width:0!important;min-width:0!important;
+ height:0!important;min-height:0!important;
+ padding:0!important;margin:0!important;
+ border:0!important;background:transparent!important;
+ overflow:visible!important;
+}
+#roomTabletopPanel[data-tools-collapsed="true"] #nexVttSidebarToggle{
+ position:absolute!important;top:8px!important;left:4px!important;right:auto!important;
+}
 </style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
