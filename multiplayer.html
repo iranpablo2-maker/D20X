@@ -1439,6 +1439,54 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-library-body{display:flex;flex-direction:column;gap:8px;padding-top:12px}
 #roomTabletopPanel .nex-vtt-library-body p{font-size:12px;color:#bac0d4;margin:0}
 #roomTabletopPanel .nex-vtt-library-body input{width:100%;box-sizing:border-box;background:#111723;border:1px solid #586179;color:#fff;border-radius:6px;padding:9px}
+</style><style id="nex-vtt-reference-dock-35">
+#roomTabletopPanel #nexVttMainMenu[hidden],#roomTabletopPanel [data-nex-main-page][hidden]{display:none!important}
+#roomTabletopPanel #nexVttMainMenu{
+ position:absolute!important;top:0!important;right:0!important;bottom:0!important;left:auto!important;
+ z-index:115!important;display:flex!important;flex-direction:column!important;
+ width:min(340px,calc(100% - 52px))!important;max-height:none!important;
+ padding:0!important;margin:0!important;overflow:hidden!important;
+ background:#191c29!important;border:0!important;border-left:1px solid #45465b!important;
+ border-radius:0!important;box-shadow:-8px 0 28px #0005!important;
+}
+#roomTabletopPanel .nex-vtt-main-tabs{
+ display:flex;align-items:stretch;justify-content:space-between;flex:0 0 42px;
+ border-bottom:1px solid #47455d;background:#202435;padding:2px 4px;gap:2px
+}
+#roomTabletopPanel .nex-vtt-main-tabs button{
+ flex:1 1 0!important;min-width:0!important;height:36px!important;min-height:36px!important;
+ padding:0!important;border:1px solid transparent!important;border-radius:5px!important;
+ background:transparent!important;color:#c4c5d8!important;font-size:20px!important;
+}
+#roomTabletopPanel .nex-vtt-main-tabs button[aria-pressed="true"]{
+ color:#fff!important;border-color:#a895c9!important;background:#453951!important;
+}
+#roomTabletopPanel .nex-vtt-main-tabs #nexVttMainClose{flex:0 0 29px!important;font-size:19px!important}
+#roomTabletopPanel .nex-vtt-main-scroll{
+ flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#55566c #191c29
+}
+#roomTabletopPanel [data-nex-main-page]{padding:15px 14px;display:flex;flex-direction:column;gap:11px}
+#roomTabletopPanel [data-nex-main-page] h3{margin:3px 0 2px;font-size:15px;color:#f5e6fa}
+#roomTabletopPanel [data-nex-main-page] p{margin:0;font-size:12px;line-height:1.55;color:#cfc5d8}
+#roomTabletopPanel .nex-vtt-chat-tips{
+ padding:15px;background:#402339;border:1px solid #66334e;border-radius:5px;
+ display:flex;flex-direction:column;gap:9px
+}
+#roomTabletopPanel .nex-vtt-chat-tips strong{font-size:14px}
+#roomTabletopPanel #nexVttMainMenu button:not(.nex-vtt-main-tabs button){
+ min-height:35px!important;padding:8px!important;border:1px solid #5a4a69!important;
+ background:#332d42!important;border-radius:6px!important;color:#f1edf6!important
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+#roomTabletopPanel #nexVttSheetsCornerToggle{
+ position:absolute!important;right:calc(min(340px,100% - 52px) + 7px)!important;
+ top:7px!important;z-index:135!important
+}
+#roomTabletopPanel:has(#nexVttMainMenu[hidden]) #nexVttSheetsCornerToggle{right:9px!important}
+@media(max-width:580px){
+ #roomTabletopPanel #nexVttMainMenu{width:min(300px,calc(100% - 42px))!important}
+ #roomTabletopPanel #nexVttSheetsCornerToggle{right:calc(min(300px,100% - 42px) + 5px)!important}
+}
 </style><script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -1716,15 +1764,47 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
     <div class="nex-vtt-layout" id="nexVttWorkspace"><button id="nexVttSidebarToggle" type="button" aria-controls="nexTabletopTools" aria-expanded="false" title="Abrir ferramentas" aria-label="Abrir ferramentas">›</button><button id="nexVttSheetsCornerToggle" type="button" aria-controls="nexVttMainMenu" aria-expanded="false" title="Menu principal" aria-label="Menu principal">☰</button><div id="nexVttMainMenu" class="nex-vtt-main-menu" hidden>
- <div class="nex-vtt-main-head"><strong>Menu principal</strong><button id="nexVttMainClose" type="button" aria-label="Fechar menu">×</button></div>
- <button type="button" id="nexVttMenuSheets">Fichas dos personagens</button>
- <h3>Biblioteca de arte</h3>
- <div class="nex-vtt-library-tabs" role="group" aria-label="Camadas da biblioteca">
-  <button type="button" data-nex-library-layer="mapa" aria-pressed="true">Mapa</button>
-  <button type="button" data-nex-library-layer="tokens" aria-pressed="false">Tokens</button>
-  <button type="button" data-nex-library-layer="mestre" aria-pressed="false">Mestre</button>
+ <nav class="nex-vtt-main-tabs" aria-label="Abas do menu principal">
+  <button type="button" data-nex-main-tab="chat" aria-pressed="true" title="Chat" aria-label="Chat">☏</button>
+  <button type="button" data-nex-main-tab="art" aria-pressed="false" title="Biblioteca de arte" aria-label="Biblioteca de arte">◈</button>
+  <button type="button" data-nex-main-tab="sheets" aria-pressed="false" title="Fichas e personagens" aria-label="Fichas e personagens">▣</button>
+  <button type="button" data-nex-main-tab="dice" aria-pressed="false" title="Dados" aria-label="Dados">⚄</button>
+  <button type="button" data-nex-main-tab="settings" aria-pressed="false" title="Configurações" aria-label="Configurações">⚙</button>
+  <button type="button" id="nexVttMainClose" title="Fechar menu" aria-label="Fechar menu">×</button>
+ </nav>
+ <div class="nex-vtt-main-scroll">
+  <section data-nex-main-page="chat">
+   <h3>Chat da mesa</h3>
+   <div class="nex-vtt-chat-tips"><strong>Dicas de Chat</strong><p>As rolagens e mensagens da campanha poderão aparecer aqui quando o chat online estiver integrado.</p><p>Enquanto isso, use a ferramenta de dados disponível no NEX.</p></div>
+   <h3>Convidar jogadores</h3>
+   <p>Compartilhe o convite da campanha pela área de jogadores.</p>
+   <button type="button" id="nexVttMenuInvites">Abrir convites da campanha</button>
+  </section>
+  <section data-nex-main-page="art" hidden>
+   <h3>Biblioteca de arte</h3>
+   <div class="nex-vtt-library-tabs" role="group" aria-label="Camadas da biblioteca">
+    <button type="button" data-nex-library-layer="mapa" aria-pressed="true">Mapa</button>
+    <button type="button" data-nex-library-layer="tokens" aria-pressed="false">Tokens</button>
+    <button type="button" data-nex-library-layer="mestre" aria-pressed="false">Mestre</button>
+   </div>
+   <div id="nexVttLibraryBody" class="nex-vtt-library-body"></div>
+  </section>
+  <section data-nex-main-page="sheets" hidden>
+   <h3>Fichas dos personagens</h3>
+   <p>Abra as fichas dos participantes sem sair da mesa.</p>
+   <button type="button" id="nexVttMenuSheets">Abrir ou fechar painel de fichas</button>
+  </section>
+  <section data-nex-main-page="dice" hidden>
+   <h3>Dados</h3>
+   <p>Abra a ferramenta de rolagem de dados do NEX.</p>
+   <button type="button" id="nexVttMenuDice">Abrir dados</button>
+  </section>
+  <section data-nex-main-page="settings" hidden>
+   <h3>Configurações da mesa</h3>
+   <button type="button" id="nexVttMenuSettings">Grade e névoa</button>
+   <button type="button" id="nexVttMenuExit">Voltar à campanha</button>
+  </section>
  </div>
- <div id="nexVttLibraryBody" class="nex-vtt-library-body"></div>
  </div><aside class="nex-vtt-sidebar"><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
       <label>Nome do token <input type="text" id="nexTabletopTokenName" maxlength="35" placeholder="Ex.: Agente, criatura"></label>
       <button id="nexTabletopAddToken" type="button">Adicionar token</button>
@@ -2525,13 +2605,23 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     }
    }
   }
+  const menuTabs=[...mainMenu.querySelectorAll('[data-nex-main-tab]')];
+  const menuPages=[...mainMenu.querySelectorAll('[data-nex-main-page]')];
+  function showMainTab(name){
+   menuTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexMainTab===name)));
+   menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
+  }
+  menuTabs.forEach(btn=>btn.addEventListener('click',()=>showMainTab(btn.dataset.nexMainTab)));
   mainMenuToggle.addEventListener('click',()=>updateMenu(mainMenu.hidden));
   mainClose.addEventListener('click',()=>updateMenu(false));
-  $('nexVttMenuSheets').addEventListener('click',()=>{$('nexVttSheetsToggle').click();updateMenu(false);});
+  $('nexVttMenuSheets').addEventListener('click',()=>{$('nexVttSheetsToggle').click();});
+  $('nexVttMenuInvites').addEventListener('click',()=>{updateMenu(false);roomSection('invites');});
+  $('nexVttMenuDice').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Dados"]')?.click();});
+  $('nexVttMenuSettings').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Grade e névoa"]')?.click();});
+  $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
   libraryTabs.forEach(btn=>btn.addEventListener('click',()=>openLibraryLayer(btn.dataset.nexLibraryLayer)));
-  document.addEventListener('pointerdown',event=>{if(!mainMenu.hidden&&!mainMenu.contains(event.target)&&!mainMenuToggle.contains(event.target))updateMenu(false);});
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!mainMenu.hidden)updateMenu(false);});
-  openLibraryLayer('mapa');
+  openLibraryLayer('mapa');showMainTab('chat');
   const vttPanelElement=$('roomTabletopPanel');
  const vttSheetPanel=$('nexVttSheetsPanel');
  const vttResize=$('nexVttResizeHandle');
