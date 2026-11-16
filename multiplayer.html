@@ -1302,6 +1302,27 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel #nexVttZoomRail{right:7px!important;bottom:8px!important;width:min(290px,calc(100% - 14px))!important}
 }
 </style>
+<style id="nex-vtt-compact-tools-27">
+/* Ferramentas compactas; preserva os controles e o botão flutuante. */
+#roomTabletopPanel[data-tools-collapsed="false"] .nex-vtt-sidebar{
+ width:174px!important;min-width:174px!important;
+ max-width:min(174px,calc(100% - 12px))!important;
+ top:46px!important;left:4px!important;
+ padding:7px 6px!important;
+ gap:4px!important;border-radius:8px!important;
+}
+#roomTabletopPanel .nex-vtt-sidebar .nex-tabletop-tools{
+ gap:5px!important;padding:0!important;margin:0!important;
+}
+#roomTabletopPanel .nex-vtt-sidebar button:not(#nexVttSidebarToggle),
+#roomTabletopPanel .nex-vtt-sidebar input,
+#roomTabletopPanel .nex-vtt-sidebar select{
+ font-size:11px!important;min-height:27px!important;padding:4px 5px!important;
+}
+#roomTabletopPanel .nex-vtt-sidebar h3{font-size:11px!important;margin:0 0 5px!important}
+#roomTabletopPanel .nex-vtt-sidebar label{font-size:10px!important;margin:3px 0!important}
+#roomTabletopPanel #nexVttZoomRail{width:min(300px,calc(100% - 28px))!important}
+</style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
