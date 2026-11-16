@@ -35,7 +35,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
    img.onerror=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();render();board.style.visibility='visible';};
    img.src=src;
  }
- const empty=()=>({map:'',tokens:[],drawings:[],atmosphere:{type:'none',intensity:45,animated:true},fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
+ const empty=()=>({map:'',tokens:[],drawings:[],atmosphere:{type:'none',intensity:45,animated:true,image:''},fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
  let scene=empty(),selectedId=null,resizeSelectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false,uploading=0,localDirty=false;
  const backupKey='nex-vtt-pending:'+campaignId;
  let recoveredBackup=null;
@@ -122,7 +122,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
  function validScene(data){
   if(!stateOK(data))return empty();
-  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&data.map.length<650000?data.map:'',atmosphere:{type:['none','mist','rain','snow','dark','embers'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
+  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&data.map.length<650000?data.map:'',atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:typeof data.atmosphere?.image==='string'&&data.atmosphere.image.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)?data.atmosphere.image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-.5,Math.round((Number(t.x)||0)*4)/4)),y:Math.max(0,Math.min(H-.5,Math.round((Number(t.y)||0)*4)/4)),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?Array.from({length:Math.min(10,t.images.length)},(_,i)=>{const url=t.images[i];return typeof url==='string'&&url.length<650000?url:'';}):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),widthCells:Math.max(.5,Math.min(10,Number(t.widthCells)||Number(t.size)||1)),heightCells:Math.max(.5,Math.min(10,Number(t.heightCells)||Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
@@ -627,6 +627,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  '#nexVttFogLayer[hidden]{display:none!important}.nex-vtt-hide-grid::before{display:none!important}'+
  '#nexVttAtmosphereLayer{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;isolation:isolate}'+
  '#nexVttAtmosphereLayer[hidden]{display:none!important}'+
+ '#nexVttAtmosphereLayer[data-effect="custom"]{background-repeat:no-repeat;background-position:center;background-size:100% 100%;opacity:var(--nex-atmosphere-strength)}'+
  '#nexVttAtmosphereLayer::before,#nexVttAtmosphereLayer::after{content:"";position:absolute;inset:-15%;pointer-events:none}'+
  '#nexVttAtmosphereLayer::after{display:none}'+
  '#nexVttAtmosphereLayer[data-effect="mist"]::before{opacity:calc(var(--nex-atmosphere-strength)*.7);background:radial-gradient(ellipse at 20% 30%,#dfe5f7ad,transparent 45%),radial-gradient(ellipse at 78% 65%,#b9c7d8b8,transparent 50%),radial-gradient(ellipse at 42% 78%,#e2e8f0aa,transparent 44%);background-size:130% 130%}'+
@@ -777,12 +778,13 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const vttFog=document.createElement('div');vttFog.id='nexVttFogLayer';vttFog.hidden=true;board.append(vttFog);
  function applyAtmosphere(){
   const state=scene.atmosphere||{type:'none',intensity:45,animated:true};
-  const type=['mist','rain','snow','dark','embers'].includes(state.type)?state.type:'none';
-  atmosphereLayer.hidden=type==='none'||state.intensity<=0;
+  const type=['mist','rain','snow','dark','embers','custom'].includes(state.type)?state.type:'none';
+  atmosphereLayer.hidden=type==='none'||state.intensity<=0||(type==='custom'&&!state.image);
   atmosphereLayer.dataset.effect=type;
+  atmosphereLayer.style.backgroundImage=type==='custom'&&state.image?'url("'+state.image.replace(/"/g,'')+'")':'none';
   atmosphereLayer.dataset.animated=String(state.animated!==false);
   atmosphereLayer.style.setProperty('--nex-atmosphere-strength',String(Math.max(0,Math.min(100,state.intensity||0))/100));
-  window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-state',{detail:{type,intensity:state.intensity,animated:state.animated!==false,isMaster:gm}}));
+  window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-state',{detail:{type,intensity:state.intensity,animated:state.animated!==false,hasImage:!!state.image,isMaster:gm}}));
  }
  listen(window,'nex:vtt-atmosphere-request',()=>{
   const state=scene.atmosphere||{type:'none',intensity:45,animated:true};
@@ -792,9 +794,38 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(!gm)return;
   const prev=scene.atmosphere||{type:'none',intensity:45,animated:true};
   const patch=event.detail||{};
-  const type=['none','mist','rain','snow','dark','embers'].includes(patch.type)?patch.type:prev.type;
+  const type=['none','mist','rain','snow','dark','embers','custom'].includes(patch.type)?patch.type:prev.type;
   const intensity=Number.isFinite(Number(patch.intensity))?Math.max(0,Math.min(100,Math.round(Number(patch.intensity)))):prev.intensity;
-  scene.atmosphere={type,intensity,animated:typeof patch.animated==='boolean'?patch.animated:prev.animated};
+  scene.atmosphere={type,intensity,animated:typeof patch.animated==='boolean'?patch.animated:prev.animated,image:prev.image||''};
+  applyAtmosphere();save();
+ });
+ listen(window,'nex:vtt-atmosphere-upload',async event=>{
+  if(!gm||!remoteReady)return;
+  const file=event.detail?.file;
+  if(!file||!/^image\/(png|jpeg|webp|gif)$/.test(file.type)){message('Escolha uma imagem PNG, JPG, WebP ou GIF.');return;}
+  if(file.type==='image/gif'&&file.size>125000){
+   message('O GIF é grande demais para o salvamento da cena (máximo 125 KB). Escolha um GIF menor.');return;
+  }
+  let image=null;
+  if(file.type==='image/gif'){
+   try{
+    image=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Não foi possível ler o GIF'));r.readAsDataURL(file);});
+   }catch(e){message(String(e.message||e));return;}
+  }else{
+   await reader(file,170000,data=>{image=data;});
+  }
+  if(!image||image.length>180000){message('Imagem de atmosfera muito grande. Escolha outra menor.');return;}
+  const previous=scene.atmosphere||{type:'none',intensity:45,animated:true,image:''};
+  scene.atmosphere={...previous,type:'custom',intensity:previous.intensity||45,image};
+  if(new TextEncoder().encode(JSON.stringify(validScene(scene))).length>850000){
+   scene.atmosphere=previous;
+   message('A cena não tem espaço para esta atmosfera. Remova imagens não utilizadas ou use uma imagem menor.');return;
+  }
+  applyAtmosphere();save();
+ });
+ listen(window,'nex:vtt-atmosphere-remove',()=>{
+  if(!gm)return;
+  scene.atmosphere={...(scene.atmosphere||{}),type:'none',image:''};
   applyAtmosphere();save();
  });
  const vttLog=document.createElement('div');vttLog.style.cssText='position:absolute;bottom:6px;right:6px;background:#171015ee;color:#fff;z-index:8;padding:8px;border-radius:5px;pointer-events:none;font-size:12px';vttLog.hidden=true;board.append(vttLog);
