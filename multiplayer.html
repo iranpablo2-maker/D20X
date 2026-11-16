@@ -1210,6 +1210,32 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  position:absolute!important;top:8px!important;left:4px!important;right:auto!important;
 }
 </style>
+<style id="nex-vtt-right-menu-24">
+/* Botão de menu no canto direito; ferramentas apenas quando solicitadas. */
+#roomTabletopPanel #nexVttWorkspace{position:relative!important}
+#roomTabletopPanel #nexVttSidebarToggle{
+ position:absolute!important;z-index:105!important;top:9px!important;right:12px!important;left:auto!important;
+ display:grid!important;place-items:center!important;width:38px!important;height:38px!important;
+ padding:0!important;border-radius:8px!important;background:#303747!important;
+ border:1px solid #566178!important;color:#fff!important;font:24px/1 system-ui,sans-serif!important;
+ box-shadow:0 2px 8px #0007!important;
+}
+#roomTabletopPanel .nex-vtt-sidebar{
+ position:absolute!important;z-index:100!important;top:53px!important;right:9px!important;left:auto!important;bottom:auto!important;
+ flex:none!important;width:55px!important;min-width:55px!important;
+ max-height:calc(100% - 63px)!important;height:auto!important;
+ overflow-x:hidden!important;overflow-y:auto!important;padding:8px 3px!important;margin:0!important;
+ background:#181e2a!important;border:1px solid #3c4657!important;
+ border-radius:9px!important;box-shadow:0 10px 28px #0009!important;
+}
+#roomTabletopPanel[data-tools-collapsed="true"] .nex-vtt-sidebar{display:none!important}
+#roomTabletopPanel[data-tools-collapsed="false"] .nex-vtt-sidebar{display:flex!important;flex-direction:column!important}
+#roomTabletopPanel .nex-vtt-sidebar>h3{display:none!important}
+@media(max-width:840px){
+ #roomTabletopPanel #nexVttSidebarToggle{top:7px!important;right:9px!important}
+ #roomTabletopPanel .nex-vtt-sidebar{right:7px!important;top:49px!important}
+}
+</style>
 <script src="./nex-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
@@ -1486,7 +1512,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <div class="nex-vtt-heading"><div class="nex-vtt-brand"><span class="nex-vtt-brand-symbol" aria-hidden="true">◆</span><div class="nex-vtt-brand-copy"><strong>NEX</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexVttBuildTag" title="Versão do tabletop do NEX">NEX VTT 2.0</span><button type="button" id="nexVttReload" title="Recarregar a interface da mesa">⟳ Recarregar</button><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
     <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
-    <div class="nex-vtt-layout" id="nexVttWorkspace"><aside class="nex-vtt-sidebar"><button id="nexVttSidebarToggle" type="button" aria-controls="nexVttBar" aria-expanded="false" title="Abrir ferramentas" aria-label="Abrir ferramentas">›</button><h3>Ferramentas</h3><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
+    <div class="nex-vtt-layout" id="nexVttWorkspace"><button id="nexVttSidebarToggle" type="button" aria-controls="nexVttBar" aria-expanded="false" title="Abrir ferramentas" aria-label="Abrir ferramentas">☰</button><aside class="nex-vtt-sidebar"><h3>Ferramentas</h3><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
       <label>Nome do token <input type="text" id="nexTabletopTokenName" maxlength="35" placeholder="Ex.: Agente, criatura"></label>
       <button id="nexTabletopAddToken" type="button">Adicionar token</button>
       <button id="nexTabletopClearTokens" type="button" class="alt">Limpar tokens</button>
@@ -2236,11 +2262,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  const vttSidebarPanel=$('roomTabletopPanel');
  const vttSidebarKey='nex-vtt-tools-collapsed-v21';
  let vttToolsCollapsed=true;
- try{const stored=localStorage.getItem(vttSidebarKey);if(stored!==null)vttToolsCollapsed=stored!=='0';}catch(error){}
+ // Menu começa recolhido para todos os usuários.
  function setVttSidebarCollapsed(collapsed){
   vttToolsCollapsed=!!collapsed;
   vttSidebarPanel.dataset.toolsCollapsed=String(vttToolsCollapsed);
-  vttSidebarToggle.textContent=vttToolsCollapsed?'›':'‹';
+  vttSidebarToggle.textContent='☰';
   vttSidebarToggle.setAttribute('aria-expanded',String(!vttToolsCollapsed));
   vttSidebarToggle.setAttribute('aria-label',vttToolsCollapsed?'Abrir barra de ferramentas':'Fechar barra de ferramentas');
   vttSidebarToggle.title=vttToolsCollapsed?'Abrir barra de ferramentas':'Fechar barra de ferramentas';
@@ -2248,7 +2274,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   window.dispatchEvent(new Event('resize'));
  }
  vttSidebarPanel.dataset.toolsCollapsed=String(vttToolsCollapsed);
- vttSidebarToggle.textContent=vttToolsCollapsed?'›':'‹';
+ vttSidebarToggle.textContent='☰';
  vttSidebarToggle.setAttribute('aria-expanded',String(!vttToolsCollapsed));
  vttSidebarToggle.title=vttToolsCollapsed?'Abrir barra de ferramentas':'Fechar barra de ferramentas';
  vttSidebarToggle.setAttribute('aria-label',vttSidebarToggle.title);
