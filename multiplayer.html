@@ -3660,4 +3660,37 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });});
 }
 </script>
+<!-- nex-vtt-mobile-drawer-behavior -->
+<script>
+/* Mobile-only drawer dismissal. Desktop toolbars and menus are untouched. */
+(function(){
+ const mobile=()=>window.matchMedia('(pointer:coarse) and (max-width:900px)').matches;
+ const panel=()=>document.getElementById('roomTabletopPanel');
+ const active=()=>mobile()&&panel()&&!panel().classList.contains('hide');
+ const hideTools=()=>{
+  if(panel()?.dataset.toolsCollapsed!=='true')document.getElementById('nexVttSidebarToggle')?.click();
+ };
+ const hideMenu=()=>{
+  const menu=document.getElementById('nexVttMainMenu');
+  if(menu&&!menu.hidden)document.getElementById('nexVttMainClose')?.click();
+ };
+ document.addEventListener('click',event=>{
+  if(!active())return;
+  if(event.target.closest('#nexVttBar button')){
+   // After choosing a touch tool, return the map to full visibility.
+   hideTools();
+  }else if(event.target.closest('#nexVttSheetsCornerToggle')){
+   hideTools();
+  }else if(event.target.closest('#nexVttSidebarToggle')){
+   hideMenu();
+  }
+ });
+ document.addEventListener('pointerdown',event=>{
+  if(!active()||event.pointerType!=='touch')return;
+  if(!event.target.closest('#roomTabletopPanel .nex-tabletop-wrap'))return;
+  hideTools();
+  hideMenu();
+ });
+})();
+</script>
 </body></html>
