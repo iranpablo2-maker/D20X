@@ -797,7 +797,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const type=['none','mist','rain','snow','dark','embers','custom'].includes(patch.type)?patch.type:prev.type;
   const intensity=patch.intensity!==undefined&&Number.isFinite(Number(patch.intensity))?Math.max(0,Math.min(100,Math.round(Number(patch.intensity)))):prev.intensity;
   scene.atmosphere={type,intensity,animated:typeof patch.animated==='boolean'?patch.animated:prev.animated,image:prev.image||''};
-  applyAtmosphere();save();
+  applyAtmosphere();
+  if(!patch.previewOnly)save();
  });
  listen(window,'nex:vtt-atmosphere-upload',async event=>{
   if(!gm||!remoteReady)return;
