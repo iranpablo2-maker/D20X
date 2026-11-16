@@ -1141,6 +1141,16 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel .nex-vtt-heading-actions{gap:4px!important}
 }
 </style>
+<style id="nex-vtt-heading-hidden-final">
+/* Oculta a faixa superior independentemente de regras anteriores do VTT. */
+#room #roomTabletopPanel .nex-vtt-heading,
+#room #roomTabletopPanel .nex-vtt-subheading{
+ display:none!important;
+ height:0!important;min-height:0!important;
+ flex:0 0 0!important;
+ margin:0!important;padding:0!important;border:0!important;
+}
+</style>
 <style id="nex-vtt-collapsible-21">
 /* VTT 2.1: sidebar starts compact and is opened with a visible arrow. */
 #roomTabletopPanel .nex-vtt-sidebar{
