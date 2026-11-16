@@ -27,10 +27,12 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
      mapWidth=Math.max(120,Math.round((GRID*W)*Math.min(1,ratio)));
      mapHeight=Math.max(120,Math.round((GRID*H)*Math.min(1,1/ratio)));
      mapGeometry();
+     // Reposition tokens on the final map geometry before revealing the scene.
+     render();
      if(typeof vttFitZoom==='function')vttFitZoom();
      board.style.visibility='visible';
    };
-   img.onerror=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();board.style.visibility='visible';};
+   img.onerror=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();render();board.style.visibility='visible';};
    img.src=src;
  }
  const empty=()=>({map:'',tokens:[],drawings:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[]}});
