@@ -176,8 +176,109 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
  });
  listen(slot,'change',()=>{const t=selected();if(!gm||!t)return;t.variation=Number(slot.value);render();save();});
  listen($('nexTtDelete'),'click',()=>{if(!gm||!selectedId)return;scene.tokens=scene.tokens.filter(t=>t.id!==selectedId);selectedId=null;render();save();});
+
+ // Menu de contexto do token: ações temporárias não alteram a ficha vinculada.
+ let copiedToken=null;
+ const tokenMenu=document.createElement('div');
+ tokenMenu.id='nexVttTokenContextMenu';
+ tokenMenu.hidden=true;
+ tokenMenu.setAttribute('role','menu');
+ tokenMenu.setAttribute('aria-label','Ações do token');
+ document.body.append(tokenMenu);
+ const menuStyle=document.createElement('style');
+ menuStyle.textContent=`
+ #nexVttTokenContextMenu[hidden]{display:none!important}
+ #nexVttTokenContextMenu{position:fixed;z-index:100000;display:flex;flex-direction:column;
+  min-width:158px;padding:5px;border:1px solid #515a72;border-radius:7px;
+  background:#202638;color:#f5f2fa;box-shadow:0 12px 28px #000b;font:12px system-ui,sans-serif}
+ #nexVttTokenContextMenu button{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:0;background:transparent;color:inherit;border-radius:4px;min-height:30px;padding:6px 9px;
+  font:inherit;text-align:left;cursor:pointer}
+ #nexVttTokenContextMenu button:hover,#nexVttTokenContextMenu button:focus-visible{background:#4c3b64}
+ #nexVttTokenContextMenu button:disabled{opacity:.4;cursor:not-allowed}
+ #nexVttTokenContextMenu .nex-vtt-variation-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:3px;
+  padding:5px 3px 3px;border-top:1px solid #465067}
+ #nexVttTokenContextMenu .nex-vtt-variation-list[hidden]{display:none!important}
+ #nexVttTokenContextMenu .nex-vtt-variation-list button{justify-content:center;min-height:27px;padding:3px}
+ #nexVttTokenContextMenu button[aria-pressed=true]{background:#654484;color:white}
+ `;
+ document.head.append(menuStyle);
+ function closeTokenMenu(){tokenMenu.hidden=true;tokenMenu.replaceChildren();}
+ function pasteTokenAt(source,anchor){
+  if(!gm||!source||scene.tokens.length>=90){message('Limite de 90 tokens na mesa.');return;}
+  const size=Math.max(1,Math.min(3,Number(source.size)||1));
+  const occupied=new Set(scene.tokens.map(t=>t.x+','+t.y));
+  let pos=null;
+  for(let radius=1;radius<W&& !pos;radius++){
+   for(let dy=-radius;dy<=radius&&!pos;dy++){
+    for(let dx=-radius;dx<=radius;dx++){
+     if(Math.max(Math.abs(dx),Math.abs(dy))!==radius)continue;
+     const x=anchor.x+dx,y=anchor.y+dy;
+     if(x<0||y<0||x>W-size||y>H-size||occupied.has(x+','+y))continue;
+     pos={x,y};break;
+    }
+   }
+  }
+  if(!pos){message('Não há espaço disponível para colar este token.');return;}
+  const clone={...source,id:'tt_'+crypto.randomUUID(),name:String(source.name||'Token').slice(0,35),
+   images:[...(source.images||[])],...pos,linkedSheetId:''};
+  scene.tokens.push(clone);selectedId=clone.id;render();save();
+ }
+ function openTokenMenu(event,token){
+  closeTokenMenu();
+  const add=(label,action,disabled=false)=>{
+   const b=document.createElement('button');b.type='button';b.textContent=label;
+   b.disabled=disabled;b.setAttribute('role','menuitem');
+   b.addEventListener('click',action);tokenMenu.append(b);return b;
+  };
+  add('Excluir',()=>{
+   scene.tokens=scene.tokens.filter(t=>t.id!==token.id);
+   if(selectedId===token.id)selectedId=null;
+   closeTokenMenu();render();save();
+  });
+  add('Copiar',()=>{
+   copiedToken={...token,images:[...(token.images||[])]};
+   closeTokenMenu();
+  });
+  add('Colar',()=>{
+   closeTokenMenu();pasteTokenAt(copiedToken,token);
+  },!copiedToken||scene.tokens.length>=90);
+  const variationButton=add('Variação  ▸',()=>{
+   list.hidden=!list.hidden;
+   variationButton.setAttribute('aria-expanded',String(!list.hidden));
+   const rect=tokenMenu.getBoundingClientRect();
+   tokenMenu.style.top=Math.max(5,Math.min(window.innerHeight-rect.height-5,rect.top))+'px';
+  });
+  variationButton.setAttribute('aria-expanded','false');
+  const list=document.createElement('div');list.className='nex-vtt-variation-list';list.hidden=true;tokenMenu.append(list);
+  for(let i=0;i<10;i++){
+   const button=document.createElement('button');button.type='button';button.textContent=String(i);
+   button.title='Variação '+i;button.setAttribute('aria-label','Variação '+i);
+   button.setAttribute('aria-pressed',String(token.variation===i));
+   button.addEventListener('click',()=>{
+    const current=scene.tokens.find(t=>t.id===token.id);if(!current)return closeTokenMenu();
+    current.variation=i;selectedId=current.id;closeTokenMenu();render();save();
+   });list.append(button);
+  }
+  tokenMenu.style.left='0px';tokenMenu.style.top='0px';tokenMenu.hidden=false;
+  const box=tokenMenu.getBoundingClientRect();
+  tokenMenu.style.left=Math.max(5,Math.min(window.innerWidth-box.width-5,event.clientX))+'px';
+  tokenMenu.style.top=Math.max(5,Math.min(window.innerHeight-box.height-5,event.clientY))+'px';
+ }
+ listen(board,'contextmenu',event=>{
+  const el=event.target.closest('.nex-tabletop-token[data-token]');
+  if(!el){closeTokenMenu();return;}
+  event.preventDefault();
+  if(!gm)return;
+  const token=scene.tokens.find(t=>t.id===el.dataset.token);
+  if(token){selectedId=token.id;openTokenMenu(event,token);}
+ });
+ listen(document,'pointerdown',event=>{if(!tokenMenu.hidden&&!tokenMenu.contains(event.target))closeTokenMenu();});
+ listen(document,'keydown',event=>{if(event.key==='Escape')closeTokenMenu();});
+
  listen(board,'pointerdown',e=>{
   const el=e.target.closest('[data-token]');if(!el)return;
+  if(e.button!==0)return;
   if(vttCombatTargetMode&&gm){
    const target=scene.tokens.find(t=>t.id===el.dataset.token);
    if(target&&!target.hidden){
@@ -679,5 +780,5 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,campaignId,gm,getShee
   remoteReady=true;render();if(!saveFailed)message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Não foi possível receber atualizações da mesa.');warnSync(error.code==='permission-denied'?'Acesso negado pelo Firestore. Verifique as regras da campanha.':'Erro de conexão com a mesa: '+String(error.message||error).slice(0,140));console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());saveNotice.remove();control.remove();css.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());saveNotice.remove();control.remove();css.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLog.remove();};
 }
