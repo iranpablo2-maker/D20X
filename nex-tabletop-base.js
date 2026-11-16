@@ -291,6 +291,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  listen($('nexTabletopMapFile'),'change',async e=>{
   const file=e.target.files?.[0];e.target.value='';
   if(!gm||!file)return;
+  if(!remoteReady){message('Aguarde a mesa carregar antes de enviar o mapa.');return;}
   if(uploading){message('Outro envio está em andamento.');return;}
   uploading++;let released=false;
   try{
