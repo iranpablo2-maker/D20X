@@ -2446,6 +2446,12 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #room #roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody{
  position:relative!important;z-index:1!important;
 }
+</style><style id="nex-vtt-art-tabs-hit-area">
+/* Abas acima dos elementos de arrasto e do conteúdo da biblioteca. */
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-main-scroll{position:relative!important;z-index:180!important}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{position:relative!important;z-index:210!important;isolation:isolate!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs button[data-nex-library-layer]{position:relative!important;z-index:211!important;pointer-events:auto!important;touch-action:manipulation!important}
+#roomTabletopPanel #nexVttMainMenu #nexVttMainResizeGrip{z-index:5!important}
 </style></head>
 <body>
 <script>
@@ -2587,9 +2593,9 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
   <section data-nex-main-page="art" hidden>
    <h3>Biblioteca de arte</h3>
    <div class="nex-vtt-library-tabs" role="group" aria-label="Camadas da biblioteca">
-    <button type="button" data-nex-library-layer="mapa" aria-pressed="true" onclick="window.NEX_VTT_OPEN_LIBRARY_LAYER?.('mapa')">Mapa</button>
-    <button type="button" data-nex-library-layer="tokens" aria-pressed="false" onclick="window.NEX_VTT_OPEN_LIBRARY_LAYER?.('tokens')">Tokens</button>
-     <button type="button" data-nex-library-layer="imersao" aria-pressed="false" onclick="window.NEX_VTT_OPEN_LIBRARY_LAYER?.('imersao')">Imersão</button>
+    <button type="button" data-nex-library-layer="mapa" aria-pressed="true">Mapa</button>
+    <button type="button" data-nex-library-layer="tokens" aria-pressed="false">Tokens</button>
+     <button type="button" data-nex-library-layer="imersao" aria-pressed="false">Imersão</button>
    </div>
    <div id="nexVttLibraryBody" class="nex-vtt-library-body"></div>
     <div id="nexVttImmersionMusicHost" hidden></div>
@@ -3925,13 +3931,36 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    showMainTab('art');
    switchLibraryLayer(layer);
   };
-  // Cada botão chama diretamente o controlador único, sem delegação concorrente.
-  // Mantemos teclas Enter e Espaço por serem clicks nativos nos botões.
-  libraryTabsPanel?.addEventListener('click',event=>{
-   const target=event.target instanceof Element?event.target.closest('[data-nex-library-layer]'):null;
-   if(!target)return;
-   // O atributo onclick do próprio botão já processou esta seleção.
-  });
+  // Captura os clicks antes dos ouvintes de mapa/arrasto.
+  // Delegação e hit-test cobrem inclusive elementos sobrepostos sobre as abas.
+  const libraryTabFromEvent=event=>{
+   const direct=event.target instanceof Element?event.target.closest('#nexVttMainMenu [data-nex-library-layer]'):null;
+   if(direct)return direct;
+   if(mainMenu.hidden||mainMenu.querySelector('[data-nex-main-page="art"]')?.hidden!==false)return null;
+   if(typeof event.clientX!=='number'||typeof event.clientY!=='number')return null;
+   return libraryTabs.find(button=>{
+    const box=button.getBoundingClientRect();
+    return box.width>0&&box.height>0&&event.clientX>=box.left&&event.clientX<=box.right&&event.clientY>=box.top&&event.clientY<=box.bottom;
+   })||null;
+  };
+  let lastLibraryPointer=0;
+  document.addEventListener('pointerdown',event=>{
+   if(event.button!==0)return;
+   const tab=libraryTabFromEvent(event);
+   if(!tab)return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   lastLibraryPointer=Date.now();
+   window.NEX_VTT_OPEN_LIBRARY_LAYER(tab.dataset.nexLibraryLayer);
+  },true);
+  document.addEventListener('click',event=>{
+   const tab=libraryTabFromEvent(event);
+   if(!tab)return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   if(Date.now()-lastLibraryPointer<700)return;
+   window.NEX_VTT_OPEN_LIBRARY_LAYER(tab.dataset.nexLibraryLayer);
+  },true);
   window.addEventListener('nex:vtt-library-role-refresh',event=>{
    if(event.detail?.campaignId!==roomId)return;
    const selected=libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer||'mapa';
