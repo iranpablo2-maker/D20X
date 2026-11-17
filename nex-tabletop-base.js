@@ -1023,7 +1023,10 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     if(!disposed){mediaMemory.set(src,image);render();libraryState();}
    })().catch(error=>{
     mediaFailed.add(src);
-    if(!disposed)message('Erro ao carregar arquivo: '+String(error.code||error.message||error).slice(0,100));
+    if(!disposed){
+     if(gm)message('Erro ao carregar arquivo: '+String(error.code||error.message||error).slice(0,100));
+     else console.warn('NEX VTT: mídia indisponível para jogador',src,error);
+    }
    }).finally(()=>mediaPending.delete(src));
    mediaPending.set(src,task);
   }
