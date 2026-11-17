@@ -123,14 +123,24 @@ export function mountNexLocalMusic({uid,campaignId,root}){
    }));
    head.append(tinyButton('⤨','Aleatório',()=>{randomPlay=!randomPlay;drawPlaylists(rows);},randomPlay));
    head.append(tinyButton('↻','Repetir playlist',()=>{repeatPlaylist=!repeatPlaylist;drawPlaylists(rows);},repeatPlaylist));
-   head.append(tinyButton('⋮','Opções da playlist',async()=>{
-    const v=prompt('1 = Renomear, 2 = Excluir playlist, 3 = Adicionar músicas');
-    if(v==='1'){const name=prompt('Nome da playlist:',group.name)?.trim();if(name){group.name=name.slice(0,80);savePlaylists();drawPlaylists(rows);}}
-    if(v==='2'&&group.id!=='default'&&confirm('Excluir esta playlist sem excluir músicas?')){
-     for(const key of Object.keys(playlistState.assignment))if(playlistState.assignment[key]===group.id)delete playlistState.assignment[key];
-     playlistState.groups=playlistState.groups.filter(g=>g.id!==group.id);savePlaylists();drawPlaylists(rows);
+   head.append(tinyButton('⋮','Excluir playlist',async()=>{
+    const others=playlistState.groups.filter(g=>g.id!==group.id);
+    if(!others.length){say('Crie outra playlist antes de excluir a única playlist.');return;}
+    if(!confirm('Excluir a playlist "'+group.name+'"? As músicas serão mantidas e movidas para "'+others[0].name+'".'))return;
+    const destination=others[0].id;
+    for(const row of rows){
+     if((playlistState.assignment[row.key]||'default')===group.id)playlistState.assignment[row.key]=destination;
     }
-    if(v==='3'){targetGroup=group.id;input.click();}
+    const previous=playlistState.order[group.id]||[];
+    playlistState.order[destination]=[...(playlistState.order[destination]||[]),...previous.filter(k=>!playlistState.order[destination]?.includes(k))];
+    delete playlistState.order[group.id];
+    playlistState.groups=others;expandedGroups.delete(group.id);expandedGroups.add(destination);
+    if(playingGroup===group.id)playingGroup=destination;
+    // O grupo principal permanece como identificador de compatibilidade para músicas antigas.
+    if(group.id==='default'){
+     for(const row of rows)if(!playlistState.assignment[row.key])playlistState.assignment[row.key]=destination;
+    }
+    savePlaylists();drawPlaylists(rows);say('Playlist excluída. Músicas preservadas.');
    }));
    block.append(head);
    if(opened)for(const row of groupTracks(rows,group.id)){
