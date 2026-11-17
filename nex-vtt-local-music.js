@@ -51,19 +51,19 @@ export function mountNexLocalMusic({uid,campaignId,root}){
  const playlistStyles=document.createElement('style');playlistStyles.textContent=
  '#roomTabletopPanel .nex-music-playlist-toolbar{display:flex;gap:5px;margin:8px 0;flex-wrap:wrap}'+
  '#roomTabletopPanel #nexVttMainMenu .nex-music-playlist-toolbar button{width:auto!important;min-height:29px!important;font-size:11px!important;padding:5px 7px!important}'+
- '#roomTabletopPanel .nex-music-playlist-group{padding:5px 0;border-bottom:1px solid #414656}'+
+ '#roomTabletopPanel .nex-music-playlist-group{padding:5px 0;border-bottom:1px solid #592330}'+
  '#roomTabletopPanel .nex-music-playlist-header{display:flex;align-items:center;gap:4px;min-width:0}'+
  '#roomTabletopPanel .nex-music-playlist-title{flex:1;font-size:12px;font-weight:650;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'+
  '#roomTabletopPanel #nexVttMainMenu .nex-music-playlist-header button,#roomTabletopPanel #nexVttMainMenu .nex-music-song button{background:transparent!important;border:0!important;width:25px!important;min-width:25px!important;min-height:25px!important;height:25px!important;padding:2px!important;font-size:15px!important;box-shadow:none!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}'+
  '#roomTabletopPanel #nexVttMainMenu .nex-music-playlist-header button[aria-pressed=true],#roomTabletopPanel #nexVttMainMenu .nex-music-song button[aria-pressed=true]{color:#7fe3aa!important}'+
- '#roomTabletopPanel .nex-music-song{margin:4px 0 4px 14px;padding:5px 0;border-top:1px solid #39404e;min-width:0}'+
+ '#roomTabletopPanel .nex-music-song{margin:4px 0 4px 14px;padding:5px 0;border-top:1px solid #51202a;min-width:0}'+
  '#roomTabletopPanel .nex-music-song-name{font-size:11px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
  '#roomTabletopPanel .nex-music-song-controls{display:flex;align-items:center;gap:3px}'+
- '#roomTabletopPanel .nex-music-song-controls input[type=range]{flex:1;width:20px;min-width:20px;accent-color:#36afda}'+
+ '#roomTabletopPanel .nex-music-song-controls input[type=range]{flex:1;width:20px;min-width:20px;accent-color:#bf3149}'+
  '#roomTabletopPanel .nex-music-song-header{display:flex;align-items:center;gap:5px;min-width:0}'+
  '#roomTabletopPanel .nex-music-song-header .nex-music-song-name{flex:1;min-width:0}'+
  '#roomTabletopPanel #nexVttMainMenu .nex-music-song-header button.nex-music-drag-handle{cursor:grab!important;touch-action:none!important;flex:0 0 25px!important;font-size:16px!important}'+
- '#roomTabletopPanel .nex-music-playlist-group.nex-music-drop-target,#roomTabletopPanel .nex-music-song.nex-music-drop-target{outline:1px dashed #6fd6c1!important;background:rgba(71,187,160,.1)!important}';
+ '#roomTabletopPanel .nex-music-playlist-group.nex-music-drop-target,#roomTabletopPanel .nex-music-song.nex-music-drop-target{outline:1px dashed #c7465b!important;background:rgba(159,36,57,.13)!important}';
  document.head.append(playlistStyles);
  const savePlaylists=()=>{try{localStorage.setItem(playlistKey,JSON.stringify(playlistState));}catch(_){}};
  function tinyButton(label,title,callback,active){
