@@ -155,12 +155,19 @@ export function mountNexPeerMedia({
    if(destroyed)return;
    peer.open=true;
    if(gm){say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');queueScene(peer,++sceneRevision,getScene());}
-   else{say('Conectado ao mestre. Imagens locais disponiveis.');onConnected();}
+   else{
+    say('Conectado ao mestre. Imagens locais disponiveis.');
+    window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:true}}));
+    onConnected();
+   }
   };
   channel.onclose=()=>{
    peer.open=false;
    if(destroyed)return;
-   if(!gm){cleanupPending('O mestre desconectou');say('Conexao ao mestre encerrada.');onDisconnected();}
+   if(!gm){
+    window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:false}}));
+    cleanupPending('O mestre desconectou');say('Conexao ao mestre encerrada.');onDisconnected();
+   }
    else say('Um jogador desconectou. Os demais continuam na sessao.');
   };
   channel.onerror=()=>{if(!destroyed)say('Problema de conexao direta. Algumas redes precisam de um servidor TURN.');};
@@ -286,6 +293,7 @@ export function mountNexPeerMedia({
  }
  function connectToHost(sess){
   if(destroyed||gm||joinPeer?.session===sess)return;
+  window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:false}}));
   teardown();
   const pc=new RTCPeerConnection({iceServers:ICE_SERVERS});
   const peer={pc,session:sess,open:false,receiving:null,channel:null,uid};
@@ -331,7 +339,9 @@ export function mountNexPeerMedia({
  const unsubscribe=onSnapshot(sessionRef,snapshot=>{
   if(destroyed||gm)return;
   const s=snapshot.data();
-  window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:!!(s?.active&&typeof s.session==='string'&&s.session&&s.gmUid!==uid)}}));
+  // O botão só será liberado quando a conexão direta com o mestre abrir.
+  if(!(s?.active&&typeof s.session==='string'&&s.session&&s.gmUid!==uid))
+   window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:false}}));
   if(s?.active&&typeof s.session==='string'&&s.session&&s.gmUid!==uid){
    if(joinPeer?.session!==s.session)connectToHost(s.session);
   }else{
