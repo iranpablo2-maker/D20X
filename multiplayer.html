@@ -3884,17 +3884,30 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   // Delegação estável: as abas funcionam mesmo após a reconstrução da biblioteca.
   const switchLibraryLayer=layer=>{
    if(!['mapa','tokens','imersao'].includes(layer))return;
-   openLibraryLayer(layer);
-   if(layer==='tokens')window.dispatchEvent(new Event('nex:vtt-token-library-request'));
-   if(layer==='mapa')window.dispatchEvent(new Event('nex:vtt-map-library-request'));
-   if(layer==='imersao')window.dispatchEvent(new Event('nex:vtt-atmosphere-request'));
+   try{
+    openLibraryLayer(layer);
+    if(layer==='tokens')window.dispatchEvent(new Event('nex:vtt-token-library-request'));
+    if(layer==='mapa')window.dispatchEvent(new Event('nex:vtt-map-library-request'));
+    if(layer==='imersao')window.dispatchEvent(new Event('nex:vtt-atmosphere-request'));
+   }catch(error){
+    console.error('NEX: erro ao abrir a aba '+layer,error);
+    libraryBody.replaceChildren();
+    const warning=document.createElement('p');warning.setAttribute('role','alert');
+    warning.textContent='Não foi possível carregar '+layer+': '+String(error.message||error);
+    libraryBody.append(warning);
+   }
   };
   const libraryTabsPanel=mainMenu.querySelector('.nex-vtt-library-tabs');
-  libraryTabsPanel?.addEventListener('click',event=>{
-   const tab=event.target.closest('button[data-nex-library-layer]');
-   if(!tab||!libraryTabsPanel.contains(tab))return;
-   event.preventDefault();
-   switchLibraryLayer(tab.dataset.nexLibraryLayer);
+  for(const tab of libraryTabs){
+   tab.addEventListener('click',event=>{
+    event.preventDefault();
+    switchLibraryLayer(tab.dataset.nexLibraryLayer);
+   });
+  }
+  window.addEventListener('nex:vtt-library-role-refresh',event=>{
+   if(event.detail?.campaignId!==roomId)return;
+   const selected=libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer||'mapa';
+   switchLibraryLayer(selected);
   });
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!mainMenu.hidden)updateMenu(false);});
   openLibraryLayer('mapa');showMainTab('chat');
@@ -4145,6 +4158,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const snap=await getDoc(ref);
   if(!snap.exists()){notice('Campanha não encontrada.');return;}
   roomId=id;roomData=snap.data();gm=roomData.gmUid===uid;
+  window.dispatchEvent(new CustomEvent('nex:vtt-library-role-refresh',{detail:{campaignId:id}}));
   chatReset(id);
   if(!gm)syncOwnMemberProfile(id).catch(error=>console.warn('Perfil do jogador indisponível',error));
   if(gm){
