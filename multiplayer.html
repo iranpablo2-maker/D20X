@@ -3172,6 +3172,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   compactGroupStyle.textContent+=
    '#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-group-toggle][aria-pressed="true"],#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-atmosphere-toggle][aria-pressed="true"]{background:#178344!important;border-color:#30b66b!important;color:#fff!important;opacity:1!important}'+
    '#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-group-toggle][aria-pressed="false"],#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-atmosphere-toggle][aria-pressed="false"]{background:#a82d38!important;border-color:#e05260!important;color:#fff!important;opacity:1!important}';
+  compactGroupStyle.textContent+=
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item{grid-template-columns:24px 30px minmax(0,1fr) 64px!important;grid-template-rows:minmax(30px,auto) auto!important;align-items:center!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-asset-name{grid-column:3 / 5!important;grid-row:1!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-mini-group-select{grid-column:1 / 4!important;grid-row:2!important;justify-self:start!important;margin:0!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-right-actions{grid-column:4!important;grid-row:2!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:5px!important;min-width:0!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-right-actions button{grid-column:auto!important;grid-row:auto!important;justify-self:auto!important;width:100%!important;min-width:0!important;min-height:29px!important;padding:4px 3px!important;font-size:10px!important}';
   document.head.append(compactGroupStyle);
   let currentAtmosphereLayers=[];
   let currentAtmosphereGroups=[];
@@ -3235,7 +3241,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     const remove=document.createElement('button');remove.type='button';remove.textContent='Excluir';
     remove.disabled=!gm;remove.title='Excluir esta atmosfera permanentemente';
     remove.addEventListener('click',()=>{if(confirm('Excluir esta atmosfera da biblioteca e do mapa?'))atmosphereAction('delete',layer.id);});
-    top.append(expand,thumb,name,toggle,remove);row.append(top);
+    const rightActions=document.createElement('div');rightActions.className='nex-vtt-atmosphere-right-actions';
+    rightActions.append(toggle,remove);
+    top.append(expand,thumb,name,rightActions);row.append(top);
     if(gm&&currentAtmosphereGroups.length){
      const groupSelect=document.createElement('select');groupSelect.className='nex-vtt-mini-group-select';
      groupSelect.setAttribute('aria-label','Escolher grupo de '+layer.name);
@@ -3245,7 +3253,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      }
      groupSelect.value=layer.groupId||'';
      groupSelect.addEventListener('change',()=>atmosphereGroupAction('assign',{layerId:layer.id,groupId:groupSelect.value}));
-     row.append(groupSelect);
+     top.insertBefore(groupSelect,rightActions);
     }
     const label=document.createElement('label');label.className='nex-vtt-atmosphere-opacity-label';label.textContent='Opacidade';
     const line=document.createElement('div');line.className='nex-vtt-atmosphere-opacity-line';
