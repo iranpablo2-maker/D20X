@@ -235,6 +235,55 @@ service cloud.firestore {
       match /privateSheets/{sheetId} {
         allow get, list, create, update, delete: if nexGM(cid);
       }
+      // Sessao de midia local por WebRTC: apenas o estado de inicio vai ao Firestore.
+      // Nenhum mapa, token, GIF ou arquivo de musica e gravado aqui.
+      match /vttLive/{liveId} {
+        allow get: if liveId == 'session' && nexInCampaign(cid);
+        allow list: if false;
+        allow create, update: if liveId == 'session' && nexGM(cid)
+          && request.resource.data.keys().hasOnly(['active','session','gmUid','updatedAt'])
+          && request.resource.data.active is bool
+          && request.resource.data.session is string
+          && request.resource.data.session.size() <= 80
+          && request.resource.data.gmUid == request.auth.uid
+          && request.resource.data.updatedAt is int;
+        allow delete: if false;
+      }
+      // Cada jogador cria sua propria proposta; somente o mestre responde.
+      // Sinalizacao SDP e privada: outros jogadores nao podem listar ofertas.
+      match /vttLivePeers/{peerUid} {
+        allow get: if nexGM(cid) || owned(peerUid);
+        allow list: if nexGM(cid);
+        allow create: if nexInCampaign(cid) && request.auth.uid == peerUid
+          && request.resource.data.keys().hasOnly(['uid','session','offer','answer'])
+          && request.resource.data.uid == peerUid
+          && request.resource.data.session is string
+          && request.resource.data.session.size() <= 80
+          && request.resource.data.offer is string
+          && request.resource.data.offer.size() > 0
+          && request.resource.data.offer.size() <= 50000
+          && request.resource.data.answer == '';
+        allow update: if nexInCampaign(cid)
+          && request.resource.data.keys().hasOnly(['uid','session','offer','answer'])
+          && resource.data.uid == peerUid
+          && request.resource.data.uid == peerUid
+          && (
+            (request.auth.uid == peerUid
+             && request.resource.data.session is string
+             && request.resource.data.session.size() <= 80
+             && request.resource.data.offer is string
+             && request.resource.data.offer.size() > 0
+             && request.resource.data.offer.size() <= 50000
+             && request.resource.data.answer == '')
+            ||
+            (nexGM(cid)
+             && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['answer'])
+             && request.resource.data.answer is string
+             && request.resource.data.answer.size() > 0
+             && request.resource.data.answer.size() <= 50000)
+          );
+        allow delete: if nexGM(cid) || owned(peerUid);
+      }
       // Mesa virtual da campanha: mestre edita, membros autorizados visualizam.
       // GIFs/imagens de atmosfera divididos em partes pequenas no Firestore.
       // Evita Cloud Storage e mantém leitura restrita aos membros da campanha.
