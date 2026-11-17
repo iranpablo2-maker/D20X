@@ -58,7 +58,7 @@ async function sendFile(channel,ref,data){
 }
 export function mountNexPeerMedia({
  db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,
- root,getAsset=async()=>null,getAudioStream=()=>null,onConnected=()=>{},onDisconnected=()=>{}
+ root,getAsset=async()=>null,getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onConnected=()=>{},onDisconnected=()=>{}
 }){
  if(!db||!uid||!root||typeof RTCPeerConnection==='undefined')return {
   connected:()=>false,fetchImage:()=>Promise.reject(Error('WebRTC nao disponivel neste navegador')),
@@ -72,6 +72,32 @@ export function mountNexPeerMedia({
  // A seleção, início, pausa e troca de áudio pertencem somente ao mestre.
  // Jogadores tentam reproduzir a transmissão automaticamente; navegadores podem exigir interação real.
  const remotePeers=new Map(),pending=new Map();
+ let sceneRevision=0;
+ async function sendScene(peer,revision,scene){
+  const channel=peer.channel;
+  if(!channel||channel.readyState!=='open'||!scene)return;
+  const json=JSON.stringify(scene);
+  if(json.length>900000)throw Error('Cena local excede o limite de sincronização');
+  const size=12000,total=Math.ceil(json.length/size);
+  await waitBuffer(channel);
+  if(channel.readyState!=='open')return;
+  channel.send(JSON.stringify({type:'scene-begin',revision,total}));
+  for(let i=0;i<total;i++){
+   await waitBuffer(channel);
+   if(channel.readyState!=='open')return;
+   channel.send(JSON.stringify({type:'scene-part',revision,index:i,body:json.slice(i*size,(i+1)*size)}));
+  }
+  await waitBuffer(channel);
+  if(channel.readyState==='open')channel.send(JSON.stringify({type:'scene-end',revision}));
+ }
+ function queueScene(peer,revision,scene){
+  peer.sceneQueue=(peer.sceneQueue||Promise.resolve()).then(()=>sendScene(peer,revision,scene)).catch(error=>{if(!destroyed)say('Erro ao sincronizar mesa: '+String(error.message).slice(0,100));});
+ }
+ function broadcastScene(scene){
+  if(!gm||!hosting||destroyed)return;
+  const revision=++sceneRevision;
+  for(const peer of remotePeers.values())if(peer.open)queueScene(peer,revision,scene);
+ }
  const panel=document.createElement('section');
  panel.style.cssText='padding:8px;margin:8px 0;border:1px solid #784247;border-radius:7px;background:#171215;color:#eee;font-size:12px;';
  const label=document.createElement('div');
@@ -124,7 +150,7 @@ export function mountNexPeerMedia({
   channel.onopen=()=>{
    if(destroyed)return;
    peer.open=true;
-   if(gm)say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');
+   if(gm){say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');queueScene(peer,++sceneRevision,getScene());}
    else{say('Conectado ao mestre. Imagens locais disponiveis.');onConnected();}
   };
   channel.onclose=()=>{
@@ -139,7 +165,16 @@ export function mountNexPeerMedia({
    if(typeof event.data==='string'){
     let msg;
     try{msg=JSON.parse(event.data);}catch(_){return;}
-    if(gm&&msg.type==='get'&&typeof msg.ref==='string'&&LOCAL_REF.test(msg.ref)){
+    if(!gm&&msg.type==='scene-begin'&&Number.isSafeInteger(msg.revision)&&msg.total>0&&msg.total<=100){
+      peer.sceneReceiving={revision:msg.revision,total:msg.total,parts:[]};
+     }else if(!gm&&msg.type==='scene-part'&&peer.sceneReceiving?.revision===msg.revision&&Number.isInteger(msg.index)&&msg.index>=0&&msg.index<peer.sceneReceiving.total&&typeof msg.body==='string'&&msg.body.length<=12000){
+      peer.sceneReceiving.parts[msg.index]=msg.body;
+     }else if(!gm&&msg.type==='scene-end'&&peer.sceneReceiving?.revision===msg.revision){
+      const transfer=peer.sceneReceiving;peer.sceneReceiving=null;
+      if(transfer.parts.length===transfer.total&&transfer.parts.every(x=>typeof x==='string')){
+       try{onScene(JSON.parse(transfer.parts.join('')));}catch(error){say('Falha ao atualizar mesa: '+String(error.message).slice(0,100));}
+      }
+     }else if(gm&&msg.type==='get'&&typeof msg.ref==='string'&&LOCAL_REF.test(msg.ref)){
      peer.queue=peer.queue.then(async()=>{
       const data=await getAsset(msg.ref,peer.uid);
       if(typeof data!=='string'){
@@ -310,6 +345,7 @@ export function mountNexPeerMedia({
  return {
   connected:()=>Boolean(!gm&&joinPeer?.open&&joinPeer.channel?.readyState==='open'),
   fetchImage,
+  broadcastScene,
   destroy(){
    if(destroyed)return;
    const shouldStop=gm&&hosting;
