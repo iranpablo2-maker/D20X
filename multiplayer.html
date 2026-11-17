@@ -1432,7 +1432,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttMainMenu button:hover{background:#3d3656}
 #roomTabletopPanel #nexVttMainClose{font-size:21px!important;min-width:31px}
 #roomTabletopPanel #nexVttMenuSheets{width:100%;text-align:left}
-#roomTabletopPanel .nex-vtt-library-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+#roomTabletopPanel .nex-vtt-library-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 #roomTabletopPanel .nex-vtt-library-tabs button{padding:7px 3px!important}
 #roomTabletopPanel .nex-vtt-library-tabs button[aria-pressed="true"]{
  background:#453157!important;border-color:#ae80e4!important;color:white!important
@@ -1478,7 +1478,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  min-height:35px!important;padding:8px!important;border:1px solid #5a4a69!important;
  background:#332d42!important;border-radius:6px!important;color:#f1edf6!important
 }
-#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
 #roomTabletopPanel #nexVttSheetsCornerToggle{
  position:absolute!important;right:calc(min(340px,100% - 52px) + 7px)!important;
  top:7px!important;z-index:135!important
@@ -2180,8 +2180,10 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-nex-library-layer="mapa" aria-pressed="true">Mapa</button>
     <button type="button" data-nex-library-layer="tokens" aria-pressed="false">Tokens</button>
     <button type="button" data-nex-library-layer="mestre" aria-pressed="false">Mestre</button>
+     <button type="button" data-nex-library-layer="imersao" aria-pressed="false">Imersão</button>
    </div>
    <div id="nexVttLibraryBody" class="nex-vtt-library-body"></div>
+    <div id="nexVttImmersionMusicHost" hidden></div>
   </section>
   <section data-nex-main-page="sheets" hidden>
    <h3>Fichas dos personagens</h3>
@@ -3036,6 +3038,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const mainMenuToggle=$('nexVttSheetsCornerToggle');
   const mainClose=$('nexVttMainClose');
   const libraryBody=$('nexVttLibraryBody');
+  const immersionMusicHost=$('nexVttImmersionMusicHost');
   const libraryTabs=[...mainMenu.querySelectorAll('[data-nex-library-layer]')];
   const updateMenu=show=>{
    mainMenu.hidden=!show;
@@ -3136,6 +3139,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    renderAtmosphereItems();
   });
   function openLibraryLayer(layer){
+   immersionMusicHost.hidden=layer!=='imersao';
    libraryTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexLibraryLayer===layer)));
    libraryBody.replaceChildren();
    if(layer==='mapa'){
@@ -3156,8 +3160,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     }else{
      const empty=document.createElement('p');empty.textContent='Nenhuma imagem de mapa adicionada.';libraryBody.append(empty);
     }
+   }else if(layer==='imersao'){
+    const note=document.createElement('p');note.textContent='Atmosferas e músicas adicionadas pelo mestre para a sessão.';libraryBody.append(note);
     const atmosphereTitle=document.createElement('strong');atmosphereTitle.className='nex-vtt-art-list-title';
-    atmosphereTitle.textContent='Camada de atmosfera';libraryBody.append(atmosphereTitle);
+    atmosphereTitle.textContent='Atmosferas';libraryBody.append(atmosphereTitle);
     const atmosphereControls=document.createElement('section');
     atmosphereControls.className='nex-vtt-atmosphere-controls';libraryBody.append(atmosphereControls);
     const uploadInput=document.createElement('input');uploadInput.type='file';uploadInput.multiple=true;
@@ -3177,6 +3183,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     atmosphereList.className='nex-vtt-atmosphere-list';atmosphereControls.append(atmosphereList);
     renderAtmosphereItems();
     window.dispatchEvent(new Event('nex:vtt-atmosphere-request'));
+    const musicHeading=document.createElement('strong');musicHeading.className='nex-vtt-art-list-title';musicHeading.textContent='Músicas e efeitos sonoros';libraryBody.append(musicHeading);
+    if(!gm){const msg=document.createElement('p');msg.textContent='Somente o mestre controla as músicas e os efeitos sonoros.';libraryBody.append(msg);}
    }else if(layer==='tokens'){
     if(gm){
      const actions=document.createElement('div');actions.className='nex-vtt-art-actions nex-vtt-token-upload-actions';libraryBody.append(actions);
