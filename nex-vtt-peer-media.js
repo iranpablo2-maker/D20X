@@ -1,0 +1,306 @@
+/* NEX Tabletop - streaming privado durante a sessao.
+ * Firestore: apenas sinalizacao de conexao; WebRTC: imagens locais e musica ao vivo.
+ * Sem TURN, algumas redes moveis/NATs podem bloquear conexoes diretas.
+ */
+const ICE_SERVERS=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}];
+const LOCAL_REF=/^local:(?:map|asset|atmo)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp)$/;
+const MAX_IMAGE=11*1024*1024,CHUNK=16*1024,BUFFER_LIMIT=384*1024;
+function waitIce(pc){
+ if(pc.iceGatheringState==='complete')return Promise.resolve();
+ return new Promise(resolve=>{
+  let ended=false;
+  const finish=()=>{if(ended)return;ended=true;clearTimeout(timer);pc.removeEventListener('icegatheringstatechange',change);resolve();};
+  const change=()=>{if(pc.iceGatheringState==='complete')finish();};
+  const timer=setTimeout(finish,12000);
+  pc.addEventListener('icegatheringstatechange',change);
+ });
+}
+function dataUrlToBlob(src){
+ if(typeof src!=='string'||!src.startsWith('data:image/'))throw Error('Imagem invalida');
+ const at=src.indexOf(',');
+ const meta=src.slice(5,at);
+ const raw=atob(src.slice(at+1));
+ if(raw.length>MAX_IMAGE)throw Error('Arquivo local excede limite da transmissao');
+ const bytes=new Uint8Array(raw.length);
+ for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+ return new Blob([bytes],{type:meta.split(';')[0]});
+}
+function blobToDataUrl(blob){
+ return new Promise((resolve,reject)=>{
+  const reader=new FileReader();
+  reader.onload=()=>resolve(reader.result);
+  reader.onerror=()=>reject(Error('Falha ao interpretar a imagem recebida'));
+  reader.readAsDataURL(blob);
+ });
+}
+function waitBuffer(channel){
+ if(channel.readyState!=='open')return Promise.reject(Error('Conexao encerrada'));
+ if(channel.bufferedAmount<BUFFER_LIMIT)return Promise.resolve();
+ return new Promise((resolve,reject)=>{
+  let done=false;
+  const timer=setTimeout(()=>finish(Error('A transmissao ficou sem resposta')),15000);
+  const finish=err=>{if(done)return;done=true;clearTimeout(timer);channel.removeEventListener('bufferedamountlow',onLow);err?reject(err):resolve();};
+  const onLow=()=>finish();
+  channel.addEventListener('bufferedamountlow',onLow);
+ });
+}
+async function sendFile(channel,ref,data){
+ if(channel.readyState!=='open')return;
+ const blob=dataUrlToBlob(data);
+ if(blob.size>MAX_IMAGE)throw Error('Arquivo muito grande para a sessao');
+ channel.send(JSON.stringify({type:'file',ref,mime:blob.type,size:blob.size}));
+ for(let offset=0;offset<blob.size;offset+=CHUNK){
+  await waitBuffer(channel);
+  const bytes=await blob.slice(offset,offset+CHUNK).arrayBuffer();
+  if(channel.readyState!=='open')throw Error('Jogador desconectou durante o envio');
+  channel.send(bytes);
+ }
+}
+export function mountNexPeerMedia({
+ db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,
+ root,getAsset=async()=>null,getAudioStream=()=>null,onConnected=()=>{},onDisconnected=()=>{}
+}){
+ if(!db||!uid||!root||typeof RTCPeerConnection==='undefined')return {
+  connected:()=>false,fetchImage:()=>Promise.reject(Error('WebRTC nao disponivel neste navegador')),
+  destroy:()=>{}
+ };
+ const sessionRef=doc(db,'campaigns',campaignId,'vttLive','session');
+ const peersRef=collection(db,'campaigns',campaignId,'vttLivePeers');
+ const ownRef=doc(db,'campaigns',campaignId,'vttLivePeers',uid);
+ let destroyed=false,activeSession='',hosting=false,joinPeer=null,unsubPeers=null,unsubOwn=null;
+ let audioAllowed=false,audioStream=null;
+ const remotePeers=new Map(),pending=new Map();
+ const panel=document.createElement('section');
+ panel.style.cssText='padding:8px;margin:8px 0;border:1px solid #784247;border-radius:7px;background:#171215;color:#eee;font-size:12px;';
+ const label=document.createElement('div');
+ label.textContent='Transmissao local da campanha';
+ label.style.cssText='font-weight:bold;margin-bottom:5px';
+ const button=document.createElement('button');button.type='button';
+ button.style.cssText='background:#722a31;color:white;padding:7px 9px;border:1px solid #b05a5a;border-radius:6px;cursor:pointer;margin:4px 0';
+ button.textContent=gm?'Iniciar sessao e compartilhar':'Ativar som da sessao';
+ const status=document.createElement('div');status.style.cssText='line-height:1.45;color:#bbb';
+ status.textContent=gm?'Arquivos guardados neste dispositivo. Inicie a sessao para compartilhar.':'Aguardando o mestre iniciar a sessao.';
+ panel.append(label,button,status);root.append(panel);
+ const say=s=>{if(!destroyed)status.textContent=s;};
+ function cleanupPending(message){
+  for(const p of pending.values()){clearTimeout(p.timer);p.reject(Error(message));}
+  pending.clear();
+ }
+ function teardown(){
+  cleanupPending('Transmissao interrompida');
+  if(unsubPeers){unsubPeers();unsubPeers=null;}
+  if(unsubOwn){unsubOwn();unsubOwn=null;}
+  try{joinPeer?.dc?.close();joinPeer?.pc?.close();}catch(_){}
+  joinPeer=null;
+  for(const p of remotePeers.values()){try{p.channel?.close();p.pc.close();}catch(_){}}
+  remotePeers.clear();
+  if(audioStream){audioStream.pause();audioStream.srcObject=null;audioStream=null;}
+  onDisconnected();
+ }
+ function attachChannel(peer,channel){
+  peer.channel=channel;
+  channel.binaryType='arraybuffer';
+  channel.bufferedAmountLowThreshold=128*1024;
+  channel.onopen=()=>{
+   if(destroyed)return;
+   peer.open=true;
+   if(gm)say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');
+   else{say('Conectado ao mestre. Imagens locais disponiveis.');onConnected();}
+  };
+  channel.onclose=()=>{
+   peer.open=false;
+   if(destroyed)return;
+   if(!gm){cleanupPending('O mestre desconectou');say('Conexao ao mestre encerrada.');onDisconnected();}
+   else say('Um jogador desconectou. Os demais continuam na sessao.');
+  };
+  channel.onerror=()=>{if(!destroyed)say('Problema de conexao direta. Algumas redes precisam de um servidor TURN.');};
+  peer.queue=Promise.resolve();
+  channel.onmessage=event=>{
+   if(typeof event.data==='string'){
+    let msg;
+    try{msg=JSON.parse(event.data);}catch(_){return;}
+    if(gm&&msg.type==='get'&&typeof msg.ref==='string'&&LOCAL_REF.test(msg.ref)){
+     peer.queue=peer.queue.then(async()=>{
+      const data=await getAsset(msg.ref,peer.uid);
+      if(typeof data!=='string'){
+       if(channel.readyState==='open')channel.send(JSON.stringify({type:'error',ref:msg.ref,text:'Imagem nao encontrada no dispositivo do mestre'}));
+       return;
+      }
+      await sendFile(channel,msg.ref,data);
+     }).catch(err=>{if(channel.readyState==='open')channel.send(JSON.stringify({type:'error',ref:msg.ref,text:String(err.message).slice(0,120)}));});
+    }else if(!gm&&msg.type==='file'&&LOCAL_REF.test(msg.ref||'')&&Number.isInteger(msg.size)&&msg.size>0&&msg.size<=MAX_IMAGE){
+     const req=pending.get(msg.ref);
+     if(req&&!peer.receiving)peer.receiving={ref:msg.ref,mime:msg.mime,size:msg.size,total:0,parts:[]};
+    }else if(!gm&&msg.type==='error'&&typeof msg.ref==='string'){
+     const req=pending.get(msg.ref);
+     if(req){clearTimeout(req.timer);pending.delete(msg.ref);req.reject(Error(msg.text||'Erro ao receber imagem')); }
+    }
+    return;
+   }
+   if(gm||!peer.receiving)return;
+   const transfer=peer.receiving;
+   const data=event.data;
+   if(!(data instanceof ArrayBuffer))return;
+   transfer.parts.push(data);
+   transfer.total+=data.byteLength;
+   if(transfer.total>transfer.size){peer.receiving=null;return;}
+   if(transfer.total===transfer.size){
+    peer.receiving=null;
+    const req=pending.get(transfer.ref);
+    if(!req)return;
+    const blob=new Blob(transfer.parts,{type:transfer.mime});
+    void blobToDataUrl(blob).then(img=>{
+     if(destroyed)return;
+     clearTimeout(req.timer);pending.delete(transfer.ref);req.resolve(img);
+    }).catch(error=>{clearTimeout(req.timer);pending.delete(transfer.ref);req.reject(error);});
+   }
+  };
+ }
+ async function answerPlayer(peerId,offer,sess){
+  if(destroyed||!hosting||activeSession!==sess)return;
+  const old=remotePeers.get(peerId);
+  if(old?.offer===offer)return;
+  if(old){try{old.channel?.close();old.pc.close();}catch(_){} remotePeers.delete(peerId);}
+  const pc=new RTCPeerConnection({iceServers:ICE_SERVERS});
+  const peer={uid:peerId,offer,pc,open:false,channel:null,queue:Promise.resolve()};
+  remotePeers.set(peerId,peer);
+  try{
+   pc.ondatachannel=event=>attachChannel(peer,event.channel);
+   pc.onconnectionstatechange=()=>{
+    if(destroyed)return;
+    if(pc.connectionState==='failed')say('Conexao com jogador falhou. Tente outra rede ou configure TURN.');
+   };
+   await pc.setRemoteDescription({type:'offer',sdp:offer});
+   let stream=null;
+   try{stream=getAudioStream();}catch(err){console.warn('NEX live audio indisponivel',err);}
+   if(stream?.getAudioTracks()?.length){
+    pc.addTrack(stream.getAudioTracks()[0],stream);
+   }
+   await pc.setLocalDescription(await pc.createAnswer());
+   await waitIce(pc);
+   if(!hosting||activeSession!==sess||destroyed){pc.close();return;}
+   const answer=pc.localDescription?.sdp;
+   if(!answer)throw Error('Resposta de conexao vazia');
+   await setDoc(doc(db,'campaigns',campaignId,'vttLivePeers',peerId),{answer},{merge:true});
+  }catch(error){
+   if(!destroyed)say('Falha ao conectar jogador: '+String(error.message).slice(0,100));
+   pc.close();remotePeers.delete(peerId);
+  }
+ }
+ function watchPeers(){
+  if(unsubPeers)unsubPeers();
+  unsubPeers=onSnapshot(peersRef,snap=>{
+   if(!hosting||!activeSession)return;
+   for(const d of snap.docs){
+    const v=d.data();
+    if(d.id===uid||v?.uid!==d.id||v.session!==activeSession||typeof v.offer!=='string'||v.offer.length>45000)continue;
+    void answerPlayer(d.id,v.offer,activeSession);
+   }
+  },error=>say('Falha no sinal da campanha: '+String(error.message).slice(0,110)));
+ }
+ async function start(){
+  if(destroyed||hosting)return;
+  hosting=true;activeSession=crypto.randomUUID();
+  button.disabled=true;say('Abrindo sessao e aguardando jogadores...');
+  try{
+   await setDoc(sessionRef,{active:true,session:activeSession,gmUid:uid,updatedAt:Date.now()});
+   watchPeers();button.textContent='Encerrar transmissao';say('Sessao aberta. Os jogadores podem entrar e receber os arquivos locais.');
+  }catch(error){
+   hosting=false;activeSession='';button.textContent='Iniciar sessao e compartilhar';
+   say('Nao foi possivel iniciar. Publique as regras de transmissao do Firestore. '+String(error.message).slice(0,100));
+  }finally{button.disabled=false;}
+ }
+ async function stop(){
+  if(!hosting)return;
+  hosting=false;activeSession='';teardown();button.disabled=true;
+  try{await setDoc(sessionRef,{active:false,session:'',gmUid:uid,updatedAt:Date.now()});say('Transmissao encerrada. Seus arquivos continuam locais.');}
+  catch(error){say('Falha ao encerrar no Firestore: '+String(error.message).slice(0,120));}
+  finally{button.textContent='Iniciar sessao e compartilhar';button.disabled=false;}
+ }
+ function connectToHost(sess){
+  if(destroyed||gm||joinPeer?.session===sess)return;
+  teardown();
+  const pc=new RTCPeerConnection({iceServers:ICE_SERVERS});
+  const peer={pc,session:sess,open:false,receiving:null,channel:null,uid};
+  joinPeer=peer;activeSession=sess;
+  const channel=pc.createDataChannel('nex-files',{ordered:true});
+  attachChannel(peer,channel);
+  pc.addTransceiver('audio',{direction:'recvonly'});
+  pc.ontrack=event=>{
+   if(destroyed)return;
+   const stream=event.streams?.[0]||new MediaStream([event.track]);
+   if(!audioStream){
+    audioStream=document.createElement('audio');
+    audioStream.autoplay=true;audioStream.playsInline=true;
+    audioStream.style.cssText='width:100%;margin:5px 0';
+    panel.append(audioStream);
+   }
+   audioStream.srcObject=stream;
+   audioStream.muted=!audioAllowed;
+   if(audioAllowed)void audioStream.play().catch(()=>say('Clique em Ativar som para escutar a transmissao.'));
+  };
+  pc.onconnectionstatechange=()=>{
+   if(destroyed)return;
+   if(pc.connectionState==='failed')say('Conexao direta falhou nesta rede. Pode ser necessario servidor TURN.');
+   else if(pc.connectionState==='disconnected')say('Conexao instavel. Verifique se o mestre continua conectado.');
+  };
+  say('Conectando ao mestre...');
+  (async()=>{
+   await pc.setLocalDescription(await pc.createOffer());
+   await waitIce(pc);
+   if(destroyed||joinPeer!==peer)return;
+   const offer=pc.localDescription?.sdp;
+   if(!offer)throw Error('Nao foi possivel criar a conexao');
+   unsubOwn=onSnapshot(ownRef,docSnap=>{
+    const data=docSnap.data();
+    if(data?.session===sess&&data.answer&&pc.signalingState==='have-local-offer'){
+     void pc.setRemoteDescription({type:'answer',sdp:data.answer}).catch(error=>say('Erro de sinalizacao: '+error.message));
+    }
+   },err=>say('Sem acesso ao sinal da sessao: '+String(err.message).slice(0,100)));
+   await setDoc(ownRef,{uid,session:sess,offer,answer:''});
+   setTimeout(()=>{if(!destroyed&&joinPeer===peer&&!peer.open)say('Sem conexao direta ainda. Verifique se o mestre esta online e se a rede permite WebRTC.');},18000);
+  })().catch(error=>{if(!destroyed)say('Falha na conexao: '+String(error.message).slice(0,130));});
+ }
+ const unsubscribe=onSnapshot(sessionRef,snapshot=>{
+  if(destroyed||gm)return;
+  const s=snapshot.data();
+  if(s?.active&&typeof s.session==='string'&&s.session&&s.gmUid!==uid){
+   if(joinPeer?.session!==s.session)connectToHost(s.session);
+  }else{
+   if(joinPeer)teardown();
+   activeSession='';
+   say('Aguardando o mestre iniciar a sessao.');
+  }
+ },error=>say('Nao foi possivel acompanhar o inicio da campanha: '+String(error.message).slice(0,120)));
+ button.addEventListener('click',()=>{
+  if(gm){void(hosting?stop():start());return;}
+  audioAllowed=true;
+  if(audioStream){
+   audioStream.muted=false;
+   void audioStream.play().then(()=>say('Som da sessao ativado.')).catch(()=>say('O navegador bloqueou o som. Tente clicar novamente.'));
+  }else say('Som ativado. Aguardando o mestre tocar uma musica.');
+  button.textContent='Som ativado';
+ });
+ function fetchImage(src){
+  if(gm||!LOCAL_REF.test(src||''))return Promise.reject(Error('Imagem invalida'));
+  if(!joinPeer?.open||joinPeer.channel?.readyState!=='open')return Promise.reject(Error('Aguardando o mestre iniciar a transmissao'));
+  if(pending.has(src))return pending.get(src).promise;
+  let resolve,reject;
+  const promise=new Promise((a,b)=>{resolve=a;reject=b;});
+  const timer=setTimeout(()=>{pending.delete(src);reject(Error('Imagem nao chegou. Verifique conexao direta.'));},40000);
+  pending.set(src,{promise,resolve,reject,timer});
+  joinPeer.channel.send(JSON.stringify({type:'get',ref:src}));
+  return promise;
+ }
+ return {
+  connected:()=>Boolean(!gm&&joinPeer?.open&&joinPeer.channel?.readyState==='open'),
+  fetchImage,
+  destroy(){
+   if(destroyed)return;
+   const shouldStop=gm&&hosting;
+   destroyed=true;unsubscribe();teardown();panel.remove();
+   if(shouldStop)void setDoc(sessionRef,{active:false,session:'',gmUid:uid,updatedAt:Date.now()}).catch(()=>{});
+   if(!gm)void deleteDoc(ownRef).catch(()=>{});
+  }
+ };
+}
