@@ -1612,6 +1612,42 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttMainMenu .nex-vtt-opacity-expand{flex:0 0 24px!important;width:24px!important;min-height:27px!important;padding:0!important;display:grid!important;place-items:center}
 #roomTabletopPanel #nexVttImmersionMusicHost[hidden]{display:none!important}
 #roomTabletopPanel #nexVttImmersionMusicHost:not([hidden]){padding:0 2px 14px}
+</style><style id="nex-vtt-atmosphere-responsive-fix">
+/* A lista continua legível mesmo quando o painel lateral está estreito. */
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-entry{
+ box-sizing:border-box!important;width:100%!important;min-width:0!important;max-width:100%!important;
+ overflow:hidden!important;
+}
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item{
+ display:grid!important;
+ grid-template-columns:24px 30px minmax(0,1fr)!important;
+ grid-template-rows:minmax(30px,auto) minmax(29px,auto)!important;
+ gap:7px 6px!important;
+ align-items:center!important;min-width:0!important;width:100%!important;
+ box-sizing:border-box!important;
+}
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-opacity-expand{
+ grid-column:1!important;grid-row:1!important;
+}
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-art-thumb{
+ grid-column:2!important;grid-row:1!important;
+ width:30px!important;min-width:30px!important;max-width:30px!important;
+}
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-asset-name{
+ grid-column:3!important;grid-row:1!important;min-width:0!important;width:100%!important;
+ display:block!important;white-space:nowrap!important;overflow:hidden!important;
+ text-overflow:ellipsis!important;overflow-wrap:normal!important;word-break:normal!important;
+ line-height:1.5!important;
+}
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item button[data-atmosphere-toggle]{
+ grid-column:1 / span 2!important;grid-row:2!important;justify-self:start!important;
+}
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item button:not(.nex-vtt-opacity-expand):not([data-atmosphere-toggle]){
+ grid-column:3!important;grid-row:2!important;justify-self:end!important;
+}
+#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-entry .nex-vtt-atmosphere-opacity-label{
+ min-width:0!important;max-width:100%!important;
+}
 </style><style id="nex-vtt-atmosphere-library-multi">
 #roomTabletopPanel .nex-vtt-atmosphere-list{display:flex;flex-direction:column;gap:12px}
 #roomTabletopPanel .nex-vtt-atmosphere-entry{padding:8px;border:1px solid #44485d;border-radius:6px;min-width:0}
