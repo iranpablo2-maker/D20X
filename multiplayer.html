@@ -2313,8 +2313,8 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #room #roomTabletopPanel .nex-vtt-sidebar button,
 #room #roomTabletopPanel #nexVttSidebarToggle,
 #room #roomTabletopPanel #nexVttSheetsCornerToggle{
- background:#050505!important;
- background-color:#050505!important;
+ background:#000000!important;
+ background-color:#000000!important;
  background-image:none!important;
  border-color:#672234!important;
  color:#f5e8ea!important;
@@ -2358,16 +2358,16 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  color:#fff!important;
 }
 #room #roomTabletopPanel button:disabled{
- background:#090909!important;
- background-color:#090909!important;
+ background:#000000!important;
+ background-color:#000000!important;
  color:#90878a!important;
  opacity:.6;
 }
 /* Aplique fundo escuro também aos botões de música criados após abrir a biblioteca. */
 #room #roomTabletopPanel #nexVttMainMenu .nex-music-song button,
 #room #roomTabletopPanel #nexVttMainMenu .nex-music-playlist-header button{
- background:#050505!important;
- background-color:#050505!important;
+ background:#000000!important;
+ background-color:#000000!important;
  border-color:#672234!important;
 }
 </style></head>
@@ -2603,7 +2603,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117hideplaylist4';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117blackfinal3';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
