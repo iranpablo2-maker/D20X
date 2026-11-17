@@ -1,7 +1,7 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117autostart1';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117playermove1';
 import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
@@ -640,7 +640,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   selectedId=el.dataset.token; // Keep the touched DOM node alive until gesture end.
   const linked=linkedSheet(selected());
   if(linked&&typeof onSelectSheet==='function')onSelectSheet(linked.id);
-  if(!gm||selected()?.locked||vttMode!=='select')return;
+  if(selected()?.locked||vttMode!=='select'||(!gm&&!peerMedia?.connected()))return;
   const t=selected();
   if(handle){
    drag={id:selectedId,pointer:e.pointerId,kind:'resize',handle,
@@ -656,10 +656,10 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   e.preventDefault();
  });
  listen(document,'pointermove',e=>{
-  if(!gm||!drag||drag.pointer!==e.pointerId)return;
+  if(!drag||drag.pointer!==e.pointerId)return;
   const rect=board.getBoundingClientRect(),t=scene.tokens.find(t=>t.id===drag.id);if(!t)return;
   const cellX=rect.width/W,cellY=rect.height/H;
-  if(drag.kind==='resize'){
+  if(drag.kind==='resize'&&gm){
    const dx=(e.clientX-drag.originClientX)/cellX,dy=(e.clientY-drag.originClientY)/cellY;
    const h=drag.handle,min=.5;
    if(h.includes('e'))t.widthCells=Math.max(min,Math.min(W-drag.startX,Math.round((drag.startWidth+dx)*4)/4));
@@ -684,9 +684,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(token&&vttMeasureMovement){const squares=Math.hypot(token.x-drag.startX,token.y-drag.startY);vttLog.hidden=false;vttLog.textContent=token.name+': '+squares.toFixed(1)+' quadrados';}
   drag=null;
   try{if(board.hasPointerCapture(e.pointerId))board.releasePointerCapture(e.pointerId);}catch(_){}
-  render();save();
+  render();if(gm)save();else if(token)peerMedia?.sendTokenMove(token.id,token.x,token.y);
  });
- listen(document,'pointercancel',e=>{if(drag&&drag.pointer===e.pointerId){drag=null;render();save();}});
+ listen(document,'pointercancel',e=>{if(drag&&drag.pointer===e.pointerId){drag=null;render();if(gm)save();}});
  listen(document,'keydown',e=>{
   if(!gm||!selectedId||isTyping(e)||e.altKey||e.ctrlKey||e.metaKey||!(/^[0-9]$/).test(e.key))return;
   const t=selected();if(!t||!t.images?.[Number(e.key)])return;t.variation=Number(e.key);render();save();e.preventDefault();
@@ -1496,6 +1496,16 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,root:liveRoot,
   getAudioStream:()=>localAudioCleanup.getStream?.()||null,
   getScene:()=>gm?JSON.parse(JSON.stringify(validScene(scene))):null,
+  onTokenMove:({id,x,y})=>{
+   if(!gm||disposed||!remoteReady)return;
+   const token=scene.tokens.find(t=>t.id===id);
+   if(!token||token.hidden||token.locked)return;
+   const maxX=Math.max(0,W-(token.widthCells||token.size||1));
+   const maxY=Math.max(0,H-(token.heightCells||token.size||1));
+   token.x=Math.round(Math.max(0,Math.min(maxX,x))*4)/4;
+   token.y=Math.round(Math.max(0,Math.min(maxY,y))*4)/4;
+   render();void save();
+  },
   onScene:data=>{
    if(gm||disposed||!data||!Array.isArray(data.tokens))return;
    scene=validScene(data);remoteReady=true;mediaFailed.clear();render();
