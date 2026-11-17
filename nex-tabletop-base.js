@@ -1,5 +1,6 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
+import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
@@ -9,10 +10,9 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const isR2Media=src=>typeof src==='string'&&r2Pattern.test(src);
  const mediaCache=createVttMediaCache(uid,campaignId);
  const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
- // Escolha explícita por navegador. Não altera a nuvem nem arquivos anteriores.
- const localMediaKey='nex-vtt-media-mode:'+String(uid||'')+':'+String(campaignId||'');
- let mediaMode='local';
- try{mediaMode=localStorage.getItem(localMediaKey)==='cloud'?'cloud':'local';}catch(_){} 
+ // Destino fixo pelo tipo: mapas/tokens (inclusive tokens GIF) vão ao R2;
+ // atmosferas vão apenas ao navegador. Referências antigas continuam válidas.
+ const localAudioCleanup=gm?mountNexLocalMusic({uid,campaignId,root:tools}):()=>{};
  const localMediaPattern=/^local:(?:atmo|map|asset)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp)$/;
  const isLocalMedia=src=>typeof src==='string'&&localMediaPattern.test(src);
  let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,renderedMapSource=null,mapLoadId=0;
@@ -306,7 +306,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    message('Enviando mapa...');const uploaded=await uploadMedia(file,'map');
    const old=scene.map;scene.map=uploaded;render();
    uploading=Math.max(0,uploading-1);released=true;await save();
-   if(!saveFailed){await deleteMediaParts(old);message(isLocalMedia(uploaded)?'Mapa salvo neste dispositivo (não compartilhado).':'Mapa salvo e disponível no PC e celular.');}
+   if(!saveFailed){await deleteMediaParts(old);message('Mapa salvo no R2 e disponível aos jogadores da campanha.');}
   }catch(error){message('Falha ao enviar mapa: '+String(error.code||error.message||error).slice(0,110));}
   finally{if(!released)uploading=Math.max(0,uploading-1);}
  });
@@ -870,28 +870,18 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Falha ao carregar imagem do R2'));r.readAsDataURL(blob);
  });
  if(gm){
-  const mediaModeLabel=document.createElement('label');
-  mediaModeLabel.style.cssText='display:inline-flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;flex-wrap:wrap;color:#e8e8e8';
-  mediaModeLabel.textContent='Salvar novas imagens: ';
-  const selector=document.createElement('select');
-  selector.setAttribute('aria-label','Destino das novas imagens do Tabletop');
-  for(const [value,name] of [['local','Neste dispositivo (não compartilha)'],['cloud','R2 na nuvem (compartilha com jogadores)']]){
-   const option=document.createElement('option');option.value=value;option.textContent=name;selector.append(option);
-  }
-  selector.value=mediaMode;
-  selector.addEventListener('change',()=>{
-   mediaMode=selector.value;
-   try{localStorage.setItem(localMediaKey,mediaMode);}catch(_){}
-   message(mediaMode==='local'?'Modo local: novas imagens só aparecem neste dispositivo.':'Modo nuvem: novas imagens sincronizam com os jogadores.');
-  });
-  mediaModeLabel.append(selector);
-  const mapInput=$('nexTabletopMapFile');
-  (mapInput?.parentElement||tools).append(mediaModeLabel);
+  const mediaDestinations=document.createElement('p');
+  mediaDestinations.style.cssText='margin:8px 0;color:#c9bfc1;font-size:12px;line-height:1.45';
+  mediaDestinations.textContent='Armazenamento automático: mapas e tokens (incluindo tokens animados) no R2; GIFs de atmosfera e músicas apenas neste dispositivo.';
+  (document.getElementById('nexTabletopMapFile')?.parentElement||tools).append(mediaDestinations);
+  handlers.push(()=>mediaDestinations.remove());
  }
  function visibleMediaSource(src){
   if(typeof src!=='string')return '';
   if(src.startsWith('data:image/')||src.startsWith('https://'))return src;
   const local=isLocalMedia(src);
+  // Atmosferas locais não são disponibilizadas automaticamente aos jogadores.
+  if(local&&!gm)return '';
   const info=local?null:mediaDescriptor(src);
   if((!local&&!info)||mediaFailed.has(src))return '';
   if(mediaMemory.has(src))return mediaMemory.get(src);
@@ -927,27 +917,27 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  async function uploadMedia(file,prefix){
   if(!/^image\/(gif|png|jpeg|webp)$/.test(file?.type||''))throw Error('Selecione PNG, JPG, WebP ou GIF.');
-  if(file.size>(mediaMode==='cloud'?10*1024*1024:ATMOSPHERE_FILE_LIMIT))throw Error(mediaMode==='cloud'?'O limite por imagem R2 é 10 MB.':'O limite por imagem local é 5 MB.');
-  const data=await new Promise((resolve,reject)=>{
-   const reader=new FileReader();reader.onload=()=>resolve(reader.result);
-   reader.onerror=()=>reject(Error('Não foi possível ler a imagem'));reader.readAsDataURL(file);
-  });
-  const match=/^data:image\/(gif|png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(data);
-  if(!match)throw Error('Imagem inválida.');
-  if(mediaMode==='local'){
-   const src='local:'+prefix+'_'+crypto.randomUUID()+':'+match[1];
-   // Nunca inserir a imagem base64 na cena do Firestore.
-   // Somente a referência é sincronizada. Outros dispositivos não possuem o arquivo.
-   const stored=await mediaCache.put(src,data,true);
-   if(!stored)throw Error('Não foi possível salvar no dispositivo. Verifique o espaço e as permissões do navegador.');
-   mediaMemory.set(src,data);
+  const local=prefix==='atmo';
+  if(!['map','asset','atmo'].includes(prefix))throw Error('Categoria de imagem inválida.');
+  const limit=local?5*1024*1024:10*1024*1024;
+  if(!file.size||file.size>limit)throw Error(local?'O limite de GIFs de atmosfera locais é 5 MB.':'O limite de imagens no R2 é 10 MB.');
+  if(!local){
+   // Um token GIF permanece no R2 porque é um token, não uma atmosfera.
+   const src=await r2Upload(file,prefix);
+   try{
+    const data=await blobDataURL(file);
+    mediaMemory.set(src,data);void mediaCache.put(src,data);
+   }catch(error){console.warn('NEX: cache da imagem enviada indisponível',error);}
    return src;
   }
-  // Novos arquivos compartilhados vão diretamente ao R2, não a blocos do Firestore.
-  const r2src=await r2Upload(file,prefix);
-  mediaMemory.set(r2src,data);void mediaCache.put(r2src,data);
-  return r2src;
-
+  const data=await blobDataURL(file);
+  const match=/^data:image\/(gif|png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(data);
+  if(!match)throw Error('Imagem inválida.');
+  const src='local:'+prefix+'_'+crypto.randomUUID()+':'+match[1];
+  const stored=await mediaCache.put(src,data,true);
+  if(!stored)throw Error('Não foi possível salvar a atmosfera neste dispositivo. Verifique espaço e permissões do navegador.');
+  mediaMemory.set(src,data);
+  return src;
  }
  async function deleteMediaParts(src){
   if(isLocalMedia(src)){
@@ -1030,7 +1020,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     added++;
    }
   }finally{uploading=Math.max(0,uploading-1);
-   if(added){applyAtmosphere();await save();if(!saveFailed)message(added+' atmosfera(s) salva(s) '+(mediaMode==='local'?'somente neste dispositivo.':'e sincronizada(s).'));}
+   if(added){applyAtmosphere();await save();if(!saveFailed)message(added+' atmosfera(s) salva(s) somente neste dispositivo.');}
   }
  });
  // Compatibilidade com a opção antiga de remover toda a atmosfera.
@@ -1493,5 +1483,5 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   remoteReady=true;render();if(queued)save();else if(!saveFailed)message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Não foi possível receber atualizações da mesa.');warnSync(error.code==='permission-denied'?'Acesso negado pelo Firestore. Verifique as regras da campanha.':'Erro de conexão com a mesa: '+String(error.message||error).slice(0,140));console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();};
 }
