@@ -2434,6 +2434,18 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  pointer-events:auto!important;
  cursor:pointer!important;
 }
+</style><style id="nex-vtt-library-click-priority">
+#room #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{
+ position:relative!important;z-index:200!important;isolation:isolate!important;
+ pointer-events:auto!important;
+}
+#room #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs button[data-nex-library-layer]{
+ position:relative!important;z-index:201!important;pointer-events:auto!important;cursor:pointer!important;
+ touch-action:manipulation!important;
+}
+#room #roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody{
+ position:relative!important;z-index:1!important;
+}
 </style></head>
 <body>
 <script>
@@ -2669,7 +2681,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117gridroles5';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117libraryclick6';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -3903,12 +3915,28 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    }
   };
   const libraryTabsPanel=mainMenu.querySelector('.nex-vtt-library-tabs');
-  for(const tab of libraryTabs){
-   tab.addEventListener('click',event=>{
-    event.preventDefault();
-    switchLibraryLayer(tab.dataset.nexLibraryLayer);
-   });
-  }
+  // Captura antes dos demais controles e evita que um listener antigo reabra Mapa.
+  // Pointerdown responde imediatamente ao toque ou mouse; click cobre teclado.
+  let libraryPointerHandled=false;
+  const activateLibraryTab=event=>{
+   const tab=event.target.closest?.('button[data-nex-library-layer]');
+   if(!tab||!libraryTabsPanel?.contains(tab))return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   if(event.type==='click'&&libraryPointerHandled){
+    libraryPointerHandled=false;
+    return;
+   }
+   if(event.type==='pointerdown')libraryPointerHandled=true;
+   switchLibraryLayer(tab.dataset.nexLibraryLayer);
+  };
+  libraryTabsPanel?.addEventListener('pointerdown',activateLibraryTab,true);
+  libraryTabsPanel?.addEventListener('click',activateLibraryTab,true);
+  libraryTabsPanel?.addEventListener('keydown',event=>{
+   if(event.key==='Enter'||event.key===' '){
+    libraryPointerHandled=false;
+   }
+  },true);
   window.addEventListener('nex:vtt-library-role-refresh',event=>{
    if(event.detail?.campaignId!==roomId)return;
    const selected=libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer||'mapa';
