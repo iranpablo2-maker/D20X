@@ -3403,7 +3403,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   // Chat sincronizado pelo WebRTC da mesa: mensagens ficam apenas na sessão.
   const vttChatForm=$('nexVttChatForm'),vttChatInput=$('nexVttChatInput');
   const vttChatMessages=$('nexVttChatMessages'),vttChatStatus=$('nexVttChatStatus');
-  let chatCampaign='',chatHistoryIds=new Set();
+  let chatCampaign='',chatHistoryIds=new Set(),pendingChatText='';
   function chatReset(campaign){
    chatCampaign=campaign||'';chatHistoryIds.clear();vttChatMessages.replaceChildren();
    vttChatStatus.textContent='Mensagens disponíveis durante a sessão do mestre.';
@@ -3432,8 +3432,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   });
   window.addEventListener('nex:vtt-chat-send-result',event=>{
    if(event.detail?.campaignId!==roomId)return;
-   if(!event.detail.ok)vttChatStatus.textContent='Não foi possível enviar. Confira se a conexão do Tabletop está ativa.';
-   else vttChatStatus.textContent='';
+   if(!event.detail.ok){
+    if(pendingChatText&&!vttChatInput.value)vttChatInput.value=pendingChatText;
+    vttChatStatus.textContent='Não foi possível enviar. Confira se a conexão do Tabletop está ativa.';
+   }else vttChatStatus.textContent='';
+   pendingChatText='';
   });
   vttChatForm.addEventListener('submit',event=>{
    event.preventDefault();
@@ -3444,8 +3447,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    try{profile=JSON.parse(localStorage.getItem('nex_account_profile_'+uid)||'{}')||{};}catch(_){}
    const member=roomMembers.find(m=>m.uid===uid);
    const name=String(member?.name||profile.name||auth.currentUser?.displayName||auth.currentUser?.email?.split('@')[0]||(gm?'Mestre':'Jogador')).trim().slice(0,48);
-   window.dispatchEvent(new CustomEvent('nex:vtt-chat-send',{detail:{campaignId:roomId,text:message,name}}));
+   pendingChatText=message;
    vttChatInput.value='';
+   window.dispatchEvent(new CustomEvent('nex:vtt-chat-send',{detail:{campaignId:roomId,text:message,name}}));
   });
   const mainMenuToggle=$('nexVttSheetsCornerToggle');
   const mainClose=$('nexVttMainClose');
