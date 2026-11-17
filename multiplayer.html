@@ -2122,6 +2122,98 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttLibraryBody .nex-vtt-map-entry>button:nth-of-type(2){grid-row:3}
 </style><style id="nex-vtt-webm-map-thumb">
 #roomTabletopPanel #nexVttLibraryBody .nex-vtt-map-entry video.nex-vtt-art-thumb{display:block!important;width:34px!important;height:34px!important;object-fit:cover!important;pointer-events:none}
+</style>
+<style id="nex-vtt-black-red-theme">
+/* Paleta preto e vermelho aplicada apenas ao Tabletop; mantém mapa e mídias originais. */
+#roomTabletopPanel{
+ --nex-vtt-bg:#080809;
+ --nex-vtt-panel:#111013;
+ --nex-vtt-surface:#1b1115;
+ --nex-vtt-accent:#ac233a;
+ --nex-vtt-border:#632531;
+ --nex-vtt-text:#f5e9ec;
+ background:#080809!important;
+ color:var(--nex-vtt-text)!important;
+}
+#roomTabletopPanel .nex-vtt-heading,
+#roomTabletopPanel .nex-vtt-sidebar,
+#roomTabletopPanel .nex-vtt-sheets,
+#roomTabletopPanel #nexVttMainMenu,
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-main-scroll,
+#roomTabletopPanel #nexVttLibraryBody,
+#roomTabletopPanel .nex-vtt-atmosphere-controls,
+#roomTabletopPanel .nex-vtt-local-music,
+#roomTabletopPanel .nex-vtt-atmosphere-entry,
+#roomTabletopPanel .nex-vtt-map-entry,
+#roomTabletopPanel .nex-vtt-atmosphere-list section,
+#roomTabletopPanel .nex-music-playlist-group,
+#roomTabletopPanel .nex-vtt-stage-note{
+ background-color:#111013!important;
+ border-color:#632531!important;
+ color:#f5e9ec!important;
+}
+#roomTabletopPanel .nex-vtt-stage,
+#roomTabletopPanel .nex-tabletop-wrap{
+ background-color:#070708!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs,
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs,
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-immersion-switch,
+#roomTabletopPanel .nex-vtt-toolbar,
+#roomTabletopPanel .nex-vtt-tools-bar,
+#roomTabletopPanel .nex-vtt-floating-menu{
+ background-color:#151014!important;
+ border-color:#632531!important;
+}
+#roomTabletopPanel #nexVttMainMenu button,
+#roomTabletopPanel .nex-vtt-sidebar button,
+#roomTabletopPanel .nex-vtt-heading button,
+#roomTabletopPanel .nex-vtt-floating-menu button{
+ background-color:#29151c!important;
+ border-color:#783040!important;
+ color:#f8eef0!important;
+}
+#roomTabletopPanel #nexVttMainMenu button:hover,
+#roomTabletopPanel .nex-vtt-sidebar button:hover,
+#roomTabletopPanel .nex-vtt-heading button:hover{
+ background-color:#4b1a27!important;
+ border-color:#c24458!important;
+}
+#roomTabletopPanel #nexVttMainMenu button[aria-pressed="true"]:not([data-group-toggle]):not([data-atmosphere-toggle]),
+#roomTabletopPanel #nexVttMainMenu button[aria-selected="true"],
+#roomTabletopPanel #nexVttMainMenu .active{
+ background-color:#7f1e31!important;
+ border-color:#d04a61!important;
+ color:#fff!important;
+}
+#roomTabletopPanel input:not([type="range"]):not([type="checkbox"]):not([type="file"]),
+#roomTabletopPanel select,
+#roomTabletopPanel textarea{
+ background-color:#171115!important;
+ border-color:#71313e!important;
+ color:#f7ebee!important;
+}
+#roomTabletopPanel input[type="range"],
+#roomTabletopPanel input[type="checkbox"]{
+ accent-color:#bc3149!important;
+}
+#roomTabletopPanel .nex-music-song,
+#roomTabletopPanel .nex-music-playlist-group,
+#roomTabletopPanel .nex-vtt-atmosphere-entry{
+ border-color:#53202c!important;
+}
+#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-group-toggle][aria-pressed="true"],
+#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-atmosphere-toggle][aria-pressed="true"]{
+ background:#178344!important;border-color:#30b66b!important;color:#fff!important;
+}
+#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-group-toggle][aria-pressed="false"],
+#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-atmosphere-toggle][aria-pressed="false"]{
+ background:#a82d38!important;border-color:#e05260!important;color:#fff!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-music-playlist-header button,
+#roomTabletopPanel #nexVttMainMenu .nex-music-song button{
+ background:transparent!important;border:0!important;
+}
 </style></head>
 <body>
 <script>
@@ -2355,7 +2447,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117playlistdelete3';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117redtheme2';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
