@@ -130,7 +130,7 @@ export function mountNexPeerMedia({
      }).catch(err=>{if(channel.readyState==='open')channel.send(JSON.stringify({type:'error',ref:msg.ref,text:String(err.message).slice(0,120)}));});
     }else if(!gm&&msg.type==='file'&&LOCAL_REF.test(msg.ref||'')&&Number.isInteger(msg.size)&&msg.size>0&&msg.size<=MAX_IMAGE){
      const req=pending.get(msg.ref);
-     if(req&&!peer.receiving)peer.receiving={ref:msg.ref,mime:msg.mime,size:msg.size,total:0,parts:[]};
+     if(req&&!peer.receiving)peer.receiving={ref:msg.ref,mime:msg.mime,size:msg.size,total:0,parts:[],reported:-1};
     }else if(!gm&&msg.type==='error'&&typeof msg.ref==='string'){
      const req=pending.get(msg.ref);
      if(req){clearTimeout(req.timer);pending.delete(msg.ref);req.reject(Error(msg.text||'Erro ao receber imagem')); }
@@ -143,6 +143,8 @@ export function mountNexPeerMedia({
    if(!(data instanceof ArrayBuffer))return;
    transfer.parts.push(data);
    transfer.total+=data.byteLength;
+   const percent=Math.min(100,Math.floor(transfer.total/transfer.size*100));
+   if(percent===100||percent>=transfer.reported+10){transfer.reported=percent;say('Recebendo imagem do mestre: '+percent+'%');}
    if(transfer.total>transfer.size){peer.receiving=null;return;}
    if(transfer.total===transfer.size){
     peer.receiving=null;
@@ -151,7 +153,7 @@ export function mountNexPeerMedia({
     const blob=new Blob(transfer.parts,{type:transfer.mime});
     void blobToDataUrl(blob).then(img=>{
      if(destroyed)return;
-     clearTimeout(req.timer);pending.delete(transfer.ref);req.resolve(img);
+     clearTimeout(req.timer);pending.delete(transfer.ref);say('Imagem recebida e disponível no mapa.');req.resolve(img);
     }).catch(error=>{clearTimeout(req.timer);pending.delete(transfer.ref);req.reject(error);});
    }
   };
@@ -287,7 +289,7 @@ export function mountNexPeerMedia({
   if(pending.has(src))return pending.get(src).promise;
   let resolve,reject;
   const promise=new Promise((a,b)=>{resolve=a;reject=b;});
-  const timer=setTimeout(()=>{pending.delete(src);reject(Error('Imagem nao chegou. Verifique conexao direta.'));},40000);
+  const timer=setTimeout(()=>{pending.delete(src);reject(Error('Imagem nao chegou. Verifique conexao direta.'));},90000);
   pending.set(src,{promise,resolve,reject,timer});
   joinPeer.channel.send(JSON.stringify({type:'get',ref:src}));
   return promise;
