@@ -1,7 +1,7 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
-import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
+import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117blob5';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117preview4';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117blob5';
 import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
@@ -13,15 +13,21 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const mediaCache=createVttMediaCache(uid,campaignId);
  const localSceneStore=createVttLocalScene(uid,campaignId);
  const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set(),webmObjectUrls=new Map(),webmPreviews=new Map();
- function playableWebm(data){
+ function playableWebm(data,ref=''){
+  if(data instanceof Blob){
+   if(webmObjectUrls.has(ref))return webmObjectUrls.get(ref);
+   const url=URL.createObjectURL(data);
+   webmObjectUrls.set(ref,url);return url;
+  }
   if(typeof data!=='string'||!data.startsWith('data:video/webm;base64,'))return data;
-  if(webmObjectUrls.has(data))return webmObjectUrls.get(data);
+  const cacheKey=ref||data;
+  if(webmObjectUrls.has(cacheKey))return webmObjectUrls.get(cacheKey);
   try{
    const raw=atob(data.slice(data.indexOf(',')+1));
    const bytes=new Uint8Array(raw.length);
    for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
    const url=URL.createObjectURL(new Blob([bytes],{type:'video/webm'}));
-   webmObjectUrls.set(data,url);
+   webmObjectUrls.set(cacheKey,url);
    return url;
   }catch(error){console.warn('NEX VTT: nao foi possivel preparar WEBM',error);return data;}
  }
@@ -988,7 +994,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(local&&!gm&&!peerMedia?.connected())return '';
   const info=local?null:mediaDescriptor(src);
   if((!local&&!info)||mediaFailed.has(src))return '';
-  if(mediaMemory.has(src))return isWebmMap(src)?playableWebm(mediaMemory.get(src)):mediaMemory.get(src);
+  if(mediaMemory.has(src))return isWebmMap(src)?playableWebm(mediaMemory.get(src),src):mediaMemory.get(src);
   if(!mediaPending.has(src)){
    const task=(async()=>{
     let image=await mediaCache.read(src);
