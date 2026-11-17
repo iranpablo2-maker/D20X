@@ -68,7 +68,9 @@ export function mountNexPeerMedia({
  const peersRef=collection(db,'campaigns',campaignId,'vttLivePeers');
  const ownRef=doc(db,'campaigns',campaignId,'vttLivePeers',uid);
  let destroyed=false,activeSession='',hosting=false,joinPeer=null,unsubPeers=null,unsubOwn=null;
- let audioAllowed=false,audioStream=null;
+ let audioStream=null,playbackPending=false;
+ // A seleção, início, pausa e troca de áudio pertencem somente ao mestre.
+ // Jogadores tentam reproduzir a transmissão automaticamente; navegadores podem exigir interação real.
  const remotePeers=new Map(),pending=new Map();
  const panel=document.createElement('section');
  panel.style.cssText='padding:8px;margin:8px 0;border:1px solid #784247;border-radius:7px;background:#171215;color:#eee;font-size:12px;';
@@ -77,11 +79,29 @@ export function mountNexPeerMedia({
  label.style.cssText='font-weight:bold;margin-bottom:5px';
  const button=document.createElement('button');button.type='button';
  button.style.cssText='background:#722a31;color:white;padding:7px 9px;border:1px solid #b05a5a;border-radius:6px;cursor:pointer;margin:4px 0';
- button.textContent=gm?'Iniciar sessao e compartilhar':'Ativar som da sessao';
+ button.textContent='Iniciar sessao e compartilhar';
  const status=document.createElement('div');status.style.cssText='line-height:1.45;color:#bbb';
  status.textContent=gm?'Arquivos guardados neste dispositivo. Inicie a sessao para compartilhar.':'Aguardando o mestre iniciar a sessao.';
- panel.append(label,button,status);root.append(panel);
+ panel.append(label);
+ if(gm)panel.append(button);
+ panel.append(status);root.append(panel);
  const say=s=>{if(!destroyed)status.textContent=s;};
+ async function tryPlayReceivedAudio(){
+  if(gm||destroyed||!audioStream||!audioStream.paused||playbackPending)return;
+  playbackPending=true;
+  try{
+   audioStream.muted=false;
+   await audioStream.play();
+   say('O mestre controla a música e os efeitos sonoros da sessão.');
+  }catch(error){
+   say('Aguardando permissão de áudio do navegador. Toque na mesa para liberar o som; quem controla a música é o mestre.');
+  }finally{playbackPending=false;}
+ }
+ const retryPlayOnInteraction=()=>{if(!gm)void tryPlayReceivedAudio();};
+ if(!gm){
+  document.addEventListener('pointerdown',retryPlayOnInteraction,true);
+  document.addEventListener('keydown',retryPlayOnInteraction,true);
+ }
  function cleanupPending(message){
   for(const p of pending.values()){clearTimeout(p.timer);p.reject(Error(message));}
   pending.clear();
@@ -238,8 +258,8 @@ export function mountNexPeerMedia({
     panel.append(audioStream);
    }
    audioStream.srcObject=stream;
-   audioStream.muted=!audioAllowed;
-   if(audioAllowed)void audioStream.play().catch(()=>say('Clique em Ativar som para escutar a transmissao.'));
+   audioStream.muted=false;
+   void tryPlayReceivedAudio();
   };
   pc.onconnectionstatechange=()=>{
    if(destroyed)return;
@@ -274,15 +294,8 @@ export function mountNexPeerMedia({
    say('Aguardando o mestre iniciar a sessao.');
   }
  },error=>say('Nao foi possivel acompanhar o inicio da campanha: '+String(error.message).slice(0,120)));
- button.addEventListener('click',()=>{
-  if(gm){void(hosting?stop():start());return;}
-  audioAllowed=true;
-  if(audioStream){
-   audioStream.muted=false;
-   void audioStream.play().then(()=>say('Som da sessao ativado.')).catch(()=>say('O navegador bloqueou o som. Tente clicar novamente.'));
-  }else say('Som ativado. Aguardando o mestre tocar uma musica.');
-  button.textContent='Som ativado';
- });
+ if(gm)button.addEventListener('click',()=>{void(hosting?stop():start());});
+
  function fetchImage(src){
   if(gm||!LOCAL_REF.test(src||''))return Promise.reject(Error('Imagem invalida'));
   if(!joinPeer?.open||joinPeer.channel?.readyState!=='open')return Promise.reject(Error('Aguardando o mestre iniciar a transmissao'));
@@ -300,7 +313,9 @@ export function mountNexPeerMedia({
   destroy(){
    if(destroyed)return;
    const shouldStop=gm&&hosting;
-   destroyed=true;unsubscribe();teardown();panel.remove();
+   destroyed=true;unsubscribe();
+   if(!gm){document.removeEventListener('pointerdown',retryPlayOnInteraction,true);document.removeEventListener('keydown',retryPlayOnInteraction,true);}
+   teardown();panel.remove();
    if(shouldStop)void setDoc(sessionRef,{active:false,session:'',gmUid:uid,updatedAt:Date.now()}).catch(()=>{});
    if(!gm)void deleteDoc(ownRef).catch(()=>{});
   }
