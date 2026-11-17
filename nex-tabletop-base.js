@@ -703,7 +703,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   render();if(gm){if(token)peerMedia?.broadcastTokenMove(token.id,token.x,token.y);save();}
   else if(token)peerMedia?.sendTokenMove(token.id,token.x,token.y,true);
  });
- listen(document,'pointercancel',e=>{if(drag&&drag.pointer===e.pointerId){drag=null;render();if(gm)save();}});
+ listen(document,'pointercancel',e=>{if(drag&&drag.pointer===e.pointerId){const token=scene.tokens.find(t=>t.id===drag.id);drag=null;render();if(gm)save();else if(token)peerMedia?.sendTokenMove(token.id,token.x,token.y,true);}});
  listen(document,'keydown',e=>{
   if(!gm||!selectedId||isTyping(e)||e.altKey||e.ctrlKey||e.metaKey||!(/^[0-9]$/).test(e.key))return;
   const t=selected();if(!t||!t.images?.[Number(e.key)])return;t.variation=Number(e.key);render();save();e.preventDefault();
