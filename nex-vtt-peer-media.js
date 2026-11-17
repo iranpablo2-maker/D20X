@@ -58,7 +58,7 @@ async function sendFile(channel,ref,data){
 }
 export function mountNexPeerMedia({
  db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,
- root,getAsset=async()=>null,getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onTokenPreview=()=>{},onConnected=()=>{},onDisconnected=()=>{}
+ root,getAsset=async()=>null,getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onTokenPreview=()=>{},onTokenAction=()=>{},onConnected=()=>{},onDisconnected=()=>{}
 }){
  if(!db||!uid||!root||typeof RTCPeerConnection==='undefined')return {
   connected:()=>false,fetchImage:()=>Promise.reject(Error('WebRTC nao disponivel neste navegador')),
@@ -168,7 +168,9 @@ export function mountNexPeerMedia({
    if(typeof event.data==='string'){
     let msg;
     try{msg=JSON.parse(event.data);}catch(_){return;}
-    if(gm&&msg.type==='token-move'&&typeof msg.id==='string'&&msg.id.length<=100&&Number.isFinite(msg.x)&&Number.isFinite(msg.y)){
+    if(gm&&msg.type==='token-action'&&['delete','paste','variation'].includes(msg.action)&&typeof msg.id==='string'&&msg.id.length<=100){
+      onTokenAction({action:msg.action,id:msg.id,sourceId:typeof msg.sourceId==='string'?msg.sourceId:'',variation:msg.variation},peer.uid);
+     }else if(gm&&msg.type==='token-move'&&typeof msg.id==='string'&&msg.id.length<=100&&Number.isFinite(msg.x)&&Number.isFinite(msg.y)){
       onTokenMove({id:msg.id,x:msg.x,y:msg.y,final:msg.final===true},peer.uid);
      }else if(!gm&&msg.type==='token-preview'&&typeof msg.id==='string'&&msg.id.length<=100&&Number.isFinite(msg.x)&&Number.isFinite(msg.y)){
       onTokenPreview({id:msg.id,x:msg.x,y:msg.y});
@@ -342,6 +344,13 @@ export function mountNexPeerMedia({
   };
   window.addEventListener('nex:vtt-view',onTabletopView);
 
+ function sendTokenAction(action,id,extra={}){
+  if(gm||!joinPeer?.open||joinPeer.channel?.readyState!=='open')return false;
+  if(!['delete','paste','variation'].includes(action)||typeof id!=='string'||id.length>100)return false;
+  joinPeer.channel.send(JSON.stringify({type:'token-action',action,id,
+   sourceId:typeof extra.sourceId==='string'?extra.sourceId.slice(0,100):'',variation:extra.variation}));
+  return true;
+ }
  function sendTokenMove(id,x,y,final=false){
   if(gm||!joinPeer?.open||joinPeer.channel?.readyState!=='open')return false;
   if(typeof id!=='string'||id.length>100||!Number.isFinite(x)||!Number.isFinite(y))return false;
@@ -366,6 +375,7 @@ export function mountNexPeerMedia({
   broadcastScene,
   broadcastTokenMove,
   sendTokenMove,
+  sendTokenAction,
   destroy(){
    if(destroyed)return;
    const shouldStop=gm&&hosting;
