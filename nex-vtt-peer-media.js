@@ -58,7 +58,7 @@ async function sendFile(channel,ref,data){
 }
 export function mountNexPeerMedia({
  db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,
- root,getAsset=async()=>null,getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onConnected=()=>{},onDisconnected=()=>{}
+ root,getAsset=async()=>null,getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onConnected=()=>{},onDisconnected=()=>{}
 }){
  if(!db||!uid||!root||typeof RTCPeerConnection==='undefined')return {
   connected:()=>false,fetchImage:()=>Promise.reject(Error('WebRTC nao disponivel neste navegador')),
@@ -159,7 +159,10 @@ export function mountNexPeerMedia({
    if(typeof event.data==='string'){
     let msg;
     try{msg=JSON.parse(event.data);}catch(_){return;}
-    if(!gm&&msg.type==='scene-begin'&&Number.isSafeInteger(msg.revision)&&msg.total>0&&msg.total<=100){
+    if(gm&&msg.type==='token-move'&&typeof msg.id==='string'&&msg.id.length<=100&&Number.isFinite(msg.x)&&Number.isFinite(msg.y)){
+      // Só o mestre decide se o token pode ser movido e salva a posição.
+      onTokenMove({id:msg.id,x:msg.x,y:msg.y},peer.uid);
+     }else if(!gm&&msg.type==='scene-begin'&&Number.isSafeInteger(msg.revision)&&msg.total>0&&msg.total<=100){
       peer.sceneReceiving={revision:msg.revision,total:msg.total,parts:[]};
      }else if(!gm&&msg.type==='scene-part'&&peer.sceneReceiving?.revision===msg.revision&&Number.isInteger(msg.index)&&msg.index>=0&&msg.index<peer.sceneReceiving.total&&typeof msg.body==='string'&&msg.body.length<=12000){
       peer.sceneReceiving.parts[msg.index]=msg.body;
@@ -329,6 +332,12 @@ export function mountNexPeerMedia({
   };
   window.addEventListener('nex:vtt-view',onTabletopView);
 
+ function sendTokenMove(id,x,y){
+  if(gm||!joinPeer?.open||joinPeer.channel?.readyState!=='open')return false;
+  if(typeof id!=='string'||id.length>100||!Number.isFinite(x)||!Number.isFinite(y))return false;
+  joinPeer.channel.send(JSON.stringify({type:'token-move',id,x,y}));
+  return true;
+ }
  function fetchImage(src){
   if(gm||!LOCAL_REF.test(src||''))return Promise.reject(Error('Imagem invalida'));
   if(!joinPeer?.open||joinPeer.channel?.readyState!=='open')return Promise.reject(Error('Aguardando o mestre iniciar a transmissao'));
@@ -344,6 +353,7 @@ export function mountNexPeerMedia({
   connected:()=>Boolean(!gm&&joinPeer?.open&&joinPeer.channel?.readyState==='open'),
   fetchImage,
   broadcastScene,
+  sendTokenMove,
   destroy(){
    if(destroyed)return;
    const shouldStop=gm&&hosting;
