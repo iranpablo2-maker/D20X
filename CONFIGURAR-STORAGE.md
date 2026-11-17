@@ -6,7 +6,7 @@
 2. **Tudo fica somente no IndexedDB do navegador do mestre**. Não há novos uploads ao R2, D1 ou Firestore.
 3. Quando quiser jogar, o mestre abre a campanha e clica em **Iniciar sessão e compartilhar**.
 4. Os jogadores da campanha conectam automaticamente ao mestre por **WebRTC**. O mestre envia mapas, tokens e GIFs diretamente pela conexão, em vez de dividir os arquivos no Firebase.
-5. Para músicas, o mestre toca a faixa em **♫ Músicas e sons locais**. Os jogadores clicam em **Ativar som da sessão** para ouvir a transmissão ao vivo. Os arquivos de música não são enviados.
+5. Para músicas, o mestre escolhe a faixa em **♫ Músicas e sons locais** e controla **Play, pausa e troca**. O NEX tenta reproduzir automaticamente a transmissão nos jogadores conectados. Os jogadores não têm botão para iniciar a música nem recebem o arquivo. Se o navegador bloquear a reprodução automática, será necessária uma interação na própria mesa para liberar o áudio.
 6. Ao **Encerrar transmissão**, a transmissão direta para. Os arquivos do mestre permanecem locais.
 
 O Firestore continua sincronizando o estado do mapa e os sinais de conexão, e o Firebase continua autenticando quem pode entrar. A sincronização via WebRTC não utiliza Cloudflare R2 nem armazenamento de arquivos em nuvem.
@@ -27,7 +27,7 @@ As regras adicionam somente as coleções de sinalização `campaigns/{id}/vttLi
 
 - O **mestre deve manter a campanha aberta e a conexão ativa** enquanto os jogadores recebem imagens ou escutam música. Desconectar o mestre interrompe a transmissão.
 - **WebRTC sem servidor TURN não conecta em todas as redes**, especialmente alguns dados móveis, VPNs e redes restritas. A interface mostrará erro de conexão se não funcionar.
-- O navegador de cada jogador pode exigir um clique em **Ativar som** por causa de bloqueios de reprodução automática.
+- O navegador de cada jogador pode bloquear a reprodução automática. Nesse caso, basta interagir com a própria página; o **mestre continua controlando** o que toca, sem um botão especial de ativação para o jogador.
 - Mapas e tokens novos: até **10 MB** por arquivo. GIFs de atmosfera novos: até **5 MB**. Músicas locais: **25 MB** por faixa (24 faixas/120 MB por campanha); o limite real depende do navegador.
 - **Não limpe os dados do site do mestre sem fazer um backup dos arquivos originais.** Navegadores podem limpar o IndexedDB automaticamente em situações de pouco espaço.
 - Arquivos antigos já salvos no Firestore ou no R2 continuam legíveis. A alteração não copia nem exclui esses arquivos antigos.
