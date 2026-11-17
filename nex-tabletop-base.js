@@ -37,7 +37,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  function tokenImageWithoutBackdrop(src,ref=''){
   if(!src||typeof src!=='string'||/:(?:gif|webm)$/.test(ref)
     ||/^data:image\/gif/i.test(src)||/\.gif(?:[?#]|$)/i.test(src)
-    ||/^https?:/i.test(src))return src;
+    )return src;
   const cached=transparentTokens.get(src);
   if(cached)return cached.url||src;
   const entry={url:'',pending:true};transparentTokens.set(src,entry);
@@ -104,6 +104,94 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
   photo.onerror=()=>{entry.pending=false;};
   photo.src=src;
   return src;
+ }
+
+ // GIFs precisam ter o fundo removido quadro a quadro, sem perder animação.
+ // Uma camada canvas fica sobre a imagem original, sem alterar o arquivo salvo.
+ function clearTokenGifBackdrop(image,token){
+  image.addEventListener('load',()=>{
+   if(disposed||!image.naturalWidth||!image.naturalHeight)return;
+   const rawWidth=image.naturalWidth,rawHeight=image.naturalHeight;
+   const maxSide=Math.min(320,Math.max(96,Math.round(
+    Math.max(parseFloat(token.style.width)||48,parseFloat(token.style.height)||48)*2)));
+   const scale=Math.min(1,maxSide/Math.max(rawWidth,rawHeight));
+   const w=Math.max(1,Math.round(rawWidth*scale)),h=Math.max(1,Math.round(rawHeight*scale));
+   const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+   canvas.className='nex-token-transparent-animation';
+   canvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;z-index:2';
+   const ctx=canvas.getContext('2d',{willReadFrequently:true});
+   if(!ctx)return;
+   let previous=0,active=false,failed=false;
+   const frame=now=>{
+    if(disposed||!token.isConnected||failed)return;
+    requestAnimationFrame(frame);
+    if(now-previous<90||document.hidden)return;
+    previous=now;
+    try{
+     ctx.clearRect(0,0,w,h);
+     ctx.drawImage(image,0,0,w,h);
+     const picture=ctx.getImageData(0,0,w,h),data=picture.data;
+     const colorAt=(x,y)=>{
+      const p=(y*w+x)*4;return [data[p],data[p+1],data[p+2],data[p+3]];
+     };
+     const bg=colorAt(0,0);
+     if(bg[3]<248||Math.max(bg[0],bg[1],bg[2])>115){
+      if(!active){failed=true;return;}return;
+     }
+     const similar=(sample,reference)=>{
+      return sample[3]>238&&Math.abs(sample[0]-reference[0])<20
+       &&Math.abs(sample[1]-reference[1])<20&&Math.abs(sample[2]-reference[2])<20;
+     };
+     const corners=[colorAt(w-1,0),colorAt(0,h-1),colorAt(w-1,h-1)];
+     if(corners.filter(c=>similar(c,bg)).length<2){
+      if(!active){failed=true;return;}return;
+     }
+     const same=p=>{
+      const i=p*4;
+      return data[i+3]>238&&Math.abs(data[i]-bg[0])<20
+       &&Math.abs(data[i+1]-bg[1])<20&&Math.abs(data[i+2]-bg[2])<20;
+     };
+     let matches=0,count=0;
+     for(let x=0;x<w;x+=Math.max(1,Math.floor(w/24))){
+      count+=2;if(same(x))matches++;if(same((h-1)*w+x))matches++;
+     }
+     for(let y=0;y<h;y+=Math.max(1,Math.floor(h/24))){
+      count+=2;if(same(y*w))matches++;if(same(y*w+w-1))matches++;
+     }
+     if(matches/Math.max(1,count)<.70){
+      if(!active)failed=true;return;
+     }
+     const seen=new Uint8Array(w*h),queue=new Int32Array(w*h);
+     let head=0,tail=0;
+     const add=p=>{
+      if(seen[p])return;seen[p]=1;
+      if(same(p))queue[tail++]=p;
+     };
+     for(let x=0;x<w;x++){add(x);add((h-1)*w+x);}
+     for(let y=0;y<h;y++){add(y*w);add(y*w+w-1);}
+     while(head<tail){
+      const p=queue[head++],x=p%w,y=(p/w)|0;
+      data[p*4+3]=0;
+      if(x>0)add(p-1);
+      if(x<w-1)add(p+1);
+      if(y>0)add(p-w);
+      if(y<h-1)add(p+w);
+     }
+     if(tail<w*h*.07){if(!active)failed=true;return;}
+     ctx.putImageData(picture,0,0);
+     if(!active){
+      token.append(canvas);
+      image.style.opacity='0.001';
+      active=true;
+     }
+    }catch(error){
+     failed=true;
+     if(active){image.style.opacity='1';canvas.remove();}
+     console.warn('NEX VTT: não foi possível limpar fundo do GIF',error);
+    }
+   };
+   requestAnimationFrame(frame);
+  },{once:true});
  }
  // Todos os novos arquivos ficam neste dispositivo. Participantes conectam ao mestre via WebRTC.
  // Mídias antigas em Firestore e R2 continuam legíveis, sem migração ou exclusão.
@@ -291,7 +379,14 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const storedAsset=selectedImage.startsWith('asset:')?scene.library?.tokenImages?.find(a=>a.id===selectedImage.slice(6)):null;
    const tokenSource=storedAsset?.src||(selectedImage.startsWith('asset:')?'':selectedImage);
    const img=visibleMediaSource(tokenSource)||safePortrait||'';
-   if(img){const image=document.createElement('img');image.src=tokenImageWithoutBackdrop(img,tokenSource);image.alt=t.name;el.appendChild(image);}
+   if(img){
+    const image=document.createElement('img');
+    image.alt=t.name;
+    const animated=/(?:^data:image\/gif|\.gif(?:[?#]|$)|:gif$)/i.test(tokenSource||img);
+    if(animated)clearTokenGifBackdrop(image,el);
+    image.src=animated?img:tokenImageWithoutBackdrop(img,tokenSource);
+    el.appendChild(image);
+   }
    else{const span=document.createElement('span');span.textContent=t.name.slice(0,3).toUpperCase();el.appendChild(span);}
 
    if(gm&&t.id===resizeSelectedId&&!t.locked){
