@@ -3166,7 +3166,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      row.dataset.opacityCollapsed=String(!open);expand.textContent=open?'▾':'▸';expand.setAttribute('aria-expanded',String(open));
     });
     const thumb=document.createElement('img');thumb.className='nex-vtt-art-thumb';thumb.src=layer.src;thumb.alt='';
-    const name=document.createElement('span');name.className='nex-vtt-asset-name';name.textContent=layer.name;
+    const name=document.createElement('span');name.className='nex-vtt-asset-name';name.textContent=layer.name;name.title=layer.name;
     const toggle=document.createElement('button');toggle.type='button';toggle.dataset.atmosphereToggle='';
     toggle.textContent=layer.enabled?'ON':'OFF';toggle.setAttribute('aria-pressed',String(layer.enabled));
     toggle.disabled=!gm;toggle.addEventListener('click',()=>atmosphereAction('toggle',layer.id));
