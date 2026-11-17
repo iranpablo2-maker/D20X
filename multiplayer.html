@@ -299,6 +299,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 </style>
 <style id="nex-tabletop-fullscreen-style">
 #room #roomOpenTabletop{background:#6b202d;border-color:#c24b5b;color:#fff;font-weight:700}
+#room #roomOpenTabletop:disabled{background:#302a30;border-color:#575058;color:#b6aeb4;opacity:.65;cursor:not-allowed}
 #room #roomTabletopPanel:not(.hide){position:fixed!important;inset:0!important;z-index:15000!important;display:flex!important;flex-direction:column!important;width:100vw!important;height:100dvh!important;max-width:none!important;max-height:none!important;margin:0!important;padding:0!important;overflow:hidden!important;background:#09090c!important;border:0!important;border-radius:0!important}
 #roomTabletopPanel .nex-vtt-heading{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 19px;border-bottom:1px solid #63303b;background:#151014;min-height:62px}
 #roomTabletopPanel .nex-vtt-brand{display:flex;align-items:center;gap:15px}
@@ -2768,6 +2769,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(window.parent!==window){try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:false},location.origin);}catch(error){}}
   for(const u of [...unsubs,...combatRollUnsubs]){try{u()}catch(e){}}unsubs=[];combatRollUnsubs=[];
   vttHostActive=false;
+  $('roomOpenTabletop').disabled=true;
   vttUnavailable.hidden=true;
   roomId='';gm=false;roomMembers=[];roomSheets=[];publicSheets=[];privateSheets=[];roomRequests=[];extraSlotRequests=[];slotPending=false;roomCombats=[];roomData=null;editing=null;localPortraits.clear();
   $('roomAgentPicker').hidden=true;$('roomEditConfiguration').hidden=true;$('nexCampaignSheetDialog').close?.();
@@ -2933,18 +2935,24 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  vttUnavailable.textContent='O mestre ainda não abriu o Tabletop. Aguarde o mestre iniciar a mesa.';
  vttUnavailable.hidden=true;
  $('roomOpenTabletop').insertAdjacentElement('afterend',vttUnavailable);
+ function updateTabletopAccess(){
+  const button=$('roomOpenTabletop');
+  button.disabled=!roomId||(!gm&&!vttHostActive);
+  button.title=button.disabled?'Aguarde o mestre abrir o Tabletop':'Abrir Tabletop';
+  vttUnavailable.hidden=gm||!roomId||vttHostActive;
+ }
+ updateTabletopAccess();
  window.addEventListener('nex:vtt-session-state',event=>{
   if(!event.detail||event.detail.campaignId!==roomId||gm)return;
   vttHostActive=event.detail.active===true;
-  if(vttHostActive){vttUnavailable.hidden=true;return;}
-  if(!$('roomTabletopPanel').classList.contains('hide'))roomSection('characters');
-  vttUnavailable.hidden=false;
+  updateTabletopAccess();
+  if(!vttHostActive&&!$('roomTabletopPanel').classList.contains('hide'))roomSection('characters');
  });
  function roomSection(section){
   const allowed=['characters','master','manage','players','invites','combats','tabletop'];
   if(!allowed.includes(section)||(['master','manage','invites'].includes(section)&&!gm))section='characters';
   if(section==='tabletop'&&!gm&&!vttHostActive){
-   vttUnavailable.hidden=false;
+   updateTabletopAccess();
    notice('O mestre ainda não abriu o Tabletop. Aguarde o mestre iniciar a mesa.');
    return;
   }
@@ -3528,6 +3536,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     if(Object.keys(updates).length)updateDoc(ref,updates).catch(error=>console.warn('NEX: perfil do mestre não sincronizado na campanha',error));
    }
   }
+  updateTabletopAccess();
   $('roomTitle').textContent=roomData.name;
   $('roomDescription').textContent=roomData.description||'';
   $('roomCode').textContent=id;$('roomInviteLink').value=inviteLink(id);$('role').textContent=gm?'Mestre':'Jogador';libraryMode('room');show('room',true);
