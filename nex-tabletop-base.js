@@ -659,14 +659,14 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    pasteTokenAt(copiedToken,token);
   },!copiedToken||scene.tokens.length>=90||!allowed);
   const availableSlots=(token.images||[]).map((image,index)=>image?index:null).filter(index=>index!==null);
-  const variationButton=availableSlots.length>1?add('Variação  ▸',()=>{
+  const variationButton=add('Variação  ▸',()=>{
    list.hidden=!list.hidden;
    variationButton.setAttribute('aria-expanded',String(!list.hidden));
    const rect=tokenMenu.getBoundingClientRect();
    tokenMenu.style.top=Math.max(5,Math.min(window.innerHeight-rect.height-5,rect.top))+'px';
-  }):null;
-  if(variationButton)variationButton.setAttribute('aria-expanded','false');
-  const list=document.createElement('div');list.className='nex-vtt-variation-list';list.hidden=true;if(variationButton)tokenMenu.append(list);
+  },availableSlots.length===0);
+  variationButton.setAttribute('aria-expanded','false');
+  const list=document.createElement('div');list.className='nex-vtt-variation-list';list.hidden=true;tokenMenu.append(list);
   for(const i of availableSlots){
    const button=document.createElement('button');button.type='button';button.textContent=String(i);
    button.title='Variação '+i;button.setAttribute('aria-label','Variação '+i);
