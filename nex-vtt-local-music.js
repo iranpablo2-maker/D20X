@@ -39,7 +39,8 @@ export function mountNexLocalMusic({uid,campaignId,root}){
  let playlistState={groups:[{id:'default',name:'Minhas músicas'}],assignment:{}};
  try{const saved=JSON.parse(localStorage.getItem(playlistKey)||'null');if(saved&&Array.isArray(saved.groups)&&saved.groups.length)playlistState=saved;}catch(_){}
  const expandedGroups=new Set(['default']),songList=document.createElement('div');
- let repeatTrack=false,repeatPlaylist=false,randomPlay=false,playingGroup='default',targetGroup='default';
+ let repeatTrack=false,repeatPlaylist=false,randomPlay=false,playingGroup='default',targetGroup='default',draggedSongKey='';
+ if(!playlistState.order||typeof playlistState.order!=='object')playlistState.order={};
  const playlistToolbar=document.createElement('div');playlistToolbar.className='nex-music-playlist-toolbar';
  const newList=document.createElement('button');newList.type='button';newList.textContent='＋ Nova playlist';
  const uploadButton=document.createElement('button');uploadButton.type='button';uploadButton.textContent='＋ Adicionar músicas';
@@ -58,7 +59,11 @@ export function mountNexLocalMusic({uid,campaignId,root}){
  '#roomTabletopPanel .nex-music-song{margin:4px 0 4px 14px;padding:5px 0;border-top:1px solid #39404e;min-width:0}'+
  '#roomTabletopPanel .nex-music-song-name{font-size:11px;font-weight:600;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'+
  '#roomTabletopPanel .nex-music-song-controls{display:flex;align-items:center;gap:3px}'+
- '#roomTabletopPanel .nex-music-song-controls input[type=range]{flex:1;width:20px;min-width:20px;accent-color:#36afda}';
+ '#roomTabletopPanel .nex-music-song-controls input[type=range]{flex:1;width:20px;min-width:20px;accent-color:#36afda}'+
+ '#roomTabletopPanel .nex-music-song-header{display:flex;align-items:center;gap:5px;min-width:0}'+
+ '#roomTabletopPanel .nex-music-song-header .nex-music-song-name{flex:1;min-width:0}'+
+ '#roomTabletopPanel #nexVttMainMenu .nex-music-song-header button.nex-music-drag-handle{cursor:grab!important;touch-action:none!important;flex:0 0 25px!important;font-size:16px!important}'+
+ '#roomTabletopPanel .nex-music-playlist-group.nex-music-drop-target,#roomTabletopPanel .nex-music-song.nex-music-drop-target{outline:1px dashed #6fd6c1!important;background:rgba(71,187,160,.1)!important}';
  document.head.append(playlistStyles);
  const savePlaylists=()=>{try{localStorage.setItem(playlistKey,JSON.stringify(playlistState));}catch(_){}};
  function tinyButton(label,title,callback,active){
@@ -66,13 +71,50 @@ export function mountNexLocalMusic({uid,campaignId,root}){
   if(active!==undefined)b.setAttribute('aria-pressed',String(active));
   b.addEventListener('click',callback);return b;
  }
- function groupTracks(rows,id){return rows.filter(row=>(playlistState.assignment[row.key]||'default')===id);}
+ function groupTracks(rows,id){
+  const included=rows.filter(row=>(playlistState.assignment[row.key]||'default')===id);
+  const order=playlistState.order[id]||[];
+  return included.sort((a,b)=>{
+   const ai=order.indexOf(a.key),bi=order.indexOf(b.key);
+   return (ai<0?100000:ai)-(bi<0?100000:bi)||a.name.localeCompare(b.name,'pt-BR');
+  });
+ }
+ function moveSong(key,groupId,beforeKey=''){
+  if(!key||!playlistState.groups.some(g=>g.id===groupId))return;
+  const oldGroup=playlistState.assignment[key]||'default';
+  for(const id of Object.keys(playlistState.order))playlistState.order[id]=playlistState.order[id].filter(k=>k!==key);
+  playlistState.assignment[key]=groupId;
+  const order=playlistState.order[groupId]||[];
+  const all=groupTracksCached(groupId).filter(k=>k!==key);
+  const next=order.length?all:all;
+  const index=beforeKey?next.indexOf(beforeKey):-1;
+  next.splice(index>=0?index:next.length,0,key);
+  playlistState.order[groupId]=next;
+  if(oldGroup!==groupId&&selectedId===key)playingGroup=groupId;
+  expandedGroups.add(groupId);savePlaylists();
+  void update().catch(e=>say(e.message));
+ }
+ let renderedRows=[];
+ function groupTracksCached(groupId){return groupTracks(renderedRows,groupId).map(row=>row.key);}
+ function acceptSongDrop(event,groupId,beforeKey=''){
+  event.preventDefault();event.stopPropagation();
+  const key=draggedSongKey||event.dataTransfer?.getData('text/plain');
+  draggedSongKey='';
+  if(key&&renderedRows.some(row=>row.key===key))moveSong(key,groupId,beforeKey);
+ }
+ function enableDrop(node,groupId,beforeKey=''){
+  node.addEventListener('dragover',event=>{if(!draggedSongKey&&!event.dataTransfer?.types?.includes('text/plain'))return;event.preventDefault();event.stopPropagation();event.dataTransfer.dropEffect='move';node.classList.add('nex-music-drop-target');});
+  node.addEventListener('dragleave',event=>{if(!node.contains(event.relatedTarget))node.classList.remove('nex-music-drop-target');});
+  node.addEventListener('drop',event=>{node.classList.remove('nex-music-drop-target');acceptSongDrop(event,groupId,beforeKey);});
+ }
  function drawPlaylists(rows){
   if(disposed)return;
+  renderedRows=rows;
   songList.replaceChildren();
   for(const group of playlistState.groups){
    const block=document.createElement('section');block.className='nex-music-playlist-group';
    const head=document.createElement('div');head.className='nex-music-playlist-header';
+   enableDrop(block,group.id);
    const opened=expandedGroups.has(group.id);
    head.append(tinyButton(opened?'▾':'▸','Expandir ou recolher',()=>{opened?expandedGroups.delete(group.id):expandedGroups.add(group.id);drawPlaylists(rows);}));
    const name=document.createElement('span');name.className='nex-music-playlist-title';name.textContent=group.name;head.append(name);
@@ -94,7 +136,16 @@ export function mountNexLocalMusic({uid,campaignId,root}){
    block.append(head);
    if(opened)for(const row of groupTracks(rows,group.id)){
     const song=document.createElement('div');song.className='nex-music-song';
-    const title=document.createElement('span');title.className='nex-music-song-name';title.textContent=row.name;title.title=row.name;song.append(title);
+    const title=document.createElement('span');title.className='nex-music-song-name';title.textContent=row.name;title.title=row.name;
+    const songHeader=document.createElement('div');songHeader.className='nex-music-song-header';
+    const grip=tinyButton('☰','Arrastar música para uma playlist ou mudar a ordem',()=>{});
+    grip.className='nex-music-drag-handle';grip.draggable=true;grip.setAttribute('aria-label','Arrastar '+row.name);
+    grip.addEventListener('dragstart',event=>{
+     draggedSongKey=row.key;event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain',row.key);
+    });
+    grip.addEventListener('dragend',()=>{draggedSongKey='';songList.querySelectorAll('.nex-music-drop-target').forEach(n=>n.classList.remove('nex-music-drop-target'));});
+    songHeader.append(grip,title);song.append(songHeader);
+    enableDrop(song,group.id,row.key);
     const controls=document.createElement('div');controls.className='nex-music-song-controls';
     controls.append(tinyButton(selectedId===row.key&&!player.paused?'❚❚':'▶','Reproduzir ou pausar',async()=>{
      if(selectedId===row.key&&!player.paused){player.pause();drawPlaylists(rows);return;}
@@ -103,18 +154,15 @@ export function mountNexLocalMusic({uid,campaignId,root}){
     controls.append(tinyButton('↻','Repetir música',()=>{repeatTrack=!repeatTrack;drawPlaylists(rows);},repeatTrack&&selectedId===row.key));
     const vol=document.createElement('input');vol.type='range';vol.min='0';vol.max='100';vol.value=String(Math.round(player.volume*100));
     vol.setAttribute('aria-label','Volume');vol.addEventListener('input',()=>{player.volume=Number(vol.value)/100;});controls.append(vol);
-    controls.append(tinyButton('⋮','Opções da música',async()=>{
-     const options=playlistState.groups.map((g,i)=>(i+1)+': '+g.name).join('\n');
-     const result=prompt('Mover para playlist (número), ou digite X para excluir:\n'+options);
-     if(!result)return;
-     if(result.toLowerCase()==='x'){
-      if(!confirm('Excluir esta música do dispositivo?'))return;
-      await write({key:row.key},'delete');if(selectedId===row.key){selectedId='';clearAudio();}
-     }else{
-      const index=Number(result)-1;if(!Number.isInteger(index)||!playlistState.groups[index])return;
-      playlistState.assignment[row.key]=playlistState.groups[index].id;savePlaylists();
-     }
-     void update().catch(e=>say(e.message));
+    controls.append(tinyButton('⋮','Excluir música',async()=>{
+     if(!confirm('Excluir definitivamente esta música do dispositivo?'))return;
+     try{
+      await write({key:row.key},'delete');
+      if(selectedId===row.key){selectedId='';clearAudio();}
+      delete playlistState.assignment[row.key];
+      for(const id of Object.keys(playlistState.order))playlistState.order[id]=playlistState.order[id].filter(k=>k!==row.key);
+      savePlaylists();await update();say('Música excluída.');
+     }catch(e){say(e.message);}
     }));
     song.append(controls);block.append(song);
    }
