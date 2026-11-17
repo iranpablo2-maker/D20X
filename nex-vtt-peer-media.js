@@ -58,10 +58,10 @@ async function sendFile(channel,ref,data){
 }
 export function mountNexPeerMedia({
  db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,
- root,getAsset=async()=>null,getPreview=async()=>null,onPreview=()=>{},getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onTokenPreview=()=>{},onTokenAction=()=>{},onConnected=()=>{},onDisconnected=()=>{}
+ root,getAsset=async()=>null,getPreview=async()=>null,onPreview=()=>{},getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onTokenPreview=()=>{},onTokenAction=()=>{},onChat=()=>{},onConnected=()=>{},onDisconnected=()=>{}
 }){
  if(!db||!uid||!root||typeof RTCPeerConnection==='undefined')return {
-  connected:()=>false,fetchImage:()=>Promise.reject(Error('WebRTC nao disponivel neste navegador')),
+  connected:()=>false,sendChat:()=>false,fetchImage:()=>Promise.reject(Error('WebRTC nao disponivel neste navegador')),
   destroy:()=>{}
  };
  const sessionRef=doc(db,'campaigns',campaignId,'vttLive','session');
@@ -73,6 +73,18 @@ export function mountNexPeerMedia({
  // Jogadores tentam reproduzir a transmissão automaticamente; navegadores podem exigir interação real.
  const remotePeers=new Map(),pending=new Map();
  let sceneRevision=0;
+ const chatHistory=[];
+ function acceptChat(text,name,authorUid){
+  if(typeof text!=='string'||!text.trim()||text.length>500)return null;
+  const item={id:crypto.randomUUID(),uid:String(authorUid||'').slice(0,128),name:String(name||'Jogador').slice(0,48),text:text.trim().slice(0,500),at:Date.now()};
+  chatHistory.push(item);if(chatHistory.length>80)chatHistory.splice(0,chatHistory.length-80);
+  onChat(item);return item;
+ }
+ function relayChat(item){
+  if(!gm||!hosting||destroyed||!item)return;
+  const msg=JSON.stringify({type:'chat-message',item});
+  for(const peer of remotePeers.values())if(peer.open&&peer.channel?.readyState==='open'&&peer.channel.bufferedAmount<BUFFER_LIMIT)peer.channel.send(msg);
+ }
  async function sendScene(peer,revision,scene){
   const channel=peer.channel;
   if(!channel||channel.readyState!=='open'||!scene)return;
@@ -154,7 +166,7 @@ export function mountNexPeerMedia({
   channel.onopen=()=>{
    if(destroyed)return;
    peer.open=true;
-   if(gm){say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');queueScene(peer,++sceneRevision,getScene());}
+   if(gm){say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');queueScene(peer,++sceneRevision,getScene());if(chatHistory.length)channel.send(JSON.stringify({type:'chat-history',items:chatHistory}));}
    else{
     say('Conectado ao mestre. Imagens locais disponiveis.');
     window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:true}}));
@@ -176,7 +188,13 @@ export function mountNexPeerMedia({
    if(typeof event.data==='string'){
     let msg;
     try{msg=JSON.parse(event.data);}catch(_){return;}
-    if(gm&&msg.type==='token-action'&&['delete','paste','variation'].includes(msg.action)&&typeof msg.id==='string'&&msg.id.length<=100){
+    if(gm&&msg.type==='chat-send'&&typeof msg.text==='string'&&typeof msg.name==='string'){
+      const item=acceptChat(msg.text,msg.name,peer.uid);if(item)relayChat(item);
+     }else if(!gm&&msg.type==='chat-message'&&msg.item&&typeof msg.item.text==='string'&&typeof msg.item.uid==='string'&&typeof msg.item.name==='string'&&msg.item.text.length<=500){
+      onChat(msg.item);
+     }else if(!gm&&msg.type==='chat-history'&&Array.isArray(msg.items)){
+      for(const item of msg.items.slice(-80))if(item&&typeof item.text==='string'&&item.text.length<=500&&typeof item.uid==='string'&&typeof item.name==='string')onChat(item);
+     }else if(gm&&msg.type==='token-action'&&['delete','paste','variation'].includes(msg.action)&&typeof msg.id==='string'&&msg.id.length<=100){
       onTokenAction({action:msg.action,id:msg.id,sourceId:typeof msg.sourceId==='string'?msg.sourceId:'',variation:msg.variation},peer.uid);
      }else if(gm&&msg.type==='token-move'&&typeof msg.id==='string'&&msg.id.length<=100&&Number.isFinite(msg.x)&&Number.isFinite(msg.y)){
       onTokenMove({id:msg.id,x:msg.x,y:msg.y,final:msg.final===true},peer.uid);
@@ -374,6 +392,13 @@ export function mountNexPeerMedia({
   };
   window.addEventListener('nex:vtt-view',onTabletopView);
 
+ function sendChat(text,name='Jogador'){
+  if(destroyed||typeof text!=='string'||!text.trim()||text.length>500)return false;
+  if(gm){const item=acceptChat(text,name,uid);if(!item)return false;relayChat(item);return true;}
+  if(!joinPeer?.open||joinPeer.channel?.readyState!=='open')return false;
+  joinPeer.channel.send(JSON.stringify({type:'chat-send',text:text.trim().slice(0,500),name:String(name).slice(0,48)}));
+  return true;
+ }
  function sendTokenAction(action,id,extra={}){
   if(gm||!joinPeer?.open||joinPeer.channel?.readyState!=='open')return false;
   if(!['delete','paste','variation'].includes(action)||typeof id!=='string'||id.length>100)return false;
@@ -402,6 +427,7 @@ export function mountNexPeerMedia({
  return {
   connected:()=>Boolean(!gm&&joinPeer?.open&&joinPeer.channel?.readyState==='open'),
   fetchImage,
+  sendChat,
   broadcastScene,
   broadcastTokenMove,
   sendTokenMove,
