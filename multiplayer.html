@@ -2214,6 +2214,92 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttMainMenu .nex-music-song button{
  background:transparent!important;border:0!important;
 }
+</style>
+<style id="nex-vtt-stage-black-red-fix">
+/* A mesa principal possui regras azuladas próprias com !important.
+   Estes seletores mais específicos aplicam preto/vermelho sem recolorir a arte. */
+#room #roomTabletopPanel .nex-vtt-layout,
+#room #roomTabletopPanel .nex-vtt-stage,
+#room #roomTabletopPanel .nex-tabletop-wrap{
+ background:#090708!important;
+ background-image:none!important;
+ border-color:#4f1c29!important;
+}
+#room #roomTabletopPanel .nex-vtt-sidebar{
+ background:#100b0e!important;
+ border-right:1px solid #61202e!important;
+ scrollbar-color:#7b283a #120a0d!important;
+}
+#room #roomTabletopPanel #nexVttBar button{
+ background:#170e12!important;
+ border:1px solid transparent!important;
+ color:#e8b6c0!important;
+ box-shadow:none!important;
+}
+#room #roomTabletopPanel #nexVttBar button:hover{
+ background:#36131e!important;
+ border-color:#8b2f43!important;
+ color:#fff!important;
+}
+#room #roomTabletopPanel #nexVttBar button[aria-pressed="true"]{
+ background:#641a2b!important;
+ border-color:#cb405b!important;
+ color:#fff!important;
+ box-shadow:inset 3px 0 #ef4c68!important;
+}
+#room #roomTabletopPanel #nexVttZoomRail{
+ background:#170e12!important;
+ border:1px solid #6c2637!important;
+ color:#f3d4db!important;
+}
+#room #roomTabletopPanel #nexVttZoomRail button{
+ color:#f3d4db!important;
+}
+#room #roomTabletopPanel #nexVttZoomRail button:hover{
+ background:#481625!important;
+ color:#fff!important;
+}
+#room #roomTabletopPanel #nexVttZoomSlider,
+#room #roomTabletopPanel #nexVttOptions input[type=range]{
+ accent-color:#c43550!important;
+}
+#room #roomTabletopPanel #nexVttZoomValue{color:#eebec8!important}
+#room #roomTabletopPanel #nexTabletopMessage{
+ background:#1b1015ed!important;
+ border:1px solid #652637!important;
+ color:#efc5ce!important;
+}
+#room #roomTabletopPanel #nexTabletopBoard{
+ border:1px solid #74293c!important;
+ background-color:#0b090a!important;
+ /* Não sobrescrever background-image: o mapa real depende dela. */
+ box-shadow:0 14px 65px #0008,0 0 0 1px #ae344426!important;
+}
+#room #roomTabletopPanel #nexVttOptions,
+#room #roomTabletopPanel #nexVttDrawMenu{
+ background:#170e12!important;
+ border-color:#68263a!important;
+ color:#fbe9ed!important;
+}
+#room #roomTabletopPanel #nexVttOptions button{
+ background:#35151f!important;
+ border-color:#8c3548!important;
+ color:#fff0f3!important;
+}
+#room #roomTabletopPanel #nexVttOptions select,
+#room #roomTabletopPanel #nexVttOptions input:not([type=checkbox]):not([type=color]){
+ background:#1c1117!important;
+ border-color:#743045!important;
+ color:#fff!important;
+}
+#room #roomTabletopPanel .nex-vtt-sheets,
+#room #roomTabletopPanel .nex-vtt-right-tabs,
+#room #roomTabletopPanel .nex-vtt-room-tag,
+#room #roomTabletopPanel .nex-vtt-mini-sheet{
+ background:#120c10!important;
+ border-color:#632335!important;
+ color:#f5dfe5!important;
+}
 </style></head>
 <body>
 <script>
