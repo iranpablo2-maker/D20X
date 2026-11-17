@@ -1,10 +1,12 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261116hybrid1';
-export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId,uid,gm,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
+export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
  const GRID=48,W=25,H=25;
+ const r2Pattern=/^r2:((?:atmo|map|asset)_[A-Za-z0-9_-]+):(gif|png|jpeg|webp)$/;
+ const isR2Media=src=>typeof src==='string'&&r2Pattern.test(src);
  const mediaCache=createVttMediaCache(uid,campaignId);
  const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
  // Escolha explícita por navegador. Não altera a nuvem nem arquivos anteriores.
@@ -132,7 +134,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
  function validScene(data){
   if(!stateOK(data))return empty();
-  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000||/^firestore:asset_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src))).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&(data.map.length<650000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.map)||/^firestore:map_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(data.map)||isLocalMedia(data.map))?data.map:'',atmosphereLayers:Array.isArray(data.atmosphereLayers)?data.atmosphereLayers.slice(0,8).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(a.src.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)||(a.src.startsWith('storage:campaigns/'+campaignId+'/atmospheres/')&&/^atmo_[a-zA-Z0-9_-]+$/.test(a.src.slice(('storage:campaigns/'+campaignId+'/atmospheres/').length))||/^firestore:atmo_[a-zA-Z0-9_-]+:(?:[1-9]|[12][0-9]|3[0-2]):(?:gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)))).map(a=>({id:a.id.slice(0,100),name:String(a.name||'Atmosfera').slice(0,90),src:a.src,enabled:a.enabled!==false,opacity:Math.max(0,Math.min(100,Math.round(Number.isFinite(Number(a.opacity))&&a.opacity!=null?Number(a.opacity):100)))})):(typeof data.atmosphere?.image==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)&&data.atmosphere.image.length<=180000?[{id:'atmo_legacy',name:'Atmosfera anterior',src:data.atmosphere.image,enabled:data.atmosphere.type!=='none',opacity:Math.max(0,Math.min(100,Number(data.atmosphere.intensity)??100))}]:[]),atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
+  return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000||/^firestore:asset_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)||isR2Media(a.src))).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&(data.map.length<650000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.map)||/^firestore:map_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(data.map)||isLocalMedia(data.map)||isR2Media(data.map))?data.map:'',atmosphereLayers:Array.isArray(data.atmosphereLayers)?data.atmosphereLayers.slice(0,8).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(a.src.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)||(a.src.startsWith('storage:campaigns/'+campaignId+'/atmospheres/')&&/^atmo_[a-zA-Z0-9_-]+$/.test(a.src.slice(('storage:campaigns/'+campaignId+'/atmospheres/').length))||/^firestore:atmo_[a-zA-Z0-9_-]+:(?:[1-9]|[12][0-9]|3[0-2]):(?:gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)||isR2Media(a.src)))).map(a=>({id:a.id.slice(0,100),name:String(a.name||'Atmosfera').slice(0,90),src:a.src,enabled:a.enabled!==false,opacity:Math.max(0,Math.min(100,Math.round(Number.isFinite(Number(a.opacity))&&a.opacity!=null?Number(a.opacity):100)))})):(typeof data.atmosphere?.image==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)&&data.atmosphere.image.length<=180000?[{id:'atmo_legacy',name:'Atmosfera anterior',src:data.atmosphere.image,enabled:data.atmosphere.type!=='none',opacity:Math.max(0,Math.min(100,Number(data.atmosphere.intensity)??100))}]:[]),atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-.5,Math.round((Number(t.x)||0)*4)/4)),y:Math.max(0,Math.min(H-.5,Math.round((Number(t.y)||0)*4)/4)),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?Array.from({length:Math.min(10,t.images.length)},(_,i)=>{const url=t.images[i];return typeof url==='string'&&url.length<650000?url:'';}):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),widthCells:Math.max(.5,Math.min(10,Number(t.widthCells)||Number(t.size)||1)),heightCells:Math.max(.5,Math.min(10,Number(t.heightCells)||Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
@@ -831,17 +833,49 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const vttFog=document.createElement('div');vttFog.id='nexVttFogLayer';vttFog.hidden=true;board.append(vttFog);
  const ATMOSPHERE_CHUNK_SIZE=240000,ATMOSPHERE_FILE_LIMIT=5*1024*1024;
  const mediaDescriptor=src=>{
+  const r2=r2Pattern.exec(src||'');
+  if(r2)return {id:r2[1],mime:r2[2],r2:true,count:0};
   const match=/^firestore:((?:atmo|map|asset)_[A-Za-z0-9_-]+):([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.exec(src||'');
   return match?{id:match[1],count:Number(match[2]),mime:match[3]}:null;
  };
  const mediaChunkRef=(id,i)=>doc(db,'campaigns',campaignId,'tabletopMedia',id,'chunks',String(i).padStart(3,'0'));
+ const r2Url=src=>'/api/nex-vtt-media?campaignId='+encodeURIComponent(campaignId)+(src?'&src='+encodeURIComponent(src):'');
+ async function r2Request(method,src,body){
+  if(typeof getIdToken!=='function')throw Error('Faça login na conta NEX para acessar o R2.');
+  const token=await getIdToken();
+  if(!token)throw Error('Sessão expirada. Entre novamente na conta NEX.');
+  const response=await fetch(r2Url(src),{method,
+   headers:{Authorization:'Bearer '+token,...(method==='POST'?{'Content-Type':body.type}:{})},
+   ...(body?{body}:{})});
+  if(!response.ok){
+   let data;try{data=await response.json();}catch(_){}
+   throw Error(data?.error||'R2: falha na operação (HTTP '+response.status+').');
+  }
+  return method==='GET'?response.blob():response.json();
+ }
+ async function r2Upload(file,prefix){
+  if(!navigator.onLine)throw Error('Conecte-se à internet para enviar ao R2.');
+  const token=typeof getIdToken==='function'?await getIdToken():null;
+  if(!token)throw Error('Faça login na conta NEX para enviar imagens.');
+  message('Enviando '+file.name+' para R2...');
+  const response=await fetch('/api/nex-vtt-media?campaignId='+encodeURIComponent(campaignId)+'&kind='+encodeURIComponent(prefix),{
+   method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':file.type},body:file
+  });
+  const result=await response.json().catch(()=>({error:'Resposta inválida do armazenamento R2.'}));
+  if(!response.ok)throw Error(result.error||'Não foi possível enviar o arquivo para R2.');
+  if(!isR2Media(result.src))throw Error('Referência inválida retornada pelo R2.');
+  return result.src;
+ }
+ const blobDataURL=blob=>new Promise((resolve,reject)=>{
+  const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Falha ao carregar imagem do R2'));r.readAsDataURL(blob);
+ });
  if(gm){
   const mediaModeLabel=document.createElement('label');
   mediaModeLabel.style.cssText='display:inline-flex;align-items:center;gap:8px;margin:6px 0;font-size:12px;flex-wrap:wrap;color:#e8e8e8';
   mediaModeLabel.textContent='Salvar novas imagens: ';
   const selector=document.createElement('select');
   selector.setAttribute('aria-label','Destino das novas imagens do Tabletop');
-  for(const [value,name] of [['local','Neste dispositivo (não compartilha)'],['cloud','Nuvem (compartilha com jogadores)']]){
+  for(const [value,name] of [['local','Neste dispositivo (não compartilha)'],['cloud','R2 na nuvem (compartilha com jogadores)']]){
    const option=document.createElement('option');option.value=value;option.textContent=name;selector.append(option);
   }
   selector.value=mediaMode;
@@ -865,15 +899,20 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const task=(async()=>{
     let image=await mediaCache.read(src);
     if(!image&&!local){
-     const parts=[];
-     for(let i=0;i<info.count;i++){
-      const snap=await getDoc(mediaChunkRef(info.id,i));
-      if(!snap.exists())throw Error('Parte de imagem não encontrada');
-      const chunk=snap.data()?.chunk;
-      if(typeof chunk!=='string'||chunk.length>ATMOSPHERE_CHUNK_SIZE)throw Error('Parte inválida');
-      parts.push(chunk);
+     if(info.r2){
+      const blob=await r2Request('GET',src);
+      image=await blobDataURL(blob);
+     }else{
+      const parts=[];
+      for(let i=0;i<info.count;i++){
+       const snap=await getDoc(mediaChunkRef(info.id,i));
+       if(!snap.exists())throw Error('Parte de imagem não encontrada');
+       const chunk=snap.data()?.chunk;
+       if(typeof chunk!=='string'||chunk.length>ATMOSPHERE_CHUNK_SIZE)throw Error('Parte inválida');
+       parts.push(chunk);
+      }
+      image='data:image/'+info.mime+';base64,'+parts.join('');
      }
-     image='data:image/'+info.mime+';base64,'+parts.join('');
      void mediaCache.put(src,image);
     }
     if(!image&&local)throw Error('Arquivo salvo somente no dispositivo original. Peça ao mestre para compartilhar pela nuvem.');
@@ -888,7 +927,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  async function uploadMedia(file,prefix){
   if(!/^image\/(gif|png|jpeg|webp)$/.test(file?.type||''))throw Error('Selecione PNG, JPG, WebP ou GIF.');
-  if(file.size>ATMOSPHERE_FILE_LIMIT)throw Error('O limite por arquivo é 5 MB.');
+  if(file.size>(mediaMode==='cloud'?10*1024*1024:ATMOSPHERE_FILE_LIMIT))throw Error(mediaMode==='cloud'?'O limite por imagem R2 é 10 MB.':'O limite por imagem local é 5 MB.');
   const data=await new Promise((resolve,reject)=>{
    const reader=new FileReader();reader.onload=()=>resolve(reader.result);
    reader.onerror=()=>reject(Error('Não foi possível ler a imagem'));reader.readAsDataURL(file);
@@ -904,6 +943,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    mediaMemory.set(src,data);
    return src;
   }
+  // Novos arquivos compartilhados vão diretamente ao R2, não a blocos do Firestore.
+  const r2src=await r2Upload(file,prefix);
+  mediaMemory.set(r2src,data);void mediaCache.put(r2src,data);
+  return r2src;
+  /* Compatibilidade de leitura/exclusão preservada para arquivos antigos.
   const body=match[2],count=Math.ceil(body.length/ATMOSPHERE_CHUNK_SIZE);
   if(count<1||count>32)throw Error('Imagem grande demais para sincronizar.');
   if(!navigator.onLine)throw Error('Sem conexão com a internet. Reconecte antes de enviar.');
@@ -934,12 +978,19 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const src='firestore:'+id+':'+count+':'+match[1];
   mediaMemory.set(src,data);void mediaCache.put(src,data);
   return src;
+  */
  }
  async function deleteMediaParts(src){
   if(isLocalMedia(src)){
    mediaMemory.delete(src);mediaFailed.delete(src);await mediaCache.remove(src);return;
   }
   const info=mediaDescriptor(src);if(!info)return;
+  if(info.r2){
+   try{await r2Request('DELETE',src);}
+   catch(error){message('Erro ao remover imagem R2: '+String(error.message||error).slice(0,100));return;}
+   mediaMemory.delete(src);mediaFailed.delete(src);void mediaCache.remove(src);
+   return;
+  }
   let errors=0;
   for(let i=0;i<info.count;i++)try{await deleteDoc(mediaChunkRef(info.id,i));}
   catch(error){errors++;console.warn('NEX mídia: falha ao excluir parte',error);}
