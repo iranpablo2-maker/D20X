@@ -2,8 +2,8 @@
 (()=>{
  'use strict';
  const KEY='nex_homebrew_advanced_v2051';
- const LABEL={ameaca:'Ameaça',origem:'Origem',poder_paranormal:'Poder Paranormal',poder_geral:'Poder Geral',poder:'Poder',trilha:'Trilha',habilidade:'Habilidade',ritual:'Ritual',item:'Item',melhoria:'Melhoria',maldicao:'Maldição'};
- const TABS={ameacas:['ameaca'],habilidades:['origem','poder_paranormal','poder_geral','poder','habilidade','trilha'],rituais:['ritual'],itens:['item'],melhorias:['melhoria'],paranormal:['item','maldicao']};
+ const LABEL={ameaca:'Ameaça',npc:'NPC',origem:'Origem',poder_paranormal:'Poder Paranormal',poder_geral:'Poder Geral',poder:'Poder',trilha:'Trilha',habilidade:'Habilidade',ritual:'Ritual',item:'Item',melhoria:'Melhoria',maldicao:'Maldição'};
+ const TABS={ameacas:['ameaca'],npcs:['npc'],habilidades:['origem','poder_paranormal','poder_geral','poder','habilidade','trilha'],rituais:['ritual'],itens:['item'],melhorias:['melhoria'],paranormal:['item','maldicao']};
  const SKILL_TABS={origens:['origem'],paranormais:['poder_paranormal'],gerais:['poder_geral','poder','habilidade'],trilhas:['trilha']};
  const TRAIL_NEX=[10,40,65,99];
  const ITEM_CATEGORIES=['Armas','Munições','Proteções','Geral','Itens Amaldiçoados'];
@@ -31,6 +31,7 @@
  const cut=(v,max)=>String(v??'').trim().slice(0,max);
  const num=(v,min,max,def)=>{if(v===''||v===null||v===undefined)return def;const n=Number(v);return Number.isFinite(n)?Math.max(min,Math.min(max,Math.floor(n))):def;};
 
+ const isThreatType=type=>type==='ameaca'||type==='npc';
  const THREAT_ELEMENTS=['Sangue','Morte','Conhecimento','Energia','Medo','Transmissão','Realidade'];
  const THREAT_ATTRS=[['agi','Agilidade'],['for','Força'],['int','Intelecto'],['pre','Presença'],['vig','Vigor']];
  const THREAT_NUMERIC=[['defense','Defesa'],['pv','Pontos de Vida']];
@@ -68,7 +69,7 @@
    ritualDice:cut(x.ritualDice,120),discenteDice:cut(x.discenteDice,120),verdadeiroDice:cut(x.verdadeiroDice,120),
    image:typeof x.image==='string' && (/^https:\/\//i.test(x.image)||/^data:image\/(?:png|jpeg|webp);base64,/i.test(x.image))?x.image.slice(0,650000):'',
    cost:num(x.cost,0,99,0),vd:num(x.vd,0,9999,0),
-   threatSheet:x.type==='ameaca'?normalizeThreat(x):undefined,
+   threatSheet:isThreatType(x.type)?normalizeThreat(x):undefined,
    size:['Minúsculo','Pequeno','Médio','Grande','Enorme','Colossal'].includes(x.size)?x.size:'Médio',
    creatureType:cut(x.creatureType||'Criatura',70),
    category:cut(x.category||'Geral',70),
@@ -315,14 +316,15 @@
  document.head.appendChild(threatStyle);
 
  let tab='ameacas',skillTab='origens',ritualFilter='Todas',itemTab='Armas',paranormalSection='itens',cursedKind='Itens Paranormais',opened=null;
- const titleFor=t=>t==='ameacas'?'Ameaças':t==='habilidades'?'Habilidades':t==='rituais'?'Rituais':t==='paranormal'?'Paranormal':'Itens';
+ const titleFor=t=>t==='ameacas'?'Ameaças':t==='npcs'?'NPCs':t==='habilidades'?'Habilidades':t==='rituais'?'Rituais':t==='paranormal'?'Paranormal':'Itens';
  const currentTypes=()=>tab==='habilidades'?SKILL_TABS[skillTab]:tab==='paranormal'?(paranormalSection==='maldicoes'?['maldicao']:['item']):TABS[tab];
- const defaultType=()=>({ameacas:'ameaca',habilidades:({origens:'origem',paranormais:'poder_paranormal',gerais:'poder_geral',trilhas:'trilha'})[skillTab],rituais:'ritual',itens:'item',melhorias:'melhoria',paranormal:paranormalSection==='maldicoes'?'maldicao':'item'})[tab];
+ const defaultType=()=>({ameacas:'ameaca',npcs:'npc',habilidades:({origens:'origem',paranormais:'poder_paranormal',gerais:'poder_geral',trilhas:'trilha'})[skillTab],rituais:'ritual',itens:'item',melhorias:'melhoria',paranormal:paranormalSection==='maldicoes'?'maldicao':'item'})[tab];
  const api=()=>window.NEX51_BRIDGE;
  function message(text){const box=$('nex52Message');if(box)box.textContent=text;}
  mount.innerHTML=
  '<div class="nex52-tabs" role="tablist" aria-label="Tipos de homebrew">'+
- '<button type="button" data-nex52-tab="ameacas" role="tab" aria-selected="true">AMEAÇAS</button>'+
+ '<button type="button" data-nex52-tab="ameacas" role="tab" aria-selected="true">AMEAÇAS</button>'+ 
+ '<button type="button" data-nex52-tab="npcs" role="tab" aria-selected="false">NPC</button>'+
  '<button type="button" data-nex52-tab="habilidades" role="tab" aria-selected="false">HABILIDADES</button>'+
  '<button type="button" data-nex52-tab="rituais" role="tab" aria-selected="false">RITUAIS</button>'+
  '<button type="button" data-nex52-tab="itens" role="tab" aria-selected="false">ITENS</button>'+ 
@@ -457,7 +459,7 @@
    const isTrail=type==='trilha',isOrigin=type==='origem',isGeneral=['poder_geral','poder','habilidade'].includes(type);
    const isParanormal=type==='poder_paranormal';
    // Ao escolher a subcategoria, não é preciso selecionar "Categoria" novamente.
-   $('nex55TypeField').hidden=tab==='habilidades'||type==='item'||type==='melhoria'||type==='maldicao'||type==='ameaca';
+   $('nex55TypeField').hidden=tab==='habilidades'||type==='item'||type==='melhoria'||type==='maldicao'||isThreatType(type);
    const classSelect=$('nex51Class'),oldClass=classSelect.value;
    const choices=isTrail?['Combatente','Especialista','Ocultista']:isGeneral?['Geral','Combatente','Especialista','Ocultista']:['Livre','Combatente','Especialista','Ocultista'];
    classSelect.innerHTML=choices.map(name=>'<option value="'+name+'">'+name+'</option>').join('');
@@ -465,18 +467,18 @@
    $('nex55ClassField').hidden=isOrigin||isParanormal;
    $('nex51NexField').hidden=isTrail||isOrigin||isGeneral||type==='poder_paranormal';
    $('nex53ParanormalElementField').hidden=type!=='poder_paranormal';
-   $('nex52ThreatFields').hidden=type!=='ameaca';
-   if(type==='ameaca'){$('nexHbThreatNameSlot').appendChild($('nex53NameField'));$('nex52Editor').classList.add('nex-hb-editing-threat');}else{$('nex55TypeField').after($('nex53NameField'));$('nex52Editor').classList.remove('nex-hb-editing-threat');}
+   $('nex52ThreatFields').hidden=!isThreatType(type);
+   if(isThreatType(type)){$('nexHbThreatNameSlot').appendChild($('nex53NameField'));$('nex52Editor').classList.add('nex-hb-editing-threat');}else{$('nex55TypeField').after($('nex53NameField'));$('nex52Editor').classList.remove('nex-hb-editing-threat');}
    $('nex52AbilityFields').hidden=!['origem','poder_geral','poder','trilha','habilidade'].includes(type);
    $('nex53TrailFields').hidden=!isTrail;
    $('nex55OriginSkills').hidden=!isOrigin;
    $('nex55DescriptionField').hidden=isTrail||type==='ritual';
-   if(type==='ameaca')$('nexHbThreatDescriptionSlot').appendChild($('nex55DescriptionField'));
+   if(isThreatType(type))$('nexHbThreatDescriptionSlot').appendChild($('nex55DescriptionField'));
    else $('nexHbDescHome').after($('nex55DescriptionField'));
-   if(type==='ameaca')showThreatEditorTab('status');
+   if(isThreatType(type))showThreatEditorTab('status');
    $('nex55DescriptionLabel').textContent=type==='item'?'Descrição (use B, I ou U para formatar)':'Descrição';
    $('nexHbDescriptionToolbar').hidden=true;
-   $('nex55RequirementsField').hidden=isTrail||isOrigin||isGeneral||type==='poder_paranormal'||type==='ritual'||type==='item'||type==='melhoria'||type==='maldicao'||type==='ameaca';
+   $('nex55RequirementsField').hidden=isTrail||isOrigin||isGeneral||type==='poder_paranormal'||type==='ritual'||type==='item'||type==='melhoria'||type==='maldicao'||isThreatType(type);
    $('nex55DescriptionLabel').textContent=type==='item'||type==='melhoria'||type==='maldicao'?'Descrição':isOrigin||isGeneral||isParanormal?'Descrição':'Descrição e efeitos';
    $('nex51Name').placeholder=type==='ritual'?'Novo Ritual':isParanormal||isGeneral?'Nome do homebrew':'Nome';
    $('nex51Name').parentElement.classList.toggle('nex53-ritual-name',type==='ritual');
@@ -747,7 +749,7 @@
  $('nexHbThreatPvAlias').addEventListener('input',()=>{mount.querySelector('[data-nex-threat-number="pv"]').value=$('nexHbThreatPvAlias').value;});
  mount.querySelector('[data-nex-threat-number="pv"]').addEventListener('input',event=>{$('nexHbThreatPvAlias').value=event.target.value;});
  $('nexHbThreatAddAction').addEventListener('click',()=>{
-  if(threatActions.length>=12){message('Limite de 12 ações por ameaça.');return;}
+  if(threatActions.length>=12){message('Limite de 12 ações para esta ficha.');return;}
   threatActions.push({name:'Nova ação',action:'Padrão',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});openThreatActionIndex=threatActions.length-1;renderThreatActions();
  });
  $('nexHbThreatActions').addEventListener('input',event=>{
@@ -789,10 +791,10 @@
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+note('Enigma de Medo',t.enigma);
   return '<section class="nex-hb-threat-sheet" data-nex-threat-preview style="--nex-threat-bg:url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;);--nex-threat-accent:'+esc(threatBg.color)+'">'+
-   '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem da ameaça">':'')+
-     '<div><small>HOMEBREW</small><h2>'+esc(item.name)+'</h2><p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span></div></div>'+
+   '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem de '+esc(LABEL[item.type])+'">':'')+
+     '<div><small>'+esc(item.type==='npc'?'NPC HOMEBREW':'AMEAÇA HOMEBREW')+'</small><h2>'+esc(item.name)+'</h2><p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span></div></div>'+
    '<div class="nex-hb-threat-pv">'+esc(t.pv)+' PV</div>'+
-   '<nav class="nex-hb-threat-tabs" role="tablist" aria-label="Seções da ameaça"><button type="button" data-threat-preview-tab="status" aria-selected="true">STATUS</button><button type="button" data-threat-preview-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-threat-preview-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
+   '<nav class="nex-hb-threat-tabs" role="tablist" aria-label="Seções da ficha"><button type="button" data-threat-preview-tab="status" aria-selected="true">STATUS</button><button type="button" data-threat-preview-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-threat-preview-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="status">'+statPanel+'</div>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="combate" hidden>'+combatPanel+'</div>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="descricao" hidden>'+descriptionPanel+'</div></section>';
@@ -861,7 +863,7 @@
      if(item.image)$('nex53RitualPreview').src=item.image;
      $('nex53ParanormalElement').value=['Sangue','Morte','Energia','Conhecimento','Medo'].includes(item.element)?item.element:'Sangue';if($('nex51Cost'))$('nex51Cost').value=item.cost;
      $('nex52VD').value=item.vd;$('nex52Size').value=item.size;
-     if(item.type==='ameaca'){populateThreatSheet(item.threatSheet);threatImage=item.image||'';if(threatImage){$('nexHbThreatPreview').src=threatImage;$('nexHbThreatPreview').hidden=false;$('nexHbThreatRemovePhoto').hidden=false;}}
+     if(isThreatType(item.type)){populateThreatSheet(item.threatSheet);threatImage=item.image||'';if(threatImage){$('nexHbThreatPreview').src=threatImage;$('nexHbThreatPreview').hidden=false;$('nexHbThreatRemovePhoto').hidden=false;}}
      $('nex52CreatureType').value=item.creatureType;
      $('nex52Category').value=canonicalCategory(item.category);
      $('nexHbCurseElement').value=item.element||'Sangue';$('nexHbCurseTarget').value=item.curseTarget||'Armas';
@@ -909,7 +911,7 @@
    $('nex52Editor').scrollIntoView({block:'start',behavior:'smooth'});
  }
  function meta(item){
-   if(item.type==='ameaca')return ['VD: '+item.vd,item.creatureType+' - '+item.size];
+   if(isThreatType(item.type))return ['VD: '+item.vd,item.creatureType+' - '+item.size];
    if(item.type==='ritual')return [item.ritualType+' · '+item.circle+'º círculo · '+item.element,item.execution+' · '+item.range];
    if(item.type==='maldicao')return ['Elemento '+item.element,'Aplicável a '+item.curseTarget];
    if(item.type==='melhoria')return ['Aplicável a '+item.improvementTarget, ...(item.improvementBonuses?.length?[item.improvementBonuses.map(b=>(BONUS_TYPES.find(([id])=>id===b.type)?.[1]||b.type)+': '+(b.value>=0?'+':'')+b.value).join(' · ')]:[])];
@@ -931,7 +933,7 @@
  }
  function card(item){
    const details=meta(item);
-   const threat=item.type==='ameaca';
+   const threat=isThreatType(item.type);
    const bg=threat?(THREAT_BG[item.threatSheet?.element]||THREAT_BG.Sangue):null;
    const theme=bg?' style="--nex-threat-card-bg:url(&quot;./assets/rituais/'+esc(bg.file)+'&quot;);--nex-threat-card-accent:'+esc(bg.color)+'"':'';
    const portrait=threat&&item.image?'<img class="nex-hb-threat-card-portrait" src="'+esc(item.image)+'" alt="" loading="lazy">':'';
@@ -1029,10 +1031,10 @@
  }
  function view(item){
    opened=item.id;const info=meta(item);
-   $('nex52DetailBody').innerHTML=(item.type==='ameaca'?'':'<div class="nex52-detail-top"><span>'+esc(LABEL[item.type])+'</span><h3>'+esc(item.name)+'</h3></div>'+
+   $('nex52DetailBody').innerHTML=(isThreatType(item.type)?'':'<div class="nex52-detail-top"><span>'+esc(LABEL[item.type])+'</span><h3>'+esc(item.name)+'</h3></div>'+
      '<p class="nex52-detail-meta">'+esc(info.join(' · '))+'</p>')+
-     (item.type==='ameaca'?threatDetails(item):'')+
-     (item.type==='ameaca'?'':item.description?'<h4>Descrição</h4><p>'+(item.type==='item'?formattedDescription(item.description):esc(item.description))+'</p>':'<p>Sem descrição.</p>')+
+     (isThreatType(item.type)?threatDetails(item):'')+
+     (isThreatType(item.type)?'':item.description?'<h4>Descrição</h4><p>'+(item.type==='item'?formattedDescription(item.description):esc(item.description))+'</p>':'<p>Sem descrição.</p>')+
      (item.requirements?'<h4>Pré-requisitos</h4><p>'+esc(item.requirements)+'</p>':'')+
      (effectApplicable(item)&&item.type!=='trilha'&&item.effectBonuses?.length?'<h4>Bônus configurados</h4><p>'+effectsLabel(item.effectBonuses)+'</p>':'')+
      (item.type==='trilha'?'<h4>Bônus por NEX</h4>'+item.trailAbilities.map(a=>'<p>NEX '+esc(a.nex)+'% · '+esc(a.name)+': '+(a.bonuses?.length?effectsLabel(a.bonuses):'Sem bônus')+'</p>').join(''):'')+
@@ -1047,7 +1049,7 @@
      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Munições Amaldiçoadas'?'<p>'+esc(item.cursedAmmoType)+' · '+esc(item.cursedAmmoBonus)+'</p>':'')+
      (item.type==='item'&&item.category==='Itens Amaldiçoados'&&item.cursedKind==='Acessórios Amaldiçoados'?'<p>'+esc(item.cursedAccessoryType)+' · '+esc(item.cursedAccessoryBenefit)+'</p>':'')+
      (item.type==='item'&&item.customImprovements?.length?'<h4>Melhorias</h4><p>'+item.customImprovements.map(esc).join(' · ')+'</p>':'')+ritualDetails(item)+trailDetails(item);
-   targetOptions();$('nex52Apply').hidden=(item.type==='melhoria'||item.type==='maldicao');$('nex51Target').closest('label').hidden=item.type==='melhoria'||item.type==='maldicao';const d=$('nex52Detail');if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');
+   targetOptions();$('nex52Apply').hidden=(item.type==='melhoria'||item.type==='maldicao'||isThreatType(item.type));$('nex51Target').closest('label').hidden=item.type==='melhoria'||item.type==='maldicao'||isThreatType(item.type);const d=$('nex52Detail');if(typeof d.showModal==='function')d.showModal();else d.setAttribute('open','');
  }
  $('nex51Type').addEventListener('change',editorFields);
   $('nexHbBonusType').addEventListener('change',()=>{$('nexHbBonusSkillField').hidden=$('nexHbBonusType').value!=='pericia';});
@@ -1204,9 +1206,9 @@
      ritualDice:type==='ritual'?$('nex53Dice').value:old?.ritualDice,
      discenteDice:type==='ritual'?$('nex53DiscenteDice').value:old?.discenteDice,
      verdadeiroDice:type==='ritual'?$('nex53VerdadeiroDice').value:old?.verdadeiroDice,
-     image:type==='ameaca'?threatImage:type==='item'?($('nexHbImageUrl').value.trim()||(!$('nexHbImagePreview').hidden?$('nexHbImagePreview').src:'')||old?.image||''):type==='ritual'?($('nex53RitualFile').files.length?(! $('nex53RitualPreview').hidden ?$('nex53RitualPreview').src:''):($('nex53RitualImage').value||(! $('nex53RitualPreview').hidden?$('nex53RitualPreview').src:''))):(old?.image||''),
+     image:isThreatType(type)?threatImage:type==='item'?($('nexHbImageUrl').value.trim()||(!$('nexHbImagePreview').hidden?$('nexHbImagePreview').src:'')||old?.image||''):type==='ritual'?($('nex53RitualFile').files.length?(! $('nex53RitualPreview').hidden ?$('nex53RitualPreview').src:''):($('nex53RitualImage').value||(! $('nex53RitualPreview').hidden?$('nex53RitualPreview').src:''))):(old?.image||''),
      size:$('nex52Size').value,creatureType:$('nex52CreatureType').value,category:$('nex52Category').value,
-     threatSheet:type==='ameaca'?readThreatSheet():(old?.threatSheet||undefined),
+     threatSheet:isThreatType(type)?readThreatSheet():(old?.threatSheet||undefined),
      cursedKind:type==='item'&&tab==='paranormal'?cursedKind:(old?.cursedKind||'Itens Paranormais'),
      paranormalActivation:old?.paranormalActivation||'',
      paranormalEffect:old?.paranormalEffect||'',
