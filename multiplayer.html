@@ -2447,15 +2447,18 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  position:relative!important;z-index:1!important;
 }
 </style><style id="nex-vtt-art-tabs-hit-area">
-/* Abas acima dos elementos de arrasto e do conteúdo da biblioteca. */
-#roomTabletopPanel #nexVttMainMenu .nex-vtt-main-scroll{position:relative!important;z-index:180!important}
-#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{position:relative!important;z-index:210!important;isolation:isolate!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
-#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs button[data-nex-library-layer]{position:relative!important;z-index:211!important;pointer-events:auto!important;touch-action:manipulation!important}
-#roomTabletopPanel #nexVttMainMenu #nexVttMainResizeGrip{z-index:5!important}
-</style><style id="nex-vtt-hide-art-library-layer-tabs">
-/* Abas Mapa, Tokens e Imersão retiradas da interface a pedido do usuário.
-   Mantidas no DOM para preservar os controles de estado internos. */
-#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:none!important}
+/* Controles clicáveis acima do conteúdo, sem sobreposição de elementos arrastáveis. */
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ position:relative!important;z-index:3!important;gap:7px!important;
+ pointer-events:auto!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs button[data-nex-library-layer]{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ position:relative!important;z-index:4!important;min-width:0!important;
+ pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important;
+}
+#roomTabletopPanel #nexVttMainMenu #nexVttMainResizeGrip{z-index:1!important}
 </style></head>
 <body>
 <script>
@@ -3938,39 +3941,17 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   // Captura os clicks antes dos ouvintes de mapa/arrasto.
   // Delegação e hit-test cobrem inclusive elementos sobrepostos sobre as abas.
   const libraryTabFromEvent=event=>{
-   const direct=event.target instanceof Element?event.target.closest('#nexVttMainMenu [data-nex-library-layer]'):null;
-   if(direct)return direct;
-   if(mainMenu.hidden||mainMenu.querySelector('[data-nex-main-page="art"]')?.hidden!==false)return null;
-   if(typeof event.clientX!=='number'||typeof event.clientY!=='number')return null;
-   return libraryTabs.find(button=>{
-    const box=button.getBoundingClientRect();
-    return box.width>0&&box.height>0&&event.clientX>=box.left&&event.clientX<=box.right&&event.clientY>=box.top&&event.clientY<=box.bottom;
-   })||null;
-  };
-  let lastLibraryPointer=0;
-  document.addEventListener('pointerdown',event=>{
-   if(event.button!==0)return;
-   const tab=libraryTabFromEvent(event);
-   if(!tab)return;
-   event.preventDefault();
-   event.stopImmediatePropagation();
-   lastLibraryPointer=Date.now();
-   window.NEX_VTT_OPEN_LIBRARY_LAYER(tab.dataset.nexLibraryLayer);
-  },true);
-  document.addEventListener('click',event=>{
-   const tab=libraryTabFromEvent(event);
-   if(!tab)return;
-   event.preventDefault();
-   event.stopImmediatePropagation();
-   if(Date.now()-lastLibraryPointer<700)return;
-   window.NEX_VTT_OPEN_LIBRARY_LAYER(tab.dataset.nexLibraryLayer);
-  },true);
-  window.addEventListener('nex:vtt-library-role-refresh',event=>{
-   if(event.detail?.campaignId!==roomId)return;
-   const selected=libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer||'mapa';
-   switchLibraryLayer(selected);
+   const direct=event.target instanceof Element?event.target.closest('#nexVttMainMenu [data-nex-library-lay  // Navegação simples e independente de arrastar mapas/tokens:
+  // o clique é recebido no próprio botão e não é interceptado no documento.
+  libraryTabs.forEach(tab=>{
+   tab.addEventListener('pointerdown',event=>event.stopPropagation());
+   tab.addEventListener('click',event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    window.NEX_VTT_OPEN_LIBRARY_LAYER(tab.dataset.nexLibraryLayer);
+   });
   });
-  document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!mainMenu.hidden)updateMenu(false);});
+dEventListener('keydown',event=>{if(event.key==='Escape'&&!mainMenu.hidden)updateMenu(false);});
   openLibraryLayer('mapa');showMainTab('chat');
   const vttPanelElement=$('roomTabletopPanel');
  const vttSheetPanel=$('nexVttSheetsPanel');
