@@ -15,7 +15,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
  // Todos os novos arquivos ficam neste dispositivo. Participantes conectam ao mestre via WebRTC.
  // Mídias antigas em Firestore e R2 continuam legíveis, sem migração ou exclusão.
- const musicRoot=document.querySelector('#nexVttMainMenu [data-nex-main-page="settings"]')||tools;
+ const musicRoot=document.getElementById('nexVttImmersionMusicHost')||tools;
  const localAudioCleanup=gm?mountNexLocalMusic({uid,campaignId,root:musicRoot}):()=>{};
  let peerMedia=null;
  const localMediaPattern=/^local:(?:atmo|map|asset)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp)$/;
