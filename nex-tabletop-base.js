@@ -1546,8 +1546,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    if(!token||token.hidden||token.locked)return;
    const maxX=Math.max(0,W-(token.widthCells||token.size||1));
    const maxY=Math.max(0,H-(token.heightCells||token.size||1));
-   token.x=Math.round(Math.max(0,Math.min(maxX,x))*4)/4;
-   token.y=Math.round(Math.max(0,Math.min(maxY,y))*4)/4;
+   token.x=Math.round(Math.max(0,Math.min(maxX,x))*100)/100;
+   token.y=Math.round(Math.max(0,Math.min(maxY,y))*100)/100;
    paintTokenPosition(token);
    peerMedia?.broadcastTokenMove(token.id,token.x,token.y);
    if(final)void save();
