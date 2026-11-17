@@ -82,11 +82,10 @@ export function mountNexLocalMusic({uid,campaignId,root}){
  function moveSong(key,groupId,beforeKey=''){
   if(!key||!playlistState.groups.some(g=>g.id===groupId))return;
   const oldGroup=playlistState.assignment[key]||'default';
+  // Preserva a ordem visível antes de mudar o grupo da música.
+  const next=groupTracksCached(groupId).filter(k=>k!==key);
   for(const id of Object.keys(playlistState.order))playlistState.order[id]=playlistState.order[id].filter(k=>k!==key);
   playlistState.assignment[key]=groupId;
-  const order=playlistState.order[groupId]||[];
-  const all=groupTracksCached(groupId).filter(k=>k!==key);
-  const next=order.length?all:all;
   const index=beforeKey?next.indexOf(beforeKey):-1;
   next.splice(index>=0?index:next.length,0,key);
   playlistState.order[groupId]=next;
