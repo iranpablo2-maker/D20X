@@ -1,0 +1,13 @@
+# Configuração de produção do NEX no Cloudflare Pages.
+# Esta configuração fica junto ao código para evitar divergências de bindings.
+name = "nexrpg"
+pages_build_output_dir = "."
+compatibility_date = "2026-11-10"
+
+[[d1_databases]]
+binding = "NEX_D1"
+database_name = "nex-rpg-db"
+database_id = "b94ee999-b6ec-4842-8de6-75a7766cd065"
+
+[vars]
+FIREBASE_PROJECT_ID = "nex-rpg"
