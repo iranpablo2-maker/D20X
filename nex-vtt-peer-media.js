@@ -98,18 +98,12 @@ export function mountNexPeerMedia({
   const revision=++sceneRevision;
   for(const peer of remotePeers.values())if(peer.open)queueScene(peer,revision,scene);
  }
- const panel=document.createElement('section');
- panel.style.cssText='padding:8px;margin:8px 0;border:1px solid #784247;border-radius:7px;background:#171215;color:#eee;font-size:12px;';
- const label=document.createElement('div');
- label.textContent='Transmissao local da campanha';
- label.style.cssText='font-weight:bold;margin-bottom:5px';
- const button=document.createElement('button');button.type='button';
- button.style.cssText='background:#722a31;color:white;padding:7px 9px;border:1px solid #b05a5a;border-radius:6px;cursor:pointer;margin:4px 0';
- button.textContent='Iniciar sessao e compartilhar';
- const status=document.createElement('div');status.style.cssText='line-height:1.45;color:#bbb';
- status.textContent=gm?'Arquivos guardados neste dispositivo. Inicie a sessao para compartilhar.':'Aguardando o mestre iniciar a sessao.';
- panel.append(label);
- if(gm)panel.append(button);
+ // A transmissão acompanha a abertura e saída da mesa, sem botão manual.
+ const panel=document.createElement('div');
+ panel.style.cssText='margin:2px 0;color:#bdb2b6;font-size:11px';
+ const status=document.createElement('div');
+ status.setAttribute('role','status');
+ status.textContent=gm?'Aguardando abertura do Tabletop.':'Aguardando o mestre.';
  panel.append(status);root.append(panel);
  const say=s=>{if(!destroyed)status.textContent=s;};
  async function tryPlayReceivedAudio(){
@@ -258,21 +252,21 @@ export function mountNexPeerMedia({
  async function start(){
   if(destroyed||hosting)return;
   hosting=true;activeSession=crypto.randomUUID();
-  button.disabled=true;say('Abrindo sessao e aguardando jogadores...');
+  say('Conectando aos jogadores...');
   try{
    await setDoc(sessionRef,{active:true,session:activeSession,gmUid:uid,updatedAt:Date.now()});
-   watchPeers();button.textContent='Encerrar transmissao';say('Sessao aberta. Os jogadores podem entrar e receber os arquivos locais.');
+   watchPeers();say('Mesa online. Compartilhamento local ativo.');
   }catch(error){
-   hosting=false;activeSession='';button.textContent='Iniciar sessao e compartilhar';
+   hosting=false;activeSession='';
    say('Nao foi possivel iniciar. Publique as regras de transmissao do Firestore. '+String(error.message).slice(0,100));
-  }finally{button.disabled=false;}
+  }
  }
  async function stop(){
   if(!hosting)return;
-  hosting=false;activeSession='';teardown();button.disabled=true;
+  hosting=false;activeSession='';teardown();
   try{await setDoc(sessionRef,{active:false,session:'',gmUid:uid,updatedAt:Date.now()});say('Transmissao encerrada. Seus arquivos continuam locais.');}
   catch(error){say('Falha ao encerrar no Firestore: '+String(error.message).slice(0,120));}
-  finally{button.textContent='Iniciar sessao e compartilhar';button.disabled=false;}
+  finally{say('Transmissão encerrada ao sair do Tabletop.');}
  }
  function connectToHost(sess){
   if(destroyed||gm||joinPeer?.session===sess)return;
@@ -329,7 +323,11 @@ export function mountNexPeerMedia({
    say('Aguardando o mestre iniciar a sessao.');
   }
  },error=>say('Nao foi possivel acompanhar o inicio da campanha: '+String(error.message).slice(0,120)));
- if(gm)button.addEventListener('click',()=>{void(hosting?stop():start());});
+ const onTabletopView=event=>{
+   if(!gm||destroyed||event.detail?.campaignId!==campaignId)return;
+   if(event.detail.open)void start();else void stop();
+  };
+  window.addEventListener('nex:vtt-view',onTabletopView);
 
  function fetchImage(src){
   if(gm||!LOCAL_REF.test(src||''))return Promise.reject(Error('Imagem invalida'));
@@ -349,7 +347,7 @@ export function mountNexPeerMedia({
   destroy(){
    if(destroyed)return;
    const shouldStop=gm&&hosting;
-   destroyed=true;unsubscribe();
+   destroyed=true;unsubscribe();window.removeEventListener('nex:vtt-view',onTabletopView);
    if(!gm){document.removeEventListener('pointerdown',retryPlayOnInteraction,true);document.removeEventListener('keydown',retryPlayOnInteraction,true);}
    teardown();panel.remove();
    if(shouldStop)void setDoc(sessionRef,{active:false,session:'',gmUid:uid,updatedAt:Date.now()}).catch(()=>{});
