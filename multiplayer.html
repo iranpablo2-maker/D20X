@@ -3131,6 +3131,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   notice('Falha: '+explanation);console.error(err);
  }};
  const clearRoom=()=>{
+  chatReset('');
   document.documentElement.classList.remove('nex-vtt-active');
   if(window.parent!==window){try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:false},location.origin);}catch(error){}}
   for(const u of [...unsubs,...combatRollUnsubs]){try{u()}catch(e){}}unsubs=[];combatRollUnsubs=[];
@@ -3399,6 +3400,53 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   menuResizeGrip.addEventListener('pointercancel',finishMenuResize);
   window.addEventListener('resize',()=>setMenuWidth(mainMenu.getBoundingClientRect().width));
 
+  // Chat sincronizado pelo WebRTC da mesa: mensagens ficam apenas na sessão.
+  const vttChatForm=$('nexVttChatForm'),vttChatInput=$('nexVttChatInput');
+  const vttChatMessages=$('nexVttChatMessages'),vttChatStatus=$('nexVttChatStatus');
+  let chatCampaign='',chatHistoryIds=new Set();
+  function chatReset(campaign){
+   chatCampaign=campaign||'';chatHistoryIds.clear();vttChatMessages.replaceChildren();
+   vttChatStatus.textContent='Mensagens disponíveis durante a sessão do mestre.';
+  }
+  function chatDisplay(item){
+   if(!item||typeof item.text!=='string'||typeof item.name!=='string'||typeof item.id!=='string'||!item.text.trim()||chatHistoryIds.has(item.id))return;
+   if(item.text.length>500)return;
+   chatHistoryIds.add(item.id);
+   const row=document.createElement('article');row.className='nex-vtt-chat-msg';
+   row.dataset.mine=String(item.uid===uid);
+   const head=document.createElement('div');head.className='nex-vtt-chat-msg-header';
+   const who=document.createElement('strong');who.textContent=item.name.slice(0,48);
+   const time=document.createElement('time');const date=new Date(item.at);
+   time.textContent=Number.isFinite(date.getTime())?date.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'';
+   head.append(who,time);
+   const body=document.createElement('p');body.textContent=item.text;
+   row.append(head,body);vttChatMessages.append(row);
+   while(vttChatMessages.children.length>80)vttChatMessages.firstElementChild.remove();
+   vttChatMessages.scrollTop=vttChatMessages.scrollHeight;
+   vttChatStatus.textContent='';
+  }
+  window.addEventListener('nex:vtt-chat-message',event=>{
+   if(event.detail?.campaignId!==roomId||!roomId)return;
+   if(chatCampaign!==roomId)chatReset(roomId);
+   chatDisplay(event.detail.item);
+  });
+  window.addEventListener('nex:vtt-chat-send-result',event=>{
+   if(event.detail?.campaignId!==roomId)return;
+   if(!event.detail.ok)vttChatStatus.textContent='Não foi possível enviar. Confira se a conexão do Tabletop está ativa.';
+   else vttChatStatus.textContent='';
+  });
+  vttChatForm.addEventListener('submit',event=>{
+   event.preventDefault();
+   const message=vttChatInput.value.trim();
+   if(!uid||!roomId||!message)return;
+   if(message.length>500){vttChatStatus.textContent='O limite é 500 caracteres.';return;}
+   let profile={};
+   try{profile=JSON.parse(localStorage.getItem('nex_account_profile_'+uid)||'{}')||{};}catch(_){}
+   const member=roomMembers.find(m=>m.uid===uid);
+   const name=String(member?.name||profile.name||auth.currentUser?.displayName||auth.currentUser?.email?.split('@')[0]||(gm?'Mestre':'Jogador')).trim().slice(0,48);
+   window.dispatchEvent(new CustomEvent('nex:vtt-chat-send',{detail:{campaignId:roomId,text:message,name}}));
+   vttChatInput.value='';
+  });
   const mainMenuToggle=$('nexVttSheetsCornerToggle');
   const mainClose=$('nexVttMainClose');
   const libraryBody=$('nexVttLibraryBody');
@@ -4039,6 +4087,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const snap=await getDoc(ref);
   if(!snap.exists()){notice('Campanha não encontrada.');return;}
   roomId=id;roomData=snap.data();gm=roomData.gmUid===uid;
+  chatReset(id);
   if(!gm)syncOwnMemberProfile(id).catch(error=>console.warn('Perfil do jogador indisponível',error));
   if(gm){
    const profile=nexMasterProfile();
