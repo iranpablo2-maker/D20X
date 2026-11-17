@@ -123,7 +123,7 @@ export function mountNexLocalMusic({uid,campaignId,root}){
    }));
    head.append(tinyButton('⤨','Aleatório',()=>{randomPlay=!randomPlay;drawPlaylists(rows);},randomPlay));
    head.append(tinyButton('↻','Repetir playlist',()=>{repeatPlaylist=!repeatPlaylist;drawPlaylists(rows);},repeatPlaylist));
-   head.append(tinyButton('⋮','Excluir playlist',async()=>{
+   if(playlistState.groups.length>1)head.append(tinyButton('⋮','Excluir playlist',async()=>{
     const others=playlistState.groups.filter(g=>g.id!==group.id);
     if(!others.length){say('Crie outra playlist antes de excluir a única playlist.');return;}
     if(!confirm('Excluir a playlist "'+group.name+'"? As músicas serão mantidas e movidas para "'+others[0].name+'".'))return;
