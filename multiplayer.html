@@ -2401,7 +2401,12 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-chat-form input{min-width:0;flex:1!important;font-size:12px!important;padding:9px!important}
 #roomTabletopPanel #nexVttMainMenu #nexVttChatSend{width:auto!important;flex:0 0 auto!important;min-height:34px!important;background:#741b30!important;border-color:#b3354e!important}
 #roomTabletopPanel .nex-vtt-chat-status{font-size:11px!important;color:#d0adb5!important;margin:6px 0!important;line-height:1.4!important}
-</style><style id="nex-vtt-grid-and-library-fix">
+</style><style id="nex-vtt-grid-overlay-final">
+/* A grade real é renderizada por elemento independente, evitando grades duplicadas. */
+#room #roomTabletopPanel #nexTabletopBoard:has(#nexVttGridOverlay)::before{display:none!important}
+#room #roomTabletopPanel #nexVttGridOverlay{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;z-index:1!important;pointer-events:none!important}
+</style>
+<style id="nex-vtt-grid-and-library-fix">
 /* A camada de grade permanece sobre PNG, GIF e vídeos WEBM, abaixo dos tokens. */
 #roomTabletopPanel #nexTabletopBoard::before{
  content:""!important;
@@ -2664,7 +2669,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117chat1';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117gridroles5';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
