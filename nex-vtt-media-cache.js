@@ -2,7 +2,7 @@
    O Firebase continua sendo a fonte de verdade; o cache apenas evita leituras repetidas. */
 export function createVttMediaCache(uid,campaignId){
  const namespace=String(uid||'anonymous')+':'+String(campaignId||'');
- const DB_NAME='nex-vtt-media-v1',STORE='media',MAX_BYTES=75*1024*1024;
+ const DB_NAME='nex-vtt-media-v1',STORE='media',MAX_BYTES=350*1024*1024;
  let connection=null;
  function db(){
   if(!('indexedDB' in window))return Promise.resolve(null);
@@ -29,7 +29,7 @@ export function createVttMediaCache(uid,campaignId){
  }
  async function put(src,data,persistent=false){
   if(!(data instanceof Blob)&&typeof data!=='string')return false;
-  if(data instanceof Blob&&data.size>11*1024*1024||typeof data==='string'&&data.length>16*1024*1024)return false;
+  if(data instanceof Blob&&data.size>100*1024*1024||typeof data==='string'&&data.length>16*1024*1024)return false;
   const database=await db();if(!database)return false;
   const value={key:key(src),data,size:data instanceof Blob?data.size:data.length*2,timestamp:Date.now(),persistent:!!persistent};
   const success=await new Promise(resolve=>{
