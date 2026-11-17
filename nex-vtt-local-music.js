@@ -183,7 +183,7 @@ export function mountNexLocalMusic({uid,campaignId,root}){
   if(playlistState.groups.length>=20)return say('Máximo de 20 playlists.');
   const id='playlist_'+crypto.randomUUID();playlistState.groups.push({id,name:name.slice(0,80)});expandedGroups.add(id);savePlaylists();void update();
  });
- uploadButton.addEventListener('click',()=>{targetGroup='default';input.click();});
+ uploadButton.addEventListener('click',()=>{targetGroup=playlistState.groups[0]?.id||'default';input.click();});
  player.addEventListener('ended',async()=>{
   const rows=await list();if(disposed)return;
   if(repeatTrack){player.currentTime=0;void player.play().catch(()=>{});return;}
