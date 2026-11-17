@@ -172,7 +172,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  function validScene(data){
   if(!stateOK(data))return empty();
   return {library:{tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000||/^firestore:asset_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)||isR2Media(a.src))).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&(data.map.length<650000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.map)||/^firestore:map_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(data.map)||isLocalMedia(data.map)||isR2Media(data.map))?data.map:'',atmosphereLayers:Array.isArray(data.atmosphereLayers)?data.atmosphereLayers.slice(0,8).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(a.src.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)||(a.src.startsWith('storage:campaigns/'+campaignId+'/atmospheres/')&&/^atmo_[a-zA-Z0-9_-]+$/.test(a.src.slice(('storage:campaigns/'+campaignId+'/atmospheres/').length))||/^firestore:atmo_[a-zA-Z0-9_-]+:(?:[1-9]|[12][0-9]|3[0-2]):(?:gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)||isR2Media(a.src)))).map(a=>({id:a.id.slice(0,100),name:String(a.name||'Atmosfera').slice(0,90),src:a.src,enabled:a.enabled!==false,opacity:Math.max(0,Math.min(100,Math.round(Number.isFinite(Number(a.opacity))&&a.opacity!=null?Number(a.opacity):100)))})):(typeof data.atmosphere?.image==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)&&data.atmosphere.image.length<=180000?[{id:'atmo_legacy',name:'Atmosfera anterior',src:data.atmosphere.image,enabled:data.atmosphere.type!=='none',opacity:Math.max(0,Math.min(100,Number(data.atmosphere.intensity)??100))}]:[]),atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
-   id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-.5,Math.round((Number(t.x)||0)*4)/4)),y:Math.max(0,Math.min(H-.5,Math.round((Number(t.y)||0)*4)/4)),
+   id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-.5,Math.round((Number(t.x)||0)*100)/100)),y:Math.max(0,Math.min(H-.5,Math.round((Number(t.y)||0)*100)/100)),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?Array.from({length:Math.min(10,t.images.length)},(_,i)=>{const url=t.images[i];return typeof url==='string'&&url.length<650000?url:'';}):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),widthCells:Math.max(.5,Math.min(10,Number(t.widthCells)||Number(t.size)||1)),heightCells:Math.max(.5,Math.min(10,Number(t.heightCells)||Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
   }))};
@@ -670,8 +670,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      originClientX:e.clientX,originClientY:e.clientY};
   }else{
    drag={id:selectedId,pointer:e.pointerId,kind:'move',startX:t.x,startY:t.y,
-     ...(e.pointerType==='touch'&&window.matchMedia('(pointer:coarse) and (max-width:900px)').matches
-       ?{mobileOffsetX:e.clientX-el.getBoundingClientRect().left,mobileOffsetY:e.clientY-el.getBoundingClientRect().top}:{})};
+     originClientX:e.clientX,originClientY:e.clientY};
   }
   // Capture on the stable board, because render() replaces token elements.
   try{board.setPointerCapture(e.pointerId);}catch(_){}
@@ -695,9 +694,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     t.y=Math.round(edgeY*4)/4;t.heightCells=Math.max(min,Math.round((drag.startY+drag.startHeight-t.y)*4)/4);
    }
   }else{
-   const touchX=e.clientX-(drag.mobileOffsetX||0),touchY=e.clientY-(drag.mobileOffsetY||0);
-   t.x=Math.max(0,Math.min(W-(t.widthCells||t.size||1),Math.round(((touchX-rect.left)/cellX)*4)/4));
-   t.y=Math.max(0,Math.min(H-(t.heightCells||t.size||1),Math.round(((touchY-rect.top)/cellY)*4)/4));
+   const dx=(e.clientX-drag.originClientX)/cellX,dy=(e.clientY-drag.originClientY)/cellY;
+   t.x=Math.max(0,Math.min(W-(t.widthCells||t.size||1),Math.round((drag.startX+dx)*100)/100));
+   t.y=Math.max(0,Math.min(H-(t.heightCells||t.size||1),Math.round((drag.startY+dy)*100)/100));
   }
   paintTokenPosition(t);
   if(drag.kind==='move'&&performance.now()-lastLiveDragAt>=40){
