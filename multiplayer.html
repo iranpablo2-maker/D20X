@@ -3925,8 +3925,29 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    showMainTab('art');
    switchLibraryLayer(layer);
   };
-  // Clique e teclado passam pelo mesmo caminho; sem pointerdown concorrente.
-  libraryTabsPanel?.addEventListener('click',event=>{
+  // Prioridade aos botões da Biblioteca: o arrasto do tabletop nunca deve capturar
+  // os gestos que selecionam Mapa, Tokens ou Imersão.
+  // O listener global em captura funciona mesmo se um painel pai interceptar o evento.
+  let libraryPointerHandled=false;
+  document.addEventListener('pointerdown',event=>{
+   const tab=event.target instanceof Element?event.target.closest('#nexVttMainMenu button[data-nex-library-layer]'):null;
+   if(!tab||event.button>0)return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   libraryPointerHandled=true;
+   window.NEX_VTT_OPEN_LIBRARY_LAYER(tab.dataset.nexLibraryLayer);
+  },true);
+  document.addEventListener('click',event=>{
+   const tab=event.target instanceof Element?event.target.closest('#nexVttMainMenu button[data-nex-library-layer]'):null;
+   if(!tab)return;
+   event.preventDefault();
+   event.stopImmediatePropagation();
+   if(libraryPointerHandled){libraryPointerHandled=false;return;}
+   window.NEX_VTT_OPEN_LIBRARY_LAYER(tab.dataset.nexLibraryLayer);
+  },true);
+  // Compatibilidade com ativação por teclado e navegadores sem Pointer Events.
+  libraryTabsPanel?.addEventListener('keydown',event=>{
+   if(event.key!=='Enter'&&event.key!==' ')return;
    const tab=event.target.closest('button[data-nex-library-layer]');
    if(!tab)return;
    event.preventDefault();
