@@ -2401,6 +2401,34 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-chat-form input{min-width:0;flex:1!important;font-size:12px!important;padding:9px!important}
 #roomTabletopPanel #nexVttMainMenu #nexVttChatSend{width:auto!important;flex:0 0 auto!important;min-height:34px!important;background:#741b30!important;border-color:#b3354e!important}
 #roomTabletopPanel .nex-vtt-chat-status{font-size:11px!important;color:#d0adb5!important;margin:6px 0!important;line-height:1.4!important}
+</style><style id="nex-vtt-grid-and-library-fix">
+/* A camada de grade permanece sobre PNG, GIF e vídeos WEBM, abaixo dos tokens. */
+#roomTabletopPanel #nexTabletopBoard::before{
+ content:""!important;
+ position:absolute!important;
+ inset:0!important;
+ display:block!important;
+ pointer-events:none!important;
+ z-index:1!important;
+ background-image:linear-gradient(to right,rgba(255,255,255,.35) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.35) 1px,transparent 1px)!important;
+ background-size:var(--nex-grid-width,4%) var(--nex-grid-height,4%)!important;
+ background-position:0 0!important;
+ visibility:visible!important;
+ opacity:1!important;
+}
+#roomTabletopPanel #nexTabletopBoard.nex-vtt-hide-grid::before{
+ display:none!important;
+ visibility:hidden!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{
+ position:relative!important;
+ z-index:5!important;
+ pointer-events:auto!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs button{
+ pointer-events:auto!important;
+ cursor:pointer!important;
+}
 </style></head>
 <body>
 <script>
@@ -3676,7 +3704,13 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     gridLabel.className='nex-vtt-map-grid-toggle';
     const check=document.createElement('input');check.type='checkbox';
     check.checked=mapLibraryState.gridVisible!==false;check.disabled=!gm;
-    check.addEventListener('change',()=>mapAction('grid',{visible:check.checked}));
+    check.addEventListener('change',()=>{
+     // Resposta visual imediata mesmo durante o salvamento da cena.
+     const board=document.getElementById('nexTabletopBoard');
+     board?.classList.toggle('nex-vtt-hide-grid',!check.checked);
+     board?.classList.toggle('nex-vtt-grid-visible',check.checked);
+     mapAction('grid',{visible:check.checked});
+    });
     gridLabel.append(check,document.createTextNode('Exibir grade'));libraryBody.append(gridLabel);
     if(gm){
      const actions=document.createElement('div');actions.className='nex-vtt-art-actions';libraryBody.append(actions);
@@ -3847,7 +3881,21 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('nexVttMenuDice').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Dados"]')?.click();});
   $('nexVttMenuSettings').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Grade e névoa"]')?.click();});
   $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
-  libraryTabs.forEach(btn=>btn.addEventListener('click',()=>{openLibraryLayer(btn.dataset.nexLibraryLayer);if(btn.dataset.nexLibraryLayer==='tokens')window.dispatchEvent(new Event('nex:vtt-token-library-request'));}));
+  // Delegação estável: as abas funcionam mesmo após a reconstrução da biblioteca.
+  const switchLibraryLayer=layer=>{
+   if(!['mapa','tokens','imersao'].includes(layer))return;
+   openLibraryLayer(layer);
+   if(layer==='tokens')window.dispatchEvent(new Event('nex:vtt-token-library-request'));
+   if(layer==='mapa')window.dispatchEvent(new Event('nex:vtt-map-library-request'));
+   if(layer==='imersao')window.dispatchEvent(new Event('nex:vtt-atmosphere-request'));
+  };
+  const libraryTabsPanel=mainMenu.querySelector('.nex-vtt-library-tabs');
+  libraryTabsPanel?.addEventListener('click',event=>{
+   const tab=event.target.closest('button[data-nex-library-layer]');
+   if(!tab||!libraryTabsPanel.contains(tab))return;
+   event.preventDefault();
+   switchLibraryLayer(tab.dataset.nexLibraryLayer);
+  });
   document.addEventListener('keydown',event=>{if(event.key==='Escape'&&!mainMenu.hidden)updateMenu(false);});
   openLibraryLayer('mapa');showMainTab('chat');
   const vttPanelElement=$('roomTabletopPanel');
