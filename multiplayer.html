@@ -3190,6 +3190,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      switcher.append(button);
     }
     if(immersionSection==='efeitos'){
+     immersionMusicHost.querySelector('details.nex-vtt-local-music')?.setAttribute('open','');
      const musicHeading=document.createElement('strong');musicHeading.className='nex-vtt-art-list-title';musicHeading.textContent='Efeitos sonoros e músicas';libraryBody.append(musicHeading);
      if(!gm){const msg=document.createElement('p');msg.textContent='Somente o mestre pode escolher e reproduzir os sons da sessão.';libraryBody.append(msg);}
      return;
