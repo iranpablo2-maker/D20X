@@ -2391,6 +2391,16 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  background-color:transparent!important;
  filter:none!important;
 }
+</style><style id="nex-vtt-chat-live-style">
+#roomTabletopPanel #nexVttChatMessages{height:clamp(200px,46vh,540px);overflow:auto;overscroll-behavior:contain;border:1px solid #632531;border-radius:7px;background:#09090a;padding:9px;display:flex;flex-direction:column;gap:9px}
+#roomTabletopPanel .nex-vtt-chat-msg{display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere;font-size:12px;line-height:1.45}
+#roomTabletopPanel .nex-vtt-chat-msg-header{display:flex;justify-content:space-between;gap:8px;color:#e68fa0;font-size:11px}
+#roomTabletopPanel .nex-vtt-chat-msg[data-mine="true"] .nex-vtt-chat-msg-header{color:#fbccd3}
+#roomTabletopPanel .nex-vtt-chat-msg p{margin:0!important;white-space:pre-wrap;color:#f5e9ea!important}
+#roomTabletopPanel .nex-vtt-chat-form{display:flex;gap:6px;margin-top:8px}
+#roomTabletopPanel .nex-vtt-chat-form input{min-width:0;flex:1!important;font-size:12px!important;padding:9px!important}
+#roomTabletopPanel #nexVttMainMenu #nexVttChatSend{width:auto!important;flex:0 0 auto!important;min-height:34px!important;background:#741b30!important;border-color:#b3354e!important}
+#roomTabletopPanel .nex-vtt-chat-status{font-size:11px!important;color:#d0adb5!important;margin:6px 0!important;line-height:1.4!important}
 </style></head>
 <body>
 <script>
@@ -2522,10 +2532,12 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
  <div class="nex-vtt-main-scroll">
   <section data-nex-main-page="chat">
    <h3>Chat da mesa</h3>
-   <div class="nex-vtt-chat-tips"><strong>Dicas de Chat</strong><p>As rolagens e mensagens da campanha poderão aparecer aqui quando o chat online estiver integrado.</p><p>Enquanto isso, use a ferramenta de dados disponível no NEX.</p></div>
-   <h3>Convidar jogadores</h3>
-   <p>Compartilhe o convite da campanha pela área de jogadores.</p>
-   <button type="button" id="nexVttMenuInvites">Abrir convites da campanha</button>
+   <div id="nexVttChatMessages" class="nex-vtt-chat-messages" role="log" aria-label="Mensagens da mesa" aria-live="polite"></div>
+   <form id="nexVttChatForm" class="nex-vtt-chat-form">
+    <input id="nexVttChatInput" type="text" autocomplete="off" maxlength="500" placeholder="Escreva uma mensagem..." aria-label="Mensagem para o chat" required>
+    <button type="submit" id="nexVttChatSend">Enviar</button>
+   </form>
+   <p id="nexVttChatStatus" class="nex-vtt-chat-status" role="status">As mensagens aparecem durante a sessão do mestre.</p>
   </section>
   <section data-nex-main-page="art" hidden>
    <h3>Biblioteca de arte</h3>
@@ -2624,7 +2636,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117tokenhover3';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117chat1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
