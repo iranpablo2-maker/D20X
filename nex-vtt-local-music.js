@@ -6,6 +6,7 @@ export function mountNexLocalMusic({uid,campaignId,root}){
  const DB_NAME='nex-vtt-local-music-v1',STORE='tracks';
  const MAX_TRACKS=24,MAX_FILE=25*1024*1024,MAX_TOTAL=120*1024*1024;
  let disposed=false,selectedId='',objectURL='',dbPromise=null;
+ let audioContext=null,audioSource=null,audioDestination=null;
  const panel=document.createElement('details');
  panel.className='nex-vtt-local-music';
  panel.style.cssText='margin:10px 0;padding:10px;border:1px solid #6a353b;border-radius:8px;background:#181417;color:#f4e8e8;';
@@ -13,7 +14,7 @@ export function mountNexLocalMusic({uid,campaignId,root}){
  header.textContent='♫ Músicas e sons locais';
  header.style.cssText='cursor:pointer;font-weight:650;font-size:13px;';
  const subtitle=document.createElement('p');
- subtitle.textContent='Somente neste dispositivo. Não é enviado ao R2, Firebase ou D1 e não toca automaticamente para os jogadores.';
+ subtitle.textContent='Músicas armazenadas somente neste dispositivo. Durante a sessão, o som será transmitido ao vivo aos jogadores conectados, sem enviar o arquivo.';
  subtitle.style.cssText='font-size:12px;line-height:1.4;margin:8px 0;color:#bfb0b0;';
  const input=document.createElement('input');
  input.type='file';input.multiple=true;input.accept='.mp3,.ogg,.wav,.m4a,.webm,.aac,.flac,audio/*';
@@ -66,6 +67,22 @@ export function mountNexLocalMusic({uid,campaignId,root}){
    }catch(error){reject(error);}
   });
  }
+ function audioStream(){
+  if(!audioDestination){
+   const AudioContextType=window.AudioContext||window.webkitAudioContext;
+   if(!AudioContextType)throw Error('Este navegador não permite transmitir áudio diretamente.');
+   audioContext=new AudioContextType();
+   audioSource=audioContext.createMediaElementSource(player);
+   audioDestination=audioContext.createMediaStreamDestination();
+   audioSource.connect(audioContext.destination);
+   audioSource.connect(audioDestination);
+  }
+  return audioDestination.stream;
+ }
+ player.addEventListener('play',()=>{
+  try{audioStream();void audioContext?.resume().catch(error=>say('Áudio bloqueado pelo navegador: '+error.message));}
+  catch(error){say('Transmissão de música indisponível: '+error.message);}
+ });
  function clearAudio(){
   player.pause();player.removeAttribute('src');player.load();
   if(objectURL){URL.revokeObjectURL(objectURL);objectURL='';}
@@ -94,7 +111,7 @@ export function mountNexLocalMusic({uid,campaignId,root}){
   if(!row){say('Música não encontrada.');return;}
   objectURL=URL.createObjectURL(row.blob);
   player.src=objectURL;
-  say('Pronta para reproduzir. A música toca apenas neste navegador.');
+  say('Pronta para reproduzir. Ao iniciar a sessão, os jogadores também poderão escutar ao vivo.');
  }
  selector.addEventListener('change',()=>{void choose(selector.value).catch(error=>say(error.message));});
  input.addEventListener('change',async()=>{
@@ -134,5 +151,7 @@ export function mountNexLocalMusic({uid,campaignId,root}){
   }catch(error){say(error.message);}
  });
  void update().then(()=>say('Biblioteca local pronta.')).catch(error=>say(error.message));
- return ()=>{disposed=true;clearAudio();panel.remove();};
+ const dispose=()=>{disposed=true;clearAudio();void audioContext?.close().catch(()=>{});panel.remove();};
+ dispose.getStream=audioStream;
+ return dispose;
 }
