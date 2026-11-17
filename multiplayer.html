@@ -4840,4 +4840,58 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  refresh();
 })();
 </script>
+<!-- NEX VTT: fallback independente das abas da biblioteca -->
+<style id="nex-vtt-library-controls-final">
+#roomTabletopPanel #nexVttMainMenu:not([hidden]){z-index:600!important;pointer-events:auto!important}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;position:relative!important;z-index:10!important}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs>[data-nex-library-layer]{display:flex!important;align-items:center!important;justify-content:center!important;pointer-events:auto!important;position:relative!important;z-index:11!important;touch-action:manipulation!important}
+</style>
+<script id="nex-vtt-library-controls-final-script">
+(function(){
+ 'use strict';
+ const layers=['mapa','tokens','imersao'];
+ let handledAt=0, handledLayer='';
+ function findTab(event){
+  const target=event.target;
+  const direct=target instanceof Element?target.closest('#nexVttMainMenu .nex-vtt-library-tabs [data-nex-library-layer]'):null;
+  if(direct)return direct;
+  const menu=document.getElementById('nexVttMainMenu');
+  if(!menu||menu.hidden||menu.querySelector('[data-nex-main-page="art"]')?.hidden!==false)return null;
+  for(const tab of menu.querySelectorAll('.nex-vtt-library-tabs [data-nex-library-layer]')){
+   const rect=tab.getBoundingClientRect();
+   if(rect.width>0&&rect.height>0&&event.clientX>=rect.left&&event.clientX<=rect.right&&event.clientY>=rect.top&&event.clientY<=rect.bottom)return tab;
+  }
+  return null;
+ }
+ function activate(tab,event){
+  const layer=tab?.dataset.nexLibraryLayer;
+  if(!layers.includes(layer))return;
+  const now=Date.now();
+  if(now-handledAt<450&&handledLayer===layer){
+   event.preventDefault();event.stopImmediatePropagation();return;
+  }
+  handledAt=now;handledLayer=layer;
+  event.preventDefault();event.stopImmediatePropagation();
+  try{
+   if(typeof window.NEX_VTT_OPEN_LIBRARY_LAYER!=='function')throw new Error('O módulo da campanha não terminou de carregar.');
+   window.NEX_VTT_OPEN_LIBRARY_LAYER(layer);
+  }catch(error){
+   const body=document.getElementById('nexVttLibraryBody');
+   if(body){
+    const note=document.createElement('p');note.setAttribute('role','alert');
+    note.textContent='Falha ao abrir '+tab.textContent.trim()+': '+(error?.message||String(error));
+    body.replaceChildren(note);
+   }
+   console.error('NEX: biblioteca de arte',error);
+  }
+ }
+ document.addEventListener('pointerup',event=>{
+  if(event.button!==0)return;
+  const tab=findTab(event);if(tab)activate(tab,event);
+ },true);
+ document.addEventListener('click',event=>{
+  const tab=findTab(event);if(tab)activate(tab,event);
+ },true);
+})();
+</script>
 </body></html>
