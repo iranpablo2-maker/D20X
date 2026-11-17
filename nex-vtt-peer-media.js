@@ -4,7 +4,7 @@
  */
 const ICE_SERVERS=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}];
 const LOCAL_REF=/^local:(?:map|asset|atmo)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp|webm)$/;
-const MAX_IMAGE=11*1024*1024,CHUNK=32*1024,BUFFER_LIMIT=512*1024;
+const MAX_IMAGE=100*1024*1024,CHUNK=32*1024,BUFFER_LIMIT=512*1024;
 function waitIce(pc){
  if(pc.iceGatheringState==='complete')return Promise.resolve();
  return new Promise(resolve=>{
@@ -46,15 +46,14 @@ function waitBuffer(channel){
 }
 async function sendFile(channel,ref,data){
  if(channel.readyState!=='open')return;
- const blob=dataUrlToBlob(data);
+ const blob=data instanceof Blob?data:dataUrlToBlob(data);
  if(blob.size>MAX_IMAGE)throw Error('Arquivo muito grande para a sessao');
  channel.send(JSON.stringify({type:'file',ref,mime:blob.type,size:blob.size}));
  // Uma unica leitura do arquivo: menos operacoes de disco/Blob por bloco WEBM.
- const bytes=new Uint8Array(await blob.arrayBuffer());
- for(let offset=0;offset<bytes.byteLength;offset+=CHUNK){
+ for(let offset=0;offset<blob.size;offset+=CHUNK){
   await waitBuffer(channel);
   if(channel.readyState!=='open')throw Error('Jogador desconectou durante o envio');
-  channel.send(bytes.subarray(offset,offset+CHUNK));
+  channel.send(await blob.slice(offset,offset+CHUNK).arrayBuffer());
  }
 }
 export function mountNexPeerMedia({
@@ -234,7 +233,7 @@ export function mountNexPeerMedia({
      if(expected&&transfer.mime!==expected){clearTimeout(req.timer);pending.delete(transfer.ref);req.reject(Error('Formato WEBM invalido'));return;}
      const blob=new Blob(transfer.parts,{type:transfer.mime});
     // WEBM permanece binário: evita converter megabytes para Base64 e de volta.
-    if(expected){
+    if(expected||transfer.mime==='image/gif'){
      clearTimeout(req.timer);pending.delete(transfer.ref);
      if(!destroyed){say('Mapa animado recebido.');req.resolve(blob);}
     }else{
@@ -395,7 +394,7 @@ export function mountNexPeerMedia({
   if(pending.has(src))return pending.get(src).promise;
   let resolve,reject;
   const promise=new Promise((a,b)=>{resolve=a;reject=b;});
-  const timer=setTimeout(()=>{pending.delete(src);reject(Error('Imagem nao chegou. Verifique conexao direta.'));},90000);
+  const timer=setTimeout(()=>{pending.delete(src);reject(Error('Imagem nao chegou. Verifique conexao direta.'));},300000);
   pending.set(src,{promise,resolve,reject,timer});
   joinPeer.channel.send(JSON.stringify({type:'get',ref:src}));
   return promise;
