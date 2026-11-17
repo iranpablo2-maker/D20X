@@ -2082,6 +2082,34 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  }
 }
 </style>
+<style id="nex-vtt-library-tabs-narrow-fix">
+/* Duas colunas preservam os quatro títulos no menu redimensionável. */
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{
+ display:grid!important;
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:7px!important;
+ width:100%!important;
+ min-width:0!important;
+ box-sizing:border-box!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs button{
+ display:flex!important;
+ align-items:center!important;
+ justify-content:center!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ min-width:0!important;
+ max-width:100%!important;
+ min-height:36px!important;
+ padding:7px 4px!important;
+ font-size:12px!important;
+ line-height:1.25!important;
+ white-space:nowrap!important;
+ word-break:normal!important;
+ overflow:hidden!important;
+ text-overflow:ellipsis!important;
+}
+</style>
 </head>
 <body>
 <script>
