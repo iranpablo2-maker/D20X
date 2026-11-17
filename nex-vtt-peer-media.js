@@ -4,7 +4,7 @@
  */
 const ICE_SERVERS=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}];
 const LOCAL_REF=/^local:(?:map|asset|atmo)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp|webm)$/;
-const MAX_IMAGE=11*1024*1024,CHUNK=16*1024,BUFFER_LIMIT=384*1024;
+const MAX_IMAGE=11*1024*1024,CHUNK=32*1024,BUFFER_LIMIT=512*1024;
 function waitIce(pc){
  if(pc.iceGatheringState==='complete')return Promise.resolve();
  return new Promise(resolve=>{
@@ -49,11 +49,12 @@ async function sendFile(channel,ref,data){
  const blob=dataUrlToBlob(data);
  if(blob.size>MAX_IMAGE)throw Error('Arquivo muito grande para a sessao');
  channel.send(JSON.stringify({type:'file',ref,mime:blob.type,size:blob.size}));
- for(let offset=0;offset<blob.size;offset+=CHUNK){
+ // Uma unica leitura do arquivo: menos operacoes de disco/Blob por bloco WEBM.
+ const bytes=new Uint8Array(await blob.arrayBuffer());
+ for(let offset=0;offset<bytes.byteLength;offset+=CHUNK){
   await waitBuffer(channel);
-  const bytes=await blob.slice(offset,offset+CHUNK).arrayBuffer();
   if(channel.readyState!=='open')throw Error('Jogador desconectou durante o envio');
-  channel.send(bytes);
+  channel.send(bytes.subarray(offset,offset+CHUNK));
  }
 }
 export function mountNexPeerMedia({
