@@ -1,7 +1,7 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117livedrag1';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117tokenmenu1';
 import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
@@ -571,23 +571,28 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  function openTokenMenu(event,token){
   closeTokenMenu();
+  const allowed=gm||(!token.locked&&peerMedia?.connected());
   const add=(label,action,disabled=false)=>{
    const b=document.createElement('button');b.type='button';b.textContent=label;
    b.disabled=disabled;b.setAttribute('role','menuitem');
    b.addEventListener('click',action);tokenMenu.append(b);return b;
   };
   add('Excluir',()=>{
+   closeTokenMenu();
+   if(!gm){peerMedia?.sendTokenAction('delete',token.id);return;}
    scene.tokens=scene.tokens.filter(t=>t.id!==token.id);
    if(selectedId===token.id)selectedId=null;
-   closeTokenMenu();render();save();
-  });
+   render();save();
+  },!allowed);
   add('Copiar',()=>{
    copiedToken={...token,images:[...(token.images||[])]};
    closeTokenMenu();
   });
   add('Colar',()=>{
-   closeTokenMenu();pasteTokenAt(copiedToken,token);
-  },!copiedToken||scene.tokens.length>=90);
+   closeTokenMenu();
+   if(!gm){peerMedia?.sendTokenAction('paste',token.id,{sourceId:copiedToken?.id});return;}
+   pasteTokenAt(copiedToken,token);
+  },!copiedToken||scene.tokens.length>=90||!allowed);
   const availableSlots=(token.images||[]).map((image,index)=>image?index:null).filter(index=>index!==null);
   const variationButton=availableSlots.length>1?add('Variação  ▸',()=>{
    list.hidden=!list.hidden;
@@ -601,9 +606,12 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const button=document.createElement('button');button.type='button';button.textContent=String(i);
    button.title='Variação '+i;button.setAttribute('aria-label','Variação '+i);
    button.setAttribute('aria-pressed',String(token.variation===i));
+   button.disabled=!allowed;
    button.addEventListener('click',()=>{
     const current=scene.tokens.find(t=>t.id===token.id);if(!current)return closeTokenMenu();
-    current.variation=i;selectedId=current.id;closeTokenMenu();render();save();
+    closeTokenMenu();
+    if(!gm){peerMedia?.sendTokenAction('variation',current.id,{variation:i});return;}
+    current.variation=i;selectedId=current.id;render();save();
    });list.append(button);
   }
   tokenMenu.style.left='0px';tokenMenu.style.top='0px';tokenMenu.hidden=false;
@@ -615,9 +623,12 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const el=event.target.closest('.nex-tabletop-token[data-token]');
   if(!el){closeTokenMenu();return;}
   event.preventDefault();
-  if(!gm)return;
   const token=scene.tokens.find(t=>t.id===el.dataset.token);
-  if(token){selectedId=token.id;resizeSelectedId=token.locked?null:token.id;render();openTokenMenu(event,token);}
+  if(token&&(gm||!token.hidden)){
+   selectedId=token.id;
+   if(gm)resizeSelectedId=token.locked?null:token.id;
+   render();openTokenMenu(event,token);
+  }
  });
  listen(document,'pointerdown',event=>{if(!tokenMenu.hidden&&!tokenMenu.contains(event.target))closeTokenMenu();if(event.button===0&&!drag&&!event.target.closest('#nexTabletopBoard .nex-tabletop-token')&&resizeSelectedId!==null){resizeSelectedId=null;render();}});
  listen(document,'keydown',event=>{if(event.key==='Escape')closeTokenMenu();});
@@ -1513,6 +1524,23 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,root:liveRoot,
   getAudioStream:()=>localAudioCleanup.getStream?.()||null,
   getScene:()=>gm?JSON.parse(JSON.stringify(validScene(scene))):null,
+  onTokenAction:({action,id,sourceId,variation})=>{
+   if(!gm||disposed||!remoteReady)return;
+   const token=scene.tokens.find(t=>t.id===id);
+   if(!token||token.hidden||token.locked)return;
+   if(action==='delete'){
+    scene.tokens=scene.tokens.filter(t=>t.id!==id);
+    if(selectedId===id)selectedId=null;
+   }else if(action==='variation'){
+    if(!Number.isInteger(variation)||variation<0||variation>9||!token.images?.[variation])return;
+    token.variation=variation;
+   }else if(action==='paste'){
+    const source=scene.tokens.find(t=>t.id===sourceId);
+    if(!source||source.hidden||source.locked)return;
+    pasteTokenAt(source,token);return;
+   }else return;
+   render();void save();
+  },
   onTokenMove:({id,x,y,final})=>{
    if(!gm||disposed||!remoteReady)return;
    const token=scene.tokens.find(t=>t.id===id);
