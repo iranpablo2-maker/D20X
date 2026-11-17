@@ -3,7 +3,7 @@
  * Sem TURN, algumas redes moveis/NATs podem bloquear conexoes diretas.
  */
 const ICE_SERVERS=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}];
-const LOCAL_REF=/^local:(?:map|asset|atmo)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp)$/;
+const LOCAL_REF=/^local:(?:map|asset|atmo)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp|webm)$/;
 const MAX_IMAGE=11*1024*1024,CHUNK=16*1024,BUFFER_LIMIT=384*1024;
 function waitIce(pc){
  if(pc.iceGatheringState==='complete')return Promise.resolve();
@@ -16,7 +16,7 @@ function waitIce(pc){
  });
 }
 function dataUrlToBlob(src){
- if(typeof src!=='string'||!src.startsWith('data:image/'))throw Error('Imagem invalida');
+ if(typeof src!=='string'||!/^data:(?:image\/(?:gif|png|jpeg|webp)|video\/webm);base64,/.test(src))throw Error('Midia invalida');
  const at=src.indexOf(',');
  const meta=src.slice(5,at);
  const raw=atob(src.slice(at+1));
@@ -222,7 +222,9 @@ export function mountNexPeerMedia({
     peer.receiving=null;
     const req=pending.get(transfer.ref);
     if(!req)return;
-    const blob=new Blob(transfer.parts,{type:transfer.mime});
+    const expected=transfer.ref.endsWith(':webm')?'video/webm':null;
+     if(expected&&transfer.mime!==expected){clearTimeout(req.timer);pending.delete(transfer.ref);req.reject(Error('Formato WEBM invalido'));return;}
+     const blob=new Blob(transfer.parts,{type:transfer.mime});
     void blobToDataUrl(blob).then(img=>{
      if(destroyed)return;
      clearTimeout(req.timer);pending.delete(transfer.ref);say('Imagem recebida e disponível no mapa.');req.resolve(img);
