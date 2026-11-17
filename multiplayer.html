@@ -2263,7 +2263,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <div class="nex-vtt-library-tabs" role="group" aria-label="Camadas da biblioteca">
     <button type="button" data-nex-library-layer="mapa" aria-pressed="true">Mapa</button>
     <button type="button" data-nex-library-layer="tokens" aria-pressed="false">Tokens</button>
-    <button type="button" data-nex-library-layer="mestre" aria-pressed="false">Mestre</button>
      <button type="button" data-nex-library-layer="imersao" aria-pressed="false">Imersão</button>
    </div>
    <div id="nexVttLibraryBody" class="nex-vtt-library-body"></div>
@@ -2356,7 +2355,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117webm1';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117webm2';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -3257,8 +3256,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     if(gm){
      const actions=document.createElement('div');actions.className='nex-vtt-art-actions';libraryBody.append(actions);
      const upload=addLibraryButton('＋ Adicionar mapas',()=>{$('nexTabletopMapFile')?.click();});
-     const clear=addLibraryButton('Ocultar mapa',()=>{$('nexTabletopRemoveMap')?.click();});
-     actions.append(upload,clear);
+     actions.append(upload);
     }
     const title=document.createElement('strong');title.className='nex-vtt-art-list-title';
     title.textContent='Mapas da campanha';libraryBody.append(title);
@@ -3268,10 +3266,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     for(const map of mapLibraryState.maps||[]){
      const row=document.createElement('div');row.className='nex-vtt-map-entry';
      const webm=/:webm$/.test(map.src||'')||String(map.src||'').startsWith('data:video/webm;');
-     const thumb=document.createElement(webm?'video':'img');thumb.className='nex-vtt-art-thumb';
-     if(webm){thumb.muted=true;thumb.loop=true;thumb.autoplay=true;thumb.playsInline=true;thumb.preload='metadata';thumb.style.objectFit='cover';}
-     if(map.src)thumb.src=map.src;
-     if(webm)void thumb.play().catch(()=>{});else thumb.alt='';
+     // Miniaturas WEBM sem reprodução simultânea: apenas o mapa ativo anima.
+     const thumb=document.createElement(webm?'span':'img');thumb.className='nex-vtt-art-thumb';
+     if(webm){thumb.classList.add('nex-vtt-webm-placeholder');thumb.textContent='▶';thumb.title='Mapa animado WEBM';thumb.style.cssText='display:inline-flex;align-items:center;justify-content:center;background:#24212c;color:#d5c4dc;font-size:19px';}
+     else{if(map.src)thumb.src=map.src;thumb.alt='';}
      const label=document.createElement('span');label.className='nex-vtt-map-name';label.textContent=map.name;label.title=map.name;
      row.append(thumb,label);
      if(gm){
