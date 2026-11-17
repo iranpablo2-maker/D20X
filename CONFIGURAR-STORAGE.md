@@ -1,52 +1,24 @@
-# NEX Tabletop — armazenamento híbrido (sem plano Blaze)
+# NEX Tabletop — local, Firestore legado e Cloudflare R2
 
-## Como funciona
+## Situação atual
+A interface do Tabletop tem duas opções para novas imagens:
+- **Neste dispositivo (não compartilha)**: dados de imagem persistem no IndexedDB local, se houver espaço.
+- **R2 na nuvem (compartilha com jogadores)**: mapas, GIFs e tokens vão diretamente ao bucket privado R2, depois que ele for criado e vinculado.
 
-O mestre adiciona **uma única vez** mapas, GIFs e imagens de tokens.
-O arquivo original é dividido em documentos menores no Cloud Firestore e
-uma referência fica no documento da campanha. PC, celular e jogadores
-autorizados carregam a mesma imagem automaticamente.
+Imagens já salvas no Firestore continuam legíveis. O estado do Tabletop, posições e permissões continuam no Firebase Firestore. O Cloudflare D1 continua disponível para dados estruturados.
 
-Cada navegador mantém uma cópia local no **IndexedDB**, separada por
-conta NEX e campanha. Nas próximas visitas, arquivos que já estão em cache
-não precisam ser baixados novamente do Firestore. O cache pode ser
-apagado pelo navegador ou sistema operacional; o Firestore mantém a cópia
-principal para permitir recuperar imagens em qualquer dispositivo.
+## Antes de usar R2
+Leia e siga [CONFIGURAR-R2.md](./CONFIGURAR-R2.md).
+Ainda é necessário criar o bucket **`nex-vtt-media`**, vincular o recurso **`NEX_MEDIA`** ao Pages e atualizar **`wrangler.toml`**. Sem isso, o envio em nuvem apresentará aviso de configuração, mas o modo local e arquivos antigos continuarão funcionando.
 
-- Até **5 MB por imagem** (PNG/JPG/WebP/GIF).
-- Até **8 camadas de atmosfera** por cena.
-- Até **20 imagens na biblioteca de tokens** por cena.
-- Mapas, imagens dos tokens e GIFs originais preservados na nuvem e no cache local.
-- O mestre pode estar offline depois de enviar as imagens; jogadores podem carregá-las.
-- A posição dos tokens, a campanha e permissões continuam usando Firestore.
-- O cache tem um limite aproximado de **75 MiB por origem no navegador**;
-  caso o armazenamento local esteja cheio ou indisponível, a nuvem continua
-  sendo a fonte de verdade.
+Confira o estado em [Diagnóstico R2](https://nexrpg.pages.dev/api/nex-r2-health). O resultado esperado depois de configurar é `"r2Configured":true`.
 
-## Configuração obrigatória
+## Compatibilidade
+- Até 10 MB para cada nova imagem na nuvem R2.
+- Até 5 MB para cada nova imagem apenas local.
+- Até 8 atmosferas e 20 imagens de tokens na biblioteca por cena.
+- Cache IndexedDB separado por conta e campanha; pode ser removido pelo navegador.
+- O acesso ao R2 é autenticado com Firebase; somente o mestre pode enviar e excluir; jogadores da campanha podem ler os arquivos.
 
-1. Abra [Firebase Console → Firestore → Rules](https://console.firebase.google.com/project/nex-rpg/firestore/rules).
-2. Copie **todo** o arquivo [firestore.rules](./firestore.rules) do GitHub.
-3. Substitua as regras anteriores e clique em **Publicar**.
-4. Atualize [NEX](https://nexrpg.pages.dev/multiplayer.html) com Ctrl+F5
-   no computador e reabra a página no celular.
-5. Teste o mesmo mapa e GIF na mesma campanha, conectado em dois dispositivos.
-
-**Não é necessário configurar Firebase Storage, nem publicar storage.rules,
-nem ativar o plano Blaze.**
-
-## Avisos e limites
-
-O Firestore possui cotas de espaço e de leituras/gravações.
-O cache economiza leituras repetidas de mídias, **não elimina a quota
-compartilhada de armazenamento do Firestore**. O serviço não é ilimitado.
-
-Arquivos anteriormente embutidos no documento da cena continuam
-compatíveis. Novos uploads de mapa, imagem de token e atmosfera
-utilizam as referências `firestore:map_...`, `firestore:asset_...` e
-`firestore:atmo_...`. A exclusão das novas mídias remove suas partes
-se a cena for salva corretamente.
-
-Para evitar perda de dados, não apague manualmente coleções do Firebase
-sem ter uma cópia de segurança das campanhas. A exclusão de uma campanha
-inteira ainda pode requerer limpeza recursiva dos arquivos associados.
+## Custos
+O R2 Standard possui cota gratuita própria, mas **não é gratuito e ilimitado**. Os limites por campanha existentes no NEX não substituem acompanhamento da cota da conta Cloudflare. Não ative faturamento pago sem avaliar antes.
