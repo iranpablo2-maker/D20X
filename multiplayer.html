@@ -3341,6 +3341,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomManagePanel',section==='manage'&&gm);
  }
  document.querySelectorAll('[data-room-section]').forEach(button=>button.addEventListener('click',()=>roomSection(button.dataset.roomSection)));
+ // Vincular a abertura da mesa antes de inicializar os paineis opcionais (como Chat).
+ $('roomOpenTabletop').addEventListener('click',()=>{
+  if(!roomId){notice('Abra uma campanha primeiro.');return;}
+  if(!gm&&!vttHostActive){updateTabletopAccess();return;}
+  roomSection('tabletop');
+ });
  const vttSidebarToggle=$('nexVttSidebarToggle');
  const vttSidebarPanel=$('roomTabletopPanel');
  const vttSidebarKey='nex-vtt-tools-collapsed-v21';
@@ -3405,8 +3411,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const vttChatMessages=$('nexVttChatMessages'),vttChatStatus=$('nexVttChatStatus');
   let chatCampaign='',chatHistoryIds=new Set(),pendingChatText='';
   function chatReset(campaign){
-   chatCampaign=campaign||'';chatHistoryIds.clear();vttChatMessages.replaceChildren();
-   vttChatStatus.textContent='Mensagens disponíveis durante a sessão do mestre.';
+   chatCampaign=campaign||'';chatHistoryIds.clear();vttChatMessages?.replaceChildren();
+   if(vttChatStatus)vttChatStatus.textContent='Mensagens disponíveis durante a sessão do mestre.';
   }
   function chatDisplay(item){
    if(!item||typeof item.text!=='string'||typeof item.name!=='string'||typeof item.id!=='string'||!item.text.trim()||chatHistoryIds.has(item.id))return;
@@ -3438,7 +3444,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    }else vttChatStatus.textContent='';
    pendingChatText='';
   });
-  vttChatForm.addEventListener('submit',event=>{
+  vttChatForm?.addEventListener('submit',event=>{
    event.preventDefault();
    const message=vttChatInput.value.trim();
    if(!uid||!roomId||!message)return;
@@ -3915,7 +3921,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   current.searchParams.set('vttRefresh',Date.now().toString());
   location.replace(current.href);
  });
- $('roomOpenTabletop').addEventListener('click',()=>roomSection('tabletop'));
+
  $('nexVttExit').addEventListener('click',()=>roomSection('characters'));
  function inviteView(mode,message){
   inviteState=mode;
