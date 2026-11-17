@@ -1504,7 +1504,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      }
     }
     if(disposed)return;
-    remoteReady=true;render();if(queued)void save();
+    remoteReady=true;render();peerMedia?.broadcastScene(JSON.parse(JSON.stringify(validScene(scene))));if(queued)void save();
     else if(!saveFailed)message('Mesa local pronta. Inicie a transmissão para os jogadores.');
    }catch(error){
     if(disposed)return;
