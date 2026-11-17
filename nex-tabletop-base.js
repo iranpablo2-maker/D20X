@@ -42,6 +42,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
   if(cached)return cached.url||src;
   const entry={url:'',pending:true};transparentTokens.set(src,entry);
   const photo=new Image();
+  if(/^https?:/i.test(src))photo.crossOrigin='anonymous';
   photo.onload=()=>{
    const width=photo.naturalWidth,height=photo.naturalHeight;
    if(disposed||!width||!height||width*height>2400000||width>2200||height>2200){entry.pending=false;return;}
