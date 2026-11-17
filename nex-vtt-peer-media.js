@@ -233,10 +233,16 @@ export function mountNexPeerMedia({
     const expected=transfer.ref.endsWith(':webm')?'video/webm':null;
      if(expected&&transfer.mime!==expected){clearTimeout(req.timer);pending.delete(transfer.ref);req.reject(Error('Formato WEBM invalido'));return;}
      const blob=new Blob(transfer.parts,{type:transfer.mime});
-    void blobToDataUrl(blob).then(img=>{
-     if(destroyed)return;
-     clearTimeout(req.timer);pending.delete(transfer.ref);say('Imagem recebida e disponível no mapa.');req.resolve(img);
-    }).catch(error=>{clearTimeout(req.timer);pending.delete(transfer.ref);req.reject(error);});
+    // WEBM permanece binário: evita converter megabytes para Base64 e de volta.
+    if(expected){
+     clearTimeout(req.timer);pending.delete(transfer.ref);
+     if(!destroyed){say('Mapa animado recebido.');req.resolve(blob);}
+    }else{
+     void blobToDataUrl(blob).then(img=>{
+      if(destroyed)return;
+      clearTimeout(req.timer);pending.delete(transfer.ref);say('Imagem recebida e disponível no mapa.');req.resolve(img);
+     }).catch(error=>{clearTimeout(req.timer);pending.delete(transfer.ref);req.reject(error);});
+    }
    }
   };
  }
