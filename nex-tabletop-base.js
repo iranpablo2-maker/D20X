@@ -39,6 +39,12 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const localMediaPattern=/^local:(?:atmo|map|asset)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp|webm)$/;
  const isLocalMedia=src=>typeof src==='string'&&localMediaPattern.test(src);
  const isWebmMap=src=>typeof src==='string'&&(/:webm$/.test(src)||src.startsWith('data:video/webm;'));
+ // Grade independente do pseudo-elemento CSS, para continuar visível sobre mapas WEBM e GIF.
+ const gridOverlay=document.createElement('div');
+ gridOverlay.id='nexVttGridOverlay';
+ gridOverlay.setAttribute('aria-hidden','true');
+ gridOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;background-image:linear-gradient(to right,rgba(255,255,255,.48) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.48) 1px,transparent 1px);background-size:var(--nex-grid-width,4%) var(--nex-grid-height,4%);background-position:0 0';
+ board.append(gridOverlay);
  const mapVideo=document.createElement('video');mapVideo.className='nex-vtt-map-video';mapVideo.muted=true;mapVideo.loop=true;mapVideo.autoplay=true;mapVideo.playsInline=true;mapVideo.preload='metadata';mapVideo.controls=false;mapVideo.setAttribute('aria-hidden','true');mapVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:0;display:none';board.prepend(mapVideo);
  let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,renderedMapSource=null,mapLoadId=0;
  function mapGeometry(){
@@ -1364,6 +1370,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    vttLayer.replaceChildren();for(const d of scene.drawings)vttPaint(d,vttLayer);
    if(vttDraft&&vttMode!=='measure')vttPaint(vttDraft,vttLayer);
    board.classList.toggle('nex-vtt-hide-grid',!scene.gridVisible);
+   gridOverlay.style.display=scene.gridVisible?'block':'none';
    applyAtmosphere();
    vttFog.hidden=!scene.fogEnabled;
    if(scene.fogEnabled){
@@ -1707,5 +1714,5 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   remoteReady=true;render();message('Aguardando o mestre transmitir a mesa.');
  }
  render();
- return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();mapVideo.pause();mapVideo.remove();for(const url of webmObjectUrls.values())URL.revokeObjectURL(url);webmObjectUrls.clear();};
+ return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();gridOverlay.remove();mapVideo.pause();mapVideo.remove();for(const url of webmObjectUrls.values())URL.revokeObjectURL(url);webmObjectUrls.clear();};
 }
