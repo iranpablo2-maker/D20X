@@ -59,7 +59,7 @@ async function sendFile(channel,ref,data){
 }
 export function mountNexPeerMedia({
  db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,
- root,getAsset=async()=>null,getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onTokenPreview=()=>{},onTokenAction=()=>{},onConnected=()=>{},onDisconnected=()=>{}
+ root,getAsset=async()=>null,getPreview=async()=>null,onPreview=()=>{},getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onTokenPreview=()=>{},onTokenAction=()=>{},onConnected=()=>{},onDisconnected=()=>{}
 }){
  if(!db||!uid||!root||typeof RTCPeerConnection==='undefined')return {
   connected:()=>false,fetchImage:()=>Promise.reject(Error('WebRTC nao disponivel neste navegador')),
@@ -199,8 +199,15 @@ export function mountNexPeerMedia({
        if(channel.readyState==='open')channel.send(JSON.stringify({type:'error',ref:msg.ref,text:'Imagem nao encontrada no dispositivo do mestre'}));
        return;
       }
+      if(msg.ref.endsWith(':webm')){
+       const preview=await getPreview(msg.ref,peer.uid);
+       if(typeof preview==='string'&&preview.length<110000&&/^data:image\/jpeg;base64,/.test(preview)&&channel.readyState==='open')
+        channel.send(JSON.stringify({type:'preview',ref:msg.ref,data:preview}));
+      }
       await sendFile(channel,msg.ref,data);
      }).catch(err=>{if(channel.readyState==='open')channel.send(JSON.stringify({type:'error',ref:msg.ref,text:String(err.message).slice(0,120)}));});
+    }else if(!gm&&msg.type==='preview'&&LOCAL_REF.test(msg.ref||'')&&msg.ref.endsWith(':webm')&&typeof msg.data==='string'&&msg.data.length<110000&&/^data:image\/jpeg;base64,/.test(msg.data)){
+     onPreview(msg.ref,msg.data);
     }else if(!gm&&msg.type==='file'&&LOCAL_REF.test(msg.ref||'')&&Number.isInteger(msg.size)&&msg.size>0&&msg.size<=MAX_IMAGE){
      const req=pending.get(msg.ref);
      if(req&&!peer.receiving)peer.receiving={ref:msg.ref,mime:msg.mime,size:msg.size,total:0,parts:[],reported:-1};
