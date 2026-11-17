@@ -109,7 +109,8 @@ export function mountNexPeerMedia({
  }
  // A transmissão acompanha a abertura e saída da mesa, sem botão manual.
  const panel=document.createElement('div');
- panel.style.cssText='margin:2px 0;color:#bdb2b6;font-size:11px';
+ panel.style.cssText='display:none!important';
+ panel.hidden=true;
  const status=document.createElement('div');
  status.setAttribute('role','status');
  status.textContent=gm?'Aguardando abertura do Tabletop.':'Aguardando o mestre.';
@@ -330,6 +331,7 @@ export function mountNexPeerMedia({
  const unsubscribe=onSnapshot(sessionRef,snapshot=>{
   if(destroyed||gm)return;
   const s=snapshot.data();
+  window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:!!(s?.active&&typeof s.session==='string'&&s.session&&s.gmUid!==uid)}}));
   if(s?.active&&typeof s.session==='string'&&s.session&&s.gmUid!==uid){
    if(joinPeer?.session!==s.session)connectToHost(s.session);
   }else{
@@ -337,7 +339,10 @@ export function mountNexPeerMedia({
    activeSession='';
    say('Aguardando o mestre iniciar a sessao.');
   }
- },error=>say('Nao foi possivel acompanhar o inicio da campanha: '+String(error.message).slice(0,120)));
+ },error=>{
+  if(!gm)window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:false}}));
+  say('Nao foi possivel acompanhar o inicio da campanha: '+String(error.message).slice(0,120));
+ });
  const onTabletopView=event=>{
    if(!gm||destroyed||event.detail?.campaignId!==campaignId)return;
    if(event.detail.open)void start();else void stop();
