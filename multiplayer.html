@@ -1604,6 +1604,14 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-atmosphere-opacity-line{display:flex;align-items:center;gap:9px;margin-top:8px}
 #roomTabletopPanel .nex-vtt-atmosphere-opacity-line input{flex:1;min-width:0;accent-color:#98baff;cursor:pointer}
 #roomTabletopPanel .nex-vtt-atmosphere-opacity-line output{min-width:34px;text-align:right;font-size:11px}
+</style><style id="nex-vtt-immersion-switch-style">
+#roomTabletopPanel .nex-vtt-immersion-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-immersion-switch button{min-width:0!important;padding:8px 4px!important}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-immersion-switch button[aria-pressed="true"]{background:#514067!important;border-color:#a48dd0!important;color:white!important}
+#roomTabletopPanel .nex-vtt-atmosphere-entry[data-opacity-collapsed="true"] .nex-vtt-atmosphere-opacity-label{display:none!important}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-opacity-expand{flex:0 0 24px!important;width:24px!important;min-height:27px!important;padding:0!important;display:grid!important;place-items:center}
+#roomTabletopPanel #nexVttImmersionMusicHost[hidden]{display:none!important}
+#roomTabletopPanel #nexVttImmersionMusicHost:not([hidden]){padding:0 2px 14px}
 </style><style id="nex-vtt-atmosphere-library-multi">
 #roomTabletopPanel .nex-vtt-atmosphere-list{display:flex;flex-direction:column;gap:12px}
 #roomTabletopPanel .nex-vtt-atmosphere-entry{padding:8px;border:1px solid #44485d;border-radius:6px;min-width:0}
@@ -3077,6 +3085,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const tokenLibraryAction=(action,assetId,variation=tokenChosenVariation)=>
    window.dispatchEvent(new CustomEvent('nex:vtt-token-library-action',{detail:{action,assetId,variation}}));
   let currentAtmosphereLayers=[];
+  let immersionSection='atmosferas';
+  const expandedOpacityIds=new Set();
   const atmosphereAction=(action,id,extra={})=>
    window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-layer-action',{detail:{action,id,...extra}}));
   function renderAtmosphereItems(){
@@ -3107,7 +3117,18 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    }
    for(const layer of currentAtmosphereLayers){
     const row=document.createElement('div');row.className='nex-vtt-atmosphere-entry';row.dataset.layerId=layer.id;
+    row.dataset.opacityCollapsed=String(!expandedOpacityIds.has(layer.id));
     const top=document.createElement('div');top.className='nex-vtt-art-row nex-vtt-atmosphere-item';
+    const expand=document.createElement('button');expand.type='button';
+    expand.className='nex-vtt-opacity-expand';expand.textContent=expandedOpacityIds.has(layer.id)?'▾':'▸';
+    expand.title='Mostrar ou esconder opacidade';
+    expand.setAttribute('aria-label','Mostrar ou esconder opacidade de '+layer.name);
+    expand.setAttribute('aria-expanded',String(expandedOpacityIds.has(layer.id)));
+    expand.addEventListener('click',()=>{
+     if(expandedOpacityIds.has(layer.id))expandedOpacityIds.delete(layer.id);else expandedOpacityIds.add(layer.id);
+     const open=expandedOpacityIds.has(layer.id);
+     row.dataset.opacityCollapsed=String(!open);expand.textContent=open?'▾':'▸';expand.setAttribute('aria-expanded',String(open));
+    });
     const thumb=document.createElement('img');thumb.className='nex-vtt-art-thumb';thumb.src=layer.src;thumb.alt='';
     const name=document.createElement('span');name.className='nex-vtt-asset-name';name.textContent=layer.name;
     const toggle=document.createElement('button');toggle.type='button';toggle.dataset.atmosphereToggle='';
@@ -3118,7 +3139,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     remove.addEventListener('click',()=>{
      if(confirm('Excluir esta atmosfera da biblioteca e do mapa?'))atmosphereAction('delete',layer.id);
     });
-    top.append(thumb,name,toggle,remove);row.append(top);
+    top.append(expand,thumb,name,toggle,remove);row.append(top);
     const label=document.createElement('label');label.className='nex-vtt-atmosphere-opacity-label';label.textContent='Opacidade';
     const line=document.createElement('div');line.className='nex-vtt-atmosphere-opacity-line';
     const range=document.createElement('input');range.type='range';range.min='0';range.max='100';range.step='1';
@@ -3139,7 +3160,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    renderAtmosphereItems();
   });
   function openLibraryLayer(layer){
-   immersionMusicHost.hidden=layer!=='imersao';
+   immersionMusicHost.hidden=layer!=='imersao'||immersionSection!=='efeitos';
    libraryTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexLibraryLayer===layer)));
    libraryBody.replaceChildren();
    if(layer==='mapa'){
@@ -3161,7 +3182,18 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      const empty=document.createElement('p');empty.textContent='Nenhuma imagem de mapa adicionada.';libraryBody.append(empty);
     }
    }else if(layer==='imersao'){
-    const note=document.createElement('p');note.textContent='Atmosferas e músicas adicionadas pelo mestre para a sessão.';libraryBody.append(note);
+    const switcher=document.createElement('div');switcher.className='nex-vtt-immersion-switch';libraryBody.append(switcher);
+    for(const [value,label] of [['atmosferas','Atmosferas'],['efeitos','Efeitos sonoros']]){
+     const button=document.createElement('button');button.type='button';button.textContent=label;
+     button.setAttribute('aria-pressed',String(immersionSection===value));
+     button.addEventListener('click',()=>{immersionSection=value;openLibraryLayer('imersao');});
+     switcher.append(button);
+    }
+    if(immersionSection==='efeitos'){
+     const musicHeading=document.createElement('strong');musicHeading.className='nex-vtt-art-list-title';musicHeading.textContent='Efeitos sonoros e músicas';libraryBody.append(musicHeading);
+     if(!gm){const msg=document.createElement('p');msg.textContent='Somente o mestre pode escolher e reproduzir os sons da sessão.';libraryBody.append(msg);}
+     return;
+    }
     const atmosphereTitle=document.createElement('strong');atmosphereTitle.className='nex-vtt-art-list-title';
     atmosphereTitle.textContent='Atmosferas';libraryBody.append(atmosphereTitle);
     const atmosphereControls=document.createElement('section');
@@ -3183,8 +3215,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     atmosphereList.className='nex-vtt-atmosphere-list';atmosphereControls.append(atmosphereList);
     renderAtmosphereItems();
     window.dispatchEvent(new Event('nex:vtt-atmosphere-request'));
-    const musicHeading=document.createElement('strong');musicHeading.className='nex-vtt-art-list-title';musicHeading.textContent='Músicas e efeitos sonoros';libraryBody.append(musicHeading);
-    if(!gm){const msg=document.createElement('p');msg.textContent='Somente o mestre controla as músicas e os efeitos sonoros.';libraryBody.append(msg);}
+
    }else if(layer==='tokens'){
     if(gm){
      const actions=document.createElement('div');actions.className='nex-vtt-art-actions nex-vtt-token-upload-actions';libraryBody.append(actions);
