@@ -18,8 +18,10 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const musicRoot=document.getElementById('nexVttImmersionMusicHost')||tools;
  const localAudioCleanup=gm?mountNexLocalMusic({uid,campaignId,root:musicRoot}):()=>{};
  let peerMedia=null;
- const localMediaPattern=/^local:(?:atmo|map|asset)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp)$/;
+ const localMediaPattern=/^local:(?:atmo|map|asset)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp|webm)$/;
  const isLocalMedia=src=>typeof src==='string'&&localMediaPattern.test(src);
+ const isWebmMap=src=>typeof src==='string'&&(/:webm$/.test(src)||src.startsWith('data:video/webm;'));
+ const mapVideo=document.createElement('video');mapVideo.className='nex-vtt-map-video';mapVideo.muted=true;mapVideo.loop=true;mapVideo.autoplay=true;mapVideo.playsInline=true;mapVideo.preload='metadata';mapVideo.controls=false;mapVideo.setAttribute('aria-hidden','true');mapVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:0;display:none';board.prepend(mapVideo);
  let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,renderedMapSource=null,mapLoadId=0;
  function mapGeometry(){
    board.style.setProperty('--nex-board-width',mapWidth+'px');
@@ -30,27 +32,29 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  }
  mapGeometry();
  function updateMapGeometry(){
-   const src=visibleMediaSource(scene.map);
-   if(lastMapSource===src)return;
-   lastMapSource=src;const loadId=++mapLoadId;
-   if(!src){mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();board.style.visibility='visible';return;}
-   // Do not show tokens against the temporary 1200px fallback canvas.
-   // Reveal the board only after the map's real aspect ratio is known.
-   board.style.visibility='hidden';
-   const img=new Image();
-   img.onload=()=>{
-     if(disposed||loadId!==mapLoadId)return;
-     const ratio=Math.max(.05,Math.min(20,img.naturalWidth/Math.max(1,img.naturalHeight)));
-     mapWidth=Math.max(120,Math.round((GRID*W)*Math.min(1,ratio)));
-     mapHeight=Math.max(120,Math.round((GRID*H)*Math.min(1,1/ratio)));
-     mapGeometry();
-     // Reposition tokens on the final map geometry before revealing the scene.
-     render();
-     if(typeof vttFitZoom==='function')vttFitZoom();
-     board.style.visibility='visible';
-   };
-   img.onerror=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();render();board.style.visibility='visible';};
-   img.src=src;
+  const src=visibleMediaSource(scene.map);
+  if(lastMapSource===src)return;
+  lastMapSource=src;const loadId=++mapLoadId;
+  if(!src){mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();board.style.visibility='visible';return;}
+  board.style.visibility='hidden';
+  const useDimensions=(width,height)=>{
+   if(disposed||loadId!==mapLoadId)return;
+   const ratio=Math.max(.05,Math.min(20,width/Math.max(1,height)));
+   mapWidth=Math.max(120,Math.round((GRID*W)*Math.min(1,ratio)));
+   mapHeight=Math.max(120,Math.round((GRID*H)*Math.min(1,1/ratio)));
+   mapGeometry();render();
+   if(typeof vttFitZoom==='function')vttFitZoom();
+   board.style.visibility='visible';
+  };
+  const fallback=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();render();board.style.visibility='visible';};
+  if(isWebmMap(scene.map)){
+   const probe=document.createElement('video');probe.preload='metadata';probe.muted=true;
+   probe.onloadedmetadata=()=>{useDimensions(probe.videoWidth||GRID*W,probe.videoHeight||GRID*H);probe.removeAttribute('src');probe.load();};
+   probe.onerror=fallback;probe.src=src;
+  }else{
+   const img=new Image();img.onload=()=>useDimensions(img.naturalWidth,img.naturalHeight);
+   img.onerror=fallback;img.src=src;
+  }
  }
  const empty=()=>({map:'',tokens:[],drawings:[],atmosphere:{type:'none',intensity:45,animated:true,image:''},atmosphereLayers:[],fogEnabled:false,revealed:[],gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[],maps:[]}});
  let scene=empty(),selectedId=null,resizeSelectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false,uploading=0,localDirty=false;
@@ -171,7 +175,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const stateOK=value=>value&&typeof value==='object'&&Array.isArray(value.tokens);
  function validScene(data){
   if(!stateOK(data))return empty();
-  return {library:{maps:Array.isArray(data.library?.maps)?data.library.maps.slice(0,30).filter(m=>m&&typeof m.id==='string'&&typeof m.src==='string'&&(isLocalMedia(m.src)||isR2Media(m.src)||(/^data:image\/(?:gif|png|jpeg|webp);base64,/.test(m.src)&&m.src.length<650000))).map(m=>({id:m.id.slice(0,100),name:String(m.name||'Mapa').slice(0,100),src:m.src})):[],tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000||/^firestore:asset_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)||isR2Media(a.src))).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&(data.map.length<650000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.map)||/^firestore:map_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(data.map)||isLocalMedia(data.map)||isR2Media(data.map))?data.map:'',atmosphereLayers:Array.isArray(data.atmosphereLayers)?data.atmosphereLayers.slice(0,8).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(a.src.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)||(a.src.startsWith('storage:campaigns/'+campaignId+'/atmospheres/')&&/^atmo_[a-zA-Z0-9_-]+$/.test(a.src.slice(('storage:campaigns/'+campaignId+'/atmospheres/').length))||/^firestore:atmo_[a-zA-Z0-9_-]+:(?:[1-9]|[12][0-9]|3[0-2]):(?:gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)||isR2Media(a.src)))).map(a=>({id:a.id.slice(0,100),name:String(a.name||'Atmosfera').slice(0,90),src:a.src,enabled:a.enabled!==false,opacity:Math.max(0,Math.min(100,Math.round(Number.isFinite(Number(a.opacity))&&a.opacity!=null?Number(a.opacity):100)))})):(typeof data.atmosphere?.image==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)&&data.atmosphere.image.length<=180000?[{id:'atmo_legacy',name:'Atmosfera anterior',src:data.atmosphere.image,enabled:data.atmosphere.type!=='none',opacity:Math.max(0,Math.min(100,Number(data.atmosphere.intensity)??100))}]:[]),atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
+  return {library:{maps:Array.isArray(data.library?.maps)?data.library.maps.slice(0,30).filter(m=>m&&typeof m.id==='string'&&typeof m.src==='string'&&(isLocalMedia(m.src)||isR2Media(m.src)||(/^data:(?:image\/(?:gif|png|jpeg|webp)|video\/webm);base64,/.test(m.src)&&m.src.length<650000))).map(m=>({id:m.id.slice(0,100),name:String(m.name||'Mapa').slice(0,100),src:m.src})):[],tokenImages:Array.isArray(data.library?.tokenImages)?data.library.tokenImages.slice(0,20).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)&&a.src.length<=55000||/^firestore:asset_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)||isR2Media(a.src))).map(a=>({id:a.id.slice(0,90),name:String(a.name||'Imagem').slice(0,90),src:a.src,groupId:typeof a.groupId==='string'?a.groupId.slice(0,100):'',slot:Number.isInteger(a.slot)&&a.slot>=0&&a.slot<=9?a.slot:1})):[]},map:typeof data.map==='string'&&(data.map.length<650000&&/^data:(?:image\/(?:png|jpeg|webp|gif)|video\/webm);base64,/i.test(data.map)||/^firestore:map_[A-Za-z0-9_-]+:([1-9]|[12][0-9]|3[0-2]):(gif|png|jpeg|webp)$/.test(data.map)||isLocalMedia(data.map)||isR2Media(data.map))?data.map:'',atmosphereLayers:Array.isArray(data.atmosphereLayers)?data.atmosphereLayers.slice(0,8).filter(a=>a&&typeof a.id==='string'&&typeof a.src==='string'&&(a.src.length<=180000&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(a.src)||(a.src.startsWith('storage:campaigns/'+campaignId+'/atmospheres/')&&/^atmo_[a-zA-Z0-9_-]+$/.test(a.src.slice(('storage:campaigns/'+campaignId+'/atmospheres/').length))||/^firestore:atmo_[a-zA-Z0-9_-]+:(?:[1-9]|[12][0-9]|3[0-2]):(?:gif|png|jpeg|webp)$/.test(a.src)||isLocalMedia(a.src)||isR2Media(a.src)))).map(a=>({id:a.id.slice(0,100),name:String(a.name||'Atmosfera').slice(0,90),src:a.src,enabled:a.enabled!==false,opacity:Math.max(0,Math.min(100,Math.round(Number.isFinite(Number(a.opacity))&&a.opacity!=null?Number(a.opacity):100)))})):(typeof data.atmosphere?.image==='string'&&/^data:image\/(?:png|jpeg|webp|gif);base64,/i.test(data.atmosphere.image)&&data.atmosphere.image.length<=180000?[{id:'atmo_legacy',name:'Atmosfera anterior',src:data.atmosphere.image,enabled:data.atmosphere.type!=='none',opacity:Math.max(0,Math.min(100,Number(data.atmosphere.intensity)??100))}]:[]),atmosphere:{type:['none','mist','rain','snow','dark','embers','custom'].includes(data.atmosphere?.type)?data.atmosphere.type:'none',intensity:Number.isFinite(Number(data.atmosphere?.intensity))&&data.atmosphere?.intensity!=null?Math.max(0,Math.min(100,Math.round(Number(data.atmosphere.intensity)))):45,animated:data.atmosphere?.animated!==false,image:''},drawings:Array.isArray(data.drawings)?data.drawings.slice(-160):[],fogEnabled:!!data.fogEnabled,revealed:Array.isArray(data.revealed)?data.revealed.slice(-150):[],gridVisible:data.gridVisible!==false,turns:Array.isArray(data.turns)?data.turns.slice(0,90).map(x=>String(x).slice(0,35)):[],combatLog:Array.isArray(data.combatLog)?data.combatLog.slice(-40).map(x=>({id:String(x.id||'').slice(0,100),label:String(x.label||'').slice(0,150),at:Number(x.at)||0})):[],tokens:data.tokens.slice(0,90).filter(t=>t&&typeof t.id==='string'&&typeof t.name==='string').map(t=>({
    id:t.id.slice(0,100),name:t.name.slice(0,35),x:Math.max(0,Math.min(W-.5,Math.round((Number(t.x)||0)*100)/100)),y:Math.max(0,Math.min(H-.5,Math.round((Number(t.y)||0)*100)/100)),
    variation:Math.max(0,Math.min(9,Math.floor(Number(t.variation)||0))),linkedSheetId:typeof t.linkedSheetId==='string'?t.linkedSheetId.slice(0,150):'',
    images:Array.isArray(t.images)?Array.from({length:Math.min(10,t.images.length)},(_,i)=>{const url=t.images[i];return typeof url==='string'&&url.length<650000?url:'';}):[],pv:Number(t.pv)||0,pe:Number(t.pe)||0,san:Number(t.san)||0,pvMax:Math.max(0,Number(t.pvMax)||0),peMax:Math.max(0,Number(t.peMax)||0),sanMax:Math.max(0,Number(t.sanMax)||0),defense:Math.max(0,Number(t.defense)||0),size:Math.max(1,Math.min(3,Number(t.size)||1)),widthCells:Math.max(.5,Math.min(10,Number(t.widthCells)||Number(t.size)||1)),heightCells:Math.max(.5,Math.min(10,Number(t.heightCells)||Number(t.size)||1)),rotation:Number(t.rotation)||0,hidden:!!t.hidden,locked:!!t.locked
@@ -201,7 +205,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   board.querySelectorAll('.nex-tabletop-token').forEach(n=>n.remove());
   const resolvedMap=visibleMediaSource(scene.map);
   if(renderedMapSource!==resolvedMap){
-   board.style.backgroundImage=resolvedMap?'url("'+resolvedMap.replace(/"/g,'')+'")':'none';
+   const video=isWebmMap(scene.map);
+   board.style.backgroundImage=resolvedMap&&!video?'url("'+resolvedMap.replace(/"/g,'')+'")':'none';
+   mapVideo.style.display=video&&resolvedMap?'block':'none';
+   if(video&&resolvedMap){mapVideo.src=resolvedMap;void mapVideo.play().catch(()=>{});}
+   else{mapVideo.pause();mapVideo.removeAttribute('src');}
    renderedMapSource=resolvedMap;
   }
   updateMapGeometry();
@@ -957,7 +965,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  function visibleMediaSource(src){
   if(typeof src!=='string')return '';
-  if(src.startsWith('data:image/')||src.startsWith('https://'))return src;
+  if(src.startsWith('data:image/')||src.startsWith('data:video/webm;')||src.startsWith('https://'))return src;
   const local=isLocalMedia(src);
   // Arquivos locais dos jogadores aparecem apenas enquanto o mestre transmite.
   if(local&&!gm&&!peerMedia?.connected())return '';
@@ -999,14 +1007,14 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   return '';
  }
  async function uploadMedia(file,prefix){
-  if(!/^image\/(gif|png|jpeg|webp)$/.test(file?.type||''))throw Error('Selecione PNG, JPG, WebP ou GIF.');
+  if(!/^image\/(gif|png|jpeg|webp)$/.test(file?.type||'')&&!(prefix==='map'&&file?.type==='video/webm'))throw Error('Selecione PNG, JPG, WebP, GIF ou WEBM (mapas).');
   if(!['map','asset','atmo'].includes(prefix))throw Error('Categoria de imagem inválida.');
   const limit=prefix==='atmo'?5*1024*1024:10*1024*1024;
   if(!file.size||file.size>limit)throw Error(prefix==='atmo'?'O limite de GIFs e atmosferas é 5 MB.':'O limite de mapas e tokens locais é 10 MB.');
   const data=await blobDataURL(file);
-  const match=/^data:image\/(gif|png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(data);
+  const match=/^data:(?:image\/(gif|png|jpeg|webp)|video\/(webm));base64,([A-Za-z0-9+/=]+)$/.exec(data);
   if(!match)throw Error('Imagem inválida.');
-  const src='local:'+prefix+'_'+crypto.randomUUID()+':'+match[1];
+  const src='local:'+prefix+'_'+crypto.randomUUID()+':'+(match[1]||match[2]);
   const stored=await mediaCache.put(src,data,true);
   if(!stored)throw Error('Não foi possível salvar a imagem no dispositivo. Verifique espaço e permissões do navegador.');
   mediaMemory.set(src,data);
@@ -1648,5 +1656,5 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   remoteReady=true;render();message('Aguardando o mestre transmitir a mesa.');
  }
  render();
- return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();mapVideo.remove();};
 }
