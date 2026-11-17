@@ -2283,6 +2283,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);
  }catch(err){show('setup',true);notice('Configuração Firebase inválida.');throw err;}
  let uid=null,roomId='',gm=false,roomData=null,roomMembers=[],roomSheets=[],roomRequests=[],unsubs=[],editing=null,campaignUnsub=null,myCampaigns=[],privateShield=true,roomCombats=[],playerCampaigns=[],joinedUnsub=null,combatRollUnsubs=[],inviteUnsub=null,inviteState='checking';
+ let vttHostActive=false;
  const localPortraits=new Map();
  let portraitSyncBusy=false;
  let extraSlotRequests=[],slotPending=false;
@@ -2766,6 +2767,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   document.documentElement.classList.remove('nex-vtt-active');
   if(window.parent!==window){try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:false},location.origin);}catch(error){}}
   for(const u of [...unsubs,...combatRollUnsubs]){try{u()}catch(e){}}unsubs=[];combatRollUnsubs=[];
+  vttHostActive=false;
   roomId='';gm=false;roomMembers=[];roomSheets=[];publicSheets=[];privateSheets=[];roomRequests=[];extraSlotRequests=[];slotPending=false;roomCombats=[];roomData=null;editing=null;localPortraits.clear();
   $('roomAgentPicker').hidden=true;$('roomEditConfiguration').hidden=true;$('nexCampaignSheetDialog').close?.();
   show('room',false);show('sheetFormPanel',false);
@@ -2925,9 +2927,27 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   try{unsubs.push(mountNexTabletop({db,doc,collection,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId:id,uid,gm,getIdToken:()=>auth.currentUser?.getIdToken(),getSheets:()=>roomSheets,updateResource:updateVttSheetResource,onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
   catch(error){console.error('Falha ao iniciar Tabletop',error);$('nexTabletopMessage').textContent='Falha ao iniciar mesa virtual.';}
  }
+ const vttUnavailable=document.createElement('p');
+ vttUnavailable.style.cssText='margin:9px 0;padding:10px 12px;background:#29181e;border:1px solid #82434e;border-radius:7px;color:#f2d7dd;font-size:12px';
+ vttUnavailable.textContent='O mestre ainda não abriu o Tabletop. Aguarde o mestre iniciar a mesa.';
+ vttUnavailable.hidden=true;
+ $('roomOpenTabletop').insertAdjacentElement('afterend',vttUnavailable);
+ window.addEventListener('nex:vtt-session-state',event=>{
+  if(!event.detail||event.detail.campaignId!==roomId||gm)return;
+  vttHostActive=event.detail.active===true;
+  if(vttHostActive){vttUnavailable.hidden=true;return;}
+  if(!$('roomTabletopPanel').classList.contains('hide'))roomSection('characters');
+  vttUnavailable.hidden=false;
+ });
  function roomSection(section){
   const allowed=['characters','master','manage','players','invites','combats','tabletop'];
   if(!allowed.includes(section)||(['master','manage','invites'].includes(section)&&!gm))section='characters';
+  if(section==='tabletop'&&!gm&&!vttHostActive){
+   vttUnavailable.hidden=false;
+   notice('O mestre ainda não abriu o Tabletop. Aguarde o mestre iniciar a mesa.');
+   return;
+  }
+  if(section==='tabletop')vttUnavailable.hidden=true;
   document.querySelectorAll('[data-room-section]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.roomSection===section)));
   show('roomCharactersPanel',section==='characters');
   show('roomCombatsPanel',section==='combats');
