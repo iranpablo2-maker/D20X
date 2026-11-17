@@ -1,7 +1,8 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117masteraudio3';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117localscene1';
+import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
@@ -10,6 +11,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const r2Pattern=/^r2:((?:atmo|map|asset)_[A-Za-z0-9_-]+):(gif|png|jpeg|webp)$/;
  const isR2Media=src=>typeof src==='string'&&r2Pattern.test(src);
  const mediaCache=createVttMediaCache(uid,campaignId);
+ const localSceneStore=createVttLocalScene(uid,campaignId);
  const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
  // Todos os novos arquivos ficam neste dispositivo. Participantes conectam ao mestre via WebRTC.
  // Mídias antigas em Firestore e R2 continuam legíveis, sem migração ou exclusão.
@@ -67,7 +69,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
    localStorage.setItem(backupKey,JSON.stringify({format:'nex-tabletop-pending-v1',scene:validScene(scene),savedAt:Date.now()}));
   }catch(error){
    console.warn('NEX VTT: sem espaço para backup local',error);
-   warnSync('Sem espaço para backup local. Não atualize a página até a mesa ser salva no Firebase.');
+   console.warn('O backup de emergência no localStorage não coube; IndexedDB será a fonte principal.');
   }
  }
  function clearBackup(){try{localStorage.removeItem(backupKey);}catch(_){}}
@@ -211,34 +213,26 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  async function save(){
   if(!gm||disposed)return;
-  queued=true;localDirty=true;saveBackup();if(!remoteReady||uploading||pending)return;
+  queued=true;localDirty=true;saveBackup();
+  if(!remoteReady||uploading||pending)return;
   pending=true;
   while(queued&&!disposed){
    queued=false;
-   // JSON round-trip removes undefined fields and turns sparse token variation slots into null-safe values.
-   // Firestore rejects undefined even when JSON.stringify would omit it in the size check.
    const data=JSON.parse(JSON.stringify(validScene(scene)));
-   if(new TextEncoder().encode(JSON.stringify(data)).length>850000){localDirty=true;message('Cena muito grande para sincronizar. Reduza o mapa ou as imagens dos tokens.');warnSync('Cena muito grande. Reduza as imagens ou os tokens para salvar.');break;}
-   try{
-     const payload={...data,format:'nex-tabletop-v1'};
-     // Always pass a plain serializable object to Firestore. Token variants
-     // can have empty slots (0-9), which must never reach Firebase as undefined.
-     const clean=JSON.parse(JSON.stringify(payload));
-     await setDoc(ref,clean,{merge:false});
-     if(!queued){localDirty=false;clearBackup();}
-     else localDirty=true;
-     clearSync();message('Mesa salva na campanha.');
+   if(new TextEncoder().encode(JSON.stringify(data)).length>850000){
+    localDirty=true;message('Cena muito grande para sincronizar. Reduza as imagens ou tokens.');
+    warnSync('Cena muito grande para transmitir.');break;
    }
-   catch(e){
-     localDirty=true;
-     const denied=e.code==='permission-denied';
-     const invalid=String(e.message||'').includes('Unsupported field value: undefined');
-     message('Não foi possível salvar a mesa no Firebase.');
-     warnSync(denied
-       ?'O Firestore recusou o salvamento. Publique firestore.rules no Firebase antes de continuar.'
-       :invalid?'Falha ao validar dados do token. Atualize a página para carregar o NEX corrigido (VTT 20261116.7).'
-       :'Falha na sincronização: '+String(e.message||e).slice(0,140));
-     console.warn('NEX: salvamento da mesa falhou',e);
+   try{
+    await localSceneStore.save(data);
+    peerMedia?.broadcastScene(data);
+    if(!queued){localDirty=false;clearBackup();}
+    clearSync();message('Mesa salva neste dispositivo.');
+   }catch(error){
+    localDirty=true;
+    message('Não foi possível salvar a mesa no Brave.');
+    warnSync('Falha no armazenamento local: '+String(error.message||error).slice(0,130));
+    console.warn('NEX VTT: salvamento local falhou',error);
    }
   }
   pending=false;
@@ -1469,6 +1463,12 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  peerMedia=mountNexPeerMedia({
   db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,root:liveRoot,
   getAudioStream:()=>localAudioCleanup.getStream?.()||null,
+  getScene:()=>gm?JSON.parse(JSON.stringify(validScene(scene))):null,
+  onScene:data=>{
+   if(gm||disposed||!data||!Array.isArray(data.tokens))return;
+   scene=validScene(data);remoteReady=true;mediaFailed.clear();render();
+   message('Mesa sincronizada com o mestre por conexão direta.');
+  },
   getAsset:async(src,playerUid)=>{
    if(!gm||!isLocalMedia(src))return null;
    const inScene=scene.map===src||
@@ -1481,12 +1481,41 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   onConnected:()=>{mediaFailed.clear();if(!disposed)render();},
   onDisconnected:()=>{if(!disposed)render();}
  });
- const unsubscribe=onSnapshot(ref,snapshot=>{
-  if(disposed||drag||pending)return;
-  const data=snapshot.data();
-  if(!localDirty&&!uploading&&data)scene=validScene(data);
-  remoteReady=true;render();if(queued)save();else if(!saveFailed)message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
- },error=>{message('Não foi possível receber atualizações da mesa.');warnSync(error.code==='permission-denied'?'Acesso negado pelo Firestore. Verifique as regras da campanha.':'Erro de conexão com a mesa: '+String(error.message||error).slice(0,140));console.warn('NEX Tabletop',error);remoteReady=true;render();});
+ // Apenas a primeira abertura do mestre lê o documento antigo para migração.
+ // Nenhuma nova posição/configuração de mesa é gravada no Firestore.
+ const unsubscribe=()=>{};
+ if(gm){
+  void (async()=>{
+   try{
+    const saved=await localSceneStore.read();
+    if(disposed)return;
+    if(saved&&Array.isArray(saved.tokens)){
+     scene=validScene(saved);
+    }else if(recoveredBackup){
+     scene=validScene(recoveredBackup);
+     await localSceneStore.save(JSON.parse(JSON.stringify(scene)));
+    }else{
+     const legacy=await getDoc(ref);
+     if(disposed)return;
+     if(legacy.exists()&&Array.isArray(legacy.data()?.tokens)){
+      scene=validScene(legacy.data());
+      await localSceneStore.save(JSON.parse(JSON.stringify(scene)));
+      message('Mesa antiga importada do Firebase e salva no Brave.');
+     }
+    }
+    if(disposed)return;
+    remoteReady=true;render();if(queued)void save();
+    else if(!saveFailed)message('Mesa local pronta. Inicie a transmissão para os jogadores.');
+   }catch(error){
+    if(disposed)return;
+    remoteReady=false;
+    warnSync('Não foi possível carregar a mesa local. Nada será sobrescrito: '+String(error.message||error).slice(0,100));
+    message('Falha ao abrir o armazenamento local.');
+   }
+  })();
+ }else{
+  remoteReady=true;render();message('Aguardando o mestre transmitir a mesa.');
+ }
  render();
  return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();};
 }
