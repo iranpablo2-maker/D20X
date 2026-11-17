@@ -1,7 +1,8 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
-import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic1';
-export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
+import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117p2p1';
+export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
@@ -10,9 +11,11 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const isR2Media=src=>typeof src==='string'&&r2Pattern.test(src);
  const mediaCache=createVttMediaCache(uid,campaignId);
  const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
- // Destino fixo pelo tipo: mapas/tokens (inclusive tokens GIF) vão ao R2;
- // atmosferas vão apenas ao navegador. Referências antigas continuam válidas.
- const localAudioCleanup=gm?mountNexLocalMusic({uid,campaignId,root:tools}):()=>{};
+ // Todos os novos arquivos ficam neste dispositivo. Participantes conectam ao mestre via WebRTC.
+ // Mídias antigas em Firestore e R2 continuam legíveis, sem migração ou exclusão.
+ const musicRoot=document.getElementById('nexVttMainMenu')||tools;
+ const localAudioCleanup=gm?mountNexLocalMusic({uid,campaignId,root:musicRoot}):()=>{};
+ let peerMedia=null;
  const localMediaPattern=/^local:(?:atmo|map|asset)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp)$/;
  const isLocalMedia=src=>typeof src==='string'&&localMediaPattern.test(src);
  let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,renderedMapSource=null,mapLoadId=0;
@@ -306,7 +309,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    message('Enviando mapa...');const uploaded=await uploadMedia(file,'map');
    const old=scene.map;scene.map=uploaded;render();
    uploading=Math.max(0,uploading-1);released=true;await save();
-   if(!saveFailed){await deleteMediaParts(old);message('Mapa salvo no R2 e disponível aos jogadores da campanha.');}
+   if(!saveFailed){await deleteMediaParts(old);message('Mapa salvo neste dispositivo. Os jogadores poderão recebê-lo ao iniciar a sessão.');}
   }catch(error){message('Falha ao enviar mapa: '+String(error.code||error.message||error).slice(0,110));}
   finally{if(!released)uploading=Math.max(0,uploading-1);}
  });
@@ -853,50 +856,14 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   }
   return method==='GET'?response.blob():response.json();
  }
- async function r2Upload(file,prefix){
-  if(!navigator.onLine)throw Error('Conecte-se à internet para enviar ao R2.');
-  const token=typeof getIdToken==='function'?await getIdToken():null;
-  if(!token)throw Error('Faça login na conta NEX para enviar imagens.');
-  // Envia o Blob original em uma única requisição, sem dividir no Firestore.
-  // XMLHttpRequest permite mostrar progresso real do envio ao servidor.
-  const result=await new Promise((resolve,reject)=>{
-   const xhr=new XMLHttpRequest();
-   xhr.open('POST','/api/nex-vtt-media?campaignId='+encodeURIComponent(campaignId)+'&kind='+encodeURIComponent(prefix));
-   xhr.setRequestHeader('Authorization','Bearer '+token);
-   xhr.setRequestHeader('Content-Type',file.type);
-   xhr.timeout=180000;
-   let displayed=-1;
-   message('Enviando '+file.name+' ao R2...');
-   xhr.upload.onprogress=event=>{
-    if(!event.lengthComputable||disposed)return;
-    const percent=Math.min(100,Math.floor(event.loaded/event.total*100));
-    if(percent!==displayed&&(percent===100||percent>=displayed+5)){
-     displayed=percent;
-     message('Enviando '+file.name+' ao R2: '+percent+'%');
-    }
-   };
-   xhr.upload.onload=()=>{if(!disposed)message('Finalizando gravação de '+file.name+' no R2...');};
-   xhr.onload=()=>{
-    let data={};
-    try{data=JSON.parse(xhr.responseText||'{}');}catch(_){}
-    if(xhr.status<200||xhr.status>=300){reject(Error(data.error||'Erro R2 (HTTP '+xhr.status+').'));return;}
-    resolve(data);
-   };
-   xhr.onerror=()=>reject(Error('Falha na rede durante o envio ao R2. Verifique sua conexão.'));
-   xhr.ontimeout=()=>reject(Error('Envio excedeu 3 minutos. Verifique conexão e tamanho do arquivo.'));
-   xhr.onabort=()=>reject(Error('Envio ao R2 interrompido.'));
-   xhr.send(file);
-  });
-  if(!isR2Media(result.src))throw Error('Referência inválida retornada pelo R2.');
-  return result.src;
- }
+
  const blobDataURL=blob=>new Promise((resolve,reject)=>{
   const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(Error('Falha ao carregar imagem do R2'));r.readAsDataURL(blob);
  });
  if(gm){
   const mediaDestinations=document.createElement('p');
   mediaDestinations.style.cssText='margin:8px 0;color:#c9bfc1;font-size:12px;line-height:1.45';
-  mediaDestinations.textContent='Armazenamento automático: mapas e tokens (incluindo tokens animados) no R2; GIFs de atmosfera e músicas apenas neste dispositivo.';
+  mediaDestinations.textContent='Todos os novos arquivos ficam neste dispositivo. Clique em Iniciar sessão para que os jogadores vejam mapas, tokens e GIFs e escutem as músicas ao vivo.';
   (document.getElementById('nexTabletopMapFile')?.parentElement||tools).append(mediaDestinations);
   handlers.push(()=>mediaDestinations.remove());
  }
@@ -904,14 +871,18 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(typeof src!=='string')return '';
   if(src.startsWith('data:image/')||src.startsWith('https://'))return src;
   const local=isLocalMedia(src);
-  // Atmosferas locais não são disponibilizadas automaticamente aos jogadores.
-  if(local&&!gm)return '';
+  // Arquivos locais dos jogadores aparecem apenas enquanto o mestre transmite.
+  if(local&&!gm&&!peerMedia?.connected())return '';
   const info=local?null:mediaDescriptor(src);
   if((!local&&!info)||mediaFailed.has(src))return '';
   if(mediaMemory.has(src))return mediaMemory.get(src);
   if(!mediaPending.has(src)){
    const task=(async()=>{
     let image=await mediaCache.read(src);
+    if(!image&&local&&!gm){
+     image=await peerMedia.fetchImage(src);
+     if(image)void mediaCache.put(src,image);
+    }
     if(!image&&!local){
      if(info.r2){
       const blob=await r2Request('GET',src);
@@ -929,7 +900,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      }
      void mediaCache.put(src,image);
     }
-    if(!image&&local)throw Error('Arquivo salvo somente no dispositivo original. Peça ao mestre para compartilhar pela nuvem.');
+    if(!image&&local)throw Error('Arquivo não encontrado no dispositivo do mestre.');
     if(!disposed){mediaMemory.set(src,image);render();libraryState();}
    })().catch(error=>{
     mediaFailed.add(src);
@@ -941,25 +912,15 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  async function uploadMedia(file,prefix){
   if(!/^image\/(gif|png|jpeg|webp)$/.test(file?.type||''))throw Error('Selecione PNG, JPG, WebP ou GIF.');
-  const local=prefix==='atmo';
   if(!['map','asset','atmo'].includes(prefix))throw Error('Categoria de imagem inválida.');
-  const limit=local?5*1024*1024:10*1024*1024;
-  if(!file.size||file.size>limit)throw Error(local?'O limite de GIFs de atmosfera locais é 5 MB.':'O limite de imagens no R2 é 10 MB.');
-  if(!local){
-   // Um token GIF permanece no R2 porque é um token, não uma atmosfera.
-   const src=await r2Upload(file,prefix);
-   try{
-    const data=await blobDataURL(file);
-    mediaMemory.set(src,data);void mediaCache.put(src,data);
-   }catch(error){console.warn('NEX: cache da imagem enviada indisponível',error);}
-   return src;
-  }
+  const limit=prefix==='atmo'?5*1024*1024:10*1024*1024;
+  if(!file.size||file.size>limit)throw Error(prefix==='atmo'?'O limite de GIFs e atmosferas é 5 MB.':'O limite de mapas e tokens locais é 10 MB.');
   const data=await blobDataURL(file);
   const match=/^data:image\/(gif|png|jpeg|webp);base64,([A-Za-z0-9+/=]+)$/.exec(data);
   if(!match)throw Error('Imagem inválida.');
   const src='local:'+prefix+'_'+crypto.randomUUID()+':'+match[1];
   const stored=await mediaCache.put(src,data,true);
-  if(!stored)throw Error('Não foi possível salvar a atmosfera neste dispositivo. Verifique espaço e permissões do navegador.');
+  if(!stored)throw Error('Não foi possível salvar a imagem no dispositivo. Verifique espaço e permissões do navegador.');
   mediaMemory.set(src,data);
   return src;
  }
@@ -1500,6 +1461,25 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  });
 
  listen(window,'nex:campaign-sheets-updated',()=>{if(!disposed)render();});
+ const liveRoot=document.createElement('div');
+ liveRoot.id='nexVttLiveLocalControls';
+ liveRoot.style.cssText='margin:4px 0 8px';
+ status.insertAdjacentElement('afterend',liveRoot);
+ peerMedia=mountNexPeerMedia({
+  db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,root:liveRoot,
+  getAudioStream:()=>localAudioCleanup.getStream?.()||null,
+  getAsset:async(src,playerUid)=>{
+   if(!gm||!isLocalMedia(src))return null;
+   const inScene=scene.map===src||
+    (scene.atmosphereLayers||[]).some(x=>x.src===src&&x.enabled!==false)||
+    (scene.library?.tokenImages||[]).some(x=>x.src===src)||
+    scene.tokens.some(t=>!t.hidden&&Array.isArray(t.images)&&t.images.includes(src));
+   if(!inScene)return null;
+   return mediaMemory.get(src)||await mediaCache.read(src);
+  },
+  onConnected:()=>{mediaFailed.clear();if(!disposed)render();},
+  onDisconnected:()=>{if(!disposed)render();}
+ });
  const unsubscribe=onSnapshot(ref,snapshot=>{
   if(disposed||drag||pending)return;
   const data=snapshot.data();
@@ -1507,5 +1487,5 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   remoteReady=true;render();if(queued)save();else if(!saveFailed)message(gm?'Mesa pronta para editar.':'Mesa sincronizada com o mestre.');
  },error=>{message('Não foi possível receber atualizações da mesa.');warnSync(error.code==='permission-denied'?'Acesso negado pelo Firestore. Verifique as regras da campanha.':'Erro de conexão com a mesa: '+String(error.message||error).slice(0,140));console.warn('NEX Tabletop',error);remoteReady=true;render();});
  render();
- return ()=>{disposed=true;unsubscribe();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();};
+ return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();};
 }
