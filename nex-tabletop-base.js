@@ -1,7 +1,7 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117fastwebm2';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117preview4';
 import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
@@ -12,7 +12,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const isR2Media=src=>typeof src==='string'&&r2Pattern.test(src);
  const mediaCache=createVttMediaCache(uid,campaignId);
  const localSceneStore=createVttLocalScene(uid,campaignId);
- const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set(),webmObjectUrls=new Map();
+ const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set(),webmObjectUrls=new Map(),webmPreviews=new Map();
  function playableWebm(data){
   if(typeof data!=='string'||!data.startsWith('data:video/webm;base64,'))return data;
   if(webmObjectUrls.has(data))return webmObjectUrls.get(data);
@@ -48,7 +48,8 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
   if(lastMapSource===src)return;
   lastMapSource=src;const loadId=++mapLoadId;
   if(!src){mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();board.style.visibility='visible';return;}
-  board.style.visibility='hidden';
+  // Exibe imediatamente a prévia estática enquanto o WEBM termina de chegar.
+  board.style.visibility=isWebmMap(scene.map)?'visible':'hidden';
   const useDimensions=(width,height)=>{
    if(disposed||loadId!==mapLoadId)return;
    const ratio=Math.max(.05,Math.min(20,width/Math.max(1,height)));
@@ -217,13 +218,15 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(disposed)return;
   board.querySelectorAll('.nex-tabletop-token').forEach(n=>n.remove());
   const resolvedMap=visibleMediaSource(scene.map);
-  if(renderedMapSource!==resolvedMap){
+  const displayedMapKey=resolvedMap||('preview:'+String(webmPreviews.get(scene.map)||''));
+  if(renderedMapSource!==displayedMapKey){
    const video=isWebmMap(scene.map);
-   board.style.backgroundImage=resolvedMap&&!video?'url("'+resolvedMap.replace(/"/g,'')+'")':'none';
+   const waitingPreview=video&&!resolvedMap?webmPreviews.get(scene.map):'';
+   board.style.backgroundImage=waitingPreview?'url("'+waitingPreview+'")':resolvedMap&&!video?'url("'+resolvedMap.replace(/"/g,'')+'")':'none';
    mapVideo.style.display=video&&resolvedMap?'block':'none';
    if(video&&resolvedMap){mapVideo.src=resolvedMap;void mapVideo.play().catch(()=>{});}
    else{mapVideo.pause();mapVideo.onloadedmetadata=null;mapVideo.onerror=null;mapVideo.removeAttribute('src');mapVideo.load();}
-   renderedMapSource=resolvedMap;
+   renderedMapSource=displayedMapKey;
   }
   updateMapGeometry();
   for(const t of scene.tokens){
@@ -1621,6 +1624,22 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    if(gm||disposed||!data||!Array.isArray(data.tokens))return;
    scene=validScene(data);remoteReady=true;mediaFailed.clear();render();emitMapState();
    message('Mesa sincronizada com o mestre por conexão direta.');
+  },
+  getPreview:async src=>{
+   if(!gm||scene.map!==src||!isWebmMap(src)||mapVideo.readyState<2)return null;
+   try{
+    const width=Math.max(1,mapVideo.videoWidth),height=Math.max(1,mapVideo.videoHeight);
+    const ratio=Math.min(1,600/Math.max(width,height));
+    const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(width*ratio));canvas.height=Math.max(1,Math.round(height*ratio));
+    canvas.getContext('2d').drawImage(mapVideo,0,0,canvas.width,canvas.height);
+    const preview=canvas.toDataURL('image/jpeg',.52);
+    return preview.length<110000?preview:null;
+   }catch(_){return null;}
+  },
+  onPreview:(ref,preview)=>{
+   if(gm||disposed||!isWebmMap(ref))return;
+   webmPreviews.set(ref,preview);
+   if(scene.map===ref)render();
   },
   getAsset:async(src,playerUid)=>{
    if(!gm||!isLocalMedia(src))return null;
