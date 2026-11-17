@@ -112,9 +112,11 @@ export function mountNexLocalMusic({uid,campaignId,root}){
   songList.replaceChildren();
   for(const group of playlistState.groups){
    const block=document.createElement('section');block.className='nex-music-playlist-group';
+   if(group.id==='default')block.classList.add('nex-music-default-tracks');
    const head=document.createElement('div');head.className='nex-music-playlist-header';
    enableDrop(block,group.id);
-   const opened=expandedGroups.has(group.id);
+   const isDefaultGroup=group.id==='default';
+   const opened=isDefaultGroup||expandedGroups.has(group.id);
    head.append(tinyButton(opened?'▾':'▸','Expandir ou recolher',()=>{opened?expandedGroups.delete(group.id):expandedGroups.add(group.id);drawPlaylists(rows);}));
    const name=document.createElement('span');name.className='nex-music-playlist-title';name.textContent=group.name;head.append(name);
    head.append(tinyButton('▶','Reproduzir playlist',async()=>{
@@ -142,7 +144,8 @@ export function mountNexLocalMusic({uid,campaignId,root}){
     }
     savePlaylists();drawPlaylists(rows);say('Playlist excluída. Músicas preservadas.');
    }));
-   block.append(head);
+   // A lista principal mostra apenas as músicas, sem a barra 'Minhas músicas'.
+   if(!isDefaultGroup)block.append(head);
    if(opened)for(const row of groupTracks(rows,group.id)){
     const song=document.createElement('div');song.className='nex-music-song';
     const title=document.createElement('span');title.className='nex-music-song-name';title.textContent=row.name;title.title=row.name;
