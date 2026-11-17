@@ -28,7 +28,7 @@ export function createVttMediaCache(uid,campaignId){
   });
  }
  async function put(src,data,persistent=false){
-  if(typeof data!=='string'||data.length>8*1024*1024)return false;
+  if(typeof data!=='string'||data.length>16*1024*1024)return false;
   const database=await db();if(!database)return false;
   const value={key:key(src),data,size:data.length*2,timestamp:Date.now(),persistent:!!persistent};
   const success=await new Promise(resolve=>{
