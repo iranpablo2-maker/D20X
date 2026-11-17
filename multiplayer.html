@@ -3178,6 +3178,15 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-mini-group-select{grid-column:1 / 4!important;grid-row:2!important;justify-self:start!important;margin:0!important}'+
    '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-right-actions{grid-column:4!important;grid-row:2!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:5px!important;min-width:0!important}'+
    '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-right-actions button{grid-column:auto!important;grid-row:auto!important;justify-self:auto!important;width:100%!important;min-width:0!important;min-height:29px!important;padding:4px 3px!important;font-size:10px!important}';
+  compactGroupStyle.textContent+=
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-entry{padding:5px!important;border-radius:5px!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item{grid-template-columns:20px 25px minmax(0,1fr) 53px!important;grid-template-rows:25px auto!important;column-gap:4px!important;row-gap:3px!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-opacity-expand{width:20px!important;min-height:23px!important;flex-basis:20px!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-art-thumb{width:25px!important;min-width:25px!important;max-width:25px!important;height:25px!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-asset-name{font-size:10px!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-mini-group-select{width:78px!important;max-width:78px!important;height:23px!important;min-height:23px!important;padding:1px 15px 1px 5px!important;font-size:10px!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-right-actions{gap:3px!important}'+
+   '#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody .nex-vtt-atmosphere-right-actions button{min-height:24px!important;height:24px!important;padding:2px!important;font-size:9px!important}';
   document.head.append(compactGroupStyle);
   let currentAtmosphereLayers=[];
   let currentAtmosphereGroups=[];
