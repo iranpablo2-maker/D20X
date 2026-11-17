@@ -84,6 +84,38 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const warnSync=detail=>{saveFailed=true;saveText.textContent=detail;saveNotice.hidden=false;};
  const clearSync=()=>{saveFailed=false;saveNotice.hidden=true;};
  listen(retrySave,'click',()=>{if(!gm)return;retrySave.disabled=true;save().finally(()=>{retrySave.disabled=false;});});
+ if(gm){
+  const storagePanel=document.createElement('div');
+  storagePanel.style.cssText='margin:10px 0;padding:10px;border:1px solid #5d3b44;border-radius:8px;color:#ddd;font-size:12px';
+  const storageLabel=document.createElement('div');
+  storageLabel.textContent='Armazenamento do Tabletop no Brave';
+  storageLabel.style.fontWeight='bold';
+  const storageInfo=document.createElement('p');
+  storageInfo.style.cssText='margin:6px 0;color:#c6bcc0';
+  const persistButton=document.createElement('button');
+  persistButton.type='button';persistButton.textContent='Proteger dados locais';
+  persistButton.style.cssText='background:#702a35;color:#fff;border:1px solid #a44b55;padding:7px;border-radius:6px';
+  storagePanel.append(storageLabel,storageInfo,persistButton);
+  musicRoot.append(storagePanel);
+  const showStorage=async()=>{
+   if(!navigator.storage?.estimate){storageInfo.textContent='Este navegador não informa a capacidade local.';return;}
+   try{
+    const {usage,quota}=await navigator.storage.estimate();
+    const mb=n=>((n||0)/(1024*1024)).toFixed(1)+' MB';
+    storageInfo.textContent='Uso total estimado do site: '+mb(usage)+' / quota estimada: '+mb(quota)+'. A quota não é espaço reservado.';
+    if(await navigator.storage.persisted?.())persistButton.textContent='Armazenamento persistente ativado';
+   }catch(error){storageInfo.textContent='Não foi possível consultar o armazenamento.';}
+  };
+  listen(persistButton,'click',async()=>{
+   try{
+    const granted=await navigator.storage?.persist?.();
+    message(granted?'Armazenamento persistente permitido pelo navegador.':'O Brave não concedeu persistência; faça backups regularmente.');
+    await showStorage();
+   }catch(error){message('Persistência indisponível neste navegador.');}
+  });
+  void showStorage();
+  handlers.push(()=>storagePanel.remove());
+ }
  const selected=()=>scene.tokens.find(t=>t.id===selectedId);
  const linkedSheet=t=>t?.linkedSheetId?getSheets().find(s=>s.id===t.linkedSheetId):null;
  const tokenStat=(t,f)=>{const sh=linkedSheet(t);return Math.max(0,Math.trunc(Number(sh?(sh.fullSheet?.[f+'Current']??sh[f]??t[f]):t[f])||0));};
