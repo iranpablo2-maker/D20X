@@ -328,7 +328,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  function emitMapState(){
   window.dispatchEvent(new CustomEvent('nex:vtt-map-library-state',{detail:{
-   maps:(scene.library?.maps||[]).map(m=>({id:m.id,name:m.name,src:visibleMediaSource(m.src)})),
+   maps:(scene.library?.maps||[]).filter(m=>gm||m.src===scene.map).map(m=>({id:m.id,name:m.name,src:visibleMediaSource(m.src)})),
    activeId:(scene.library?.maps||[]).find(m=>m.src===scene.map)?.id||'',
    gridVisible:scene.gridVisible
   }}));
