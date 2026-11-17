@@ -251,13 +251,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   while(queued&&!disposed){
    queued=false;
    const data=JSON.parse(JSON.stringify(validScene(scene)));
-   if(new TextEncoder().encode(JSON.stringify(data)).length>850000){
-    localDirty=true;message('Cena muito grande para sincronizar. Reduza as imagens ou tokens.');
-    warnSync('Cena muito grande para transmitir.');break;
-   }
    try{
     await localSceneStore.save(data);
-    peerMedia?.broadcastScene(data);
+    peerMedia?.broadcastScene(networkScene(data));
     if(!queued){localDirty=false;clearBackup();}
     clearSync();message('Mesa salva neste dispositivo.');
    }catch(error){
@@ -268,6 +264,12 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    }
   }
   pending=false;
+ }
+ function networkScene(data=scene){
+  const shared=JSON.parse(JSON.stringify(validScene(data)));
+  // Transmitir apenas a cena e o mapa exibido, não os mapas guardados.
+  shared.library.maps=(shared.library.maps||[]).filter(map=>map.src===shared.map);
+  return shared;
  }
  const reader=async(file,max,done)=>{
   if(!remoteReady){message('A mesa ainda está carregando. Tente novamente após carregar.');return;}
@@ -386,7 +388,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const v=Math.max(0,Math.min(9,Math.trunc(Number(variation)||0)));
   const oldImages=[...t.images],oldVariation=t.variation;
   t.images[v]='asset:'+asset.id;t.variation=v;
-  if(libraryBytes()>850000){t.images=oldImages;t.variation=oldVariation;message('Não há espaço para esta alteração na cena.');return;}
+  if(libraryBytes()>12000000){t.images=oldImages;t.variation=oldVariation;message('Não há espaço para esta alteração na cena.');return;}
   render();save();
  };
  const createTokenFromAsset=assetId=>{
@@ -401,7 +403,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    defense:0,hidden:false,locked:false,linkedSheetId:''};
   token.images[1]='asset:'+asset.id;
   const previousSelection=selectedId;scene.tokens.push(token);selectedId=token.id;
-  if(libraryBytes()>850000){scene.tokens.pop();selectedId=previousSelection;message('A cena não tem espaço para esse token.');return;}
+  if(libraryBytes()>12000000){scene.tokens.pop();selectedId=previousSelection;message('A cena não tem espaço para esse token.');return;}
   render();save();
  };
  listen(window,'nex:vtt-token-library-request',libraryState);
@@ -493,7 +495,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     scene.library.tokenImages.unshift(asset);
     token.images[variant]='asset:'+asset.id;
     if(!scene.tokens.includes(token))scene.tokens.push(token);
-    if(libraryBytes()>850000){
+    if(libraryBytes()>12000000){
      scene.library.tokenImages.shift();await deleteMediaParts(data);
      if(beforeImage===undefined)delete token.images[variant];else token.images[variant]=beforeImage;
      if(!added)scene.tokens=scene.tokens.filter(t=>t!==token);
@@ -526,7 +528,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    scene.library??={tokenImages:[]};
    const item={id:'asset_'+crypto.randomUUID(),name:String(file.name||'Imagem').slice(0,90),src};
    scene.library.tokenImages.unshift(item);
-   if(libraryBytes()>850000){
+   if(libraryBytes()>12000000){
     scene.library.tokenImages.shift();await deleteMediaParts(src);src=null;
     message('A cena está cheia.');return;
    }
@@ -545,7 +547,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const t=scene.tokens.find(x=>x.id===id);if(!t){await deleteMediaParts(data);return;}
   const old=t.images[variant],oldVariation=t.variation;
   t.images[variant]=data;t.variation=variant;
-  if(libraryBytes()>850000){
+  if(libraryBytes()>12000000){
    t.images[variant]=old;t.variation=oldVariation;await deleteMediaParts(data);
    message('A cena está cheia.');return;
   }
@@ -1086,7 +1088,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     catch(error){message('Falha no envio: '+String(error.code||error.message||error).slice(0,110));break;}
     const item={id:isLocalMedia(src)?src.split(':')[1]:mediaDescriptor(src).id,name:String(file.name||'Atmosfera').slice(0,90),src,enabled:true,opacity:100};
     scene.atmosphereLayers??=[];scene.atmosphereLayers.push(item);
-    if(new TextEncoder().encode(JSON.stringify(validScene(scene))).length>850000){
+    if(new TextEncoder().encode(JSON.stringify(validScene(scene))).length>12000000){
      scene.atmosphereLayers.pop();await deleteMediaParts(src);message('Cena cheia.');break;
     }
     added++;
@@ -1555,7 +1557,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  peerMedia=mountNexPeerMedia({
   db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,root:liveRoot,
   getAudioStream:()=>localAudioCleanup.getStream?.()||null,
-  getScene:()=>gm?JSON.parse(JSON.stringify(validScene(scene))):null,
+  getScene:()=>gm?networkScene():null,
   onTokenAction:({action,id,sourceId,variation})=>{
    if(!gm||disposed||!remoteReady)return;
    const token=scene.tokens.find(t=>t.id===id);
@@ -1633,7 +1635,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      }
     }
     if(disposed)return;
-    ensureMapCatalog();remoteReady=true;render();emitMapState();peerMedia?.broadcastScene(JSON.parse(JSON.stringify(validScene(scene))));if(queued)void save();
+    ensureMapCatalog();remoteReady=true;render();emitMapState();peerMedia?.broadcastScene(networkScene());if(queued)void save();
     else if(!saveFailed)message('Mesa local pronta. Inicie a transmissão para os jogadores.');
    }catch(error){
     if(disposed)return;
