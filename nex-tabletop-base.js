@@ -1036,13 +1036,17 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   return '';
  }
  async function uploadMedia(file,prefix){
-  if(!/^image\/(gif|png|jpeg|webp)$/.test(file?.type||'')&&!(prefix==='map'&&file?.type==='video/webm'))throw Error('Selecione PNG, JPG, WebP, GIF ou WEBM (mapas).');
   if(!['map','asset','atmo'].includes(prefix))throw Error('Categoria de imagem inválida.');
-  const largeAnimated=file.type==='image/gif';
+  // Alguns navegadores identificam GIF como application/octet-stream.
+  // Validar a assinatura do arquivo evita rejeitar GIFs legítimos com MIME incorreto.
+  const header=new Uint8Array(await file.slice(0,6).arrayBuffer());
+  const gifSignature=String.fromCharCode(...header);
+  const largeAnimated=gifSignature==='GIF87a'||gifSignature==='GIF89a';
+  if(!largeAnimated&&!/^image\/(png|jpeg|webp)$/.test(file?.type||'')&&!(prefix==='map'&&file?.type==='video/webm'))throw Error('Selecione PNG, JPG, WebP, GIF ou WEBM (mapas).');
   const limit=largeAnimated?100*1024*1024:prefix==='atmo'?5*1024*1024:10*1024*1024;
   if(!file.size||file.size>limit)throw Error(largeAnimated?'O limite de GIFs é 100 MB.':prefix==='atmo'?'O limite de atmosferas é 5 MB.':'O limite de mapas e tokens locais é 10 MB.');
   // GIFs grandes ficam em Blob no IndexedDB; Base64 multiplicaria memoria e bloquearia a interface.
-  const data=largeAnimated?file:await blobDataURL(file);
+  const data=largeAnimated?file.slice(0,file.size,'image/gif'):await blobDataURL(file);
   const match=largeAnimated?null:/^data:(?:image\/(gif|png|jpeg|webp)|video\/(webm));base64,([A-Za-z0-9+/=]+)$/.exec(data);
   if(!largeAnimated&&!match)throw Error('Imagem inválida.');
   const src='local:'+prefix+'_'+crypto.randomUUID()+':'+(largeAnimated?'gif':match[1]||match[2]);
