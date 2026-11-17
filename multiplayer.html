@@ -3200,6 +3200,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-asset-name{grid-column:3!important;grid-row:1!important;max-width:100%!important}'+
    '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-mini-group-select{grid-column:1 / 4!important;grid-row:2!important}'+
    '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-right-actions{position:absolute!important;top:0!important;right:0!important;width:54px!important;height:auto!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:3px!important;margin:0!important;transform:none!important}';
+  compactGroupStyle.textContent+=
+   '#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody .nex-vtt-atmosphere-item button.nex-vtt-opacity-expand{display:flex!important;align-items:center!important;justify-content:center!important;text-align:center!important;padding:0!important;line-height:1!important;box-sizing:border-box!important}';
   document.head.append(compactGroupStyle);
   let currentAtmosphereLayers=[];
   let currentAtmosphereGroups=[];
