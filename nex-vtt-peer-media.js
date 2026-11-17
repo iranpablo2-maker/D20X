@@ -77,7 +77,7 @@ export function mountNexPeerMedia({
   const channel=peer.channel;
   if(!channel||channel.readyState!=='open'||!scene)return;
   const json=JSON.stringify(scene);
-  if(json.length>900000)throw Error('Cena local excede o limite de sincronização');
+  if(json.length>12000000)throw Error('Cena grande demais para transmissão; os dados continuam salvos localmente');
   const size=12000,total=Math.ceil(json.length/size);
   await waitBuffer(channel);
   if(channel.readyState!=='open')return;
@@ -182,7 +182,7 @@ export function mountNexPeerMedia({
       onTokenMove({id:msg.id,x:msg.x,y:msg.y,final:msg.final===true},peer.uid);
      }else if(!gm&&msg.type==='token-preview'&&typeof msg.id==='string'&&msg.id.length<=100&&Number.isFinite(msg.x)&&Number.isFinite(msg.y)){
       onTokenPreview({id:msg.id,x:msg.x,y:msg.y});
-     }else if(!gm&&msg.type==='scene-begin'&&Number.isSafeInteger(msg.revision)&&msg.total>0&&msg.total<=100){
+     }else if(!gm&&msg.type==='scene-begin'&&Number.isSafeInteger(msg.revision)&&msg.total>0&&msg.total<=1000){
       peer.sceneReceiving={revision:msg.revision,total:msg.total,parts:[]};
      }else if(!gm&&msg.type==='scene-part'&&peer.sceneReceiving?.revision===msg.revision&&Number.isInteger(msg.index)&&msg.index>=0&&msg.index<peer.sceneReceiving.total&&typeof msg.body==='string'&&msg.body.length<=12000){
       peer.sceneReceiving.parts[msg.index]=msg.body;
