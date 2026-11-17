@@ -1,7 +1,7 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117gif100v1';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117hideplaylist4';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117gif100v1';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117chat1';
 import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
@@ -1591,9 +1591,15 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  liveRoot.id='nexVttLiveLocalControls';
  liveRoot.style.cssText='margin:4px 0 8px';
  status.insertAdjacentElement('afterend',liveRoot);
+ listen(window,'nex:vtt-chat-send',event=>{
+  if(disposed||event.detail?.campaignId!==campaignId)return;
+  const ok=peerMedia?.sendChat?.(event.detail.text,event.detail.name||'Jogador');
+  window.dispatchEvent(new CustomEvent('nex:vtt-chat-send-result',{detail:{campaignId,ok:!!ok}}));
+ });
  peerMedia=mountNexPeerMedia({
   db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,root:liveRoot,
   getAudioStream:()=>localAudioCleanup.getStream?.()||null,
+  onChat:item=>{if(!disposed)window.dispatchEvent(new CustomEvent('nex:vtt-chat-message',{detail:{campaignId,item}}));},
   getScene:()=>gm?networkScene():null,
   onTokenAction:({action,id,sourceId,variation})=>{
    if(!gm||disposed||!remoteReady)return;
