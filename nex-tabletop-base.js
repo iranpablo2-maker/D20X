@@ -1,7 +1,7 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117webm1';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117fastwebm2';
 import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
@@ -12,7 +12,19 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const isR2Media=src=>typeof src==='string'&&r2Pattern.test(src);
  const mediaCache=createVttMediaCache(uid,campaignId);
  const localSceneStore=createVttLocalScene(uid,campaignId);
- const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
+ const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set(),webmObjectUrls=new Map();
+ function playableWebm(data){
+  if(typeof data!=='string'||!data.startsWith('data:video/webm;base64,'))return data;
+  if(webmObjectUrls.has(data))return webmObjectUrls.get(data);
+  try{
+   const raw=atob(data.slice(data.indexOf(',')+1));
+   const bytes=new Uint8Array(raw.length);
+   for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);
+   const url=URL.createObjectURL(new Blob([bytes],{type:'video/webm'}));
+   webmObjectUrls.set(data,url);
+   return url;
+  }catch(error){console.warn('NEX VTT: nao foi possivel preparar WEBM',error);return data;}
+ }
  // Todos os novos arquivos ficam neste dispositivo. Participantes conectam ao mestre via WebRTC.
  // Mídias antigas em Firestore e R2 continuam legíveis, sem migração ou exclusão.
  const musicRoot=document.getElementById('nexVttImmersionMusicHost')||tools;
@@ -966,13 +978,14 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  function visibleMediaSource(src){
   if(typeof src!=='string')return '';
-  if(src.startsWith('data:image/')||src.startsWith('data:video/webm;')||src.startsWith('https://'))return src;
+  if(src.startsWith('data:video/webm;'))return playableWebm(src);
+  if(src.startsWith('data:image/')||src.startsWith('https://'))return src;
   const local=isLocalMedia(src);
   // Arquivos locais dos jogadores aparecem apenas enquanto o mestre transmite.
   if(local&&!gm&&!peerMedia?.connected())return '';
   const info=local?null:mediaDescriptor(src);
   if((!local&&!info)||mediaFailed.has(src))return '';
-  if(mediaMemory.has(src))return mediaMemory.get(src);
+  if(mediaMemory.has(src))return isWebmMap(src)?playableWebm(mediaMemory.get(src)):mediaMemory.get(src);
   if(!mediaPending.has(src)){
    const task=(async()=>{
     let image=await mediaCache.read(src);
@@ -1657,5 +1670,5 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   remoteReady=true;render();message('Aguardando o mestre transmitir a mesa.');
  }
  render();
- return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();mapVideo.remove();};
+ return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();mapVideo.pause();mapVideo.remove();for(const url of webmObjectUrls.values())URL.revokeObjectURL(url);webmObjectUrls.clear();};
 }
