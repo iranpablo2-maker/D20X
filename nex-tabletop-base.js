@@ -13,7 +13,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const mediaMemory=new Map(),mediaPending=new Map(),mediaFailed=new Set();
  // Todos os novos arquivos ficam neste dispositivo. Participantes conectam ao mestre via WebRTC.
  // Mídias antigas em Firestore e R2 continuam legíveis, sem migração ou exclusão.
- const musicRoot=document.getElementById('nexVttMainMenu')||tools;
+ const musicRoot=document.querySelector('#nexVttMainMenu [data-nex-main-page="settings"]')||tools;
  const localAudioCleanup=gm?mountNexLocalMusic({uid,campaignId,root:musicRoot}):()=>{};
  let peerMedia=null;
  const localMediaPattern=/^local:(?:atmo|map|asset)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp)$/;
@@ -958,11 +958,12 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    }
    const src=visibleAtmosphereSource(item);
    if(src&&node.dataset.src!==src){node.src=src;node.dataset.src=src;}
+   if(!src&&node.dataset.src){node.removeAttribute('src');delete node.dataset.src;}
    node.style.zIndex=String(i);
    node.style.opacity=String(Math.max(0,Math.min(100,item.opacity))/100);
-   node.hidden=!item.enabled;
+   node.hidden=!item.enabled||!src;
   }
-  atmosphereLayer.hidden=!layers.some(a=>a.enabled&&a.opacity>0);
+  atmosphereLayer.hidden=!layers.some(a=>a.enabled&&a.opacity>0&&!!visibleAtmosphereSource(a));
   window.dispatchEvent(new CustomEvent('nex:vtt-atmosphere-state',{detail:{
    layers:layers.map(a=>({id:a.id,name:a.name,src:visibleAtmosphereSource(a),enabled:a.enabled,opacity:a.opacity})),isMaster:gm
   }}));
