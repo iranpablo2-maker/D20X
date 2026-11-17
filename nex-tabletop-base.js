@@ -1,7 +1,7 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117playermove1';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117livedrag1';
 import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
@@ -622,6 +622,16 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  listen(document,'pointerdown',event=>{if(!tokenMenu.hidden&&!tokenMenu.contains(event.target))closeTokenMenu();if(event.button===0&&!drag&&!event.target.closest('#nexTabletopBoard .nex-tabletop-token')&&resizeSelectedId!==null){resizeSelectedId=null;render();}});
  listen(document,'keydown',event=>{if(event.key==='Escape')closeTokenMenu();});
 
+ // Alterar apenas as coordenadas visuais evita que o token desapareça durante o arrasto.
+ function paintTokenPosition(token){
+  const el=Array.from(board.querySelectorAll('.nex-tabletop-token[data-token]')).find(node=>node.dataset.token===token.id);
+  if(!el)return;
+  el.style.left=(token.x*mapWidth/W)+'px';el.style.top=(token.y*mapHeight/H)+'px';
+  const unit=Math.min(mapWidth/W,mapHeight/H);
+  el.style.width=((token.widthCells||token.size||1)*unit)+'px';
+  el.style.height=((token.heightCells||token.size||1)*unit)+'px';
+ }
+ let lastLiveDragAt=0;
  listen(board,'pointerdown',e=>{
   const el=e.target.closest('[data-token]');
   if(e.button!==0)return;
@@ -642,6 +652,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(linked&&typeof onSelectSheet==='function')onSelectSheet(linked.id);
   if(selected()?.locked||vttMode!=='select'||(!gm&&!peerMedia?.connected()))return;
   const t=selected();
+  if(handle&&!gm)return;
   if(handle){
    drag={id:selectedId,pointer:e.pointerId,kind:'resize',handle,
      startX:t.x,startY:t.y,startWidth:t.widthCells||t.size||1,startHeight:t.heightCells||t.size||1,
@@ -674,17 +685,23 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    }
   }else{
    const touchX=e.clientX-(drag.mobileOffsetX||0),touchY=e.clientY-(drag.mobileOffsetY||0);
-   t.x=Math.max(0,Math.min(W-(t.widthCells||t.size||1),Math.floor((touchX-rect.left)/cellX)));
-   t.y=Math.max(0,Math.min(H-(t.heightCells||t.size||1),Math.floor((touchY-rect.top)/cellY)));
+   t.x=Math.max(0,Math.min(W-(t.widthCells||t.size||1),Math.round(((touchX-rect.left)/cellX)*4)/4));
+   t.y=Math.max(0,Math.min(H-(t.heightCells||t.size||1),Math.round(((touchY-rect.top)/cellY)*4)/4));
   }
-  render();
+  paintTokenPosition(t);
+  if(drag.kind==='move'&&performance.now()-lastLiveDragAt>=40){
+   lastLiveDragAt=performance.now();
+   if(gm)peerMedia?.broadcastTokenMove(t.id,t.x,t.y);
+   else peerMedia?.sendTokenMove(t.id,t.x,t.y,false);
+  }
  });
  listen(document,'pointerup',e=>{if(!drag||drag.pointer!==e.pointerId)return;
   const token=scene.tokens.find(t=>t.id===drag.id);
   if(token&&vttMeasureMovement){const squares=Math.hypot(token.x-drag.startX,token.y-drag.startY);vttLog.hidden=false;vttLog.textContent=token.name+': '+squares.toFixed(1)+' quadrados';}
   drag=null;
   try{if(board.hasPointerCapture(e.pointerId))board.releasePointerCapture(e.pointerId);}catch(_){}
-  render();if(gm)save();else if(token)peerMedia?.sendTokenMove(token.id,token.x,token.y);
+  render();if(gm){if(token)peerMedia?.broadcastTokenMove(token.id,token.x,token.y);save();}
+  else if(token)peerMedia?.sendTokenMove(token.id,token.x,token.y,true);
  });
  listen(document,'pointercancel',e=>{if(drag&&drag.pointer===e.pointerId){drag=null;render();if(gm)save();}});
  listen(document,'keydown',e=>{
@@ -1496,7 +1513,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,root:liveRoot,
   getAudioStream:()=>localAudioCleanup.getStream?.()||null,
   getScene:()=>gm?JSON.parse(JSON.stringify(validScene(scene))):null,
-  onTokenMove:({id,x,y})=>{
+  onTokenMove:({id,x,y,final})=>{
    if(!gm||disposed||!remoteReady)return;
    const token=scene.tokens.find(t=>t.id===id);
    if(!token||token.hidden||token.locked)return;
@@ -1504,7 +1521,17 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const maxY=Math.max(0,H-(token.heightCells||token.size||1));
    token.x=Math.round(Math.max(0,Math.min(maxX,x))*4)/4;
    token.y=Math.round(Math.max(0,Math.min(maxY,y))*4)/4;
-   render();void save();
+   paintTokenPosition(token);
+   peerMedia?.broadcastTokenMove(token.id,token.x,token.y);
+   if(final)void save();
+  },
+  onTokenPreview:({id,x,y})=>{
+   if(gm||disposed)return;
+   const token=scene.tokens.find(t=>t.id===id);
+   if(!token||token.hidden||drag?.id===id)return;
+   token.x=Math.max(0,Math.min(W-(token.widthCells||token.size||1),x));
+   token.y=Math.max(0,Math.min(H-(token.heightCells||token.size||1),y));
+   paintTokenPosition(token);
   },
   onScene:data=>{
    if(gm||disposed||!data||!Array.isArray(data.tokens))return;
