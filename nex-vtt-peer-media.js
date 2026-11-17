@@ -58,7 +58,7 @@ async function sendFile(channel,ref,data){
 }
 export function mountNexPeerMedia({
  db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,
- root,getAsset=async()=>null,getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onConnected=()=>{},onDisconnected=()=>{}
+ root,getAsset=async()=>null,getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onTokenPreview=()=>{},onConnected=()=>{},onDisconnected=()=>{}
 }){
  if(!db||!uid||!root||typeof RTCPeerConnection==='undefined')return {
   connected:()=>false,fetchImage:()=>Promise.reject(Error('WebRTC nao disponivel neste navegador')),
@@ -92,6 +92,15 @@ export function mountNexPeerMedia({
  }
  function queueScene(peer,revision,scene){
   peer.sceneQueue=(peer.sceneQueue||Promise.resolve()).then(()=>sendScene(peer,revision,scene)).catch(error=>{if(!destroyed)say('Erro ao sincronizar mesa: '+String(error.message).slice(0,100));});
+ }
+ function broadcastTokenMove(id,x,y,exceptUid=''){
+  if(!gm||!hosting||destroyed||typeof id!=='string')return;
+  const payload=JSON.stringify({type:'token-preview',id,x,y});
+  for(const peer of remotePeers.values()){
+   if(peer.uid!==exceptUid&&peer.open&&peer.channel?.readyState==='open'&&peer.channel.bufferedAmount<BUFFER_LIMIT){
+    peer.channel.send(payload);
+   }
+  }
  }
  function broadcastScene(scene){
   if(!gm||!hosting||destroyed)return;
@@ -160,8 +169,9 @@ export function mountNexPeerMedia({
     let msg;
     try{msg=JSON.parse(event.data);}catch(_){return;}
     if(gm&&msg.type==='token-move'&&typeof msg.id==='string'&&msg.id.length<=100&&Number.isFinite(msg.x)&&Number.isFinite(msg.y)){
-      // Só o mestre decide se o token pode ser movido e salva a posição.
-      onTokenMove({id:msg.id,x:msg.x,y:msg.y},peer.uid);
+      onTokenMove({id:msg.id,x:msg.x,y:msg.y,final:msg.final===true},peer.uid);
+     }else if(!gm&&msg.type==='token-preview'&&typeof msg.id==='string'&&msg.id.length<=100&&Number.isFinite(msg.x)&&Number.isFinite(msg.y)){
+      onTokenPreview({id:msg.id,x:msg.x,y:msg.y});
      }else if(!gm&&msg.type==='scene-begin'&&Number.isSafeInteger(msg.revision)&&msg.total>0&&msg.total<=100){
       peer.sceneReceiving={revision:msg.revision,total:msg.total,parts:[]};
      }else if(!gm&&msg.type==='scene-part'&&peer.sceneReceiving?.revision===msg.revision&&Number.isInteger(msg.index)&&msg.index>=0&&msg.index<peer.sceneReceiving.total&&typeof msg.body==='string'&&msg.body.length<=12000){
@@ -332,10 +342,11 @@ export function mountNexPeerMedia({
   };
   window.addEventListener('nex:vtt-view',onTabletopView);
 
- function sendTokenMove(id,x,y){
+ function sendTokenMove(id,x,y,final=false){
   if(gm||!joinPeer?.open||joinPeer.channel?.readyState!=='open')return false;
   if(typeof id!=='string'||id.length>100||!Number.isFinite(x)||!Number.isFinite(y))return false;
-  joinPeer.channel.send(JSON.stringify({type:'token-move',id,x,y}));
+  if(!final&&joinPeer.channel.bufferedAmount>BUFFER_LIMIT)return false;
+  joinPeer.channel.send(JSON.stringify({type:'token-move',id,x,y,final:!!final}));
   return true;
  }
  function fetchImage(src){
@@ -353,6 +364,7 @@ export function mountNexPeerMedia({
   connected:()=>Boolean(!gm&&joinPeer?.open&&joinPeer.channel?.readyState==='open'),
   fetchImage,
   broadcastScene,
+  broadcastTokenMove,
   sendTokenMove,
   destroy(){
    if(destroyed)return;
