@@ -2587,9 +2587,9 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
   <section data-nex-main-page="art" hidden>
    <h3>Biblioteca de arte</h3>
    <div class="nex-vtt-library-tabs" role="group" aria-label="Camadas da biblioteca">
-    <button type="button" data-nex-library-layer="mapa" aria-pressed="true">Mapa</button>
-    <button type="button" data-nex-library-layer="tokens" aria-pressed="false">Tokens</button>
-     <button type="button" data-nex-library-layer="imersao" aria-pressed="false">Imersão</button>
+    <button type="button" data-nex-library-layer="mapa" aria-pressed="true" onclick="window.NEX_VTT_OPEN_LIBRARY_LAYER?.('mapa')">Mapa</button>
+    <button type="button" data-nex-library-layer="tokens" aria-pressed="false" onclick="window.NEX_VTT_OPEN_LIBRARY_LAYER?.('tokens')">Tokens</button>
+     <button type="button" data-nex-library-layer="imersao" aria-pressed="false" onclick="window.NEX_VTT_OPEN_LIBRARY_LAYER?.('imersao')">Imersão</button>
    </div>
    <div id="nexVttLibraryBody" class="nex-vtt-library-body"></div>
     <div id="nexVttImmersionMusicHost" hidden></div>
@@ -3925,12 +3925,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    showMainTab('art');
    switchLibraryLayer(layer);
   };
-  // Clique e teclado passam pelo mesmo caminho; sem pointerdown concorrente.
+  // Cada botão chama diretamente o controlador único, sem delegação concorrente.
+  // Mantemos teclas Enter e Espaço por serem clicks nativos nos botões.
   libraryTabsPanel?.addEventListener('click',event=>{
-   const tab=event.target.closest('button[data-nex-library-layer]');
-   if(!tab)return;
-   event.preventDefault();
-   window.NEX_VTT_OPEN_LIBRARY_LAYER(tab.dataset.nexLibraryLayer);
+   const target=event.target instanceof Element?event.target.closest('[data-nex-library-layer]'):null;
+   if(!target)return;
+   // O atributo onclick do próprio botão já processou esta seleção.
   });
   window.addEventListener('nex:vtt-library-role-refresh',event=>{
    if(event.detail?.campaignId!==roomId)return;
