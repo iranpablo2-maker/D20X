@@ -1,7 +1,7 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117r2cache1';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117largescene1';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117webm1';
 import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
