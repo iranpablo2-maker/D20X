@@ -1,24 +1,17 @@
-# NEX Tabletop — local, Firestore legado e Cloudflare R2
+# Armazenamento do NEX — regras por categoria
 
-## Situação atual
-A interface do Tabletop tem duas opções para novas imagens:
-- **Neste dispositivo (não compartilha)**: dados de imagem persistem no IndexedDB local, se houver espaço.
-- **R2 na nuvem (compartilha com jogadores)**: mapas, GIFs e tokens vão diretamente ao bucket privado R2, depois que ele for criado e vinculado.
+O NEX Tabletop salva novos **mapas** e **tokens** (incluindo tokens GIF animados) no Cloudflare R2 para compartilhamento entre dispositivos. O Firestore continua responsável pelo estado da mesa, posições e permissões.
 
-Imagens já salvas no Firestore continuam legíveis. O estado do Tabletop, posições e permissões continuam no Firebase Firestore. O Cloudflare D1 continua disponível para dados estruturados.
+**GIFs de atmosfera e músicas ficam no navegador do mestre (IndexedDB)**. As atmosferas são visíveis somente no dispositivo que armazena o arquivo; músicas tocam apenas nele. O navegador pode apagar os dados locais ao limpar o site ou por restrição de espaço.
 
-## Antes de usar R2
-Leia e siga [CONFIGURAR-R2.md](./CONFIGURAR-R2.md).
-Ainda é necessário criar o bucket **`nex-vtt-media`**, vincular o recurso **`NEX_MEDIA`** ao Pages e atualizar **`wrangler.toml`**. Sem isso, o envio em nuvem apresentará aviso de configuração, mas o modo local e arquivos antigos continuarão funcionando.
+A biblioteca de músicas locais aparece como **♫ Músicas e sons locais** nas ferramentas do mestre, com reprodução e exclusão. Não há envio de músicas à nuvem.
 
-Confira o estado em [Diagnóstico R2](https://nexrpg.pages.dev/api/nex-r2-health). O resultado esperado depois de configurar é `"r2Configured":true`.
+Novos uploads usam destino automático por categoria: token GIF = R2; GIF de chuva/neblina = local.
 
-## Compatibilidade
-- Até 10 MB para cada nova imagem na nuvem R2.
-- Até 5 MB para cada nova imagem apenas local.
-- Até 8 atmosferas e 20 imagens de tokens na biblioteca por cena.
-- Cache IndexedDB separado por conta e campanha; pode ser removido pelo navegador.
-- O acesso ao R2 é autenticado com Firebase; somente o mestre pode enviar e excluir; jogadores da campanha podem ler os arquivos.
+## Como ativar
 
-## Custos
-O R2 Standard possui cota gratuita própria, mas **não é gratuito e ilimitado**. Os limites por campanha existentes no NEX não substituem acompanhamento da cota da conta Cloudflare. Não ative faturamento pago sem avaliar antes.
+Leia [CONFIGURAR-R2.md](./CONFIGURAR-R2.md). Ainda é necessário criar o bucket privado `nex-vtt-media`, associá-lo como `NEX_MEDIA` ao Cloudflare Pages e atualizar `wrangler.toml` após a criação.
+
+Sem bucket configurado, uploads de mapas e tokens no R2 falharão com aviso, mas os arquivos antigos do Firestore e imagens já guardadas localmente continuam legíveis. Não apague o Firebase nem realize migração automática antes de testar.
+
+Diagnóstico da conexão: https://nexrpg.pages.dev/api/nex-r2-health
