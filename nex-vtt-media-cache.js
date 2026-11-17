@@ -22,15 +22,16 @@ export function createVttMediaCache(uid,campaignId){
   return new Promise(resolve=>{
    try{
     const r=database.transaction(STORE,'readonly').objectStore(STORE).get(key(src));
-    r.onsuccess=()=>resolve(typeof r.result?.data==='string'?r.result.data:null);
+    r.onsuccess=()=>resolve(typeof r.result?.data==='string'||r.result?.data instanceof Blob?r.result.data:null);
     r.onerror=()=>resolve(null);
    }catch(_){resolve(null);}
   });
  }
  async function put(src,data,persistent=false){
-  if(typeof data!=='string'||data.length>16*1024*1024)return false;
+  if(!(data instanceof Blob)&&typeof data!=='string')return false;
+  if(data instanceof Blob&&data.size>11*1024*1024||typeof data==='string'&&data.length>16*1024*1024)return false;
   const database=await db();if(!database)return false;
-  const value={key:key(src),data,size:data.length*2,timestamp:Date.now(),persistent:!!persistent};
+  const value={key:key(src),data,size:data instanceof Blob?data.size:data.length*2,timestamp:Date.now(),persistent:!!persistent};
   const success=await new Promise(resolve=>{
    try{
     const tx=database.transaction(STORE,'readwrite');
