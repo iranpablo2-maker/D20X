@@ -3900,7 +3900,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   mainMenuToggle.addEventListener('click',()=>updateMenu(mainMenu.hidden));
   mainClose.addEventListener('click',()=>updateMenu(false));
   $('nexVttMenuSheets').addEventListener('click',()=>{$('nexVttSheetsToggle').click();});
-  $('nexVttMenuInvites').addEventListener('click',()=>{updateMenu(false);roomSection('invites');});
+  // O atalho de convites foi removido da interface; não interromper o módulo.
+  $('nexVttMenuInvites')?.addEventListener('click',()=>{updateMenu(false);roomSection('invites');});
   $('nexVttMenuDice').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Dados"]')?.click();});
   $('nexVttMenuSettings').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Grade e névoa"]')?.click();});
   $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
