@@ -48,9 +48,10 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
   };
   const fallback=()=>{if(loadId!==mapLoadId)return;mapWidth=GRID*W;mapHeight=GRID*H;mapGeometry();render();board.style.visibility='visible';};
   if(isWebmMap(scene.map)){
-   const probe=document.createElement('video');probe.preload='metadata';probe.muted=true;
-   probe.onloadedmetadata=()=>{useDimensions(probe.videoWidth||GRID*W,probe.videoHeight||GRID*H);probe.removeAttribute('src');probe.load();};
-   probe.onerror=fallback;probe.src=src;
+   // Reutiliza o player do mapa: evita decodificar o mesmo WEBM duas vezes.
+   mapVideo.onloadedmetadata=()=>useDimensions(mapVideo.videoWidth||GRID*W,mapVideo.videoHeight||GRID*H);
+   mapVideo.onerror=fallback;
+   if(mapVideo.readyState>=1)mapVideo.onloadedmetadata();
   }else{
    const img=new Image();img.onload=()=>useDimensions(img.naturalWidth,img.naturalHeight);
    img.onerror=fallback;img.src=src;
@@ -209,7 +210,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    board.style.backgroundImage=resolvedMap&&!video?'url("'+resolvedMap.replace(/"/g,'')+'")':'none';
    mapVideo.style.display=video&&resolvedMap?'block':'none';
    if(video&&resolvedMap){mapVideo.src=resolvedMap;void mapVideo.play().catch(()=>{});}
-   else{mapVideo.pause();mapVideo.removeAttribute('src');}
+   else{mapVideo.pause();mapVideo.onloadedmetadata=null;mapVideo.onerror=null;mapVideo.removeAttribute('src');mapVideo.load();}
    renderedMapSource=resolvedMap;
   }
   updateMapGeometry();
