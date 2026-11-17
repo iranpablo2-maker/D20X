@@ -3195,6 +3195,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-right-actions{grid-column:4!important;grid-row:1 / 3!important;align-self:stretch!important;display:flex!important;flex-direction:column!important;gap:3px!important;min-width:0!important}'+
    '#roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody .nex-vtt-atmosphere-right-actions button{height:24px!important;min-height:24px!important;padding:2px 3px!important;line-height:18px!important}'+
    '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-list{gap:6px!important}';
+  compactGroupStyle.textContent+=
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item{position:relative!important;padding-right:59px!important;box-sizing:border-box!important;min-height:53px!important;grid-template-columns:20px 25px minmax(0,1fr)!important;grid-template-rows:25px 25px!important;align-content:start!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-asset-name{grid-column:3!important;grid-row:1!important;max-width:100%!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-item .nex-vtt-mini-group-select{grid-column:1 / 4!important;grid-row:2!important}'+
+   '#roomTabletopPanel #nexVttLibraryBody .nex-vtt-atmosphere-right-actions{position:absolute!important;top:0!important;right:0!important;width:54px!important;height:auto!important;display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:3px!important;margin:0!important;transform:none!important}';
   document.head.append(compactGroupStyle);
   let currentAtmosphereLayers=[];
   let currentAtmosphereGroups=[];
