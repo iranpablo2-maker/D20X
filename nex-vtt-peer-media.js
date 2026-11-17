@@ -194,7 +194,7 @@ export function mountNexPeerMedia({
      }else if(gm&&msg.type==='get'&&typeof msg.ref==='string'&&LOCAL_REF.test(msg.ref)){
      peer.queue=peer.queue.then(async()=>{
       const data=await getAsset(msg.ref,peer.uid);
-      if(typeof data!=='string'){
+      if(!(data instanceof Blob)&&typeof data!=='string'){
        if(channel.readyState==='open')channel.send(JSON.stringify({type:'error',ref:msg.ref,text:'Imagem nao encontrada no dispositivo do mestre'}));
        return;
       }
