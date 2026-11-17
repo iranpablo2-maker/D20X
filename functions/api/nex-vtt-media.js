@@ -77,7 +77,7 @@ async function handler({request,env}){
     return json({error:'Biblioteca da campanha atingiu o limite de 200 arquivos ou 300 MB.'},413);
    }
    const kind=url.searchParams.get('kind');
-   if(!['map','atmo','asset'].includes(kind))return json({error:'Categoria de imagem inválida.'},400);
+   if(!['map','asset'].includes(kind))return json({error:'O R2 aceita apenas mapas e tokens. GIFs de atmosfera e músicas devem ficar no navegador.'},400);
    const id=kind+'_'+crypto.randomUUID(),key=base+id+'.'+ext;
    await bucket.put(key,buffer,{httpMetadata:{contentType:mime},customMetadata:{campaignId,uploadedBy:identity.uid}});
    return json({src:'r2:'+id+':'+ext,size:buffer.byteLength},201);
