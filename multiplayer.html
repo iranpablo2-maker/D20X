@@ -2300,6 +2300,76 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  border-color:#632335!important;
  color:#f5dfe5!important;
 }
+</style>
+<style id="nex-vtt-black-buttons-fix">
+/* Botões inativos realmente pretos; estados ativos em vermelho. */
+#room #roomTabletopPanel button,
+#room #roomTabletopPanel #nexVttMainMenu button,
+#room #roomTabletopPanel #nexVttBar button,
+#room #roomTabletopPanel #nexVttZoomRail button,
+#room #roomTabletopPanel #nexVttOptions button,
+#room #roomTabletopPanel #nexVttDrawMenu button,
+#room #roomTabletopPanel .nex-vtt-sheets button,
+#room #roomTabletopPanel .nex-vtt-sidebar button,
+#room #roomTabletopPanel #nexVttSidebarToggle,
+#room #roomTabletopPanel #nexVttSheetsCornerToggle{
+ background:#050505!important;
+ background-color:#050505!important;
+ background-image:none!important;
+ border-color:#672234!important;
+ color:#f5e8ea!important;
+}
+#room #roomTabletopPanel button:hover:not(:disabled){
+ background:#17080d!important;
+ background-color:#17080d!important;
+ border-color:#ac3850!important;
+}
+#room #roomTabletopPanel button[aria-pressed="true"]:not([data-group-toggle]):not([data-atmosphere-toggle]),
+#room #roomTabletopPanel button[aria-selected="true"],
+#room #roomTabletopPanel button[aria-expanded="true"].nex-vtt-main-tab,
+#room #roomTabletopPanel button.active,
+#room #roomTabletopPanel #nexVttMainMenu button[aria-pressed="true"]:not([data-group-toggle]):not([data-atmosphere-toggle]),
+#room #roomTabletopPanel #nexVttBar button[aria-pressed="true"]{
+ background:#801b31!important;
+ background-color:#801b31!important;
+ border-color:#d64560!important;
+ color:#fff!important;
+}
+#room #roomTabletopPanel button[aria-pressed="true"]:hover:not([data-group-toggle]):not([data-atmosphere-toggle]){
+ background:#98223a!important;
+ background-color:#98223a!important;
+}
+#room #roomTabletopPanel button[data-atmosphere-toggle][aria-pressed="true"],
+#room #roomTabletopPanel button[data-group-toggle][aria-pressed="true"],
+#room #roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-atmosphere-toggle][aria-pressed="true"],
+#room #roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-group-toggle][aria-pressed="true"]{
+ background:#178344!important;
+ background-color:#178344!important;
+ border-color:#30b66b!important;
+ color:#fff!important;
+}
+#room #roomTabletopPanel button[data-atmosphere-toggle][aria-pressed="false"],
+#room #roomTabletopPanel button[data-group-toggle][aria-pressed="false"],
+#room #roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-atmosphere-toggle][aria-pressed="false"],
+#room #roomTabletopPanel #nexVttMainMenu #nexVttLibraryBody button[data-group-toggle][aria-pressed="false"]{
+ background:#a82d38!important;
+ background-color:#a82d38!important;
+ border-color:#e05260!important;
+ color:#fff!important;
+}
+#room #roomTabletopPanel button:disabled{
+ background:#090909!important;
+ background-color:#090909!important;
+ color:#90878a!important;
+ opacity:.6;
+}
+/* Aplique fundo escuro também aos botões de música criados após abrir a biblioteca. */
+#room #roomTabletopPanel #nexVttMainMenu .nex-music-song button,
+#room #roomTabletopPanel #nexVttMainMenu .nex-music-playlist-header button{
+ background:#050505!important;
+ background-color:#050505!important;
+ border-color:#672234!important;
+}
 </style></head>
 <body>
 <script>
