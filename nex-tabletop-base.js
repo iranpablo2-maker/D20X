@@ -857,12 +857,36 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(!navigator.onLine)throw Error('Conecte-se à internet para enviar ao R2.');
   const token=typeof getIdToken==='function'?await getIdToken():null;
   if(!token)throw Error('Faça login na conta NEX para enviar imagens.');
-  message('Enviando '+file.name+' para R2...');
-  const response=await fetch('/api/nex-vtt-media?campaignId='+encodeURIComponent(campaignId)+'&kind='+encodeURIComponent(prefix),{
-   method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':file.type},body:file
+  // Envia o Blob original em uma única requisição, sem dividir no Firestore.
+  // XMLHttpRequest permite mostrar progresso real do envio ao servidor.
+  const result=await new Promise((resolve,reject)=>{
+   const xhr=new XMLHttpRequest();
+   xhr.open('POST','/api/nex-vtt-media?campaignId='+encodeURIComponent(campaignId)+'&kind='+encodeURIComponent(prefix));
+   xhr.setRequestHeader('Authorization','Bearer '+token);
+   xhr.setRequestHeader('Content-Type',file.type);
+   xhr.timeout=180000;
+   let displayed=-1;
+   message('Enviando '+file.name+' ao R2...');
+   xhr.upload.onprogress=event=>{
+    if(!event.lengthComputable||disposed)return;
+    const percent=Math.min(100,Math.floor(event.loaded/event.total*100));
+    if(percent!==displayed&&(percent===100||percent>=displayed+5)){
+     displayed=percent;
+     message('Enviando '+file.name+' ao R2: '+percent+'%');
+    }
+   };
+   xhr.upload.onload=()=>{if(!disposed)message('Finalizando gravação de '+file.name+' no R2...');};
+   xhr.onload=()=>{
+    let data={};
+    try{data=JSON.parse(xhr.responseText||'{}');}catch(_){}
+    if(xhr.status<200||xhr.status>=300){reject(Error(data.error||'Erro R2 (HTTP '+xhr.status+').'));return;}
+    resolve(data);
+   };
+   xhr.onerror=()=>reject(Error('Falha na rede durante o envio ao R2. Verifique sua conexão.'));
+   xhr.ontimeout=()=>reject(Error('Envio excedeu 3 minutos. Verifique conexão e tamanho do arquivo.'));
+   xhr.onabort=()=>reject(Error('Envio ao R2 interrompido.'));
+   xhr.send(file);
   });
-  const result=await response.json().catch(()=>({error:'Resposta inválida do armazenamento R2.'}));
-  if(!response.ok)throw Error(result.error||'Não foi possível enviar o arquivo para R2.');
   if(!isR2Media(result.src))throw Error('Referência inválida retornada pelo R2.');
   return result.src;
  }
