@@ -2269,7 +2269,7 @@ document.addEventListener('click',function(event){
 </script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117localscene3';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261117autostart1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -2932,6 +2932,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomCharactersPanel',section==='characters');
   show('roomCombatsPanel',section==='combats');
   show('roomTabletopPanel',section==='tabletop');
+  window.dispatchEvent(new CustomEvent('nex:vtt-view',{detail:{campaignId:roomId,open:section==='tabletop'}}));
   document.documentElement.classList.toggle('nex-vtt-active',section==='tabletop');
   if(section==='tabletop'){$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';const tag=document.querySelector('.nex-vtt-room-tag');if(tag)tag.textContent='NEX · '+$('nexVttCampaignName').textContent;renderVttSheets();if(window.matchMedia('(max-width:900px) and (pointer:coarse)').matches)setVttSidebarCollapsed(true);}
   if(window.parent!==window){
