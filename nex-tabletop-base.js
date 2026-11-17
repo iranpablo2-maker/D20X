@@ -1,7 +1,7 @@
 /* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
-import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117blob5';
+import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261117gif100v1';
 import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117localmusic2';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117blob5';
+import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261117gif100v1';
 import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261117localscene1';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
@@ -994,7 +994,10 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(local&&!gm&&!peerMedia?.connected())return '';
   const info=local?null:mediaDescriptor(src);
   if((!local&&!info)||mediaFailed.has(src))return '';
-  if(mediaMemory.has(src))return isWebmMap(src)?playableWebm(mediaMemory.get(src),src):mediaMemory.get(src);
+  if(mediaMemory.has(src)){
+   const value=mediaMemory.get(src);
+   return value instanceof Blob?playableWebm(value,src):isWebmMap(src)?playableWebm(value,src):value;
+  }
   if(!mediaPending.has(src)){
    const task=(async()=>{
     let image=await mediaCache.read(src);
@@ -1035,12 +1038,14 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  async function uploadMedia(file,prefix){
   if(!/^image\/(gif|png|jpeg|webp)$/.test(file?.type||'')&&!(prefix==='map'&&file?.type==='video/webm'))throw Error('Selecione PNG, JPG, WebP, GIF ou WEBM (mapas).');
   if(!['map','asset','atmo'].includes(prefix))throw Error('Categoria de imagem inválida.');
-  const limit=prefix==='atmo'?5*1024*1024:10*1024*1024;
-  if(!file.size||file.size>limit)throw Error(prefix==='atmo'?'O limite de GIFs e atmosferas é 5 MB.':'O limite de mapas e tokens locais é 10 MB.');
-  const data=await blobDataURL(file);
-  const match=/^data:(?:image\/(gif|png|jpeg|webp)|video\/(webm));base64,([A-Za-z0-9+/=]+)$/.exec(data);
-  if(!match)throw Error('Imagem inválida.');
-  const src='local:'+prefix+'_'+crypto.randomUUID()+':'+(match[1]||match[2]);
+  const largeAnimated=file.type==='image/gif';
+  const limit=largeAnimated?100*1024*1024:prefix==='atmo'?5*1024*1024:10*1024*1024;
+  if(!file.size||file.size>limit)throw Error(largeAnimated?'O limite de GIFs é 100 MB.':prefix==='atmo'?'O limite de atmosferas é 5 MB.':'O limite de mapas e tokens locais é 10 MB.');
+  // GIFs grandes ficam em Blob no IndexedDB; Base64 multiplicaria memoria e bloquearia a interface.
+  const data=largeAnimated?file:await blobDataURL(file);
+  const match=largeAnimated?null:/^data:(?:image\/(gif|png|jpeg|webp)|video\/(webm));base64,([A-Za-z0-9+/=]+)$/.exec(data);
+  if(!largeAnimated&&!match)throw Error('Imagem inválida.');
+  const src='local:'+prefix+'_'+crypto.randomUUID()+':'+(largeAnimated?'gif':match[1]||match[2]);
   const stored=await mediaCache.put(src,data,true);
   if(!stored)throw Error('Não foi possível salvar a imagem no dispositivo. Verifique espaço e permissões do navegador.');
   mediaMemory.set(src,data);
@@ -1048,7 +1053,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  async function deleteMediaParts(src){
   if(isLocalMedia(src)){
-   mediaMemory.delete(src);mediaFailed.delete(src);await mediaCache.remove(src);return;
+   mediaMemory.delete(src);mediaFailed.delete(src);
+   if(webmObjectUrls.has(src)){URL.revokeObjectURL(webmObjectUrls.get(src));webmObjectUrls.delete(src);}
+   await mediaCache.remove(src);return;
   }
   const info=mediaDescriptor(src);if(!info)return;
   if(info.r2){
