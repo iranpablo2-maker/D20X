@@ -218,7 +218,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(disposed)return;
   board.querySelectorAll('.nex-tabletop-token').forEach(n=>n.remove());
   const resolvedMap=visibleMediaSource(scene.map);
-  const displayedMapKey=resolvedMap||('preview:'+String(webmPreviews.get(scene.map)||''));
+  const displayedMapKey=resolvedMap||('preview:'+String(scene.map||'')+':'+String(webmPreviews.get(scene.map)||''));
   if(renderedMapSource!==displayedMapKey){
    const video=isWebmMap(scene.map);
    const waitingPreview=video&&!resolvedMap?webmPreviews.get(scene.map):'';
