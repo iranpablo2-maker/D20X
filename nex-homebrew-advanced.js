@@ -1132,7 +1132,7 @@
    const kind=btn.dataset.npcAddKind;
    if(kind!=='ability'&&kind!=='attack')return;
    threatActions.push({kind,name:kind==='ability'?'Nova habilidade':'Agredir',action:kind==='attack'?'Padrão':'',subtitle:'',critical:'20',damageType:'Corte',test:'',testSkill:kind==='attack'?'Luta':'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:kind==='attack'?'Corpo a corpo':'',effect:''});
-   openThreatActionIndex=threatActions.length-1;renderThreatActions();return;
+   openThreatActionIndex=kind==='attack'?null:threatActions.length-1;openNpcAttackDescriptionIndex=null;renderThreatActions();return;
   }
   if(btn.hasAttribute('data-threat-delete')){
     const index=Number(btn.dataset.threatDelete);
@@ -1154,6 +1154,7 @@
     const action=threatActions[index];
     if($('nex51Type').value==='npc'&&action?.kind==='attack'){
       openNpcAttackDescriptionIndex=openNpcAttackDescriptionIndex===index?null:index;
+      openThreatActionIndex=null;
     }else{
       openThreatActionIndex=openThreatActionIndex===index?null:index;
     }
@@ -1162,6 +1163,7 @@
   if(btn.hasAttribute('data-threat-edit')){
     const index=Number(btn.dataset.threatEdit);
     openThreatActionIndex=index;
+    openNpcAttackDescriptionIndex=null;
     renderThreatActions();return;
   }
  });
