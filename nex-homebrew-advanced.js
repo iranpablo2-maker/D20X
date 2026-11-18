@@ -413,7 +413,7 @@
   #homebrewScreen .nex-hb-npc-inline-roll:hover{background:#522836!important}
   #homebrewScreen .nex-hb-npc-inline-roll img{width:15px;height:17px;object-fit:contain}
   #homebrewScreen .nex-hb-npc-attack-critical,#homebrewScreen .nex-hb-npc-attack-divider{font-size:12px;color:#e1ced4}
-    #homebrewScreen .nex-hb-npc-attack-description{padding:10px 14px!important;border-top:1px solid #553240!important;color:#eee1e6!important}
+    #homebrewScreen .nex-hb-npc-attack-description{padding:10px 14px!important;border-top:0!important;color:#eee1e6!important}
   #homebrewScreen .nex-hb-npc-attack-description strong{display:block;font-size:12px;margin-bottom:6px;color:#f6ccd5}
   #homebrewScreen .nex-hb-npc-attack-description p{margin:0!important;font-size:12px;white-space:normal;line-height:1.6}
   #homebrewScreen .nex-hb-npc-attack-editor .nex-hb-threat-action-summary{align-items:flex-start}
