@@ -2649,6 +2649,19 @@ function nexOfficialExtraSkillDie(name){
  const has=[...(state.powers||[]),...(state.n16?.abilities||[])].some(p=>p?.name==='Foco em Perícia');
  return has&&selected===name&&name!=='Luta'&&name!=='Pontaria'&&Number(state.skills?.[name]?.training||0)>0?1:0;
 }
+/* Resistencias automaticas separadas das resistencias manuais para nao duplicar efeitos ao salvar. */
+function nexOfficialResistances(){
+ const result=[];
+ const intelligence=Math.max(0,Number(state.attributes?.int)||0);
+ if(state.origin==='Teórico da Conspiração')result.push({kind:'Mental',bonus:intelligence,source:'Origem: Teórico da Conspiração'});
+ if(state.origin==='Transtornado Arrependido'){
+   const bloodPowers=(state.powers||[]).filter(x=>String(x?.element||'').toLowerCase()==='sangue').length;
+   const bloodRituals=(state.rituals||[]).filter(x=>String(x?.element||'').toLowerCase()==='sangue').length;
+   result.push({kind:'Mental',bonus:2+Math.floor((bloodPowers+bloodRituals)/2),source:'Origem: Transtornado Arrependido'});
+ }
+ return result;
+}
+window.NEX_OFFICIAL_RESISTANCES=nexOfficialResistances;
 function nexOfficialSkillBonus(name){
  const b=nexOfficialPassiveBonuses();
  return (name==='Percepção'?b.perception:0)+(['Diplomacia','Intimidação','Intuição'].includes(name)?b.social:0)+
