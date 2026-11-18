@@ -1905,6 +1905,12 @@ body > #nexOriginPopup[hidden]{display:none!important;}
 #threatsPanel{max-width:1250px;margin:0 auto;padding:0 10px 38px;min-height:calc(100vh - 120px)}
 #threatsPanel #nexThreatLibrary{display:block;width:100%;height:1100px;min-height:0;border:0;background:#0b0b0e;overflow:hidden}
 @media(max-width:700px){#threatsPanel{padding:0 2px 25px}}
+</style><style id="nex-homebrew-paranormal-ritual-layout-fix">
+/* Categorias sempre acima dos filtros; sem margem negativa que cause sobreposição. */
+#homebrewScreen #nexHbParanormalNav:not([hidden]){margin:8px 0 12px!important;gap:10px!important;position:relative;z-index:1}
+#homebrewScreen #nexHbParanormalNav .nex-hb-paranormal-sections{display:flex;flex-wrap:wrap;align-items:center;gap:8px;min-height:36px}
+#homebrewScreen #nex53RitualFilter:not([hidden]){display:flex!important;position:relative!important;clear:both!important;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 18px!important;padding:10px 0 12px!important;border-bottom:1px solid #5d4345!important}
+#homebrewScreen #nex53RitualFilter[hidden]{display:none!important}
 </style></head><body>
 <script src="nex-sobrevivendo-ao-horror.js?v=2072"></script>
 <script src="nex-arquivos-secretos.js?v=20261114desc29"></script>
@@ -4891,7 +4897,7 @@ const PARANORMAL=[
 })();
 </script>
 <script src="nex-duplicate-review.js?v=2055"></script>
-<script src="nex-homebrew-advanced.js?v=20261117nestedtabs2"></script>
+<script src="nex-homebrew-advanced.js?v=20261118ritualorder3"></script>
 <script src="nex-rituais-metadados.js?v=1"></script>
 <script src="nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script src="nex-rituais-ficha.js?v=20261114arquivosfilter1"></script>
