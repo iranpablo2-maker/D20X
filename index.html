@@ -4399,13 +4399,25 @@ function abilityRecords(){
    if(!spec)return '';
    if(spec.mode==='attack'){
      const pending=state.nexAutoPending,active=pending?.id===spec.id;
-     const blocked=Boolean(pending)||Number(state.peCurrent)<spec.cost;
-     const modes=[['attack','Ataque'],['damage','Dano']];
-     return '<div class="nex-auto-effect"><label>Aplicar ao próximo <select data-nex-auto-attack-target aria-label="Tipo do bônus de ataque">'+
-       modes.map(([value,label])=>'<option value="'+value+'" '+(pending?.attackTarget===value?'selected':'')+'>'+label+'</option>').join('')+'</select></label><div class="actions">'+
-       (active?'<button type="button" class="btn sm" data-nex-auto-cancel>Cancelar e devolver PE</button><strong>Bônus preparado para '+escape(pending.attackTarget)+'</strong>':
-       '<button type="button" class="btn sm primary" data-nex-auto-activate="'+escape(spec.id)+'" '+(blocked?'disabled':'')+'>Ativar +5 ('+spec.cost+' PE)</button>')+
-       '</div><small>'+escape(spec.note||'')+'</small></div>';
+     const nex=Number(state.nex)||0;
+     const maxTier=nex>=85?4:nex>=55?3:nex>=25?2:1;
+     const options=[];
+     for(let tier=1;tier<=maxTier;tier++){
+       for(let attack=tier;attack>=0;attack--){
+         const damage=tier-attack;
+         const label=(attack?'+'+(attack*5)+' ataque':'')+(attack&&damage?' / ':'')+
+           (damage?'+'+(damage*5)+' dano':'')+' · '+(tier+1)+' PE';
+         options.push('<option value="'+tier+':'+attack+'">'+label+'</option>');
+       }
+     }
+     const blocked=Boolean(pending)||Number(state.peCurrent)<2;
+     const attackLeft=Number(pending?.attackBonus??(pending?.attackTarget==='attack'?pending?.bonus:0))||0;
+     const damageLeft=Number(pending?.damageBonus??(pending?.attackTarget==='damage'?pending?.bonus:0))||0;
+     return '<div class="nex-auto-effect"><label>Distribuir bônus no próximo ataque <select data-nex-auto-attack-target aria-label="Distribuir Ataque Especial">'+
+       options.join('')+'</select></label><div class="actions">'+
+       (active?'<button type="button" class="btn sm" data-nex-auto-cancel>'+(pending.used?'Encerrar efeito':'Cancelar e devolver PE')+'</button><strong>Pendente: +'+attackLeft+' ataque, +'+damageLeft+' dano</strong>':
+       '<button type="button" class="btn sm primary" data-nex-auto-activate="'+escape(spec.id)+'" '+(blocked?'disabled':'')+'>Ativar Ataque Especial</button>')+
+       '</div><small>Distribua os bônus de +5 entre ataque e dano. O efeito acompanha o mesmo ataque; gastar PE não altera a ficha permanentemente.</small></div>';
    }
    const options=nexAutoTargetSkills(spec),pending=state.nexAutoPending,active=pending?.id===spec.id;
    const used=spec.onceScene&&Boolean(state.nexAutoSceneUses?.[spec.id]);
@@ -4472,21 +4484,32 @@ function abilityRecords(){
    if(nextScene){state.nexAutoSceneUses={};save();renderStats();return;}
    if(cancel){
      const pending=state.nexAutoPending;
-     if(pending){const type=pending.resource==='san'?'san':'pe';const field=type==='san'?'sanCurrent':'peCurrent';state[field]=Math.min(maxValues()[type],Math.max(0,Number(state[field])||0)+Number(pending.cost||0));state.nexAutoPending=null;save();renderStats();}
+     if(pending){
+       if(!pending.used){const type=pending.resource==='san'?'san':'pe';const field=type==='san'?'sanCurrent':'peCurrent';state[field]=Math.min(maxValues()[type],Math.max(0,Number(state[field])||0)+Number(pending.cost||0));}
+       state.nexAutoPending=null;save();renderStats();
+     }
      return;
    }
    const spec=abilityRecords().map(nexAutoActivationSpec).find(x=>x?.id===activate.dataset.nexAutoActivate);
    if(!spec||state.nexAutoPending||state.nexAutoSceneUses?.[spec.id])return;
    const target=spec.mode==='attack'?activate.closest('.nex-auto-effect')?.querySelector('[data-nex-auto-attack-target]')?.value:
      activate.closest('.nex-auto-effect')?.querySelector('[data-nex-auto-skill]')?.value;
-   if(!target||(spec.mode==='attack'?!['attack','damage'].includes(target):!nexAutoTargetSkills(spec).includes(target)))return toast('Escolha um alvo válido.');
+   let cost=spec.cost,attackBonus=0,damageBonus=0;
+   if(spec.mode==='attack'){
+     const match=/^([1-4]):([0-4])$/.exec(target||'');
+     const nex=Number(state.nex)||0,maxTier=nex>=85?4:nex>=55?3:nex>=25?2:1;
+     const tier=Number(match?.[1]),att=Number(match?.[2]);
+     if(!match||tier<1||tier>maxTier||att>tier)return toast('Escolha um valor permitido para o NEX.');
+     cost=tier+1;attackBonus=att*5;damageBonus=(tier-att)*5;
+   }else if(!target||!nexAutoTargetSkills(spec).includes(target))return toast('Escolha uma perícia válida.');
    const field=spec.resource==='san'?'sanCurrent':'peCurrent';
-   if(Number(state[field])<spec.cost)return toast('Recurso insuficiente para ativar.');
-   state[field]=Math.max(0,Number(state[field])-spec.cost);
+   if(Number(state[field])<cost)return toast('Recurso insuficiente para ativar.');
+   state[field]=Math.max(0,Number(state[field])-cost);
    state.nexAutoPending={id:spec.id,name:spec.name,skill:spec.mode==='attack'?'':target,
-     kind:spec.mode==='attack'?'attack':'skill',attackTarget:spec.mode==='attack'?target:'',bonus:spec.bonus,cost:spec.cost,
-     replaceWith:spec.replaceWith||'',onceScene:!!spec.onceScene,source:spec.id,resource:spec.resource||'pe'};
-   save();renderStats();toast('Efeito preparado: '+spec.name+' para '+target+'.');
+     kind:spec.mode==='attack'?'attack':'skill',attackBonus,damageBonus,used:false,
+     bonus:spec.bonus,cost,replaceWith:spec.replaceWith||'',onceScene:!!spec.onceScene,
+     source:spec.id,resource:spec.resource||'pe'};
+   save();renderStats();toast('Efeito preparado: '+spec.name+'.');
  });
  document.addEventListener('change',event=>{
    if(event.target.matches('[data-nex-auto-origin-choice]')){
