@@ -78,7 +78,7 @@
   THREAT_TEXT.forEach(([k])=>{out[k]=cut(raw[k]||'',k==='habilidades'?4000:1200);});
   out.npcSkills=normalizeNpcSkills(raw.npcSkills);
   out.actions=Array.isArray(raw.actions)?raw.actions.slice(0,12).map(a=>({
-    name:cut(a?.name||'',90),action:cut(a?.action||'Padrão',60),
+    name:cut(a?.name||'',90),action:cut(a?.action??'Padrão',60),
     test:cut(a?.test||'',80),damage:cut(a?.damage||'',80),secondaryDamage:cut(a?.secondaryDamage||'',80),secondaryType:cut(a?.secondaryType||'Normal',40),
     range:cut(a?.range||'',70),effect:cut(a?.effect||'',1000)
   })).filter(a=>a.name):[];
