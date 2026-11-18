@@ -2596,6 +2596,20 @@ function nexHomebrewBonuses(){
      for(const effect of effects)apply(effect);
    }
  }
+ // Poderes de classe e gerais com bônus mecânicos explícitos na própria ficha.
+ // Homebrews ligados à biblioteca são calculados acima, evitando contagem duplicada.
+ const registered=[...(Array.isArray(state.powers)?state.powers:[]),...(Array.isArray(state.n16?.abilities)?state.n16.abilities:[])];
+ const seen=new Set();
+ for(const power of registered){
+   if(!power||typeof power!=='object')continue;
+   if(String(power.catalogKey||'').startsWith('nexhb:')||String(power.source||'').includes('Homebrew'))continue;
+   const id=String(power.id||power.catalogKey||[power.name,power.source].join('|')).trim();
+   if(seen.has(id))continue;
+   seen.add(id);
+   const effects=Array.isArray(power.effectBonuses)?power.effectBonuses:
+     (power.effectBonusType?[{type:power.effectBonusType,value:power.effectBonusValue,scaling:power.effectBonusScaling,nexInterval:power.effectBonusNexInterval}]:[]);
+   for(const effect of effects)apply(effect);
+ }
  return totals;
 }
 /* Poderes gerais: treinamento ou +2 sem editar a graduacao salva. */
@@ -2681,7 +2695,7 @@ function nexOfficialSkillBonus(name){
  const b=nexOfficialPassiveBonuses();
  const gatuno=state.class==='Especialista'&&state.trailByClass?.Especialista==='Infiltrador'&&Number(state.nex)>=40&&['Atletismo','Crime'].includes(name)?5:0;
  return (name==='Percepção'?b.perception:0)+(['Diplomacia','Intimidação','Intuição'].includes(name)?b.social:0)+
-  (['Fortitude','Reflexos','Vontade'].includes(name)?b.precognition:0)+
+  (['Fortitude','Reflexos','Vontade'].includes(name)?b.precognition+b.defensiveReflexes:0)+
   (name==='Fortitude'?b.bonusFortitude:0)+(name==='Vontade'?b.bonusVontade+b.originProfetizado:0)+
   (name==='Diplomacia'?b.originDiplomata:0)+(name==='Intuição'?b.bonusIntuicao:0)+
   (state.origin==='Experimento'&&state.nexAutoChoices?.experimentoSkill===name?b.originExperimento:0)+
