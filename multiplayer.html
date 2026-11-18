@@ -2488,7 +2488,6 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #room #roomTabletopPanel #nexVttNavSheets,
 #room #roomTabletopPanel #nexVttQuickSheets,
 #room #roomTabletopPanel #nexVttMenuSheets,
-#room #roomTabletopPanel [data-nex-main-tab="sheets"],
 #room #roomTabletopPanel #nexVttBar button[title="Abrir ou recolher o painel de fichas"],
 #room #roomTabletopPanel .nex-vtt-right-tabs button[title="Mostrar fichas"]{
  display:none!important;
@@ -2496,6 +2495,18 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #room #roomTabletopPanel .nex-vtt-stage{
  flex:1 1 auto!important;min-width:0!important;
 }
+</style>
+<style id="nex-vtt-menu-sheets-v1">
+/* Fichas no menu superior, sem reativar a antiga barra lateral. */
+#roomTabletopPanel #nexVttMenuSheetsList{display:flex;flex-direction:column;gap:8px;padding:5px 0}
+#roomTabletopPanel .nex-vtt-sheets-description{font-size:12px;color:#d9b9c0;line-height:1.4;margin:6px 0 10px}
+#roomTabletopPanel .nex-vtt-menu-sheet{display:flex;align-items:center;gap:10px;text-align:left;width:100%;min-height:57px;padding:9px;border:1px solid #822c3b;background:#100d12;color:#fff;border-radius:8px;cursor:pointer}
+#roomTabletopPanel .nex-vtt-menu-sheet:hover,#roomTabletopPanel .nex-vtt-menu-sheet:focus-visible{border-color:#e55870;background:#29171e}
+#roomTabletopPanel .nex-vtt-menu-sheet img,#roomTabletopPanel .nex-vtt-menu-sheet-avatar{display:grid;place-items:center;flex:0 0 39px;width:39px;height:39px;border-radius:6px;object-fit:cover;background:#543766;color:#fff;font-weight:700}
+#roomTabletopPanel .nex-vtt-menu-sheet>span:not(.nex-vtt-menu-sheet-avatar){display:flex;flex-direction:column;gap:3px;min-width:0}
+#roomTabletopPanel .nex-vtt-menu-sheet strong{font-size:13px;overflow-wrap:anywhere}
+#roomTabletopPanel .nex-vtt-menu-sheet small{font-size:11px;color:#e5b2bd}
+#roomTabletopPanel [data-nex-main-tab="sheets"]{display:grid!important;place-items:center!important}
 </style>
 </head>
 <body>
@@ -2620,7 +2631,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
  <nav class="nex-vtt-main-tabs" aria-label="Abas do menu principal">
   <button type="button" data-nex-main-tab="chat" aria-pressed="true" title="Chat" aria-label="Chat"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path fill="currentColor" d="M12.2 5C5.9 5 2 8.6 2 13.2c0 2.6 1.3 4.7 3.6 6.2L5 25l5.6-3.6c.5.1 1 .1 1.6.1 6.1 0 10.2-3.5 10.2-8.3S18.3 5 12.2 5Z"/><path fill="currentColor" opacity=".58" d="M20 10.1c5.9.2 10 3.7 10 8.3 0 2.4-1.2 4.4-3.4 5.8L27 29l-5-3.2a16 16 0 0 1-2.1.2c-2.9 0-5.3-.8-7-2.2 7.1-.3 12.3-4.4 12.3-10.4 0-1.2-.2-2.3-.6-3.3Z"/></svg></button>
   <button type="button" data-nex-main-tab="art" aria-pressed="false" title="Biblioteca de arte" aria-label="Biblioteca de arte"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3.8 17 5.2-5.2 3.6 3.6 2.3-2.3 5.3 5.3"/></svg></button>
-  <button type="button" data-nex-main-tab="sheets" aria-pressed="false" title="Fichas e personagens" aria-label="Fichas e personagens">▣</button>
+  <button type="button" data-nex-main-tab="sheets" aria-pressed="false" title="Fichas" aria-label="Fichas">▣</button>
   <button type="button" data-nex-main-tab="dice" aria-pressed="false" title="Dados" aria-label="Dados">⚄</button>
   <button type="button" data-nex-main-tab="settings" aria-pressed="false" title="Configurações" aria-label="Configurações">⚙</button>
   <button type="button" id="nexVttMainClose" title="Fechar menu" aria-label="Fechar menu">×</button>
@@ -2645,7 +2656,11 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <div id="nexVttLibraryBody" class="nex-vtt-library-body"></div>
     <div id="nexVttImmersionMusicHost" hidden></div>
   </section>
-  <section data-nex-main-page="sheets" hidden></section>
+  <section data-nex-main-page="sheets" hidden aria-label="Fichas dos personagens">
+   <h3>Fichas</h3>
+   <p class="nex-vtt-sheets-description">Selecione um personagem para abrir sua ficha completa.</p>
+   <div id="nexVttMenuSheetsList" class="nex-vtt-menu-sheets-list"></div>
+  </section>
   <section data-nex-main-page="dice" hidden>
    <h3>Dados</h3>
    <p>Abra a ferramenta de rolagem de dados do NEX.</p>
@@ -2711,7 +2726,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
  </section>
 </section>
 </main>
-<script>window.NEX_CAMPAIGN_UI_VERSION="20261118nocharacterspanel1";</script>
+<script>window.NEX_CAMPAIGN_UI_VERSION="20261118menufichas1";</script>
 <script src="./firebase-config.js?v=20261112"></script>
 <script>
 window.addEventListener('error',function(event){
@@ -2763,7 +2778,38 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const box=$('nexVttMiniSheet');
   if(box){box.hidden=true;box.replaceChildren();}
  }
+ function renderVttMenuSheets(){
+  const list=$('nexVttMenuSheetsList');if(!list)return;
+  list.replaceChildren();
+  const allowed=roomSheets.filter(sheet=>gm||assignedTo(sheet,uid));
+  if(!allowed.length){
+   const empty=document.createElement('p');
+   empty.className='nex-vtt-sheet-note';
+   empty.textContent='Nenhuma ficha vinculada a você nesta campanha.';
+   list.append(empty);
+   return;
+  }
+  for(const sheet of allowed){
+   const btn=document.createElement('button');btn.type='button';
+   btn.className='nex-vtt-menu-sheet';
+   btn.dataset.vttOpenSheet=sheet.id;
+   const portrait=sheetPortrait(sheet);
+   if(portrait){
+    const img=document.createElement('img');img.src=portrait;img.alt='';
+    btn.append(img);
+   }else{
+    const icon=document.createElement('span');icon.className='nex-vtt-menu-sheet-avatar';
+    icon.textContent=String(sheet.name||'P').charAt(0).toUpperCase();
+    btn.append(icon);
+   }
+   const info=document.createElement('span');
+   const name=document.createElement('strong');name.textContent=sheet.name||'Personagem';
+   const meta=document.createElement('small');meta.textContent='NEX '+(Number(sheet.nex)||0)+'%';
+   info.append(name,meta);btn.append(info);list.append(btn);
+  }
+ }
  function renderVttSheets(){
+  renderVttMenuSheets();
   const list=$('nexVttSheetsList');if(!list)return;
   const allowed=roomSheets.filter(sheet=>gm||assignedTo(sheet,uid));
   if(activeVttMiniSheetId&&!allowed.some(s=>s.id===activeVttMiniSheetId))activeVttMiniSheetId=null;
@@ -3833,7 +3879,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
   }
   menuTabs.forEach(btn=>btn.addEventListener('click',()=>{
-   if(btn.dataset.nexMainTab==='sheets')return; // Aba removida do Tabletop.
+   if(btn.dataset.nexMainTab==='sheets')renderVttMenuSheets();
    showMainTab(btn.dataset.nexMainTab);
    if(btn.dataset.nexMainTab==='art'){
     const active=libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer||'mapa';
@@ -3841,6 +3887,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     if(active==='tokens')window.dispatchEvent(new Event('nex:vtt-token-library-request'));
    }
   }));
+  $('nexVttMenuSheetsList').addEventListener('click',event=>{
+   const button=event.target.closest('[data-vtt-open-sheet]');
+   if(!button)return;
+   updateMenu(false);
+   openVttSheet(button.dataset.vttOpenSheet);
+  });
   // Refresh the role-sensitive buttons whenever the Art tab is opened.
   mainMenuToggle.addEventListener('click',()=>updateMenu(mainMenu.hidden));
   mainClose.addEventListener('click',()=>updateMenu(false));
