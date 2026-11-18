@@ -4305,6 +4305,46 @@ const nexPowerDescription=(name,original='')=>{
  if(/consulte (o|a|as|os) livro|descri[cç][aã]o (ainda )?n[aã]o cadastrada|poder paranormal escolhido pela origem/i.test(txt))return '';
  return txt;
 };
+/* Complementos autorais para habilidades; não reproduzem trechos de livros. */
+const NEX_ABILITY_EXPLANATIONS={
+ 'Armamento Pesado':'Concede a proficiência com armas pesadas ao combatente. O poder libera o uso, mas a arma ainda precisa constar no inventário e respeitar a patente e a capacidade de carga.',
+ 'Proteção Pesada':'Concede proficiência com proteções pesadas ao combatente. A proteção deve estar no inventário e equipada; o poder não concede o equipamento.',
+ 'Reflexos Defensivos':'Concede +2 na Defesa e nos testes de Fortitude, Reflexos e Vontade. Os valores são recalculados automaticamente e não devem ser somados novamente nos campos manuais.',
+ 'Golpe Pesado':'Melhora o dano de golpes com armas corpo a corpo adequadas. Aplique o efeito à rolagem de dano pertinente, não a toda arma ou ao teste de ataque.',
+ 'Combater com Duas Armas':'Oferece uma forma de atacar usando duas armas permitidas. Depende das condições de empunhadura e das ações realizadas; não cria automaticamente um ataque extra em qualquer situação.',
+ 'Ataque de Oportunidade':'Permite reagir a uma abertura específica no combate. A reação depende do gatilho correto e dos limites da rodada.',
+ 'Saque Rápido':'Modifica as ações de sacar ou guardar equipamento. Não altera por si só o dano, a Defesa ou a categoria do item.',
+ 'Artista Marcial':'Aprimora ataques desarmados. O efeito deve ser associado ao ataque desarmado, sem ser aplicado a qualquer arma do inventário.',
+ 'Balística Avançada':'Amplia as proficiências do especialista para armas táticas de fogo. O inventário diferencia esse grupo das demais armas táticas.',
+ 'Ninja Urbano':'Concede proficiência com armas táticas que não são de fogo. Não concede automaticamente proficiência com armas pesadas.',
+ 'Mochila de Utilidades':'Permite obter uma vantagem no transporte de equipamentos determinados conforme as condições da habilidade. Não reduz a categoria de todos os itens do inventário.',
+ 'Primeira Impressão':'Ajuda em interações sociais iniciais, quando as condições do primeiro contato se aplicam. Não é um bônus social permanente.',
+ 'Conhecimento Aplicado':'Permite aproveitar Intelecto em certos testes. A substituição do atributo vale para o teste adequado, não para todos os campos da ficha.',
+ 'Hacker':'Ajuda a resolver tarefas ligadas à informática e à perícia Tecnologia. O personagem ainda precisa das condições e ferramentas pertinentes.',
+ 'Movimento Tático':'Concede opções ligadas a deslocamento em combate. Não funciona como um bônus genérico e constante de Defesa.',
+ 'Ritual Potente':'Amplia o resultado de rituais elegíveis. O efeito deve ser considerado por ritual, sem alterar indistintamente todos os custos e testes.',
+ 'Ritual Predileto':'Especializa o personagem em um ritual selecionado. Os benefícios não se aplicam a todos os rituais automaticamente.',
+ 'Especialista em Elemento':'Especializa o ocultista em um elemento escolhido. Os benefícios só se aplicam aos rituais e situações elegíveis desse elemento.',
+ 'Fluxo de Poder':'Altera a forma de combinar ou manter efeitos ritualísticos conforme as restrições da habilidade. Não elimina limites de PE.',
+ 'Camuflar Ocultismo':'Facilita disfarçar manifestações de conjuração nas condições previstas. Não torna toda conjuração automaticamente indetectável.',
+ 'Tatuagem Ritualística':'Relaciona a preparação de símbolos ao uso de rituais. Os efeitos dependem das condições da habilidade, não sendo bônus universal de atributos.',
+ 'Criar Selo':'Permite preparar selos que armazenam efeitos ritualísticos, com condições próprias. Preparar o selo não equivale a conjurar imediatamente.',
+ 'Identificação Paranormal':'Favorece o reconhecimento de manifestações paranormais. Não revela automaticamente todas as estatísticas de uma ameaça.'
+};
+function nexDetailedDescription(name,detail='',source='',extra={}){
+ const original=String(detail||'').trim(),guidance=NEX_ABILITY_EXPLANATIONS[String(name||'').trim()];
+ const parts=original?[original]:[];
+ if(guidance&&!original.includes(guidance))parts.push('Aplicação na ficha: '+guidance);
+ if(extra.originName){
+  const o=NEX12_ORIGINS.find(x=>x[0]===extra.originName);
+  const skills=o?[o[1],o[2]].filter(Boolean):[];
+  if(skills.length)parts.push('Perícias concedidas pela origem: '+skills.join(' e ')+'.');
+ }
+ if(extra.trail&&Number(extra.req)>0)parts.push('Progressão: trilha '+extra.trail+' — habilidade liberada no NEX '+extra.req+'%.');
+ if(extra.classPower)parts.push('Classe exigida: '+extra.classPower+'. Consulte os pré-requisitos do poder antes de selecioná-lo.');
+ if(!parts.length)parts.push('Esta entrada ainda não possui descrição mecânica verificada; nenhum efeito numérico adicional foi presumido.');
+ return parts.join('\\n\\n');
+}
 function abilityRecords(){
    const entries=[];
    const origin=typeof nex12Orig==='function'?nex12Orig():null;
@@ -4498,7 +4538,7 @@ function abilityRecords(){
      if(Object.prototype.hasOwnProperty.call(NEX_OFFICIAL_GRANTED_SKILLS,a.name))return `Poder automático: treino em ${NEX_OFFICIAL_GRANTED_SKILLS[a.name]} ou +2 se já houver treinamento.`;
      return '';
    };
-   $id('n16AbilityList').innerHTML=(Object.keys(state.nexAutoSceneUses||{}).some(k=>state.nexAutoSceneUses[k])?'<button type="button" class="btn sm" data-nex-auto-new-scene>Nova cena · reiniciar habilidades por cena</button>':'')+(records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry" data-nex-ability-id="${escape(a.name+"|"+a.source)}" ${opened.has(a.name+"|"+a.source)?"open":""}><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div>${escape(a.detail)}</div>${nexOfficialAbilityControls(a)}${a.id?`<div class="actions" style="margin-top:12px"><button type="button" class="btn sm" data-n16-remove-${a.removeKind==='power'?'power':'ability'}="${escape(a.id)}">Remover habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>');
+   $id('n16AbilityList').innerHTML=(Object.keys(state.nexAutoSceneUses||{}).some(k=>state.nexAutoSceneUses[k])?'<button type="button" class="btn sm" data-nex-auto-new-scene>Nova cena · reiniciar habilidades por cena</button>':'')+(records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry" data-nex-ability-id="${escape(a.name+"|"+a.source)}" ${opened.has(a.name+"|"+a.source)?"open":""}><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div style="white-space:pre-line">${escape(nexDetailedDescription(a.name,a.detail,a.source))}</div>${nexOfficialAbilityControls(a)}${a.id?`<div class="actions" style="margin-top:12px"><button type="button" class="btn sm" data-n16-remove-${a.removeKind==='power'?'power':'ability'}="${escape(a.id)}">Remover habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>');
  }
 
  document.addEventListener('click',event=>{
@@ -5345,7 +5385,7 @@ const PARANORMAL=[
  let mode='all',category='Combatente',sub='',filter='',homebrewCategory='Combatente',homebrewFilter='',lastFocus=null;
  function ensure(){if(!state.n16||typeof state.n16!=='object')state.n16={};if(!Array.isArray(state.n16.abilities))state.n16.abilities=[];if(!Array.isArray(state.powers))state.powers=[];}
  function item(k,cat,branch,name,detail,req=0,source='',extra={}){
-  return {key:k,cat,branch,name,detail,req,source:source||(cat==='Origens'?'Origem: '+branch:cat==='Poderes Paranormais'?'Poder Paranormal':branch==='Poderes de '+cat?'Poder de '+cat:'Trilha: '+branch+' · NEX '+req+'%'),...extra};
+  return {key:k,cat,branch,name,detail:nexDetailedDescription(name,detail,source,{...extra,req,classPower:branch==='Poderes de '+cat?cat:null}),req,source:source||(cat==='Origens'?'Origem: '+branch:cat==='Poderes Paranormais'?'Poder Paranormal':branch==='Poderes de '+cat?'Poder de '+cat:'Trilha: '+branch+' · NEX '+req+'%'),...extra};
  }
  function catalogue(){
   const data=[];
