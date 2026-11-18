@@ -652,6 +652,15 @@
        else section.style.removeProperty('display');
      }
    }
+   const enigmaField=mount.querySelector('[data-nex-threat-text="enigma"]');
+   const enigmaSection=enigmaField?.closest('.nex-hb-threat-inline-section');
+   if(enigmaSection){
+     enigmaSection.hidden=npc;
+     if(npc)enigmaSection.style.setProperty('display','none','important');
+     else enigmaSection.style.removeProperty('display');
+   }
+   const combatTab=mount.querySelector('[data-threat-editor-tab="combate"]');
+   if(combatTab)combatTab.textContent=npc?'HABILIDADES/COMBATE':'COMBATE';
    const descriptionHeading=$('nexHbThreatDescriptionSlot').parentElement.querySelector('h4');
    if(descriptionHeading)descriptionHeading.textContent=npc?'Descrição do NPC':'Descrição da ameaça';
    if(isThreatType(type)){$('nexHbThreatNameSlot').appendChild($('nex53NameField'));$('nex52Editor').classList.add('nex-hb-editing-threat');}else{$('nex55TypeField').after($('nex53NameField'));$('nex52Editor').classList.remove('nex-hb-editing-threat');}
@@ -665,7 +674,7 @@
    $('nex55DescriptionLabel').textContent=type==='item'?'Descrição (use B, I ou U para formatar)':'Descrição';
    $('nexHbDescriptionToolbar').hidden=true;
    $('nex55RequirementsField').hidden=isTrail||isOrigin||isGeneral||type==='poder_paranormal'||type==='ritual'||type==='item'||type==='melhoria'||type==='maldicao'||isThreatType(type);
-   $('nex55DescriptionLabel').textContent=type==='item'||type==='melhoria'||type==='maldicao'?'Descrição':isOrigin||isGeneral||isParanormal?'Descrição':'Descrição e efeitos';
+   $('nex55DescriptionLabel').textContent=type==='item'||type==='melhoria'||type==='maldicao'?'Descrição':isOrigin||isGeneral||isParanormal||type==='npc'?'Descrição':'Descrição e efeitos';
    $('nex51Name').placeholder=type==='ritual'?'Novo Ritual':isParanormal||isGeneral?'Nome do homebrew':'Nome';
    $('nex51Name').parentElement.classList.toggle('nex53-ritual-name',type==='ritual');
    $('nex51Description').placeholder=isParanormal?'Descreva o poder paranormal...':isGeneral?'Descreva o poder geral...':'Descreva seu homebrew';
@@ -1050,12 +1059,12 @@
         '</button></div>';
     }).join(''):'<p>Nenhuma perícia selecionada.</p>')+'<p class="nex-hb-npc-roll-result" id="nexHbNpcRollResult" role="status" aria-live="polite" hidden></p>':'';
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
-  const descriptionPanel=note('Descrição',item.description)+note('Enigma de Medo',t.enigma);
+  const descriptionPanel=note('Descrição',item.description)+(item.type==='npc'?'':note('Enigma de Medo',t.enigma));
   return '<section class="nex-hb-threat-sheet'+(item.type==='npc'?' nex-hb-npc-preview':'')+'" data-nex-threat-preview style="--nex-threat-bg:'+(item.type==='npc'?'none':'url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;)')+';--nex-threat-accent:'+esc(threatBg.color)+'">'+
    '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem de '+esc(LABEL[item.type])+'">':'')+
      '<div><small>'+esc(item.type==='npc'?'NPC HOMEBREW':'AMEAÇA HOMEBREW')+'</small><h2>'+esc(item.name)+'</h2>'+(item.type==='npc'?'':'<p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span>')+'</div></div>'+
    '<div class="nex-hb-threat-pv">'+esc(t.pv)+' PV</div>'+
-   '<nav class="nex-hb-threat-tabs" role="tablist" aria-label="Seções da ficha"><button type="button" data-threat-preview-tab="status" aria-selected="true">STATUS</button><button type="button" data-threat-preview-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-threat-preview-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
+   '<nav class="nex-hb-threat-tabs" role="tablist" aria-label="Seções da ficha"><button type="button" data-threat-preview-tab="status" aria-selected="true">STATUS</button><button type="button" data-threat-preview-tab="combate" aria-selected="false">'+(item.type==='npc'?'HABILIDADES/COMBATE':'COMBATE')+'</button><button type="button" data-threat-preview-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="status">'+statPanel+npcSkillsPanel+'</div>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="combate" hidden>'+combatPanel+'</div>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="descricao" hidden>'+descriptionPanel+'</div></section>';
