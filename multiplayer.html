@@ -2726,7 +2726,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
  </section>
 </section>
 </main>
-<script>window.NEX_CAMPAIGN_UI_VERSION="20261118returnmap2";</script>
+<script>window.NEX_CAMPAIGN_UI_VERSION="20261118returnfichas1";</script>
 <script src="./firebase-config.js?v=20261112"></script>
 <script>
 window.addEventListener('error',function(event){
@@ -2881,6 +2881,21 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   libraryMode('list');
   show('joinInvite',!!inviteId);
   notice('');
+ });
+ window.addEventListener('message',event=>{
+  if(window.parent===window||event.origin!==location.origin||event.source!==window.parent)return;
+  if(event.data?.type!=='nex-campaign-return-to-fichas-menu')return;
+  // Exibir a lista no menu superior, sem restaurar o antigo painel lateral.
+  if(!roomId||$('roomTabletopPanel')?.classList.contains('hide'))return;
+  const menu=$('nexVttMainMenu');
+  if(!menu)return;
+  menu.style.removeProperty('display');
+  menu.hidden=false;
+  $('nexVttSheetsCornerToggle')?.setAttribute('aria-expanded','true');
+  menu.querySelectorAll('[data-nex-main-tab]').forEach(tab=>tab.setAttribute('aria-pressed',String(tab.dataset.nexMainTab==='sheets')));
+  menu.querySelectorAll('[data-nex-main-page]').forEach(page=>{page.hidden=page.dataset.nexMainPage!=='sheets';});
+  renderVttMenuSheets();
+  $('nexVttSheetsPanel').hidden=true;
  });
  window.addEventListener('message',event=>{
   if(window.parent===window||event.origin!==location.origin||event.source!==window.parent)return;
