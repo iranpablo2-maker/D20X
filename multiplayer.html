@@ -2815,6 +2815,18 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   notice('');
  });
  window.addEventListener('message',event=>{
+  if(window.parent===window||event.origin!==location.origin||event.source!==window.parent)return;
+  if(event.data?.type!=='nex-campaign-return-to-characters-panel')return;
+  // Só reabre a lista se a mesa desta campanha continuar aberta.
+  if(!roomId||$('roomTabletopPanel')?.classList.contains('hide'))return;
+  if(!$('nexVttMainMenu')?.hidden)$('nexVttMainClose')?.click();
+  const panel=$('nexVttSheetsPanel');
+  if(!panel)return;
+  panel.hidden=false;
+  renderVttSheets();
+  syncVttPanels();
+ });
+ window.addEventListener('message',event=>{
   if(event.origin!==location.origin||event.source!==window.parent)return;
   if(event.data?.type!=='nex-agent-bridge-response')return;
   const pending=pendingBridge.get(event.data.requestId);
