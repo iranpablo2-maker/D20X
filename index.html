@@ -4343,8 +4343,9 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
  if(extra.trail&&Number(extra.req)>0)parts.push('Progressão: trilha '+extra.trail+' — habilidade liberada no NEX '+extra.req+'%.');
  if(extra.classPower)parts.push('Classe exigida: '+extra.classPower+'. Consulte os pré-requisitos do poder antes de selecioná-lo.');
  if(!parts.length)parts.push('Esta entrada ainda não possui descrição mecânica verificada; nenhum efeito numérico adicional foi presumido.');
- return parts.join('\\n\\n');
+ return parts.join('\n\n');
 }
+window.NEX_DETAILED_DESCRIPTION=nexDetailedDescription;
 function abilityRecords(){
    const entries=[];
    const origin=typeof nex12Orig==='function'?nex12Orig():null;
@@ -5385,7 +5386,7 @@ const PARANORMAL=[
  let mode='all',category='Combatente',sub='',filter='',homebrewCategory='Combatente',homebrewFilter='',lastFocus=null;
  function ensure(){if(!state.n16||typeof state.n16!=='object')state.n16={};if(!Array.isArray(state.n16.abilities))state.n16.abilities=[];if(!Array.isArray(state.powers))state.powers=[];}
  function item(k,cat,branch,name,detail,req=0,source='',extra={}){
-  return {key:k,cat,branch,name,detail:nexDetailedDescription(name,detail,source,{...extra,req,classPower:branch==='Poderes de '+cat?cat:null}),req,source:source||(cat==='Origens'?'Origem: '+branch:cat==='Poderes Paranormais'?'Poder Paranormal':branch==='Poderes de '+cat?'Poder de '+cat:'Trilha: '+branch+' · NEX '+req+'%'),...extra};
+  return {key:k,cat,branch,name,detail:window.NEX_DETAILED_DESCRIPTION(name,detail,source,{...extra,req,classPower:branch==='Poderes de '+cat?cat:null}),req,source:source||(cat==='Origens'?'Origem: '+branch:cat==='Poderes Paranormais'?'Poder Paranormal':branch==='Poderes de '+cat?'Poder de '+cat:'Trilha: '+branch+' · NEX '+req+'%'),...extra};
  }
  function catalogue(){
   const data=[];
