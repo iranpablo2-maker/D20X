@@ -84,7 +84,9 @@ function renderResistanceLabels(){
   if(!r||!r.kind)return '';
   const kind=escape(r.kind),value=Math.max(0,Math.min(99,Number(r.bonus)||0));
   return '<span class="nex-def-role">'+kind+' · '+value+' <button type="button" data-edit-res-label="'+i+'" aria-label="Editar resistência '+kind+'" title="Editar resistência">✎</button> <button type="button" data-remove-res-label="'+i+'" aria-label="Remover resistência '+kind+'" title="Remover resistência">×</button></span>';
- }).join('');
+ }).join('')+(typeof window.NEX_OFFICIAL_RESISTANCES==='function'?window.NEX_OFFICIAL_RESISTANCES():[]).map(r=>
+  '<span class="nex-def-role" title="Resistência da origem aplicada automaticamente">'+escape(r.kind)+' · '+Math.max(0,Math.min(99,Number(r.bonus)||0))+' <small>· '+escape(r.source)+' · Automática</small></span>'
+ ).join('');
 }
 function updateReadout(){
  const d=data(),base=profs(),all=new Set([...base,...d.extraProficiencies.filter(x=>names.includes(x))]);
