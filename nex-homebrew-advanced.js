@@ -998,11 +998,11 @@
    const attackFields=[['name','Nome'],['action','Tipo de ação'],['test','Teste (opcional)'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Descrição / efeito']];
    const abilityFields=[['name','Nome da habilidade'],['action','Ativação (opcional)'],['test','Rolagem (opcional)'],['effect','Descrição / efeito']];
    const fields=npc&&kind==='ability'?abilityFields:attackFields;
-   const skillOptions=normalizeNpcSkills(npcSkillRows).map(x=>x.name);
+   const skillOptions=['Luta','Pontaria'];
    const selectField=(k,options,current)=>'<select data-threat-key="'+k+'">'+
       options.map(option=>'<option value="'+esc(option)+'"'+(option===current?' selected':'')+'>'+esc(option||'Selecionar')+'</option>').join('')+'</select>';
    const npcTestSkill=a.testSkill||'';
-   const skillEntry=npcSkillRows.find(r=>r.name===npcTestSkill);
+   const skillEntry=skillOptions.includes(npcTestSkill)?(npcSkillRows.find(r=>r.name===npcTestSkill)||{name:npcTestSkill,bonus:0}):null;
    const npcTestPreview=skillEntry?npcSkillDice(skillEntry,currentNpcAttributes()).count+'d20'+
       (skillEntry.bonus>=0?'+':'')+skillEntry.bonus:'';
    return '<div class="nex-hb-threat-action-editor" data-threat-row="'+i+'">'+
@@ -1139,8 +1139,7 @@
   const npcTestFor=a=>{
    const name=a.testSkill;
    if(!name||!NPC_SKILLS.includes(name))return null;
-   const skill=t.npcSkills.find(row=>row.name===name);
-   if(!skill)return null;
+   const skill=t.npcSkills.find(row=>row.name===name)||{name,bonus:0};
    const dice=npcSkillDice(skill,t.attributes);
    return {name,dice,bonus:skill.bonus,formula:dice.count+'d20'+(skill.bonus>=0?'+':'')+skill.bonus};
   };
@@ -1209,7 +1208,7 @@
    const sheet=normalizeThreat(item);
    let formula='',rolled=null;
    if(field==='skillTest'){
-    const skill=sheet.npcSkills.find(row=>row.name===action.testSkill);
+    const skill=sheet.npcSkills.find(row=>row.name===action.testSkill)||(['Luta','Pontaria'].includes(action.testSkill)?{name:action.testSkill,bonus:0}:null);
     if(!skill)return;
     const dice=npcSkillDice(skill,sheet.attributes);
     const rolls=Array.from({length:dice.count},()=>1+Math.floor(Math.random()*20));
