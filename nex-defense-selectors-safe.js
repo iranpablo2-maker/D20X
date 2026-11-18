@@ -16,12 +16,13 @@ function powerSet(){
  return new Set(selected.map(p=>norm(p?.name||'')));
 }
 function profs(){
- const s=new Set(['Armas simples']),p=powerSet();
- if(state.class==='Combatente'){s.add('Armas táticas');s.add('Proteções leves');}
- if(state.class==='Especialista')s.add('Proteções leves');
- if(p.has('protecao pesada'))s.add('Proteções pesadas');
- if(p.has('ninja urbano'))s.add('Armas táticas');
- if(p.has('armamento pesado'))s.add('Armas pesadas');
+ const s=new Set(['Armas simples']),p=powerSet(),cls=String(state.class||'');
+ if(cls==='Combatente'){s.add('Armas táticas');s.add('Proteções leves');}
+ if(cls==='Especialista')s.add('Proteções leves');
+ if(cls==='Combatente'&&p.has('protecao pesada'))s.add('Proteções pesadas');
+ if(cls==='Especialista'&&p.has('ninja urbano'))s.add('Armas táticas (exceto fogo)');
+ if(cls==='Especialista'&&p.has('balistica avancada'))s.add('Armas táticas de fogo');
+ if(cls==='Combatente'&&p.has('armamento pesado'))s.add('Armas pesadas');
  return s;
 }
 function data(){
