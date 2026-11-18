@@ -1569,36 +1569,6 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  line-height:1.4!important;
  font-size:12px!important;
 }
-</style><style id="nex-vtt-player-sheets-overlay-v1">
-/* Fichas acessíveis dentro do Tabletop, incluindo celulares em paisagem. */
-#roomTabletopPanel #nexVttSheetsPanel[hidden]{display:none!important}
-#roomTabletopPanel #nexVttSheetsPanel{
- position:absolute!important;z-index:175!important;right:0!important;top:0!important;bottom:0!important;
- display:flex!important;flex-direction:column!important;flex:none!important;
- width:min(420px,94%)!important;max-width:94%!important;min-width:0!important;height:100%!important;
- background:#101116!important;border-left:2px solid #8d2838!important;overflow-y:auto!important;
- box-shadow:-12px 0 35px #000a!important;overscroll-behavior:contain!important;
-}
-#roomTabletopPanel #nexVttResizeHandle{display:none!important}
-#roomTabletopPanel #nexVttSheetsToggle{display:inline-flex!important;align-items:center!important;justify-content:center!important}
-#roomTabletopPanel .nex-vtt-stage{flex:1 1 auto!important;min-width:0!important}
-#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-sheet{background:#1b171d!important;color:#f5eef2!important;border:1px solid #713341!important;box-shadow:none!important}
-#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-subtitle,
-#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-heading button{color:#e5b1bd!important}
-#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-vital{background:#271d25!important;border-color:#57323c!important}
-#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-vital strong{color:#fff!important}
-#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-vital small{color:#efb9c5!important}
-#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-attributes span{background:#40242f!important;color:#fff!important}
-#roomTabletopPanel .nex-vtt-detail-group{border:1px solid #51303b;border-radius:8px;margin:5px 0;background:#18141a;overflow:hidden}
-#roomTabletopPanel .nex-vtt-detail-group summary{cursor:pointer;padding:11px 12px;font-weight:700;color:#ffb9c4}
-#roomTabletopPanel .nex-vtt-detail-entry{padding:9px 12px;border-top:1px solid #36242d;overflow-wrap:anywhere;white-space:pre-wrap;font-size:12px;color:#eee}
-#roomTabletopPanel .nex-vtt-detail-entry strong{display:block;color:#ffcad3;margin-bottom:4px}
-#roomTabletopPanel .nex-vtt-mini-open{background:#8d293a!important;color:#fff!important}
-@media(max-width:840px){
- #roomTabletopPanel #nexVttSheetsPanel{width:min(430px,100%)!important;max-width:100%!important;right:0!important}
- #roomTabletopPanel #nexVttSheetsPanel .nex-vtt-sheets-title{position:sticky!important;top:0;z-index:3}
- #roomTabletopPanel #nexVttSheetsPanel .nex-vtt-sheet{min-height:51px}
-}
 </style><style id="nex-vtt-atmosphere-panel-style">
 #roomTabletopPanel .nex-vtt-atmosphere-controls{display:flex;flex-direction:column;gap:10px;padding:10px;border:1px solid #44485d;border-radius:7px;background:#1d2433}
 #roomTabletopPanel .nex-vtt-atmosphere-controls label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#e3e5f2}
@@ -2474,7 +2444,38 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{position:relative!important;z-index:210!important;isolation:isolate!important;grid-template-columns:repeat(3,minmax(0,1fr))!important}
 #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs button[data-nex-library-layer]{position:relative!important;z-index:211!important;pointer-events:auto!important;touch-action:manipulation!important}
 #roomTabletopPanel #nexVttMainMenu #nexVttMainResizeGrip{z-index:5!important}
-</style></head>
+</style><style id="nex-vtt-player-sheets-overlay-v1">
+/* Fichas acessíveis dentro do Tabletop, incluindo celulares em paisagem. */
+#roomTabletopPanel #nexVttSheetsPanel[hidden]{display:none!important}
+#roomTabletopPanel #nexVttSheetsPanel{
+ position:absolute!important;z-index:175!important;right:0!important;top:0!important;bottom:0!important;
+ display:flex!important;flex-direction:column!important;flex:none!important;
+ width:min(420px,94%)!important;max-width:94%!important;min-width:0!important;height:100%!important;
+ background:#101116!important;border-left:2px solid #8d2838!important;overflow-y:auto!important;
+ box-shadow:-12px 0 35px #000a!important;overscroll-behavior:contain!important;
+}
+#roomTabletopPanel #nexVttResizeHandle{display:none!important}
+#roomTabletopPanel #nexVttSheetsToggle{display:inline-flex!important;align-items:center!important;justify-content:center!important}
+#roomTabletopPanel .nex-vtt-stage{flex:1 1 auto!important;min-width:0!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-sheet{background:#1b171d!important;color:#f5eef2!important;border:1px solid #713341!important;box-shadow:none!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-subtitle,
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-heading button{color:#e5b1bd!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-vital{background:#271d25!important;border-color:#57323c!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-vital strong{color:#fff!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-vital small{color:#efb9c5!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-attributes span{background:#40242f!important;color:#fff!important}
+#roomTabletopPanel .nex-vtt-detail-group{border:1px solid #51303b;border-radius:8px;margin:5px 0;background:#18141a;overflow:hidden}
+#roomTabletopPanel .nex-vtt-detail-group summary{cursor:pointer;padding:11px 12px;font-weight:700;color:#ffb9c4}
+#roomTabletopPanel .nex-vtt-detail-entry{padding:9px 12px;border-top:1px solid #36242d;overflow-wrap:anywhere;white-space:pre-wrap;font-size:12px;color:#eee}
+#roomTabletopPanel .nex-vtt-detail-entry strong{display:block;color:#ffcad3;margin-bottom:4px}
+#roomTabletopPanel .nex-vtt-mini-open{background:#8d293a!important;color:#fff!important}
+@media(max-width:840px){
+ #roomTabletopPanel #nexVttSheetsPanel{width:min(430px,100%)!important;max-width:100%!important;right:0!important}
+ #roomTabletopPanel #nexVttSheetsPanel .nex-vtt-sheets-title{position:sticky!important;top:0;z-index:3}
+ #roomTabletopPanel #nexVttSheetsPanel .nex-vtt-sheet{min-height:51px}
+}
+</style>
+</head>
 <body>
 <script>
 if(new URLSearchParams(location.search).get('integrado')==='1'){
@@ -2895,7 +2896,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }
   if(details.childElementCount)box.append(details);
   else{const hint=document.createElement('p');hint.textContent='Os detalhes desta ficha ainda não foram sincronizados com a campanha.';box.append(hint);}
-  const open=document.createElement('button');open.type='button';open.className='nex-vtt-mini-open';open.textContent='Ver ficha NEX original';
+  const open=document.createElement('button');open.type='button';open.className='nex-vtt-mini-open';open.textContent='Abrir editor original (fora da mesa)';
   open.addEventListener('click',()=>openVttSheet(sheet.id));box.append(open);
  }
  function renderVttSheets(){
