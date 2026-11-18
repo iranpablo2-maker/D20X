@@ -3030,7 +3030,8 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
     close=document.createElement('button');
     close.type='button';
     close.id='nexVttSheetClose';
-    close.textContent='← Voltar ao tabletop';
+    close.innerHTML='← Voltar ao <strong>PAINEL DE JOGO</strong>';
+    close.setAttribute('aria-label','Voltar ao PAINEL DE JOGO');
     close.addEventListener('click',()=>{
       if(nexCampaignLiveEdit)finishCampaignLiveEdit();
       else persist();
@@ -5141,8 +5142,13 @@ body.nex-vtt-sheet-overlay #sheetScreen .mini-nav{
 }
 body.nex-vtt-sheet-overlay #nexVttSheetClose{
  position:sticky!important;top:0!important;z-index:1000010!important;
- font-size:13px!important;padding:12px 14px!important;
+ display:block!important;width:100%!important;box-sizing:border-box!important;
+ margin:0 0 12px!important;border-radius:5px!important;
+ background:#411e28!important;border:1px solid #a44b59!important;
+ color:#fff!important;text-align:left!important;white-space:nowrap!important;
+ font-size:13px!important;font-weight:500!important;padding:12px 14px!important;
 }
+body.nex-vtt-sheet-overlay #nexVttSheetClose strong{font-weight:800!important;letter-spacing:.025em!important;}
 @media(max-width:700px){
  body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){
   inset:0 auto auto 0!important;transform:none!important;
