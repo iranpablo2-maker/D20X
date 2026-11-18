@@ -1053,10 +1053,10 @@
    const compactSummary=isNpcAttack?
      '<span class="nex-hb-npc-attack-summary"><strong>'+esc((a.action||'Padrão').toUpperCase())+' ◆ '+esc((a.name||'Novo ataque').toUpperCase())+'</strong>'+
        (a.subtitle||a.range?'<span>'+esc((a.subtitle||'').toUpperCase())+' '+esc(a.range||'')+'</span>':'')+
-       '<small>Teste '+esc(a.testSkill||'Luta')+' '+esc(npcTestPreview||'—')+', crítico '+esc(a.critical||'20')+
+       '<small>'+esc(a.testSkill||'Luta')+' '+esc(npcTestPreview||'—')+', crítico '+esc(a.critical||'20')+
        ' | Dano '+esc(a.damage||'—')+' '+esc((a.damageType||'Corte').toLowerCase())+'</small></span>':
      isNpcAbility?'<span class="nex-hb-npc-attack-summary"><strong>HABILIDADE ◆ '+esc((a.name||'Nova habilidade').toUpperCase())+'</strong>'+
-       (npcTestSkill?'<small>Teste '+esc(npcTestSkill)+' '+esc(npcTestPreview||'—')+'</small>':'')+'</span>':
+       (npcTestSkill?'<small>'+esc(npcTestSkill)+' '+esc(npcTestPreview||'—')+'</small>':'')+'</span>':
      '<strong>'+esc(title)+'</strong>';
    return '<div class="nex-hb-threat-action-editor'+((isNpcAttack||isNpcAbility)?' nex-hb-npc-attack-editor':'')+'" data-threat-row="'+i+'">'+
     '<div class="nex-hb-threat-action-summary">'+
@@ -1216,7 +1216,7 @@
   const renderCombatAction=(a,index)=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong>'+
     (a.action?'<p>'+esc(a.action)+'</p>':'')+
     (item.type==='npc'&&npcTestFor(a)?
-      '<button type="button" class="nex-hb-action-roll" data-npc-action-roll="'+index+'" data-npc-action-field="skillTest"><span>Teste · '+esc(npcTestFor(a).name)+': <strong>'+esc(npcTestFor(a).formula)+'</strong></span><img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':
+      '<button type="button" class="nex-hb-action-roll" data-npc-action-roll="'+index+'" data-npc-action-field="skillTest"><span>'+esc(npcTestFor(a).name)+': <strong>'+esc(npcTestFor(a).formula)+'</strong></span><img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':
       actionDiceButton('Teste',a.test,index,'test'))+
     actionDiceButton('Dano',a.damage,index,'damage')+
     actionDiceButton('Dano secundário',a.secondaryDamage,index,'secondaryDamage')+
@@ -1227,7 +1227,7 @@
     '<p class="nex-hb-action-roll-result" role="status" aria-live="polite" hidden></p></div>';
   const renderNpcAbility=(a,index)=>{
    const skill=npcTestFor(a);
-   const test=skill?'<button type="button" class="nex-hb-npc-inline-roll" data-npc-action-roll="'+index+'" data-npc-action-field="skillTest">Teste '+esc(skill.name)+' '+esc(skill.formula)+' <img src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':
+   const test=skill?'<button type="button" class="nex-hb-npc-inline-roll" data-npc-action-roll="'+index+'" data-npc-action-field="skillTest">'+esc(skill.name)+' '+esc(skill.formula)+' <img src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':
      (a.test?actionDiceButton('Teste',a.test,index,'test'):'');
    return '<div class="nex-hb-threat-action nex-hb-npc-attack-sheet">'+
      '<div class="nex-hb-npc-attack-title">HABILIDADE ◆ '+esc((a.name||'Nova habilidade').toUpperCase())+'</div>'+
@@ -1242,7 +1242,7 @@
    const weapon=a.subtitle||'';
    const line=weapon||a.range?'<div class="nex-hb-npc-attack-subtitle">'+(weapon?'<strong>'+esc(weapon.toUpperCase())+'</strong> ':'')+esc(a.range||'')+'</div>':'';
    const test=skill?
-     '<button type="button" class="nex-hb-npc-inline-roll" data-npc-action-roll="'+index+'" data-npc-action-field="skillTest">Teste '+esc(skill.name)+' '+esc(skill.formula)+' <img src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':
+     '<button type="button" class="nex-hb-npc-inline-roll" data-npc-action-roll="'+index+'" data-npc-action-field="skillTest">'+esc(skill.name)+' '+esc(skill.formula)+' <img src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':
      (a.test?actionDiceButton('Teste',a.test,index,'test'):'');
    const damage=a.damage?
      '<button type="button" class="nex-hb-npc-inline-roll" data-npc-action-roll="'+index+'" data-npc-action-field="damage">Dano '+esc(a.damage)+' '+esc((a.damageType||'Corte').toLowerCase())+' <img src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':'';
