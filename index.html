@@ -4276,8 +4276,66 @@ function abilityRecords(){
    for(const a of state.n16.abilities)entries.push({name:a.name,source:a.source||'Personalizada',detail:a.description||'Sem descrição.',id:a.id});
    return entries;
  }
+
+ // Acoes que precisam da escolha do jogador: custo, alvo e beneficio do proximo teste.
+ // Habilidades narrativas sem numeros verificados nao recebem ativacao ficticia.
+ function nexAutoActivationSpec(a){
+   const origin=String(a.source||'');
+   if(origin==='Origem: Acadêmico')return {id:'academico',name:'Saber é Poder',cost:2,bonus:5,mode:'int'};
+   if(origin==='Origem: Atleta')return {id:'atleta',name:'110%',cost:2,bonus:5,mode:'agifor'};
+   if(origin==='Origem: Executivo')return {id:'executivo',name:'Processo Otimizado',cost:2,bonus:5,mode:'any',note:'Somente testes estendidos ou analise de documentos.'};
+   if(origin==='Origem: Investigador')return {id:'investigador',name:'Faro para Pistas',cost:1,bonus:5,mode:'any',onceScene:true,note:'Somente ao procurar pistas.'};
+   if(origin==='Origem: Trabalhador Rural')return {id:'rural',name:'Desbravador',cost:2,bonus:5,mode:'rural'};
+   if(origin==='Origem: Religioso')return {id:'religioso',name:'Acalentar',cost:0,bonus:5,mode:'religion',note:'Somente para acalmar outra pessoa.'};
+   if(origin==='Origem: T.I.')return {id:'ti',name:'Motor de Busca',cost:2,bonus:0,mode:'any',replaceWith:'Tecnologia',note:'Exige internet e autorizacao do mestre.'};
+   if(origin==='Origem: Trambiqueiro')return {id:'trambiqueiro',name:'Impostor',cost:2,bonus:0,mode:'any',replaceWith:'Enganação',onceScene:true};
+   if(origin==='Classe: Mundano'&&a.name==='Empenho')return {id:'empenho',name:'Empenho',cost:1,bonus:2,mode:'any'};
+   if(origin==='Classe: Especialista'&&a.name==='Eclético')return {id:'ecletico',name:'Eclético',cost:2,bonus:5,mode:'untrained'};
+   if(a.name==='Teimosia Obstinada')return {id:'teimosia',name:a.name,cost:2,bonus:5,mode:'resist',note:'Somente testes contra efeitos mentais.'};
+   return null;
+ }
+ function nexAutoTargetSkills(spec){
+   if(!spec)return [];
+   return SKILL_DATA.filter(([name,baseAttr])=>{
+     const skill=state.skills?.[name];
+     const attr=skill?.attr||baseAttr;
+     if(spec.mode==='int')return attr==='int';
+     if(spec.mode==='agifor')return ['agi','for'].includes(attr)&&!['Luta','Pontaria'].includes(name);
+     if(spec.mode==='rural')return ['Adestramento','Sobrevivência'].includes(name);
+     if(spec.mode==='religion')return name==='Religião';
+     if(spec.mode==='resist')return name==='Vontade';
+     if(spec.mode==='untrained')return !Number(skill?.training||0);
+     return true;
+   }).map(row=>row[0]);
+ }
+ function nexOfficialAbilityControls(a){
+   if(a.name==='Foco em Perícia'){
+     const selected=String(state.nexAutoChoices?.focoPericia||'');
+     const opts=SKILL_DATA.map(x=>x[0]).filter(name=>!['Luta','Pontaria'].includes(name)&&Number(state.skills?.[name]?.training||0)>=5);
+     return '<div class="nex-auto-effect"><label>Perícia do dado adicional <select data-nex-auto-focus aria-label="Perícia escolhida para Foco em Perícia"><option value="">Escolher perícia</option>'+
+        opts.map(name=>'<option value="'+escape(name)+'" '+(name===selected?'selected':'')+'>'+escape(name)+'</option>').join('')+
+        '</select></label><small>Dado extra aplicado automaticamente nos testes da perícia escolhida.</small></div>';
+   }
+   const spec=nexAutoActivationSpec(a);
+   if(!spec)return '';
+   const options=nexAutoTargetSkills(spec),pending=state.nexAutoPending,active=pending?.id===spec.id;
+   const used=spec.onceScene&&Boolean(state.nexAutoSceneUses?.[spec.id]);
+   const blocked=Boolean(pending)||used||Number(state.peCurrent)<spec.cost||options.length===0;
+   const target=active?pending.skill:'';
+   const label=spec.replaceWith?'Usar '+spec.replaceWith:'Ativar '+(spec.bonus?'+'+spec.bonus:'efeito');
+   return '<div class="nex-auto-effect"><label>Teste da habilidade <select data-nex-auto-skill aria-label="Perícia deste efeito">'+
+      options.map(name=>'<option value="'+escape(name)+'" '+(name===target?'selected':'')+'>'+escape(name)+'</option>').join('')+
+      '</select></label><div class="actions">'+
+      (active?'<button type="button" class="btn sm" data-nex-auto-cancel>Cancelar e devolver PE</button><strong>Preparado para '+escape(target)+'</strong>':
+        '<button type="button" class="btn sm primary" data-nex-auto-activate="'+escape(spec.id)+'" '+(blocked?'disabled':'')+'>'+
+        escape(label)+' ('+spec.cost+' PE)</button>')+
+      (used?'<span class="hint">Já utilizada nesta cena</span>':'')+
+      '</div><small>'+escape(spec.note||'O efeito sera usado no proximo teste da pericia selecionada.')+'</small></div>';
+ }
+
  function drawAbilities(){
    ensure();const records=abilityRecords();
+   const opened=new Set([...document.querySelectorAll('#n16AbilityList details[open]')].map(x=>x.dataset.nexAbilityId));
    const passive=typeof nexOfficialPassiveBonuses==='function'?nexOfficialPassiveBonuses():null;
    const automatedValue=(a)=>{
      if(!passive)return '';
@@ -4307,8 +4365,39 @@ function abilityRecords(){
      if(Object.prototype.hasOwnProperty.call(NEX_OFFICIAL_GRANTED_SKILLS,a.name))return `Poder automático: treino em ${NEX_OFFICIAL_GRANTED_SKILLS[a.name]} ou +2 se já houver treinamento.`;
      return '';
    };
-   $id('n16AbilityList').innerHTML=records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry"><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div>${escape(a.detail)}</div>${a.id?`<div class="actions"><button type="button" class="btn sm" data-n16-remove-ability="${escape(a.id)}">Excluir habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>';
+   $id('n16AbilityList').innerHTML=(Object.keys(state.nexAutoSceneUses||{}).some(k=>state.nexAutoSceneUses[k])?'<button type="button" class="btn sm" data-nex-auto-new-scene>Nova cena · reiniciar habilidades por cena</button>':'')+(records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry" data-nex-ability-id="${escape(a.name+"|"+a.source)}" ${opened.has(a.name+"|"+a.source)?"open":""}><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div>${escape(a.detail)}</div>${nexOfficialAbilityControls(a)}${a.id?`<div class="actions"><button type="button" class="btn sm" data-n16-remove-ability="${escape(a.id)}">Excluir habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>');
  }
+
+ document.addEventListener('click',event=>{
+   const activate=event.target.closest('[data-nex-auto-activate]');
+   const cancel=event.target.closest('[data-nex-auto-cancel]');
+   const nextScene=event.target.closest('[data-nex-auto-new-scene]');
+   if(!activate&&!cancel&&!nextScene)return;
+   event.preventDefault();
+   if(nextScene){state.nexAutoSceneUses={};save();renderStats();return;}
+   if(cancel){
+     const pending=state.nexAutoPending;
+     if(pending){state.peCurrent=Math.min(maxValues().pe,Math.max(0,Number(state.peCurrent)||0)+Number(pending.cost||0));state.nexAutoPending=null;save();renderStats();}
+     return;
+   }
+   const spec=abilityRecords().map(nexAutoActivationSpec).find(x=>x?.id===activate.dataset.nexAutoActivate);
+   if(!spec||state.nexAutoPending||state.nexAutoSceneUses?.[spec.id])return;
+   const target=activate.closest('.nex-auto-effect')?.querySelector('[data-nex-auto-skill]')?.value;
+   if(!target||!nexAutoTargetSkills(spec).includes(target))return toast('Escolha uma perícia válida.');
+   if(Number(state.peCurrent)<spec.cost)return toast('PE insuficiente para ativar.');
+   state.peCurrent=Math.max(0,Number(state.peCurrent)-spec.cost);
+   state.nexAutoPending={id:spec.id,name:spec.name,skill:target,bonus:spec.bonus,cost:spec.cost,
+     replaceWith:spec.replaceWith||'',onceScene:!!spec.onceScene,source:spec.id};
+   save();renderStats();toast('Efeito preparado: '+spec.name+' para '+target+'.');
+ });
+ document.addEventListener('change',event=>{
+   if(!event.target.matches('[data-nex-auto-focus]'))return;
+   const value=event.target.value;
+   const eligible=SKILL_DATA.some(([name])=>name===value&&name!=='Luta'&&name!=='Pontaria'&&Number(state.skills?.[name]?.training||0)>=5);
+   state.nexAutoChoices={...(state.nexAutoChoices||{}),focoPericia:eligible?value:''};
+   save();renderStats();
+ });
+
  function itemCategory(item){const c=item.category||'Geral';return ['Arma','Munição','Proteção','Geral','Item Amaldiçoado'].includes(c)?c:'Geral';}
  const prestigeTiers=[
  {min:0,rank:'Recruta',credit:'Baixo',limits:[2,0,0,0]},
