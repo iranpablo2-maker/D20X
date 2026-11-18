@@ -2735,175 +2735,21 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }
   return '—';
  }
- function renderVttMiniSheet(sheet){
+ // A ficha real utiliza o editor original NEX no frame principal.
+ // Não reconstruímos controles nem mantemos uma versão resumida divergente.
+ function renderVttMiniSheet(){
   const box=$('nexVttMiniSheet');
-  if(!box)return;
-  box.replaceChildren();
-  if(!sheet){box.hidden=true;return;}
-  box.hidden=false;
-  const heading=document.createElement('div');heading.className='nex-vtt-mini-heading';
-  const title=document.createElement('strong');title.textContent=String(sheet.name||'Personagem');
-  const close=document.createElement('button');close.type='button';close.textContent='×';close.title='Fechar mini ficha';
-  close.addEventListener('click',()=>{activeVttMiniSheetId=null;renderVttSheets();});
-  heading.append(title,close);box.append(heading);
-  const portrait=sheetPortrait(sheet);
-  if(portrait){
-   const image=document.createElement('img');image.className='nex-vtt-mini-portrait';image.src=portrait;image.alt='Retrato do personagem';box.append(image);
-  }
-  const line=document.createElement('p');line.className='nex-vtt-mini-subtitle';
-  line.textContent=(sheet.className||sheet.fullSheet?.className||sheet.fullSheet?.class||'Personagem')+' · NEX '+(Number(sheet.nex)||0)+'%';
-  box.append(line);
-  const vitals=document.createElement('div');vitals.className='nex-vtt-mini-vitals';
-  for(const [name,keys] of [
-   ['PV',['pvCurrent','pvAtual','pv','currentPV']],
-   ['PE',['peCurrent','peAtual','pe','currentPE']],
-   ['SAN',['sanCurrent','sanAtual','san','currentSAN']]
-  ]){
-   const tile=document.createElement('div');tile.className='nex-vtt-mini-vital';
-   const number=document.createElement('strong');number.textContent=vttStatValue(sheet,keys);
-   const label=document.createElement('small');label.textContent=name;
-   tile.append(label,number);vitals.append(tile);
-  }
-  box.append(vitals);
-  const canEditResource=gm||assignedTo(sheet,uid);
-  if(canEditResource){
-   const controls=document.createElement('div');controls.className='nex-vtt-mini-resource-editor';
-   const editTitle=document.createElement('strong');editTitle.textContent='Recursos da ficha';controls.append(editTitle);
-   const editRows=document.createElement('div');editRows.className='nex-vtt-mini-edit-rows';
-   const names={pv:'PV',pe:'PE',san:'SAN'};
-   const entries={pv:null,pe:null,san:null};
-   for(const field of ['pv','pe','san']){
-     const label=document.createElement('label');label.textContent=names[field];
-     const input=document.createElement('input');input.type='number';input.min='0';input.max='9999';
-     input.value=String(vttStatValue(sheet,[field+'Current',field+'Atual',field]));
-     if(!Number.isFinite(Number(input.value)))input.value=String(sheet[field]??0);
-     label.append(input);editRows.append(label);entries[field]=input;
-   }
-   controls.append(editRows);
-   const save=document.createElement('button');save.type='button';save.textContent='Salvar PV · PE · SAN';
-   save.addEventListener('click',async()=>{
-     const changes=Object.entries(entries).filter(([key,input])=>Number.isInteger(Number(input.value))&&Number(input.value)>=0&&Number(input.value)!==Number(vttStatValue(sheet,[key+'Current',key+'Atual',key])));
-     if(!changes.length)return;
-     save.disabled=true;
-     try{
-       for(const [key,input] of changes)await updateVttSheetResource(sheet.id,key,Number(input.value),'set');
-       save.textContent='Atualizado ✓';
-     }catch(error){save.textContent='Erro ao salvar';notice('Não foi possível atualizar os recursos: '+String(error.message||error));}
-     finally{save.disabled=false;}
-   });
-   controls.append(save);box.append(controls);
-  }
-  const attributes=sheet.fullSheet?.attributes||sheet.fullSheet?.atributos||null;
-  if(attributes&&typeof attributes==='object'){
-   const attrs=document.createElement('div');attrs.className='nex-vtt-mini-attributes';
-   for(const [label,keys] of [
-    ['AGI',['agi','agilidade','AGI']],['FOR',['for','forca','FOR']],
-    ['INT',['int','intelecto','INT']],['PRE',['pre','presenca','PRE']],['VIG',['vig','vigor','VIG']]
-   ]){
-    const value=keys.map(k=>attributes[k]).find(v=>v!==undefined&&v!==null);
-    if(value===undefined)continue;
-    const tile=document.createElement('span');tile.textContent=label+' '+String(value);attrs.append(tile);
-   }
-   if(attrs.childElementCount)box.append(attrs);
-  }
-  // Rolagens rápidas da ficha: os atributos são consultados na ficha vinculada.
-  // Não alteram os recursos nem substituem as ações completas da ficha NEX.
-  const attrSource=sheet.fullSheet?.attributes||sheet.fullSheet?.atributos||null;
-  if(attrSource&&typeof attrSource==='object'){
-   const quick=document.createElement('section');quick.className='nex-vtt-quick-actions';
-   const heading=document.createElement('div');heading.className='nex-vtt-quick-title';
-   const label=document.createElement('strong');label.textContent='Testes rápidos';
-   const detail=document.createElement('small');detail.textContent='Clique para rolar o atributo puro';
-   heading.append(label,detail);quick.append(heading);
-   const buttons=document.createElement('div');buttons.className='nex-vtt-quick-buttons';
-   const result=document.createElement('div');result.className='nex-vtt-quick-result';result.setAttribute('role','status');result.setAttribute('aria-live','polite');
-   const keysets=[
-    ['AGI','Agilidade',['agi','agilidade','AGI']],
-    ['FOR','Força',['for','forca','FOR']],
-    ['INT','Intelecto',['int','intelecto','INT']],
-    ['PRE','Presença',['pre','presenca','PRE']],
-    ['VIG','Vigor',['vig','VIG']]
-   ];
-   for(const [short,name,keys] of keysets){
-    const raw=keys.map(key=>attrSource[key]).find(value=>value!==undefined&&value!==null);
-    if(raw===undefined)continue;
-    const level=Number(raw);if(!Number.isInteger(level)||level<0||level>20)continue;
-    const action=document.createElement('button');action.type='button';action.className='nex-vtt-quick-die';
-    action.textContent=short+' '+level;
-    action.title='Rolar '+name;
-    action.addEventListener('click',()=>{
-     const diceCount=level===0?2:Math.min(level,20);
-     const rolls=Array.from({length:diceCount},()=>{
-      const n=new Uint32Array(1);
-      crypto.getRandomValues(n);
-      return 1+(n[0]%20);
-     });
-     const value=level===0?Math.min(...rolls):Math.max(...rolls);
-     result.replaceChildren();
-     const total=document.createElement('strong');total.textContent=name+': '+value;
-     const numbers=document.createElement('small');
-     numbers.textContent=(level===0?'2d20 (menor): ':diceCount+'d20 (maior): ')+rolls.join(', ');
-     result.append(total,numbers);
-    });
-    buttons.append(action);
-   }
-   if(buttons.childElementCount){quick.append(buttons,result);box.append(quick);}
-  }
-  // Seções legíveis da ficha armazenada; nunca modifica o documento sem autorização.
-  const full=sheet.fullSheet&&typeof sheet.fullSheet==='object'?sheet.fullSheet:{};
-  const sections=[
-    ['Perícias',['skills','pericias','perícias','trainedSkills']],
-    ['Combate e ataques',['combat','combate','attacks','ataques','weapons','armas']],
-    ['Habilidades',['abilities','habilidades','powers','poderes']],
-    ['Rituais',['rituals','rituais','spells']],
-    ['Inventário',['inventory','inventario','inventário','items','itens']],
-    ['Descrição',['description','descricao','descrição','history','historia','backstory']]
-  ];
-  const formatValue=(value,depth=0)=>{
-   if(value===null||value===undefined)return '';
-   if(typeof value==='string'||typeof value==='number'||typeof value==='boolean')return String(value);
-   if(depth>2)return 'Detalhes adicionais na ficha NEX';
-   if(Array.isArray(value))return value.slice(0,100).map(v=>formatValue(v,depth+1)).filter(Boolean).join(' · ');
-   if(typeof value==='object')return Object.entries(value).slice(0,40).map(([key,v])=>key+': '+formatValue(v,depth+1)).join(' | ');
-   return '';
-  };
-  const details=document.createElement('section');details.setAttribute('aria-label','Detalhes da ficha');
-  for(const [name,keys] of sections){
-   const values=keys.flatMap(key=>{
-    const data=full[key]??sheet[key];
-    return data===undefined||data===null?[]:[data];
-   });
-   if(!values.length)continue;
-   const group=document.createElement('details');group.className='nex-vtt-detail-group';
-   const summary=document.createElement('summary');summary.textContent=name;group.append(summary);
-   for(const value of values.slice(0,2)){
-    const items=Array.isArray(value)?value:typeof value==='object'?Object.entries(value).map(([key,item])=>({name:key,data:item})): [value];
-    for(const item of items.slice(0,80)){
-     const entry=document.createElement('div');entry.className='nex-vtt-detail-entry';
-     if(item&&typeof item==='object'&&!Array.isArray(item)){
-      const label=document.createElement('strong');label.textContent=String(item.name||item.nome||item.title||item.label||'Detalhes');
-      const content=document.createElement('span');content.textContent=formatValue(item.data??item.description??item.descricao??item);
-      entry.append(label,content);
-     }else entry.textContent=formatValue(item);
-     group.append(entry);
-    }
-   }
-   details.append(group);
-  }
-  if(details.childElementCount)box.append(details);
-  else{const hint=document.createElement('p');hint.textContent='Os detalhes desta ficha ainda não foram sincronizados com a campanha.';box.append(hint);}
-  const open=document.createElement('button');open.type='button';open.className='nex-vtt-mini-open';open.textContent='Abrir editor original (fora da mesa)';
-  open.addEventListener('click',()=>openVttSheet(sheet.id));box.append(open);
+  if(box){box.hidden=true;box.replaceChildren();}
  }
  function renderVttSheets(){
   const list=$('nexVttSheetsList');if(!list)return;
   const allowed=roomSheets.filter(sheet=>gm||assignedTo(sheet,uid));
   if(activeVttMiniSheetId&&!allowed.some(s=>s.id===activeVttMiniSheetId))activeVttMiniSheetId=null;
   list.replaceChildren();
-  $('nexVttSheetsHint').textContent=gm?'Personagens da campanha, inclusive os ocultos.':'Suas fichas vinculadas a esta campanha.';
+  $('nexVttSheetsHint').textContent='Selecione um personagem para abrir a ficha original do NEX sobre o mapa.';
   for(const sheet of allowed){
    const button=document.createElement('button');button.type='button';button.className='nex-vtt-sheet';
-   button.dataset.vttMiniSheet=sheet.id;button.setAttribute('aria-expanded',String(activeVttMiniSheetId===sheet.id));
+   button.dataset.vttMiniSheet=sheet.id;button.title='Abrir ficha completa de '+String(sheet.name||'Personagem');
    const photo=sheetPortrait(sheet);
    if(photo){const img=document.createElement('img');img.src=photo;img.alt='';button.append(img);}
    else{const avatar=document.createElement('span');avatar.className='nex-vtt-avatar';avatar.textContent=String(sheet.name||'P')[0].toUpperCase();button.append(avatar);}
@@ -2912,27 +2758,41 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    info.append(name,meta);button.append(info);list.append(button);
   }
   if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent=gm?'Adicione personagens à campanha para acessá-los aqui.':'Sua ficha ainda não foi atribuída a você nesta campanha.';list.append(note);}
-  renderVttMiniSheet(allowed.find(s=>s.id===activeVttMiniSheetId));
+  renderVttMiniSheet();
  }
  function openVttSheet(id){
   const sheet=roomSheets.find(item=>item.id===id);
   if(!sheet||!(gm||assignedTo(sheet,uid)))return;
-  if(window.parent!==window&&sheet.fullSheet&&typeof sheet.fullSheet==='object'&&!Array.isArray(sheet.fullSheet)){
-   window.parent.postMessage({type:'nex-campaign-view-shared-sheet',sheet:sheet.fullSheet,name:sheet.name,sheetId:sheet.id,canEdit:gm||String(sheet.controllerUid||sheet.ownerUid)===uid},location.origin);
+  // Fecha os menus da mesa, mas mantém a sessão e o mapa ativos.
+  $('nexVttSheetsPanel').hidden=true;
+  syncVttPanels();
+  const sameOriginParent=window.parent!==window;
+  const editable=gm||sheet.controllerUid===uid||(!sheet.controllerUid&&sheet.ownerUid===uid);
+  const full=sheet.fullSheet&&typeof sheet.fullSheet==='object'&&!Array.isArray(sheet.fullSheet)?sheet.fullSheet:null;
+  const post=(type,data={})=>window.parent.postMessage({type,sheetId:sheet.id,name:sheet.name,...data},location.origin);
+  // Ficha original do proprietário: usa a mesma ficha salva na conta NEX.
+  if(sameOriginParent&&sheet.linkedAgentId&&sheet.ownerUid===uid&&(!sheet.controllerUid||sheet.controllerUid===uid)&&!String(sheet.linkedAgentId).startsWith('shared-')){
+   post('nex-campaign-open-agent',{agentId:sheet.linkedAgentId});
    return;
   }
-  if(window.parent!==window&&sheet.linkedAgentId&&sheet.ownerUid===uid&&assignedTo(sheet,uid)){
-   // A ficha da conta pode ser consultada sem sair da mesa, usando o visualizador do NEX.
+  // Personagens atribuídos ou criados pelo mestre: abrir editor OPERACIONAL, não uma cópia estática.
+  if(sameOriginParent&&full){
+   if(editable)post('nex-campaign-open-editable-sheet',{sheet:full});
+   else post('nex-campaign-view-shared-sheet',{sheet:full,canEdit:false});
+   return;
+  }
+  if(sameOriginParent&&sheet.linkedAgentId&&sheet.ownerUid===uid){
    requestNex('nex-agent-data-request',sheet.linkedAgentId).then(response=>{
     const data=response.agent?.data;
-    if(data&&window.parent!==window)window.parent.postMessage({type:'nex-campaign-view-shared-sheet',sheet:data,name:sheet.name,sheetId:sheet.id,canEdit:false},location.origin);
-    else notice('Não foi possível carregar a ficha desta conta.');
-   }).catch(error=>notice(String(error.message||error)));
+    if(data&&typeof data==='object'){
+     if(editable)post('nex-campaign-open-editable-sheet',{sheet:data});
+     else post('nex-campaign-view-shared-sheet',{sheet:data,canEdit:false});
+    }else notice('Ficha original indisponível. Verifique a sincronização da conta.');
+   }).catch(error=>notice('Erro ao carregar ficha: '+String(error.message||error)));
    return;
   }
-  $('nexCampaignSheetTitle').textContent=sheet.name||'Personagem';
-  $('nexCampaignSheetBody').textContent='A ficha completa ainda não está disponível nesta campanha. Vincule uma ficha NEX para consultá-la dentro da mesa.';
-  $('nexCampaignSheetDialog').showModal();
+  // Sem dados completos, a campanha ainda precisa receber a ficha NEX do personagem.
+  notice('A ficha completa ainda não está vinculada a este personagem. Vincule a ficha NEX na campanha.');
  }
  function campaignSheetRef(sheet){return doc(db,'campaigns',roomId,sheet.isHidden?'privateSheets':'sheets',sheet.id)}
  const pendingBridge=new Map();
@@ -4069,7 +3929,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   syncVttPanels();
  });
  $('nexVttSheetsClose').addEventListener('click',()=>{$('nexVttSheetsPanel').hidden=true;syncVttPanels();});
- $('nexVttSheetsList').addEventListener('click',event=>{const button=event.target.closest('[data-vtt-mini-sheet]');if(button){activeVttMiniSheetId=activeVttMiniSheetId===button.dataset.vttMiniSheet?null:button.dataset.vttMiniSheet;renderVttSheets();}});
+ $('nexVttSheetsList').addEventListener('click',event=>{const button=event.target.closest('[data-vtt-mini-sheet]');if(button){openVttSheet(button.dataset.vttMiniSheet);}});
  $('nexVttReload')?.addEventListener('click',()=>{
   const current=new URL(location.href);
   current.searchParams.set('vttRefresh',Date.now().toString());
