@@ -1015,7 +1015,7 @@
   root.querySelectorAll('[data-npc-attack-test-preview]').forEach(el=>{
    const index=Number(el.dataset.npcAttackTestPreview);
    const name=threatActions[index]?.testSkill;
-   if(!['Luta','Pontaria','Ocultismo'].includes(name)){el.textContent='';el.hidden=true;return;}
+   if(!NPC_SKILLS.includes(name)){el.textContent='';el.hidden=true;return;}
    const trained=npcSkillRows.find(row=>row.name===name);
    const bonus=trained?.bonus??0;
    const dice=npcSkillDice({name},attributes);
@@ -1037,9 +1037,9 @@
      ['test','Teste (perícia)'],['critical','Crítico'],['damage','Dano'],['damageType','Tipo do dano'],
      ['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['effect','Descrição']
    ]:[['name','Nome'],['action','Tipo de ação'],['test','Teste (opcional)'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Descrição']];
-   const abilityFields=[['name','Nome da habilidade'],['action','Ativação (opcional)'],['test','Rolagem (opcional)'],['effect','Descrição']];
+   const abilityFields=npc?[['name','Nome da habilidade'],['test','Teste (perícia)'],['effect','Descrição']]:[['name','Nome da habilidade'],['action','Ativação (opcional)'],['test','Rolagem (opcional)'],['effect','Descrição']];
    const fields=npc&&kind==='ability'?abilityFields:attackFields;
-   const skillOptions=['Luta','Pontaria','Ocultismo'];
+   const skillOptions=kind==='ability'?NPC_SKILLS:['Luta','Pontaria','Ocultismo'];
    const selectField=(k,options,current)=>'<select data-threat-key="'+k+'">'+
       options.map(option=>'<option value="'+esc(option)+'"'+(option===current?' selected':'')+'>'+esc(option||'Selecionar')+'</option>').join('')+'</select>';
    const npcTestSkill=a.testSkill||'';
@@ -1061,8 +1061,8 @@
     '</div>'+
     (descriptionOpen?'<div class="nex-hb-npc-attack-description"><strong>Descrição</strong><p>'+esc(a.effect||'Nenhuma descrição cadastrada.').replace(/\n/g,'<br>')+'</p></div>':'')+
     (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
-     fields.map(([k,label])=>'<label>'+(npc&&kind==='attack'&&k==='test'?'Teste (perícia)':label)+
-      (npc&&kind==='attack'&&k==='test'?
+     fields.map(([k,label])=>'<label>'+(npc&&k==='test'?'Teste (perícia)':label)+
+      (npc&&k==='test'?
         selectField('testSkill',['',...skillOptions,...(npcTestSkill&&!skillOptions.includes(npcTestSkill)?[npcTestSkill]:[])],npcTestSkill)+
         (npcTestPreview?'<small class="nex-hb-npc-test-preview" data-npc-attack-test-preview="'+i+'">'+esc(npcTestPreview)+'</small>':'<small class="nex-hb-npc-test-preview" data-npc-attack-test-preview="'+i+'" hidden></small>'):
        npc&&kind==='attack'&&k==='action'?
@@ -1294,7 +1294,7 @@
    const sheet=normalizeThreat(item);
    let formula='',rolled=null;
    if(field==='skillTest'){
-    const skill=sheet.npcSkills.find(row=>row.name===action.testSkill)||(['Luta','Pontaria','Ocultismo'].includes(action.testSkill)?{name:action.testSkill,bonus:0}:null);
+    const skill=sheet.npcSkills.find(row=>row.name===action.testSkill)||(NPC_SKILLS.includes(action.testSkill)?{name:action.testSkill,bonus:0}:null);
     if(!skill)return;
     const dice=npcSkillDice(skill,sheet.attributes);
     const rolls=Array.from({length:dice.count},()=>1+Math.floor(Math.random()*20));
