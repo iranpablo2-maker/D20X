@@ -326,9 +326,9 @@
  '<button type="button" data-nex52-tab="ameacas" role="tab" aria-selected="true">AMEAÇAS</button>'+ 
  '<button type="button" data-nex52-tab="npcs" role="tab" aria-selected="false">NPC</button>'+
  '<button type="button" data-nex52-tab="habilidades" role="tab" aria-selected="false">HABILIDADES</button>'+
- '<button type="button" data-nex52-tab="rituais" role="tab" aria-selected="false">RITUAIS</button>'+
+
  '<button type="button" data-nex52-tab="itens" role="tab" aria-selected="false">ITENS</button>'+ 
- '<button type="button" data-nex52-tab="melhorias" role="tab" aria-selected="false">MELHORIAS</button>'+ 
+ 
  '<button type="button" data-nex52-tab="paranormal" role="tab" aria-selected="false">PARANORMAL</button></div>'+
  '<div class="nex53-subtabs" id="nex53SkillTabs" role="tablist" aria-label="Categorias de habilidades" hidden>'+
  '<button type="button" data-nex53-skill="origens" role="tab" aria-selected="true">Origens</button>'+
@@ -336,8 +336,8 @@
  '<button type="button" data-nex53-skill="gerais" role="tab" aria-selected="false">Poderes Gerais</button>'+
  '<button type="button" data-nex53-skill="trilhas" role="tab" aria-selected="false">Trilhas</button></div>'+
  '<div class="nex53-ritual-filter" id="nex53RitualFilter" hidden aria-label="Tipos de ritual"></div>'+ 
- '<div class="nex-hb-item-tabs" id="nexHbItemTabs" role="tablist" aria-label="Tipos de itens homebrew" hidden>'+ITEM_CATEGORIES.map(c=>'<button type="button" role="tab" data-nex-hb-item-tab="'+esc(c)+'" aria-selected="false">'+esc(c)+'</button>').join('')+'</div>'+ 
- '<div id="nexHbParanormalNav" class="nex-hb-paranormal-nav" hidden><div class="nex-hb-paranormal-sections"><button type="button" data-nex-psection="itens">Itens Amaldiçoados</button><button type="button" data-nex-psection="maldicoes">Maldições</button></div><div id="nexHbCursedKinds" class="nex-hb-paranormal-kinds">'+CURSED_KINDS.map(k=>'<button type="button" data-nex-ckind="'+esc(k)+'">'+esc(k)+'</button>').join('')+'</div></div>'+ 
+ '<div class="nex-hb-item-tabs" id="nexHbItemTabs" role="tablist" aria-label="Tipos de itens homebrew" hidden>'+ITEM_CATEGORIES.map(c=>'<button type="button" role="tab" data-nex-hb-item-tab="'+esc(c)+'" aria-selected="false">'+esc(c)+'</button>').join('')+'<button type="button" role="tab" data-nex-hb-item-tab="Melhorias" aria-selected="false">Melhorias</button></div>'+ 
+ '<div id="nexHbParanormalNav" class="nex-hb-paranormal-nav" hidden><div class="nex-hb-paranormal-sections"><button type="button" data-nex-psection="itens">Itens Amaldiçoados</button><button type="button" data-nex-psection="maldicoes">Maldições</button><button type="button" data-nex-psection="rituais">Rituais</button></div><div id="nexHbCursedKinds" class="nex-hb-paranormal-kinds">'+CURSED_KINDS.map(k=>'<button type="button" data-nex-ckind="'+esc(k)+'">'+esc(k)+'</button>').join('')+'</div></div>'+ 
  '<div class="nex52-toolbar"><strong id="nex52Count">Homebrew 0/50</strong><button type="button" id="nex52Add">Adicionar</button></div>'+
  '<label class="nex52-search" for="nex51Search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.7" cy="10.7" r="7.2"/><path d="m16 16 5 5"/></svg><input type="search" id="nex51Search" placeholder="Buscar" autocomplete="off" aria-label="Buscar homebrew"></label>'+
  '<section id="nex52Editor" class="nex52-editor" hidden><div class="nex52-editor-head"><strong id="nex52EditorTitle">Adicionar homebrew</strong><button type="button" id="nex52CloseEditor" aria-label="Fechar editor">×</button></div>'+
@@ -962,20 +962,20 @@
    $('nex53SkillTabs').hidden=tab!=='habilidades';
    mount.querySelectorAll('[data-nex53-skill]').forEach(button=>{const selected=tab==='habilidades'&&button.dataset.nex53Skill===skillTab;button.setAttribute('aria-selected',String(selected));button.classList.toggle('active',selected);});
    const visible=records.filter(x=>types.includes(x.type)&&(tab!=='itens'||canonicalCategory(x.category)===itemTab&&itemTab!=='Itens Amaldiçoados')&&(tab!=='paranormal'||paranormalSection==='maldicoes'||(x.category==='Itens Amaldiçoados'&&x.cursedKind===cursedKind)));
-   $('nexHbItemTabs').hidden=tab!=='itens';
-   $('nexHbParanormalNav').hidden=tab!=='paranormal';
+   $('nexHbItemTabs').hidden=tab!=='itens'&&tab!=='melhorias';
+   $('nexHbParanormalNav').hidden=tab!=='paranormal'&&tab!=='rituais';
    $('nexHbCursedKinds').hidden=tab!=='paranormal'||paranormalSection!=='itens';
-   mount.querySelectorAll('[data-nex-psection]').forEach(b=>b.classList.toggle('active',b.dataset.nexPsection===paranormalSection));
+   mount.querySelectorAll('[data-nex-psection]').forEach(b=>b.classList.toggle('active',tab==='rituais'?b.dataset.nexPsection==='rituais':tab==='paranormal'&&b.dataset.nexPsection===paranormalSection));
    mount.querySelectorAll('[data-nex-ckind]').forEach(b=>b.classList.toggle('active',b.dataset.nexCkind===cursedKind));
    mount.querySelectorAll('[data-nex-hb-item-tab="Itens Amaldiçoados"]').forEach(b=>b.hidden=true);
-   mount.querySelectorAll('[data-nex-hb-item-tab]').forEach(button=>{const active=tab==='itens'&&button.dataset.nexHbItemTab===itemTab;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});
+   mount.querySelectorAll('[data-nex-hb-item-tab]').forEach(button=>{const active=button.dataset.nexHbItemTab==='Melhorias'?tab==='melhorias':tab==='itens'&&button.dataset.nexHbItemTab===itemTab;button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));});
    $('nex53RitualFilter').hidden=tab!=='rituais';
    if(tab==='rituais')$('nex53RitualFilter').innerHTML=['Todas','Dano','Suporte','Cura'].map(t=>'<button type="button" data-ritual-filter="'+t+'" aria-pressed="'+String(t===ritualFilter)+'">'+t+'</button>').join('');
    const query=$('nex51Search').value.trim().toLocaleLowerCase('pt-BR');
    const filtered=visible.filter(x=>(tab!=='rituais'||ritualFilter==='Todas'||x.ritualType===ritualFilter)&&(!query||[x.name,x.description,x.requirements,x.className,x.creatureType,x.category,x.element,x.ritualType,x.improvementTarget].join(' ').toLocaleLowerCase('pt-BR').includes(query)));
    $('nex52Count').textContent='Homebrew '+visible.length+'/50';
    mount.querySelectorAll('[data-nex52-tab]').forEach(button=>{
-     const selected=button.dataset.nex52Tab===tab;
+     const selected=button.dataset.nex52Tab===(tab==='melhorias'?'itens':tab==='rituais'?'paranormal':tab);
      button.setAttribute('aria-selected',String(selected));button.classList.toggle('active',selected);
    });
    $('nex51List').innerHTML=filtered.length?filtered.map(card).join(''):
@@ -1119,13 +1119,17 @@
  $('nex53RitualFilter').addEventListener('click',e=>{const t=e.target.closest('[data-ritual-filter]');if(!t)return;ritualFilter=t.dataset.ritualFilter;renderLibrary();});
  $('nexHbParanormalNav').addEventListener('click',e=>{
    const section=e.target.closest('[data-nex-psection]'),kind=e.target.closest('[data-nex-ckind]');if(!section&&!kind)return;
-   if(section)paranormalSection=section.dataset.nexPsection;
-   if(kind)cursedKind=kind.dataset.nexCkind;
+   if(section){
+    if(section.dataset.nexPsection==='rituais')tab='rituais';
+    else{tab='paranormal';paranormalSection=section.dataset.nexPsection;}
+   }
+   if(kind){tab='paranormal';paranormalSection='itens';cursedKind=kind.dataset.nexCkind;}
    $('nex51Search').value='';closeEditor();renderLibrary();
  });
  $('nexHbItemTabs').addEventListener('click',e=>{
    const button=e.target.closest('[data-nex-hb-item-tab]');if(!button)return;
-   itemTab=button.dataset.nexHbItemTab;
+   if(button.dataset.nexHbItemTab==='Melhorias')tab='melhorias';
+   else{tab='itens';itemTab=button.dataset.nexHbItemTab;}
    $('nex51Search').value='';closeEditor();renderLibrary();
  });
  mount.querySelector('.nex52-tabs').addEventListener('click',e=>{
