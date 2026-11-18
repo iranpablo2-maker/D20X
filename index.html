@@ -4343,7 +4343,22 @@ function abilityRecords(){
      return true;
    }).map(row=>row[0]);
  }
+
  function nexOfficialAbilityControls(a){
+   const originChoices={
+     'Origem: Exorcizado':{key:'exorcizadoElement',label:'Elemento protegido',options:['Sangue','Morte','Conhecimento','Energia']},
+     'Origem: Experimento':{key:'experimentoSkill',label:'Perícia física beneficiada',
+       options:SKILL_DATA.filter(([name,attr])=>['agi','for','vig'].includes(state.skills?.[name]?.attr||attr)).map(x=>x[0])},
+     'Origem: Colegial':{key:'colegialNear',label:'Melhor amigo presente e visível',options:[['false','Não'],['true','Sim']]}
+   };
+   if(Object.prototype.hasOwnProperty.call(originChoices,a.source)){
+     const entry=originChoices[a.source],current=String(state.nexAutoChoices?.[entry.key]??'');
+     const options=entry.options.map(x=>Array.isArray(x)?x:[x,x]);
+     return '<div class="nex-auto-effect"><label>'+escape(entry.label)+' <select data-nex-auto-origin-choice="'+escape(entry.key)+'">'+
+       '<option value="">Selecione</option>'+
+       options.map(([value,label])=>'<option value="'+escape(value)+'" '+(current===String(value)?'selected':'')+'>'+escape(label)+'</option>').join('')+
+       '</select></label><small>Esta escolha controla somente os efeitos da origem atualmente selecionada.</small></div>';
+   }
    if(a.name==='Foco em Perícia'){
      const selected=String(state.nexAutoChoices?.focoPericia||'');
      const opts=SKILL_DATA.map(x=>x[0]).filter(name=>!['Luta','Pontaria'].includes(name)&&Number(state.skills?.[name]?.training||0)>=5);
@@ -4444,6 +4459,19 @@ function abilityRecords(){
    save();renderStats();toast('Efeito preparado: '+spec.name+' para '+target+'.');
  });
  document.addEventListener('change',event=>{
+   if(event.target.matches('[data-nex-auto-origin-choice]')){
+     const input=event.target,key=input.dataset.nexAutoOriginChoice;
+     const allowed={
+       exorcizadoElement:['Sangue','Morte','Conhecimento','Energia'],
+       experimentoSkill:SKILL_DATA.filter(([name,attr])=>['agi','for','vig'].includes(state.skills?.[name]?.attr||attr)).map(x=>x[0]),
+       colegialNear:['false','true']
+     };
+     if(!Object.prototype.hasOwnProperty.call(allowed,key))return;
+     const value=allowed[key].includes(input.value)?input.value:'';
+     state.nexAutoChoices={...(state.nexAutoChoices||{}),[key]:key==='colegialNear'?value==='true':value};
+     save();renderStats();
+     return;
+   }
    if(!event.target.matches('[data-nex-auto-focus]'))return;
    const value=event.target.value;
    const eligible=SKILL_DATA.some(([name])=>name===value&&name!=='Luta'&&name!=='Pontaria'&&Number(state.skills?.[name]?.training||0)>=5);
