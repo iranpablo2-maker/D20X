@@ -2639,14 +2639,15 @@ function nexOfficialPassiveBonuses(){
   bonusFortitude:active('Vitalidade Reforçada')?2:0,
   bonusVontade:active('Vontade Inabalável')?2:0,
   bonusIntuicao:active('Observador')?Math.max(0,Number(state.attributes?.int)||0):0,
-  bonusLoad:active('Inventário Organizado')?Math.max(0,Number(state.attributes?.int)||0):0
+  bonusLoad:active('Inventário Organizado')?Math.max(0,Number(state.attributes?.int)||0):0,
+  furtividade:active('Espreitar da Besta')?5:0
  };
 }
 function nexOfficialSkillBonus(name){
  const b=nexOfficialPassiveBonuses();
  return (name==='Percepção'?b.perception:0)+(['Diplomacia','Intimidação','Intuição'].includes(name)?b.social:0)+
   (['Fortitude','Reflexos','Vontade'].includes(name)?b.precognition:0)+
-  (name==='Fortitude'?b.bonusFortitude:0)+(name==='Vontade'?b.bonusVontade:0)+(name==='Intuição'?b.bonusIntuicao:0);
+  (name==='Fortitude'?b.bonusFortitude:0)+(name==='Vontade'?b.bonusVontade:0)+(name==='Intuição'?b.bonusIntuicao:0)+(name==='Furtividade'?b.furtividade:0);
 }
 function nexRitualAdjustMaxSan(resourceMax){
  const lost=Math.max(0,Math.floor(Number(state.ritualToolkit?.permanentSanLoss)||0));
@@ -4195,7 +4196,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    const training=int(skill.training),other=int(skill.other),official=nexOfficialPassiveBonuses();
    const resistance=['Fortitude','Reflexos','Vontade'].includes(name)?official.defensiveReflexes:0;
    const total=training+other+(nexItemBonuses().skills[name]||0)+(nexHomebrewBonuses().pericia||0)+(nexHomebrewBonuses()[({Iniciativa:'iniciativa',Fortitude:'fortitude',Reflexos:'reflexos',Vontade:'vontade'})[name]]||0)+resistance+(name==='Iniciativa'?official.initiative:0)+nexOfficialSkillBonus(name)+nexOfficialGrantedSkillBonus(name,training);
-   return `<div class="nexv16-skill-row ${training>0?'trained':''}">
+   return `<div class="nexv16-skill-row ${training>0||nexOfficialGrantedSkillBonus(name,training)>=5?'trained':''}">
      <div class="nexv16-skill-name">
        <button class="nex-skill-dice-button" type="button" title="Rolar teste de ${escape(name)}" aria-label="Rolar teste de ${escape(name)}" data-nex-skill-roll="${escape(name)}"><img src="${NEX_SKILL_DICE_ICON}" alt="" aria-hidden="true"></button>
        <span>${escape(name)}${skillOnly.has(name)?'*':''}${skillLoad.has(name)?'+':''}</span>
@@ -4294,6 +4295,7 @@ function abilityRecords(){
      if(a.name==='Personalidade Esotérica')return 'Poder automático: +3 PE máximos e treino ou +2 em Ocultismo.';
      if(a.name==='Observador')return `Poder automático: +${passive.bonusIntuicao} Intuição e treino ou +2 em Investigação.`;
      if(a.name==='Inventário Organizado')return 'Poder automático: Intelecto incluído na capacidade de carga.';
+     if(a.name==='Espreitar da Besta')return 'Poder automático: +5 Furtividade; o efeito adicional de afinidade exige configuração própria.';
      if(Object.prototype.hasOwnProperty.call(NEX_OFFICIAL_GRANTED_SKILLS,a.name))return `Poder automático: treino em ${NEX_OFFICIAL_GRANTED_SKILLS[a.name]} ou +2 se já houver treinamento.`;
      return '';
    };
