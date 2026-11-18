@@ -285,6 +285,24 @@
 
 
 
+  /* NPCs têm fundo neutro, sem a carta do elemento, tanto no editor como na ficha. */
+  #homebrewScreen .nex52-form #nex52ThreatFields[data-nex-npc="true"],
+  #homebrewScreen .nex52-form #nex52ThreatFields[data-nex-npc="true"] .nex-hb-threat-edit-header{
+    --nex-threat-bg:none!important;
+    background-image:none!important;
+  }
+  #homebrewScreen .nex-hb-npc-preview,
+  #homebrewScreen .nex-hb-npc-preview .nex-hb-threat-sheet-head{
+    --nex-threat-bg:none!important;
+    background-image:none!important;
+  }
+  #homebrewScreen .nex52-card-npc{
+    background:#170f15!important;
+    background-image:none!important;
+    border:1px solid #61404a!important;
+  }
+  #homebrewScreen .nex52-form #nex52ThreatFields[data-nex-npc="true"] .nex-hb-threat-inline-section[hidden]{display:none!important}
+
   /* Cartas da biblioteca Homebrew com o fundo do respectivo elemento. */
   #homebrewScreen .nex52-card-threat{
     background-color:#170f15!important;
@@ -484,8 +502,18 @@
      if(npc)label.style.setProperty('display','none','important');
      else label.style.removeProperty('display');
    }
-   for(const id of ['presencaPerturbadora','vulnerabilidades','imunidades']){
+   for(const id of ['presencaPerturbadora','vulnerabilidades','imunidades','resistencias']){
      const control=mount.querySelector('[data-nex-threat-text="'+id+'"]');
+     const section=control?.closest('.nex-hb-threat-inline-section');
+     if(section){
+       section.hidden=npc;
+       if(npc)section.style.setProperty('display','none','important');
+       else section.style.removeProperty('display');
+     }
+   }
+   // Remove no NPC as seções completas, e não apenas os respectivos inputs.
+   for(const key of ['fortitude','percepcao']){
+     const control=mount.querySelector('[data-nex-threat-test="'+key+'"]');
      const section=control?.closest('.nex-hb-threat-inline-section');
      if(section){
        section.hidden=npc;
@@ -502,7 +530,7 @@
    $('nex55DescriptionField').hidden=isTrail||type==='ritual';
    if(isThreatType(type))$('nexHbThreatDescriptionSlot').appendChild($('nex55DescriptionField'));
    else $('nexHbDescHome').after($('nex55DescriptionField'));
-   if(isThreatType(type))showThreatEditorTab('status');
+   if(isThreatType(type)){updateThreatBackground();showThreatEditorTab('status');}
    $('nex55DescriptionLabel').textContent=type==='item'?'Descrição (use B, I ou U para formatar)':'Descrição';
    $('nexHbDescriptionToolbar').hidden=true;
    $('nex55RequirementsField').hidden=isTrail||isOrigin||isGeneral||type==='poder_paranormal'||type==='ritual'||type==='item'||type==='melhoria'||type==='maldicao'||isThreatType(type);
@@ -713,7 +741,7 @@
   const key=$('nexHbThreatElement').value;
   const bg=THREAT_BG[key]||THREAT_BG.Medo;
   const panel=$('nex52ThreatFields');
-  panel.style.setProperty('--nex-threat-bg','url("./assets/rituais/'+bg.file+'")');
+  panel.style.setProperty('--nex-threat-bg',$('nex51Type').value==='npc'?'none':'url("./assets/rituais/'+bg.file+'")');
   panel.style.setProperty('--nex-threat-accent',bg.color);
   panel.dataset.threatElement=key;
  }
@@ -812,12 +840,14 @@
   const statPanel='<div class="nex-hb-threat-attribute-bar">'+THREAT_ATTRS.map(([k,label])=>block(k.toUpperCase(),t.attributes[k])).join('')+'</div>'+
     '<div class="nex-hb-threat-main-stats">'+block('Defesa',t.defense)+block('Deslocamento',t.deslocamento||'—')+block('PV máximos',t.pv)+'</div>'+
     (item.type==='npc'?'':note('Presença perturbadora',t.presencaPerturbadora))+
-    '<h4>Testes de resistência</h4>'+[['Fortitude',t.fortitude],['Reflexos',t.reflexos],['Vontade',t.vontade]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
-    '<h4>Sentidos</h4>'+[['Percepção',t.percepcao],['Iniciativa',t.iniciativa]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
-    note('Sentidos especiais',t.sentidos)+note('Resistências',t.resistencias)+(item.type==='npc'?'':note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades));
+    (item.type==='npc'?'':(
+      '<h4>Testes de resistência</h4>'+[['Fortitude',t.fortitude],['Reflexos',t.reflexos],['Vontade',t.vontade]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
+      '<h4>Sentidos</h4>'+[['Percepção',t.percepcao],['Iniciativa',t.iniciativa]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
+      note('Sentidos especiais',t.sentidos)+note('Resistências',t.resistencias)+note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades)
+    ));
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+note('Enigma de Medo',t.enigma);
-  return '<section class="nex-hb-threat-sheet" data-nex-threat-preview style="--nex-threat-bg:url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;);--nex-threat-accent:'+esc(threatBg.color)+'">'+
+  return '<section class="nex-hb-threat-sheet'+(item.type==='npc'?' nex-hb-npc-preview':'')+'" data-nex-threat-preview style="--nex-threat-bg:'+(item.type==='npc'?'none':'url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;)')+';--nex-threat-accent:'+esc(threatBg.color)+'">'+
    '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem de '+esc(LABEL[item.type])+'">':'')+
      '<div><small>'+esc(item.type==='npc'?'NPC HOMEBREW':'AMEAÇA HOMEBREW')+'</small><h2>'+esc(item.name)+'</h2>'+(item.type==='npc'?'':'<p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span>')+'</div></div>'+
    '<div class="nex-hb-threat-pv">'+esc(t.pv)+' PV</div>'+
@@ -962,11 +992,11 @@
  function card(item){
    const details=meta(item);
    const threat=isThreatType(item.type);
-   const bg=threat?(THREAT_BG[item.threatSheet?.element]||THREAT_BG.Sangue):null;
+   const bg=item.type==='ameaca'?(THREAT_BG[item.threatSheet?.element]||THREAT_BG.Sangue):null;
    const theme=bg?' style="--nex-threat-card-bg:url(&quot;./assets/rituais/'+esc(bg.file)+'&quot;);--nex-threat-card-accent:'+esc(bg.color)+'"':'';
    const portrait=threat&&item.image?'<img class="nex-hb-threat-card-portrait" src="'+esc(item.image)+'" alt="" loading="lazy">':'';
-   const tag=threat?'<span class="nex-hb-threat-card-element">'+esc(item.threatSheet?.element||'Sangue')+'</span>':'';
-   return '<article class="nex52-card nex52-card-'+(threat?'threat':item.type==='ritual'?'ritual':item.type==='item'?'item':'ability')+'"'+theme+'>'+
+   const tag=item.type==='ameaca'?'<span class="nex-hb-threat-card-element">'+esc(item.threatSheet?.element||'Sangue')+'</span>':'';
+   return '<article class="nex52-card nex52-card-'+(item.type==='npc'?'npc':threat?'threat':item.type==='ritual'?'ritual':item.type==='item'?'item':'ability')+'"'+theme+'>'+
     portrait+'<div class="nex52-card-data"><strong>'+esc(item.name)+'</strong>'+tag+'<span>'+esc(details[0])+'</span><span>'+esc(details[1])+'</span></div>'+
     '<div class="nex52-card-controls"><button type="button" data-nex52-settings="'+esc(item.id)+'" class="nex52-gear" aria-label="Opções para '+esc(item.name)+'" aria-expanded="false">⚙</button>'+
     '<div class="nex52-settings" data-nex52-menu="'+esc(item.id)+'" hidden><button type="button" data-nex52-share="'+esc(item.id)+'">Compartilhar</button><button type="button" data-nex52-delete="'+esc(item.id)+'">Excluir</button></div>'+
