@@ -1539,7 +1539,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      btn('Limpar medições',()=>{scene.drawings=scene.drawings.filter(x=>x.type!=='measure');render();save();});
    }
    if(section==='grid'){
-     const grid=document.createElement('input');grid.type='checkbox';grid.checked=scene.gridVisible;control('Exibir grade ',grid);grid.onchange=()=>{scene.gridVisible=grid.checked;render();save();};
+     
      const fog=document.createElement('input');fog.type='checkbox';fog.checked=scene.fogEnabled;control('Névoa de guerra ',fog);fog.onchange=()=>{scene.fogEnabled=fog.checked;render();save();};
      btn('Reiniciar névoa',()=>{scene.revealed=[];render();save();});
      const color=document.createElement('input');color.type='color';color.value=vttColor;control('Cor ',color);color.oninput=()=>{vttColor=color.value;};
