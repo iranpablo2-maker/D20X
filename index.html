@@ -4560,29 +4560,37 @@ function abilityRecords(){
    if(!button)return;
    event.preventDefault();event.stopImmediatePropagation();
    const name=button.dataset.nexSkillRoll;
-   const skill=state.skills?.[name];
-   const definition=SKILL_DATA.find(x=>x[0]===name);
+   const pending=state.nexAutoPending?.skill===name?state.nexAutoPending:null;
+   const calculationName=pending?.replaceWith||name;
+   const skill=state.skills?.[calculationName];
+   const definition=SKILL_DATA.find(x=>x[0]===calculationName);
    if(!definition||!skill)return;
    const hb=nexHomebrewBonuses();
-   const specific=({Iniciativa:'iniciativa',Fortitude:'fortitude',Reflexos:'reflexos',Vontade:'vontade'})[name];
+   const specific=({Iniciativa:'iniciativa',Fortitude:'fortitude',Reflexos:'reflexos',Vontade:'vontade'})[calculationName];
    const official=nexOfficialPassiveBonuses();
-   const resistance=['Fortitude','Reflexos','Vontade'].includes(name)?official.defensiveReflexes:0;
-   const training=int(skill.training),others=int(skill.other)+(nexItemBonuses().skills[name]||0)+(hb.pericia||0)+(specific?(hb[specific]||0):0)+resistance+(name==='Iniciativa'?official.initiative:0)+nexOfficialSkillBonus(name)+nexOfficialGrantedSkillBonus(name,training);
-   const attr=name==='Vontade'&&official.rational?'int':(skill.attr in state.attributes?skill.attr:definition[1]);
+   const resistance=['Fortitude','Reflexos','Vontade'].includes(calculationName)?official.defensiveReflexes:0;
+   const training=int(skill.training),others=int(skill.other)+(nexItemBonuses().skills[calculationName]||0)+(hb.pericia||0)+(specific?(hb[specific]||0):0)+resistance+(calculationName==='Iniciativa'?official.initiative:0)+nexOfficialSkillBonus(calculationName)+nexOfficialGrantedSkillBonus(calculationName,training)+Number(pending?.bonus||0);
+   const attr=calculationName==='Vontade'&&official.rational?'int':(skill.attr in state.attributes?skill.attr:definition[1]);
    const count=clamp(int(state.attributes[attr])+(attr==='pre'?nexItemBonuses().presence:0),0,9);
-   if(mustTrain.has(name)&&training<=0&&!nexOfficialGrantedSkillBonus(name,training)){
+   if(mustTrain.has(calculationName)&&training<=0&&!nexOfficialGrantedSkillBonus(calculationName,training)&&!pending?.bonus){
      show(button,name,'Teste indisponível','Esta perícia exige treinamento.',null,true);
      return;
    }
-   const extraDice=count>0?nexOfficialExtraSkillDie(name):0;
+   const extraDice=count>0?nexOfficialExtraSkillDie(calculationName):0;
    const rolls=Array.from({length:count===0?2:count+extraDice},rollDie20);
    const chosen=count===0?Math.min(...rolls):Math.max(...rolls);
    const bonus=training+others;
    const result=chosen+bonus;
    const expression=count===0?'2d20 (menor)':(count+extraDice)+'d20 (maior)';
-   const detail='['+rolls.join(', ')+'] → '+chosen+(bonus<0?' − ':' + ')+Math.abs(bonus)+' · '+(ATTRIBUTE_NAMES[attr]||attr)+' '+count+' · Treino '+training+' · Outros '+others;
-   logResult(name,expression+(bonus>=0?' + ':' - ')+Math.abs(bonus),'['+rolls.join(', ')+'] → '+chosen,result);
-   show(button,name,expression,detail,result,false,chosen);
+   const detail='['+rolls.join(', ')+'] → '+chosen+(bonus<0?' − ':' + ')+Math.abs(bonus)+' · '+(ATTRIBUTE_NAMES[attr]||attr)+' '+count+' · Treino '+training+' · Outros '+others+(pending?' · Habilidade: '+pending.name:'');
+   const label=pending?.replaceWith?name+' (usando '+calculationName+')':name;
+   logResult(label,expression+(bonus>=0?' + ':' - ')+Math.abs(bonus),'['+rolls.join(', ')+'] → '+chosen,result);
+   show(button,label,expression,detail,result,false,chosen);
+   if(pending){
+     state.nexAutoPending=null;
+     if(pending.onceScene){state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),[pending.id]:true};}
+     save();renderStats();
+   }
  },true);
 })();
 </script>
