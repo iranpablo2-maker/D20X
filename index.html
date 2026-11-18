@@ -5062,6 +5062,9 @@ const PARANORMAL=[
   return false;
  }
  function eligibility(d){
+  // Poderes oficiais de classe (incluindo Arquivos Secretos) sao exclusivos da classe correspondente.
+  // Poderes gerais, paranormais, origens e regras proprias de Homebrew continuam independentes.
+  if(['Combatente','Especialista','Ocultista'].includes(d.cat) && d.cat!==state.class)return 'Exclusivo de '+d.cat;
   if(d.trail){if(d.cls!==state.class)return 'Outra classe';if((state.trailByClass?.[state.class]||'')!==d.trail)return 'Outra trilha';if(Number(state.nex)<d.req)return 'NEX '+d.req+'%';}
   else if(d.key.startsWith('power:') && Number(state.nex)<15)return 'NEX 15%';
   else if(d.cat==='Poderes Paranormais' && Number(state.nex)<15)return 'NEX 15%';
