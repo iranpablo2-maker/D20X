@@ -1011,7 +1011,7 @@
       (!expanded?'<div class="nex-hb-threat-action-controls"><button type="button" class="btn sm" data-threat-edit="'+i+'">Editar</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div>':'')+
     '</div>'+
     (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
-     fields.map(([k,label])=>'<label>'+(npc&&kind==='attack'&&k==='test'?'Teste (perícia)':label)
+     fields.map(([k,label])=>'<label>'+(npc&&kind==='attack'&&k==='test'?'Teste (perícia)':label)+
       (npc&&kind==='attack'&&k==='test'?
         selectField('testSkill',['',...skillOptions,...(npcTestSkill&&!skillOptions.includes(npcTestSkill)?[npcTestSkill]:[])],npcTestSkill)+
         (npcTestPreview?'<small class="nex-hb-npc-test-preview">'+esc(npcTestPreview)+'</small>':''):
