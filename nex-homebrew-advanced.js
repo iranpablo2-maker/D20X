@@ -37,6 +37,7 @@
  const THREAT_NUMERIC=[['defense','Defesa'],['pv','Pontos de Vida']];
  const THREAT_TESTS=[['fortitude','Fortitude'],['reflexos','Reflexos'],['vontade','Vontade'],['iniciativa','Iniciativa'],['percepcao','Percepção']];
  const NPC_SKILLS=['Acrobacia','Adestramento','Artes','Atletismo','Atualidades','Ciências','Crime','Diplomacia','Enganação','Fortitude','Furtividade','Iniciativa','Intimidação','Intuição','Investigação','Luta','Medicina','Ocultismo','Percepção','Pilotagem','Pontaria','Profissão','Reflexos','Religião','Sobrevivência','Tática','Tecnologia','Vontade'];
+ const NPC_D20_ICON='data:image/png;base64,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';
  const NPC_SKILL_ATTR={
    'Acrobacia':'agi','Adestramento':'pre','Artes':'pre','Atletismo':'for','Atualidades':'int',
    'Ciências':'int','Crime':'agi','Diplomacia':'pre','Enganação':'pre','Fortitude':'vig',
@@ -366,7 +367,11 @@
   #homebrewScreen .nex-hb-npc-roll:hover{background:#48222b55;color:white}
   #homebrewScreen .nex-hb-npc-roll-name{font-size:12px;font-weight:800;flex:1;letter-spacing:.025em}
   #homebrewScreen .nex-hb-npc-roll-expression{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
-  #homebrewScreen .nex-hb-npc-dice-icon{font-size:18px;color:#ef7481}
+  #homebrewScreen .nex-hb-npc-roll{display:grid!important;grid-template-columns:minmax(0,1fr) auto 22px!important;gap:10px!important;align-items:center!important}
+  #homebrewScreen .nex-hb-npc-roll-name{font-size:12px!important;font-weight:750!important;white-space:normal!important}
+  #homebrewScreen .nex-hb-npc-roll-expression{font-size:12px!important;font-weight:800!important;white-space:nowrap!important}
+  #homebrewScreen .nex-hb-npc-d20-image{display:block!important;width:16px!important;height:18px!important;object-fit:contain!important;pointer-events:none!important;justify-self:center!important}
+  #homebrewScreen .nex-hb-npc-roll:focus-visible{outline:2px solid #ee8b93!important;outline-offset:2px!important}
   #homebrewScreen .nex-hb-npc-roll-result{padding:10px 12px;border:1px solid #70424a;border-radius:6px;background:#24151c;color:#fff;overflow-wrap:anywhere;font-size:12px}
   #homebrewScreen .nex-hb-npc-roll-result[hidden]{display:none!important}
   /* NPCs têm fundo neutro, sem a carta do elemento, tanto no editor como na ficha. */
@@ -993,7 +998,13 @@
     '<h4>Perícias</h4>'+(t.npcSkills.length?t.npcSkills.map((row,index)=>{
       const dice=npcSkillDice(row,t.attributes);
       const formula=dice.count+'d20'+(row.bonus>=0?'+':'')+row.bonus;
-      return '<div class="nex-hb-npc-roll-row"><button type="button" class="nex-hb-npc-roll" data-npc-roll="'+index+'" aria-label="Rolar '+esc(row.name)+' ('+esc(formula)+')"><span class="nex-hb-npc-roll-name">'+esc(row.name.toUpperCase())+'</span><span class="nex-hb-npc-roll-expression">'+esc(formula)+'</span><span class="nex-hb-npc-dice-icon" aria-hidden="true">⚄</span></button></div>';
+      const name=row.name+' ('+dice.attribute.toUpperCase()+')';
+      return '<div class="nex-hb-npc-roll-row">'+
+        '<button type="button" class="nex-hb-npc-roll" data-npc-roll="'+index+'" aria-label="Rolar '+esc(name)+' '+esc(formula)+'">'+
+          '<span class="nex-hb-npc-roll-name">'+esc(name)+'</span>'+
+          '<span class="nex-hb-npc-roll-expression">'+esc(formula)+'</span>'+
+          '<img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true">'+
+        '</button></div>';
     }).join(''):'<p>Nenhuma perícia selecionada.</p>')+'<p class="nex-hb-npc-roll-result" id="nexHbNpcRollResult" role="status" aria-live="polite" hidden></p>':'';
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+note('Enigma de Medo',t.enigma);
