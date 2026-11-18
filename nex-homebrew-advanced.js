@@ -81,6 +81,7 @@
     name:cut(a?.name||'',90),action:cut(a?.action??'Padrão',60),
     kind:a?.kind==='ability'||a?.kind==='attack'?a.kind:(a?.damage||a?.secondaryDamage?'attack':'ability'),
     test:cut(a?.test||'',80),testSkill:NPC_SKILLS.includes(a?.testSkill)?a.testSkill:'',damage:cut(a?.damage||'',80),secondaryDamage:cut(a?.secondaryDamage||'',80),secondaryType:cut(a?.secondaryType||'Normal',40),
+    subtitle:cut(a?.subtitle||'',90),critical:cut(a?.critical??'20',8),damageType:cut(a?.damageType||'Corte',40),
     range:cut(a?.range||'',70),effect:cut(a?.effect||'',1000)
   })).filter(a=>a.name):[];
   return out;
@@ -404,7 +405,12 @@
     }
   }
   #homebrewScreen .nex-hb-npc-test-preview{display:block;padding:4px 0;color:#e2a9b6;font-size:11px}
-  #homebrewScreen .nex-hb-npc-action-buttons{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+  #homebrewScreen .nex-hb-npc-attack-editor .nex-hb-threat-action-summary{align-items:flex-start}
+  #homebrewScreen .nex-hb-npc-attack-summary{display:flex;flex-direction:column;gap:4px;align-items:flex-start;min-width:0;padding:3px 0}
+  #homebrewScreen .nex-hb-npc-attack-summary strong{color:#f6e6e9;font-size:12px;letter-spacing:.025em}
+  #homebrewScreen .nex-hb-npc-attack-summary span{color:#e0d4d6;font-size:12px;font-weight:650}
+  #homebrewScreen .nex-hb-npc-attack-summary small{color:#c6b9be;font-size:11px;white-space:normal;line-height:1.5}
+    #homebrewScreen .nex-hb-npc-action-buttons{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
     #homebrewScreen .nex-hb-npc-action-group{margin:10px 0 20px;padding:12px;border:1px solid #58313f;border-radius:8px;background:#1c1218}
   #homebrewScreen .nex-hb-npc-action-group-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
   #homebrewScreen .nex-hb-npc-action-group h4{margin:0 0 4px;font-size:15px;color:#f5d9e1}
@@ -1014,7 +1020,11 @@
    const expanded=openThreatActionIndex===i;
    const kind=kindFor(a);
    const title=[a.action,a.name||'Sem nome'].filter(Boolean).join(' — ');
-   const attackFields=[['name','Nome'],['action','Tipo de ação'],['test','Teste (opcional)'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Descrição / efeito']];
+   const attackFields=npc?[
+     ['name','Nome do ataque'],['action','Tipo de ação'],['subtitle','Arma / subtítulo'],['range','Alcance'],
+     ['test','Teste (perícia)'],['critical','Crítico'],['damage','Dano'],['damageType','Tipo do dano'],
+     ['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['effect','Descrição / efeito']
+   ]:[['name','Nome'],['action','Tipo de ação'],['test','Teste (opcional)'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Descrição / efeito']];
    const abilityFields=[['name','Nome da habilidade'],['action','Ativação (opcional)'],['test','Rolagem (opcional)'],['effect','Descrição / efeito']];
    const fields=npc&&kind==='ability'?abilityFields:attackFields;
    const skillOptions=['Luta','Pontaria'];
@@ -1024,9 +1034,16 @@
    const skillEntry=skillOptions.includes(npcTestSkill)?(npcSkillRows.find(r=>r.name===npcTestSkill)||{name:npcTestSkill,bonus:0}):null;
    const npcTestPreview=skillEntry?npcSkillDice(skillEntry,currentNpcAttributes()).count+'d20'+
       (skillEntry.bonus>=0?'+':'')+skillEntry.bonus:'';
-   return '<div class="nex-hb-threat-action-editor" data-threat-row="'+i+'">'+
+   const isNpcAttack=npc&&kind==='attack';
+   const compactSummary=isNpcAttack?
+     '<span class="nex-hb-npc-attack-summary"><strong>'+esc((a.action||'Padrão').toUpperCase())+' ◆ '+esc((a.name||'Novo ataque').toUpperCase())+'</strong>'+
+       (a.subtitle||a.range?'<span>'+esc((a.subtitle||'').toUpperCase())+' '+esc(a.range||'')+'</span>':'')+
+       '<small>Teste '+esc(a.testSkill||'Luta')+' '+esc(npcTestPreview||'—')+', crítico '+esc(a.critical||'20')+
+       ' | Dano '+esc(a.damage||'—')+' '+esc((a.damageType||'Corte').toLowerCase())+'</small></span>':
+     '<strong>'+esc(title)+'</strong>';
+   return '<div class="nex-hb-threat-action-editor'+(isNpcAttack?' nex-hb-npc-attack-editor':'')+'" data-threat-row="'+i+'">'+
     '<div class="nex-hb-threat-action-summary">'+
-      '<button type="button" class="nex-hb-threat-action-toggle" data-threat-toggle="'+i+'" aria-expanded="'+expanded+'"><strong>'+esc(title)+'</strong><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
+      '<button type="button" class="nex-hb-threat-action-toggle" data-threat-toggle="'+i+'" aria-expanded="'+expanded+'">'+compactSummary+'<span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
       (!expanded?'<div class="nex-hb-threat-action-controls"><button type="button" class="btn sm" data-threat-edit="'+i+'">Editar</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div>':'')+
     '</div>'+
     (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
@@ -1037,8 +1054,9 @@
        npc&&kind==='attack'&&k==='action'?
         selectField('action',['','Padrão','Movimento','Completa','Reação','Livre',...(a.action&&!['Padrão','Movimento','Completa','Reação','Livre'].includes(a.action)?[a.action]:[])],a.action||''):
        npc&&kind==='attack'&&k==='range'?
-        selectField('range',['','Pessoal','Toque','Curto','Médio','Longo','Extremo','Ilimitado',...(a.range&&!['Pessoal','Toque','Curto','Médio','Longo','Extremo','Ilimitado'].includes(a.range)?[a.range]:[])],a.range||''):
+        selectField('range',['','Corpo a corpo','Pessoal','Toque','Curto','Médio','Longo','Extremo','Ilimitado',...(a.range&&!['Corpo a corpo','Pessoal','Toque','Curto','Médio','Longo','Extremo','Ilimitado'].includes(a.range)?[a.range]:[])],a.range||''):
        k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="3">'+esc(a[k]||'')+'</textarea>':
+       k==='damageType'?selectField('damageType',['Corte','Perfuração','Impacto','Balístico','Fogo','Frio','Eletricidade','Químico','Mental','Sangue','Morte','Conhecimento','Energia','Medo','Outros',...(a.damageType&&!['Corte','Perfuração','Impacto','Balístico','Fogo','Frio','Eletricidade','Químico','Mental','Sangue','Morte','Conhecimento','Energia','Medo','Outros'].includes(a.damageType)?[a.damageType]:[])],a.damageType||'Corte'):
        k==='secondaryType'?'<select data-threat-key="secondaryType" aria-label="Tipo do dano secundário">'+
          [...new Set(['Normal','Corte','Perfuração','Impacto','Balístico','Fogo','Frio','Eletricidade','Químico','Mental','Sangue','Morte','Conhecimento','Energia','Medo','Outros',a.secondaryType].filter(Boolean))].map(option=>'<option value="'+esc(option)+'"'+(option===(a.secondaryType||'Normal')?' selected':'')+'>'+esc(option)+'</option>').join('')+
          '</select>':
@@ -1099,7 +1117,7 @@
    if(threatActions.length>=12){message('Limite de 12 habilidades e ataques para esta ficha.');return;}
    const kind=btn.dataset.npcAddKind;
    if(kind!=='ability'&&kind!=='attack')return;
-   threatActions.push({kind,name:kind==='ability'?'Nova habilidade':'Novo ataque',action:'',test:'',testSkill:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});
+   threatActions.push({kind,name:kind==='ability'?'Nova habilidade':'Agredir',action:kind==='attack'?'Padrão':'',subtitle:'',critical:'20',damageType:'Corte',test:'',testSkill:kind==='attack'?'Luta':'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:kind==='attack'?'Corpo a corpo':'',effect:''});
    openThreatActionIndex=threatActions.length-1;renderThreatActions();return;
   }
   if(btn.hasAttribute('data-threat-delete')){
