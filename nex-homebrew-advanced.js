@@ -660,11 +660,10 @@
    $('nexHbNpcSkillsSection').hidden=!npc;
    const abilityPanel=mount.querySelector('[data-threat-editor-panel="combate"]');
    const abilityHeading=abilityPanel?.querySelector('h4');
-   if(abilityHeading)abilityHeading.textContent=npc?'Habilidades e ações':'Ações e ataques';
+   if(abilityHeading)abilityHeading.textContent='Habilidades e ações';
    $('nexHbThreatAddAction').textContent='+ Adicionar ação';
-   $('nexHbThreatAddAction').hidden=npc;
-   if(npc)$('nexHbThreatAddAction').style.setProperty('display','none','important');
-   else $('nexHbThreatAddAction').style.removeProperty('display');
+   $('nexHbThreatAddAction').hidden=true;
+   $('nexHbThreatAddAction').style.setProperty('display','none','important');
    renderThreatActions();
    for(const id of ['nex52CreatureType','nex52Size','nexHbThreatElement','nex52VD']){
      const label=$(id).closest('label');
@@ -700,7 +699,7 @@
      else enigmaSection.style.removeProperty('display');
    }
    const combatTab=mount.querySelector('[data-threat-editor-tab="combate"]');
-   if(combatTab)combatTab.textContent=npc?'HABILIDADES/COMBATE':'COMBATE';
+   if(combatTab)combatTab.textContent='HABILIDADES/COMBATE';
    const descriptionHeading=$('nexHbThreatDescriptionSlot').parentElement.querySelector('h4');
    if(descriptionHeading)descriptionHeading.textContent=npc?'Descrição do NPC':'Descrição da ameaça';
    if(isThreatType(type)){$('nexHbThreatNameSlot').appendChild($('nex53NameField'));$('nex52Editor').classList.add('nex-hb-editing-threat');}else{$('nex55TypeField').after($('nex53NameField'));$('nex52Editor').classList.remove('nex-hb-editing-threat');}
@@ -1011,7 +1010,7 @@
  let openNpcAttackDescriptionIndex=null;
  function refreshNpcAttackTestPreviews(){
   const root=$('nexHbThreatActions');
-  if(!root||$('nex51Type').value!=='npc')return;
+  if(!root||!isThreatType($('nex51Type').value))return;
   const attributes=currentNpcAttributes();
   root.querySelectorAll('[data-npc-attack-test-preview]').forEach(el=>{
    const index=Number(el.dataset.npcAttackTestPreview);
@@ -1027,7 +1026,7 @@
  }
  function renderThreatActions(){
   const el=$('nexHbThreatActions');if(!el)return;
-  const npc=$('nex51Type').value==='npc';
+  const npc=isThreatType($('nex51Type').value);
   const kindFor=a=>a.kind==='attack'||a.kind==='ability'?a.kind:(a.damage||a.secondaryDamage?'attack':'ability');
   const row=(a,i)=>{
    const expanded=openThreatActionIndex===i;
@@ -1156,7 +1155,7 @@
   if(btn.hasAttribute('data-threat-toggle')){
     const index=Number(btn.dataset.threatToggle);
     const action=threatActions[index];
-    if($('nex51Type').value==='npc'&&(action?.kind==='attack'||action?.kind==='ability')){
+    if(isThreatType($('nex51Type').value)&&(action?.kind==='attack'||action?.kind==='ability')){
       openNpcAttackDescriptionIndex=openNpcAttackDescriptionIndex===index?null:index;
       openThreatActionIndex=null;
     }else{
@@ -1256,7 +1255,7 @@
      (extractNpcDiceFormula(a.effect)?actionDiceButton('Rolar efeito',a.effect,index,'effect'):'')+
      '<p class="nex-hb-action-roll-result" role="status" aria-live="polite" hidden></p></div>';
   };
-  const combatPanel=item.type==='npc'?
+  const combatPanel=isThreatType(item.type)?
     ['ability','attack'].map(kind=>{
      const entries=t.actions.map((a,index)=>({a,index})).filter(({a})=>(a.kind==='attack'||a.kind==='ability'?a.kind:(a.damage||a.secondaryDamage?'attack':'ability'))===kind);
      return '<section class="nex-hb-npc-action-group"><h4>'+(kind==='ability'?'Habilidades':'Ataques')+'</h4>'+
