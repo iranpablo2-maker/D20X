@@ -3080,13 +3080,21 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
     close.addEventListener('click',()=>{
       if(nexCampaignLiveEdit)finishCampaignLiveEdit();
       else persist();
-      visible('campaigns');
-      // A ficha abriu a partir do painel de personagens da mesa.
-      // Devolver o foco à lista da mesma campanha sem desmontar o Tabletop.
+      // Fechar o menu Fichas ANTES de revelar a mesa, sem depender da ordem
+      // de atualização do iframe. A sessão e o mapa permanecem carregados.
       const frame=$('nexCampaignRoomFrame');
-      if(frame?.contentWindow && $('campaignPanel')?.classList.contains('nex-tabletop-expanded')){
-        frame.contentWindow.postMessage({type:'nex-campaign-return-to-characters-panel'},location.origin);
+      if(frame?.contentWindow){
+        try{
+          const inner=frame.contentDocument;
+          const menu=inner?.getElementById('nexVttMainMenu');
+          if(menu){menu.hidden=true;menu.style.setProperty('display','none','important');}
+          inner?.getElementById('nexVttSheetsPanel')?.setAttribute('hidden','');
+          const toggle=inner?.getElementById('nexVttSheetsCornerToggle');
+          if(toggle)toggle.setAttribute('aria-expanded','false');
+        }catch(error){console.warn('NEX: fechamento visual do menu via iframe',error);}
+        frame.contentWindow.postMessage({type:'nex-campaign-return-to-tabletop'},location.origin);
       }
+      visible('campaigns');
     });
     document.body.append(close);
   }
