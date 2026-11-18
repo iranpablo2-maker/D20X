@@ -1666,7 +1666,15 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #room .nex-character-meta-label{color:#c7b1b7;font-size:11px;line-height:1.25}
 #room .nex-character-meta-value{color:#fff;font-size:13px;font-weight:700;line-height:1.3;overflow-wrap:anywhere}
 #room .nex-character-meta-editors{color:#d2bcc2;font-size:11px;line-height:1.35;overflow-wrap:anywhere}
-#room #roomManageTab[aria-pressed="true"]{border-color:#df5062;background:#692736}
+#room #roomManagePanel.nex-players-manager{margin-top:18px;border:1px solid #723642;border-radius:8px;background:#151115;overflow:hidden}
+#room #roomManagePanel.nex-players-manager>summary{display:flex;align-items:center;gap:10px;padding:13px 15px;cursor:pointer;list-style:none;color:#f9e9ed;font-size:14px;font-weight:700}
+#room #roomManagePanel.nex-players-manager>summary::-webkit-details-marker{display:none}
+#room #roomManagePanel.nex-players-manager>summary .badge{margin-left:auto}
+#room #roomManagePanel .nex-players-manager-arrow{color:#f06473;font-size:21px;line-height:1;transition:transform .15s}
+#room #roomManagePanel[open] .nex-players-manager-arrow{transform:rotate(180deg)}
+#room #roomManagePanel .nex-players-manager-content{padding:4px 15px 16px;border-top:1px solid #50303b}
+#room #roomManagePanel.nex-players-manager>summary:focus-visible{outline:2px solid #ee6071;outline-offset:-3px}
+
 /* Layout de referência: cartão 354 x 196, foto superior esquerda e dados alinhados. */
 #room .nex-character-grid{
  display:grid;
@@ -2619,7 +2627,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-room-section="characters" aria-pressed="true">Personagens</button>
     <button type="button" data-room-section="players" aria-pressed="false">Jogadores</button>
     <button type="button" data-room-section="combats" aria-pressed="false">Combates</button>
-    <button type="button" data-room-section="manage" id="roomManageTab" aria-pressed="false" class="hide">Gerenciar Jogadores</button>
     <button type="button" data-room-section="master" id="roomMasterTab" aria-pressed="false" class="hide">Escudo do Mestre</button>
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
@@ -2686,15 +2693,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
      <div class="room-panel-head"><h3>Combates</h3></div>
      <div id="roomCombats" class="campaign-combats"><p>Nenhum combate cadastrado.</p></div><div id="roomCombatFeedback" role="status" class="room-note"></div>
    </section>
-   <section id="roomManagePanel" class="room-panel hide">
- <div class="room-panel-head"><h2>Gerenciar Jogadores</h2><span class="badge">Só o mestre</span></div>
- <p class="room-note">Controle participantes, limites, vagas, permissões e personagens nesta aba exclusiva do mestre.</p>
- <div class="nex-manager-group"><h3>Jogadores e limites de fichas</h3><div id="gmSlotLimits" class="grid room-members"></div></div>
- <div class="nex-manager-group"><h3>Pedidos de vagas extras</h3><div id="gmSlotRequests" class="grid room-members"></div></div>
- <div class="nex-manager-group"><h3>Responsáveis e permissões das fichas</h3><p class="room-note">O proprietário mantém sua ficha na conta NEX. O responsável atribuído pode editar a ficha na campanha; o mestre também pode editar.</p><div id="gmSheetAssignments" class="grid room-members"></div></div>
- <div id="gmOnly" class="nex-manager-group"><h3>Solicitações de entrada</h3><div id="joinRequests" class="grid room-members"><p>Nenhuma solicitação pendente.</p></div></div>
- </section>
- <div id="roomMasterPanel" class="room-panel hide"><h3>Escudo do Mestre</h3><p class="room-note">As permissões e o gerenciamento dos jogadores agora ficam na aba Gerenciar Jogadores.</p></div>
+ <div id="roomMasterPanel" class="room-panel hide"><h3>Escudo do Mestre</h3><p class="room-note">As permissões e o gerenciamento dos participantes ficam em Jogadores → Gerenciar Jogadores.</p></div>
    <div class="room-invite" id="roomInvitePanel">
     <div><small>Convide seus jogadores com um link</small><span class="room-invite-label">Somente o mestre pode aprovar novos participantes.</span><code id="roomCode" class="code hide"></code></div>
     <div class="room-invite-copy"><input id="roomInviteLink" type="text" readonly aria-label="Link de convite" title="Link de convite da campanha"><button class="alt" id="copyCode" type="button">Copiar convite</button></div>
@@ -2702,6 +2701,16 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <section id="roomPlayersPanel" class="room-panel">
     <div class="room-panel-head"><h3>Jogadores</h3><button id="leaveCampaign" type="button" class="alt hide">Sair da campanha</button></div>
     <div id="members" class="grid room-members"></div>
+    <details id="roomManagePanel" class="nex-players-manager hide">
+     <summary><span>Gerenciar Jogadores</span><span class="badge">Só o mestre</span><span class="nex-players-manager-arrow" aria-hidden="true">⌄</span></summary>
+     <div class="nex-players-manager-content">
+      <p class="room-note">Controle participantes, limites, vagas, permissões e personagens nesta seção exclusiva do mestre.</p>
+      <div class="nex-manager-group"><h3>Jogadores e limites de fichas</h3><div id="gmSlotLimits" class="grid room-members"></div></div>
+      <div class="nex-manager-group"><h3>Pedidos de vagas extras</h3><div id="gmSlotRequests" class="grid room-members"></div></div>
+      <div class="nex-manager-group"><h3>Responsáveis e permissões das fichas</h3><p class="room-note">O proprietário mantém sua ficha na conta NEX. O responsável atribuído pode editar a ficha na campanha; o mestre também pode editar.</p><div id="gmSheetAssignments" class="grid room-members"></div></div>
+      <div id="gmOnly" class="nex-manager-group"><h3>Solicitações de entrada</h3><div id="joinRequests" class="grid room-members"><p>Nenhuma solicitação pendente.</p></div></div>
+     </div>
+    </details>
    </section>
    <section id="roomCharactersPanel" class="room-panel">
     <div class="room-panel-head"><h2>Personagens</h2><button id="newSheet">Criar ficha simples</button></div>
@@ -3390,8 +3399,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(!vttHostActive&&!$('roomTabletopPanel').classList.contains('hide'))roomSection('characters');
  });
  function roomSection(section){
-  const allowed=['characters','master','manage','players','invites','combats','tabletop'];
-  if(!allowed.includes(section)||(['master','manage','invites'].includes(section)&&!gm))section='characters';
+  if(section==='manage')section='players'; // Compatibilidade com navegação anterior.
+  const allowed=['characters','master','players','invites','combats','tabletop'];
+  if(!allowed.includes(section)||(['master','invites'].includes(section)&&!gm))section='characters';
   if(section==='tabletop'&&!gm&&!vttHostActive){
    updateTabletopAccess();
    notice('O mestre ainda não abriu o Tabletop. Aguarde o mestre iniciar a mesa.');
@@ -3412,7 +3422,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomPlayersPanel',section==='players');
   show('roomInvitePanel',section==='invites'&&gm);
   show('roomMasterPanel',section==='master'&&gm);
-  show('roomManagePanel',section==='manage'&&gm);
+  show('roomManagePanel',section==='players'&&gm);
  }
  document.querySelectorAll('[data-room-section]').forEach(button=>button.addEventListener('click',()=>roomSection(button.dataset.roomSection)));
  // Vincular a abertura da mesa antes de inicializar os paineis opcionais (como Chat).
@@ -4236,7 +4246,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('leaveCampaign',!gm);
   updateRoomCover();
   subscribeTabletop(id);
-  show('roomMasterTab',gm);show('roomManageTab',gm);roomSection('characters');refreshNexAgents();
+  show('roomMasterTab',gm);roomSection('characters');refreshNexAgents();
   // A permissão de combates é independente da das fichas; falhas ficam restritas à aba.
   unsubs.push(onSnapshot(collection(db,'campaigns',id,'combats'),snapshot=>{
     roomCombats=snapshot.docs.map(d=>({id:d.id,...d.data()}));renderCombats();
