@@ -4582,6 +4582,20 @@ Object.assign(NEX_ABILITY_EXPLANATIONS,{
  "Vitalidade Reforçada": "Aumenta progressivamente os PV máximos em função do NEX e concede bônus de Fortitude. O cálculo é passivo, devendo ser removido quando o poder deixar de integrar a ficha.",
  "Vontade Inabalável": "Aumenta progressivamente os PE máximos e concede bônus em Vontade. O crescimento depende do NEX e não significa que os PE atuais sejam recuperados ao retirar e recolocar o poder."
 });
+Object.assign(NEX_ABILITY_EXPLANATIONS,{
+ "Identificação Macabra": "O ocultista utiliza conhecimento de maldições para examinar manifestações ou objetos ligados ao paranormal. O dado adicional se aplica à identificação elegível com custo de PE; não é somado a qualquer teste de Ocultismo.",
+ "Compreensão de Maldições": "Durante um interlúdio, o personagem pode estudar um item amaldiçoado e realizar um procedimento relacionado ao ritual ou à maldição nele contidos. A decisão envolve PE, teste e riscos próprios, devendo manter o item e o resultado registrados.",
+ "Reproduzir Maldição": "Permite preparar uma reprodução temporária de uma maldição já conhecida em outro equipamento nas condições do interlúdio. A maldição original precisa ser identificada e a nova aplicação deve ter duração e custo acompanhados.",
+ "Maldição Suprema": "Aprimora o uso da capacidade de reproduzir maldições e afeta a categoria efetiva do item nas condições da trilha. O cálculo pertence ao item submetido ao procedimento e continua sujeito ao limite de categoria final.",
+ "Ser Experimentado": "Inicia a transformação da trilha Monstruoso do Especialista com a escolha de um elemento. Os benefícios são vinculados à escolha e às condições diárias da transformação, que devem ser acompanhadas junto com as penalidades sociais. Não existe um valor único aplicável a todos os elementos.",
+ "Ser Testado": "Amplia a manifestação elementar escolhida no estágio inicial da trilha. Como Sangue, Morte, Conhecimento e Energia possuem efeitos diferentes, o personagem deve manter a variante selecionada e consultar seus parâmetros específicos, sem somar todas as opções.",
+ "Ser Expurgado": "A transformação ganha novas possibilidades ligadas ao elemento inicial. O efeito depende da variante, e certas circunstâncias desfavoráveis podem limitar seu uso em confronto. Não se trata de bônus permanente a todos os atributos.",
+ "Ser Apavorante": "Representa a etapa final da transformação do Especialista Monstruoso, com fortalecimento e consequências de interação social. As penalidades e benefícios específicos devem seguir a variante escolhida, respeitando as correções da fonte cadastrada.",
+ "Ser Escarificado": "A versão de Ocultista Monstruoso começa com uma escolha de elemento que determina sua manifestação ritualística. Essa escolha e suas exigências ficam registradas na trilha e não devem ser misturadas com habilidades da versão de Especialista.",
+ "Ser Perfurado": "Aprimora as opções paranormais do ocultista conforme o elemento escolhido. Os efeitos devem ser aplicados somente às conjurações e manifestações elegíveis, preservando os limites de círculo e custo dos rituais.",
+ "Ser Rasgado": "Concede outra etapa de especialização ligada a poderes e rituais elementares. O benefício é condicionado à variante escolhida e às possíveis substituições previstas, não a qualquer ritual independentemente do elemento.",
+ "Ser Mutilado": "Consolida a progressão final do Ocultista Monstruoso em sua variante elemental. A duração e as condições dos poderes e rituais pertinentes precisam ser verificadas individualmente; não concede automaticamente habilidades de outras classes."
+});
 function nexDetailedDescription(name,detail='',source='',extra={}){
  const original=String(detail||'').trim();
  const from=String(source||'');
