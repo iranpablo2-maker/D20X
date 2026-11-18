@@ -253,6 +253,10 @@
 
   @media(max-width:610px){.nex-hb-threat-edit-header{padding:12px;gap:11px}.nex-hb-threat-photo{flex-basis:90px;height:100px}.nex-hb-threat-heading-fields #nex53NameField>input{font-size:19px}.nex-hb-threat-heading-info label,.nex-hb-threat-heading-badges label{font-size:9px}.nex-hb-threat-edit-major{grid-template-columns:1fr}.nex-hb-threat-edit-attributes input{font-size:21px!important}}
 
+  /* NPC: esconder somente campos exclusivos das ameaças, incluindo em telas pequenas. */
+  #homebrewScreen .nex52-form #nex52ThreatFields[data-nex-npc="true"] :is(.nex-hb-threat-heading-info,.nex-hb-threat-heading-badges) label[hidden],
+  #homebrewScreen .nex52-form #nex52ThreatFields[data-nex-npc="true"] .nex-hb-threat-inline-section[hidden]{display:none!important}
+
   /* Sobrepõe o grid genérico de 3 colunas do editor Homebrew. */
   #homebrewScreen .nex52-form #nex52ThreatFields.nex-hb-threat-editor{display:block!important;width:100%!important;max-width:none!important;grid-template-columns:none!important;grid-column:1/-1!important;gap:0!important;overflow:hidden!important}
   #homebrewScreen .nex52-form #nex52ThreatFields[hidden]{display:none!important}
@@ -472,12 +476,22 @@
    $('nex52ThreatFields').hidden=!isThreatType(type);
    // Campos exclusivos das ameaças permanecem disponíveis nas fichas de ameaça.
    const npc=type==='npc';
+   $('nex52ThreatFields').dataset.nexNpc=String(npc);
    for(const id of ['nex52CreatureType','nex52Size','nexHbThreatElement','nex52VD']){
-     $(id).closest('label').hidden=npc;
+     const label=$(id).closest('label');
+     label.hidden=npc;
+     // Sobrescreve os display:flex!important antigos do editor de ameaças.
+     if(npc)label.style.setProperty('display','none','important');
+     else label.style.removeProperty('display');
    }
    for(const id of ['presencaPerturbadora','vulnerabilidades','imunidades']){
      const control=mount.querySelector('[data-nex-threat-text="'+id+'"]');
-     if(control)control.closest('.nex-hb-threat-inline-section').hidden=npc;
+     const section=control?.closest('.nex-hb-threat-inline-section');
+     if(section){
+       section.hidden=npc;
+       if(npc)section.style.setProperty('display','none','important');
+       else section.style.removeProperty('display');
+     }
    }
    const descriptionHeading=$('nexHbThreatDescriptionSlot').parentElement.querySelector('h4');
    if(descriptionHeading)descriptionHeading.textContent=npc?'Descrição do NPC':'Descrição da ameaça';
