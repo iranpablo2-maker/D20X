@@ -2599,7 +2599,7 @@ function nexHomebrewBonuses(){
  return totals;
 }
 /* Poderes gerais: treinamento ou +2 sem editar a graduacao salva. */
-const NEX_OFFICIAL_GRANTED_SKILLS={"Acrobático":"Acrobacia","Ás do Volante":"Pilotagem","Atlético":"Atletismo","Dedos Ágeis":"Crime","Detector de Mentiras":"Intuição","Especialista em Emergências":"Medicina","Informado":"Atualidades","Interrogador":"Intimidação","Mentiroso Nato":"Enganação","Observador":"Investigação","Pai de Pet":"Adestramento","Palavras de Devoção":"Religião","Pensamento Tático":"Tática","Personalidade Esotérica":"Ocultismo","Persuasivo":"Diplomacia","Pesquisador Científico":"Ciências","Proativo":"Iniciativa","Rato de Computador":"Tecnologia","Resposta Rápida":"Reflexos","Talentoso":"Artes","Teimosia Obstinada":"Vontade","Tenacidade":"Fortitude","Sentidos Aguçados":"Percepção","Sobrevivencialista":"Sobrevivência","Sorrateiro":"Furtividade"};
+const NEX_OFFICIAL_GRANTED_SKILLS={"Acrobático":"Acrobacia","Ás do Volante":"Pilotagem","Atlético":"Atletismo","Dedos Ágeis":"Crime","Detector de Mentiras":"Intuição","Especialista em Emergências":"Medicina","Informado":"Atualidades","Interrogador":"Intimidação","Mentiroso Nato":"Enganação","Observador":"Investigação","Pai de Pet":"Adestramento","Palavras de Devoção":"Religião","Pensamento Tático":"Tática","Personalidade Esotérica":"Ocultismo","Persuasivo":"Diplomacia","Pesquisador Científico":"Ciências","Proativo":"Iniciativa","Rato de Computador":"Tecnologia","Resposta Rápida":"Reflexos","Talentoso":"Artes","Teimosia Obstinada":"Vontade","Tenacidade":"Fortitude","Sentidos Aguçados":"Percepção","Sobrevivencialista":"Sobrevivência","Sorrateiro":"Furtividade","Instintos Urbanos":"Crime","Curiosidade Oculta":"Ocultismo"};
 function nexOfficialGrantedSkillBonus(name,rawTraining){
  const powers=[...(state.n16?.abilities||[]),...(state.powers||[])];
  const has=pname=>powers.some(p=>String(p?.name||'').toLocaleLowerCase('pt-BR')===pname.toLocaleLowerCase('pt-BR'));
@@ -2641,6 +2641,11 @@ function nexOfficialPassiveBonuses(){
   bonusIntuicao:active('Observador')?Math.max(0,Number(state.attributes?.int)||0):0,
   bonusLoad:active('Inventário Organizado')?Math.max(0,Number(state.attributes?.int)||0):0,
   rational:active('Racionalidade Inflexível'),
+  originMergulhadorPv:state.origin==='Mergulhador'?5:0,
+  originDiplomata:state.origin==='Diplomata'?2:0,
+  originProfetizado:state.origin==='Profetizado'?2:0,
+  originColegial:state.origin==='Colegial'&&state.nexAutoChoices?.colegialNear===true?2:0,
+  originExperimento:state.origin==='Experimento'?2:0,
   furtividade:active('Espreitar da Besta')?5:0
  };
 }
@@ -2654,6 +2659,10 @@ function nexOfficialResistances(){
  const result=[];
  const intelligence=Math.max(0,Number(state.attributes?.int)||0);
  if(state.origin==='Teórico da Conspiração')result.push({kind:'Mental',bonus:intelligence,source:'Origem: Teórico da Conspiração'});
+ if(state.origin==='Experimento')result.push({kind:'Outro',bonus:2,source:'Origem: Experimento · RD geral'});
+ const element=String(state.nexAutoChoices?.exorcizadoElement||'');
+ if(state.origin==='Exorcizado'&&['Sangue','Morte','Conhecimento','Energia'].includes(element))
+   result.push({kind:element,bonus:10,source:'Origem: Exorcizado'});
  if(state.origin==='Transtornado Arrependido'){
    const bloodPowers=(state.powers||[]).filter(x=>String(x?.element||'').toLowerCase()==='sangue').length;
    const bloodRituals=(state.rituals||[]).filter(x=>String(x?.element||'').toLowerCase()==='sangue').length;
@@ -2666,13 +2675,16 @@ function nexOfficialSkillBonus(name){
  const b=nexOfficialPassiveBonuses();
  return (name==='Percepção'?b.perception:0)+(['Diplomacia','Intimidação','Intuição'].includes(name)?b.social:0)+
   (['Fortitude','Reflexos','Vontade'].includes(name)?b.precognition:0)+
-  (name==='Fortitude'?b.bonusFortitude:0)+(name==='Vontade'?b.bonusVontade:0)+(name==='Intuição'?b.bonusIntuicao:0)+(name==='Furtividade'?b.furtividade:0);
+  (name==='Fortitude'?b.bonusFortitude:0)+(name==='Vontade'?b.bonusVontade+b.originProfetizado:0)+
+  (name==='Diplomacia'?b.originDiplomata:0)+(name==='Intuição'?b.bonusIntuicao:0)+
+  (state.origin==='Experimento'&&state.nexAutoChoices?.experimentoSkill===name?b.originExperimento:0)+
+  b.originColegial+(name==='Furtividade'?b.furtividade:0);
 }
 function nexRitualAdjustMaxSan(resourceMax){
  const lost=Math.max(0,Math.floor(Number(state.ritualToolkit?.permanentSanLoss)||0));
  const b=nexHomebrewBonuses();
  const official=nexOfficialPassiveBonuses();
- return {...resourceMax,pv:Math.max(0,resourceMax.pv+(b.pv||0)+official.pv+official.pvPower+official.originPv+official.bonusPv),pe:Math.max(0,resourceMax.pe+(b.pe||0)+official.improvedPotential+official.originPe+official.bonusPe+official.bonusFlatPe),san:Math.max(0,(Number(resourceMax.san)||0)-lost+(b.san||0)+official.originSan)};
+ return {...resourceMax,pv:Math.max(0,resourceMax.pv+(b.pv||0)+official.pv+official.pvPower+official.originPv+official.bonusPv+official.originMergulhadorPv),pe:Math.max(0,resourceMax.pe+(b.pe||0)+official.improvedPotential+official.originPe+official.bonusPe+official.bonusFlatPe),san:Math.max(0,(Number(resourceMax.san)||0)-lost+(b.san||0)+official.originSan)};
 }
 function maxValues(){if(int(state.nex)===0){return nexRitualAdjustMaxSan({pv:Math.max(0,8+int(state.attributes.vig)),pe:Math.max(0,1+int(state.attributes.pre)),san:8,bonus:0,peLimit:1});}const level=LEVELS.indexOf(int(state.nex,5));const steps=Math.max(0,level-1);const bonus=state.origin==='Ex-Militar'?level:0;const vig=int(state.attributes.vig),pre=int(state.attributes[nexOfficialPassiveBonuses().rational?'int':'pre']);const rules=CLASS_RULES[state.class];if(rules&&state.autoRules!==false){return nexRitualAdjustMaxSan({pv:Math.max(0,rules.pv+vig+steps*(rules.pvStep+vig)+bonus),pe:Math.max(0,rules.pe+pre+steps*(rules.peStep+pre)),san:Math.max(0,rules.san+steps*rules.sanStep-(state.origin==='Cultista Arrependido'?Math.ceil(rules.san/2):0)),bonus,peLimit:level});}return nexRitualAdjustMaxSan({pv:Math.max(0,int(state.basePv)+steps*int(state.pvStep)+bonus),pe:Math.max(0,int(state.basePe)+steps*int(state.peStep)),san:Math.max(0,int(state.baseSan)+steps*int(state.sanStep)-(state.origin==='Cultista Arrependido'?Math.ceil(int(state.baseSan)/2):0)),bonus,peLimit:level});}
 function save(show=false){try{localStorage.setItem(KEY,JSON.stringify(state));if(show)toast('Ficha salva neste navegador.');}catch(e){toast('Não foi possível salvar. Exporte um backup em JSON.');}}
@@ -4389,6 +4401,11 @@ function abilityRecords(){
      if(a.source==='Origem: Magnata')return 'Origem automática: nível de crédito aumentado em 1, até Ilimitado.';
      if(a.source==='Origem: Lutador')return 'Origem automática: +2 dano em ataques marcados como Corpo a corpo.';
      if(a.source==='Origem: Militar')return 'Origem automática: +2 dano em ataques marcados como Arma de fogo.';
+     if(a.source==='Origem: Mergulhador')return 'Origem automática: +5 PV máximos.';
+     if(a.source==='Origem: Diplomata')return 'Origem automática: +2 Diplomacia.';
+     if(a.source==='Origem: Profetizado')return 'Origem automática: +2 Vontade.';
+     if(a.source==='Origem: Experimento')return 'Origem automática: RD 2 e +2 na perícia física escolhida.';
+     if(a.source==='Origem: Exorcizado')return 'Origem automática: RD 10 contra o elemento escolhido.';
      if(a.name==='Vitalidade Reforçada')return `Poder automático: +${passive.bonusPv} PV máximos e +2 Fortitude.`;
      if(a.name==='Vontade Inabalável')return `Poder automático: +${passive.bonusPe} PE máximos e +2 Vontade.`;
      if(a.name==='Personalidade Esotérica')return 'Poder automático: +3 PE máximos e treino ou +2 em Ocultismo.';
