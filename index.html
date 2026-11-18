@@ -5701,7 +5701,9 @@ const PARANORMAL=[
  function item(k,cat,branch,name,detail,req=0,source='',extra={}){
   return {key:k,cat,branch,name,detail:window.NEX_DETAILED_DESCRIPTION(name,detail,source,{...extra,req,classPower:branch==='Poderes de '+cat?cat:null}),req,source:source||(cat==='Origens'?'Origem: '+branch:cat==='Poderes Paranormais'?'Poder Paranormal':branch==='Poderes de '+cat?'Poder de '+cat:'Trilha: '+branch+' · NEX '+req+'%'),...extra};
  }
+ let cachedCatalogue=null;
  function catalogue(){
+  if(cachedCatalogue)return cachedCatalogue;
   const data=[];
   for(const cls of ['Combatente','Especialista','Ocultista']){
    const branch='Poderes de '+cls;
@@ -5725,7 +5727,7 @@ const PARANORMAL=[
   }
   for(const [name,desc] of PARANORMAL)data.push(item('paranormal:'+name,'Poderes Paranormais','Todos os poderes',name,window.NEX_POWER_DETAILS?.[name]||desc,15));
   for(const p of window.NEX_ARQUIVOS?.powers||[]){const cat=p.category==='Geral'?'Poderes Gerais':p.category==='Paranormal'?'Poderes Paranormais':p.category;const branch=['Combatente','Especialista','Ocultista'].includes(cat)?'Poderes de '+cat:cat==='Poderes Gerais'?'Todos os poderes gerais':'Todos os poderes';data.push(item('arquivos:'+p.month+':'+p.name,cat,branch,p.name,p.description,15,p.source||'Arquivos Secretos'));}
-  return data;
+  return (cachedCatalogue=data);
  }
  function branches(){if(category==='Origens')return ['Todas as origens','Sobrevivendo ao Horror','Arquivos Secretos','Homebrew'];if(category==='Poderes Gerais')return ['Todos os poderes gerais'];if(category==='Poderes Paranormais')return ['Todos os poderes'];return ['Poderes de '+category,...Object.keys(N19_TRAIL_ABILITIES[category]||{})];}
  function homebrewCatalogue(){
@@ -5772,7 +5774,7 @@ const PARANORMAL=[
       const locked=homebrewEligibility(d),owned=homebrewOwned(d);
       const record=(state.n16.abilities||[]).find(a=>a.catalogKey===d.key)||(state.powers||[]).find(a=>a.catalogKey===d.key);
       const type=d.hb.type==='poder_paranormal'?'power':'ability';
-      return '<article class="n215-row"><div class="n215-row-main"><details><summary><span>'+escape(d.name)+'<small class="n215-source">'+escape(d.source)+(locked?' · '+escape(locked):'')+'</small></span></summary><div class="n215-description">'+escape(d.detail)+'</div></details>'+
+      return '<article class="n215-row" data-n215-homebrew-key="'+escape(d.key)+'"><div class="n215-row-main"><details><summary><span>'+escape(d.name)+'<small class="n215-source">'+escape(d.source)+(locked?' · '+escape(locked):'')+'</small></span></summary><div class="n215-description">'+escape(d.detail)+'</div></details>'+
       (owned?'<button type="button" class="n215-add" data-n215-remove="'+escape(record?.id||'')+'" data-n215-type="'+type+'" title="Remover da ficha">✓</button>':
         '<button type="button" class="n215-add" data-n215-add-homebrew="'+escape(d.key)+'" '+(locked?'disabled':'')+' title="'+escape(locked||'Adicionar à ficha')+'" aria-label="Adicionar '+escape(d.name)+'">'+(locked?'🔒':'+')+'</button>')+
       '</div></article>';
@@ -5830,17 +5832,41 @@ const PARANORMAL=[
    return `<article class="n215-row"><div class="n215-row-main"><details><summary><span>${escape(d.name)}<small class="n215-source">${escape(d.source)}${locked?' · Requer '+escape(locked):''}</small></span></summary><div class="n215-description">${escape(d.detail)}</div></details><button type="button" class="n215-add" data-n215-add="${escape(d.key)}" ${disabled?'disabled':''} title="${owned?'Já está na ficha':locked?'Não disponível: '+escape(locked):'Adicionar à ficha'}" aria-label="Adicionar ${escape(d.name)}">${owned?'✓':locked?'🔒':'+'}</button></div></article>`;
   }).join(''):'<p class="n215-empty">Nenhuma habilidade encontrada nesta categoria.</p>';
  }
- function refreshSheet(){
-  get('n16AbilitySearch')?.dispatchEvent(new Event('input',{bubbles:true}));
-  if(typeof nex12UpdateTabVisibility==='function')nex12UpdateTabVisibility();
-  if(typeof nex12RenderRitualList==='function')nex12RenderRitualList();
-  redraw();
+ function refreshSheet(button=null,change='',id='',kind='ability',homebrewKey=''){
+  // Não recriar centenas de cartões ao mudar somente uma habilidade.
+  if(!button || !button.isConnected)redraw();
+  else if(change==='added'){
+   button.textContent='✓';
+   button.title='Já está na ficha';
+   button.setAttribute('aria-label','Habilidade adicionada à ficha');
+   if(mode==='mine'){
+    button.removeAttribute('data-n215-add-homebrew');
+    button.dataset.n215Remove=id;
+    button.dataset.n215Type=kind;
+   }else button.disabled=true;
+  }else if(change==='removed'&&mode==='mine'&&homebrewKey){
+   button.textContent='+';
+   button.title='Adicionar à ficha';
+   button.setAttribute('aria-label','Adicionar habilidade à ficha');
+   button.removeAttribute('data-n215-remove');
+   button.removeAttribute('data-n215-type');
+   button.dataset.n215AddHomebrew=homebrewKey;
+  }else redraw();
+  // Os cálculos precisam refletir os poderes novos, mas sem recriar o catálogo.
+  if(typeof renderStats==='function')renderStats();
+  else if(typeof drawAbilities==='function')drawAbilities();
+  if(kind==='power'){
+   if(typeof nex12UpdateTabVisibility==='function')nex12UpdateTabVisibility();
+   if(typeof nex12RenderRitualList==='function')nex12RenderRitualList();
+  }
  }
  function open(next='all'){
   ensure();lastFocus=document.activeElement;mode=next;category=CATEGORIES.includes(state.class)?state.class:'Combatente';homebrewCategory=CATEGORIES.includes(state.class)?state.class:'Poderes Gerais';sub='';filter='';homebrewFilter='';get('n215Search').value='';
+  cachedCatalogue=null;
   overlay.hidden=false;document.body.style.overflow='hidden';redraw();get('n215Close').focus();
  }
  function close(){overlay.hidden=true;document.body.style.overflow='';lastFocus?.focus?.();}
+ document.addEventListener('nex-homebrew-changed',()=>{cachedCatalogue=null;if(!overlay.hidden)redraw();});
  get('n215AddAbility').addEventListener('click',()=>open('all'));
  // Override the old form toggle with the dedicated dialog, leaving old records untouched.
  get('n16ShowAbility').onclick=()=>open('mine');
@@ -5860,22 +5886,23 @@ const PARANORMAL=[
    const id='n215hb'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
    if(d.hb.type==='poder_paranormal')state.powers.push({id,name:d.name,nex:Number(state.nex),note:d.detail,source:'homebrew',element:d.hb.element,catalogKey:d.key});
    else state.n16.abilities.push({id,name:d.name,description:d.detail,source:d.source,catalogKey:d.key});
-   save();refreshSheet();return;
+   save();refreshSheet(button,'added',id,d.hb.type==='poder_paranormal'?'power':'ability');return;
   }
   if(button.dataset.n215Add){
    const d=catalogue().find(x=>x.key===button.dataset.n215Add);
    if(!d||eligibility(d)||autoPresent(d)||manualPresent(d))return;
-   if(d.cat==='Poderes Paranormais'){
-    state.powers.push({id:'n215p'+Date.now(),name:d.name,nex:Number(state.nex),note:d.detail,catalogKey:d.key});
-   }else{
-    state.n16.abilities.push({id:'n215a'+Date.now(),name:d.name,description:d.detail,source:d.source,catalogKey:d.key});
-   }
-   save();refreshSheet();return;
+   const isPower=d.cat==='Poderes Paranormais';
+   const id=(isPower?'n215p':'n215a')+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+   if(isPower)state.powers.push({id,name:d.name,nex:Number(state.nex),note:d.detail,catalogKey:d.key});
+   else state.n16.abilities.push({id,name:d.name,description:d.detail,source:d.source,catalogKey:d.key});
+   save();refreshSheet(button,'added',id,isPower?'power':'ability');return;
   }
   if(button.dataset.n215Remove){
-   if(button.dataset.n215Type==='power')state.powers=state.powers.filter(x=>String(x.id)!==button.dataset.n215Remove);
+   const kind=button.dataset.n215Type==='power'?'power':'ability';
+   const homebrewKey=button.closest('[data-n215-homebrew-key]')?.dataset.n215HomebrewKey||'';
+   if(kind==='power')state.powers=state.powers.filter(x=>String(x.id)!==button.dataset.n215Remove);
    else state.n16.abilities=state.n16.abilities.filter(x=>String(x.id)!==button.dataset.n215Remove);
-   save();refreshSheet();
+   save();refreshSheet(button,'removed','',kind,homebrewKey);
   }
  });
  get('n215CustomForm').addEventListener('submit',e=>{
