@@ -2781,11 +2781,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function renderVttMenuSheets(){
   const list=$('nexVttMenuSheetsList');if(!list)return;
   list.replaceChildren();
-  const allowed=roomSheets.filter(sheet=>gm||assignedTo(sheet,uid));
+  const allowed=roomSheets.filter(sheet=>gm||!sheet.isHidden);
   if(!allowed.length){
    const empty=document.createElement('p');
    empty.className='nex-vtt-sheet-note';
-   empty.textContent='Nenhuma ficha vinculada a você nesta campanha.';
+   empty.textContent='Nenhuma ficha pública adicionada nesta campanha.';
    list.append(empty);
    return;
   }
@@ -2811,7 +2811,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function renderVttSheets(){
   renderVttMenuSheets();
   const list=$('nexVttSheetsList');if(!list)return;
-  const allowed=roomSheets.filter(sheet=>gm||assignedTo(sheet,uid));
+  const allowed=roomSheets.filter(sheet=>gm||!sheet.isHidden);
   if(activeVttMiniSheetId&&!allowed.some(s=>s.id===activeVttMiniSheetId))activeVttMiniSheetId=null;
   list.replaceChildren();
   $('nexVttSheetsHint').textContent='Selecione um personagem para abrir a ficha original do NEX sobre o mapa.';
@@ -2825,12 +2825,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    name.textContent=sheet.name||'Personagem';meta.textContent='NEX '+(Number(sheet.nex)||0)+'%'+(sheet.isHidden?' · Oculta':'');
    info.append(name,meta);button.append(info);list.append(button);
   }
-  if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent=gm?'Adicione personagens à campanha para acessá-los aqui.':'Sua ficha ainda não foi atribuída a você nesta campanha.';list.append(note);}
+  if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent='Nenhuma ficha disponível nesta campanha.';list.append(note);}
   renderVttMiniSheet();
  }
  function openVttSheet(id){
   const sheet=roomSheets.find(item=>item.id===id);
-  if(!sheet||!(gm||assignedTo(sheet,uid)))return;
+  if(!sheet||(!gm&&sheet.isHidden))return;
   // Fecha os menus da mesa, mas mantém a sessão e o mapa ativos.
   $('nexVttSheetsPanel').hidden=true;
   syncVttPanels();
