@@ -43,7 +43,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const gridOverlay=document.createElement('div');
  gridOverlay.id='nexVttGridOverlay';
  gridOverlay.setAttribute('aria-hidden','true');
- gridOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;background-image:linear-gradient(to right,rgba(255,255,255,.48) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.48) 1px,transparent 1px);background-size:var(--nex-grid-width,4%) var(--nex-grid-height,4%);background-position:0 0';
+ gridOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;background-image:linear-gradient(to right,rgba(255,255,255,.55) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.55) 1px,transparent 1px);background-repeat:repeat;background-position:0 0';
  board.append(gridOverlay);
  const mapVideo=document.createElement('video');mapVideo.className='nex-vtt-map-video';mapVideo.muted=true;mapVideo.loop=true;mapVideo.autoplay=true;mapVideo.playsInline=true;mapVideo.preload='metadata';mapVideo.controls=false;mapVideo.setAttribute('aria-hidden','true');mapVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:0;display:none';board.prepend(mapVideo);
  let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,renderedMapSource=null,mapLoadId=0;
@@ -52,6 +52,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
    board.style.setProperty('--nex-board-height',mapHeight+'px');
    board.style.setProperty('--nex-grid-width',(100/W)+'%');
    board.style.setProperty('--nex-grid-height',(100/H)+'%');
+   gridOverlay.style.backgroundSize=(mapWidth/W)+'px '+(mapHeight/H)+'px';
    board.style.width=mapWidth+'px';board.style.height=mapHeight+'px';
  }
  mapGeometry();
@@ -110,7 +111,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const retrySave=document.createElement('button');retrySave.type='button';retrySave.textContent='Tentar salvar novamente';
  saveNotice.append(saveText,retrySave);
  status.insertAdjacentElement('afterend',saveNotice);
- const message=t=>{status.textContent=t;status.classList.toggle('vtt-silent-status',/^Mesa (pronta|sincronizada|salva)/.test(t));};
+ const message=t=>{status.textContent=t;status.hidden=!t;status.classList.toggle('vtt-silent-status',!t||/^Mesa (pronta|sincronizada|salva)/.test(t));};
  const warnSync=detail=>{saveFailed=true;saveText.textContent=detail;saveNotice.hidden=false;};
  const clearSync=()=>{saveFailed=false;saveNotice.hidden=true;};
  listen(retrySave,'click',()=>{if(!gm)return;retrySave.disabled=true;save().finally(()=>{retrySave.disabled=false;});});
@@ -1370,7 +1371,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    vttLayer.replaceChildren();for(const d of scene.drawings)vttPaint(d,vttLayer);
    if(vttDraft&&vttMode!=='measure')vttPaint(vttDraft,vttLayer);
    board.classList.toggle('nex-vtt-hide-grid',!scene.gridVisible);
-   gridOverlay.style.display=scene.gridVisible?'block':'none';
+   gridOverlay.style.setProperty('display',scene.gridVisible?'block':'none','important');
+   gridOverlay.style.setProperty('visibility',scene.gridVisible?'visible':'hidden','important');
    applyAtmosphere();
    vttFog.hidden=!scene.fogEnabled;
    if(scene.fogEnabled){
@@ -1702,7 +1704,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     }
     if(disposed)return;
     ensureMapCatalog();remoteReady=true;render();emitMapState();peerMedia?.broadcastScene(networkScene());if(queued)void save();
-    else if(!saveFailed)message('Mesa local pronta. Inicie a transmissão para os jogadores.');
+    else if(!saveFailed)message('');
    }catch(error){
     if(disposed)return;
     remoteReady=false;
