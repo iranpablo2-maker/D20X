@@ -4558,7 +4558,36 @@ function abilityRecords(){
        removeKind:'power'
      });
    }
-   for(const a of state.n16.abilities)entries.push({name:a.name,source:a.source||'Personalizada',detail:a.description||'Sem descrição.',id:a.id});
+   // Copias antigas de entradas oficiais recebem explicacoes atuais sem alterar o texto salvo.
+   const currentOfficialDescription=(entry)=>{
+     const key=String(entry.catalogKey||''),name=String(entry.name||'').trim();
+     if(!name||!/^(power:|general:|paranormal:|trail:|origin:|arquivos:)/.test(key))return '';
+     if(key.startsWith('trail:')){
+       const match=key.match(/^trail:(Combatente|Especialista|Ocultista):(.+):/);
+       const stages=match?N19_TRAIL_ABILITIES[match[1]]?.[match[2]]:[];
+       return stages?.find(x=>x[0]===name)?.[1]||'';
+     }
+     if(key.startsWith('origin:')){
+       const record=[...(NEX_EXTRA_ORIGINS.horror||[]),...(NEX_EXTRA_ORIGINS.arquivos||[])].find(x=>x.ability===name);
+       return record?.description||Object.entries(NEX12_ORIGIN_DESCRIPTIONS).find(([origin])=>NEX12_ORIGIN_MAP[origin]?.ability===name)?.[1]||'';
+     }
+     const match=[
+       ...(window.NEX_SAH?.generalPowers||[]),
+       ...(window.NEX_ARQUIVOS?.powers||[]),
+       ...(window.NEX_SAH?.paranormal||[])
+     ].find(x=>x.name===name);
+     if(match?.description)return match.description;
+     for(const options of Object.values(window.NEX_SAH?.classPowers||{})){
+       const found=options.find(x=>x[0]===name);
+       if(found)return found[1]||'';
+     }
+     return window.NEX_POWER_DESCRIPTION_BY_NAME?.[name.toLocaleLowerCase('pt-BR')]||'';
+   };
+   for(const a of state.n16.abilities){
+     const saved=String(a.description||'');
+     const latest=currentOfficialDescription(a);
+     entries.push({name:a.name,source:a.source||'Personalizada',detail:latest.length>saved.length?latest:saved||'Sem descrição.',id:a.id});
+   }
    return entries;
  }
 
