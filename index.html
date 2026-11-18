@@ -5110,6 +5110,50 @@ body.nex-tabletop-body{overflow:hidden!important}
 #campaignPanel.nex-tabletop-expanded .nex-campaign-integrated{position:fixed!important;inset:0!important;z-index:1!important;width:100vw!important;height:100dvh!important;max-width:none!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;overflow:hidden!important}
 #campaignPanel.nex-tabletop-expanded #nexCampaignRoomFrame{display:block!important;width:100vw!important;height:100dvh!important;min-height:100dvh!important;border:0!important}
 #campaignPanel.nex-tabletop-expanded>*:not(.nex-campaign-integrated){display:none!important}
+</style>
+<style id="nex-vtt-sheet-side-by-side-v2">
+/* Dividir a área disponível: mapa à esquerda, ficha operacional à direita. */
+@media(min-width:701px){
+ body.nex-vtt-sheet-overlay{
+  --nex-vtt-sheet-side-width:clamp(355px,42vw,500px);
+ }
+ body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){
+  position:fixed!important;top:0!important;left:auto!important;right:0!important;
+  bottom:0!important;transform:none!important;
+  width:var(--nex-vtt-sheet-side-width)!important;
+  max-width:var(--nex-vtt-sheet-side-width)!important;
+  min-width:0!important;height:100dvh!important;max-height:100dvh!important;
+  border-radius:0!important;border:0!important;
+  border-left:2px solid #853b48!important;box-shadow:-6px 0 22px #0008!important;
+  z-index:1000002!important;overflow-y:auto!important;overflow-x:hidden!important;
+ }
+ body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded .nex-campaign-integrated,
+ body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded #nexCampaignRoomFrame{
+  width:calc(100vw - var(--nex-vtt-sheet-side-width))!important;
+  max-width:calc(100vw - var(--nex-vtt-sheet-side-width))!important;
+ }
+ body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded .nex-campaign-integrated{
+  right:auto!important;left:0!important;
+ }
+ body.nex-vtt-sheet-overlay #sheetScreen .identity-top{
+  min-width:0!important;
+ }
+ body.nex-vtt-sheet-overlay #sheetScreen .identity .field,
+ body.nex-vtt-sheet-overlay #sheetScreen .origin-selection .field{
+  min-width:0!important;
+ }
+ body.nex-vtt-sheet-overlay #sheetScreen .identity :is(input,select),
+ body.nex-vtt-sheet-overlay #sheetScreen .origin-selection :is(input,select){
+  width:100%!important;min-width:0!important;max-width:100%!important;
+  text-overflow:ellipsis!important;
+ }
+}
+@media(max-width:700px){
+ /* Em telas estreitas, a ficha usa a largura inteira e o mapa permanece ativo atrás. */
+ body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){
+  left:0!important;right:0!important;transform:none!important;
+ }
+}
 </style><script id="nex-campaign-inline-loader">
 (function(){
   const frame=document.getElementById('nexCampaignRoomFrame');
