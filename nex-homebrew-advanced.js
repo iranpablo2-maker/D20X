@@ -1015,7 +1015,7 @@
   root.querySelectorAll('[data-npc-attack-test-preview]').forEach(el=>{
    const index=Number(el.dataset.npcAttackTestPreview);
    const name=threatActions[index]?.testSkill;
-   if(!['Luta','Pontaria'].includes(name)){el.textContent='';el.hidden=true;return;}
+   if(!['Luta','Pontaria','Ocultismo'].includes(name)){el.textContent='';el.hidden=true;return;}
    const trained=npcSkillRows.find(row=>row.name===name);
    const bonus=trained?.bonus??0;
    const dice=npcSkillDice({name},attributes);
@@ -1035,11 +1035,11 @@
    const attackFields=npc?[
      ['name','Nome do ataque'],['action','Tipo de ação'],['subtitle','Arma / subtítulo'],['range','Alcance'],
      ['test','Teste (perícia)'],['critical','Crítico'],['damage','Dano'],['damageType','Tipo do dano'],
-     ['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['effect','Descrição / efeito']
-   ]:[['name','Nome'],['action','Tipo de ação'],['test','Teste (opcional)'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Descrição / efeito']];
-   const abilityFields=[['name','Nome da habilidade'],['action','Ativação (opcional)'],['test','Rolagem (opcional)'],['effect','Descrição / efeito']];
+     ['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['effect','Descrição']
+   ]:[['name','Nome'],['action','Tipo de ação'],['test','Teste (opcional)'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Descrição']];
+   const abilityFields=[['name','Nome da habilidade'],['action','Ativação (opcional)'],['test','Rolagem (opcional)'],['effect','Descrição']];
    const fields=npc&&kind==='ability'?abilityFields:attackFields;
-   const skillOptions=['Luta','Pontaria'];
+   const skillOptions=['Luta','Pontaria','Ocultismo'];
    const selectField=(k,options,current)=>'<select data-threat-key="'+k+'">'+
       options.map(option=>'<option value="'+esc(option)+'"'+(option===current?' selected':'')+'>'+esc(option||'Selecionar')+'</option>').join('')+'</select>';
    const npcTestSkill=a.testSkill||'';
@@ -1059,7 +1059,7 @@
       '<button type="button" class="nex-hb-threat-action-toggle" data-threat-toggle="'+i+'" aria-expanded="'+(isNpcAttack?descriptionOpen:expanded)+'">'+compactSummary+'<span aria-hidden="true">'+((isNpcAttack?descriptionOpen:expanded)?'⌃':'⌄')+'</span></button>'+
       (!expanded?'<div class="nex-hb-threat-action-controls"><button type="button" class="btn sm" data-threat-edit="'+i+'">Editar</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div>':'')+
     '</div>'+
-    (descriptionOpen?'<div class="nex-hb-npc-attack-description"><strong>Descrição / efeito</strong><p>'+esc(a.effect||'Nenhuma descrição cadastrada.').replace(/\n/g,'<br>')+'</p></div>':'')+
+    (descriptionOpen?'<div class="nex-hb-npc-attack-description"><strong>Descrição</strong><p>'+esc(a.effect||'Nenhuma descrição cadastrada.').replace(/\n/g,'<br>')+'</p></div>':'')+
     (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
      fields.map(([k,label])=>'<label>'+(npc&&kind==='attack'&&k==='test'?'Teste (perícia)':label)+
       (npc&&kind==='attack'&&k==='test'?
@@ -1294,7 +1294,7 @@
    const sheet=normalizeThreat(item);
    let formula='',rolled=null;
    if(field==='skillTest'){
-    const skill=sheet.npcSkills.find(row=>row.name===action.testSkill)||(['Luta','Pontaria'].includes(action.testSkill)?{name:action.testSkill,bonus:0}:null);
+    const skill=sheet.npcSkills.find(row=>row.name===action.testSkill)||(['Luta','Pontaria','Ocultismo'].includes(action.testSkill)?{name:action.testSkill,bonus:0}:null);
     if(!skill)return;
     const dice=npcSkillDice(skill,sheet.attributes);
     const rolls=Array.from({length:dice.count},()=>1+Math.floor(Math.random()*20));
