@@ -4336,7 +4336,8 @@ function abilityRecords(){
        name:p.name||'Poder',
        source:paranormal?'Origem: Cultista Arrependido · Poder Paranormal':`Poder — NEX ${int(p.nex)}%`,
        detail:findPowerDescription(p.name)||nexPowerDescription(p.name,p.note)||'Este poder está registrado na ficha, mas ainda não há um efeito mecânico verificado no catálogo do NEX.',
-       id:null
+       id:p.id||null,
+       removeKind:'power'
      });
    }
    for(const a of state.n16.abilities)entries.push({name:a.name,source:a.source||'Personalizada',detail:a.description||'Sem descrição.',id:a.id});
@@ -4497,7 +4498,7 @@ function abilityRecords(){
      if(Object.prototype.hasOwnProperty.call(NEX_OFFICIAL_GRANTED_SKILLS,a.name))return `Poder automático: treino em ${NEX_OFFICIAL_GRANTED_SKILLS[a.name]} ou +2 se já houver treinamento.`;
      return '';
    };
-   $id('n16AbilityList').innerHTML=(Object.keys(state.nexAutoSceneUses||{}).some(k=>state.nexAutoSceneUses[k])?'<button type="button" class="btn sm" data-nex-auto-new-scene>Nova cena · reiniciar habilidades por cena</button>':'')+(records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry" data-nex-ability-id="${escape(a.name+"|"+a.source)}" ${opened.has(a.name+"|"+a.source)?"open":""}><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div>${escape(a.detail)}</div>${nexOfficialAbilityControls(a)}${a.id?`<div class="actions"><button type="button" class="btn sm" data-n16-remove-ability="${escape(a.id)}">Excluir habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>');
+   $id('n16AbilityList').innerHTML=(Object.keys(state.nexAutoSceneUses||{}).some(k=>state.nexAutoSceneUses[k])?'<button type="button" class="btn sm" data-nex-auto-new-scene>Nova cena · reiniciar habilidades por cena</button>':'')+(records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry" data-nex-ability-id="${escape(a.name+"|"+a.source)}" ${opened.has(a.name+"|"+a.source)?"open":""}><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div>${escape(a.detail)}</div>${nexOfficialAbilityControls(a)}${a.id?`<div class="actions" style="margin-top:12px"><button type="button" class="btn sm" data-n16-remove-${a.removeKind==='power'?'power':'ability'}="${escape(a.id)}">Remover habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>');
  }
 
  document.addEventListener('click',event=>{
@@ -4644,6 +4645,7 @@ function abilityRecords(){
  $id('n16AbilityForm').onsubmit=e=>{e.preventDefault();ensure();const name=$id('n16AbilityName').value.trim();if(!name)return;state.n16.abilities.push({id:'na'+Date.now()+Math.random().toString(36).slice(2),name:name.slice(0,90),description:$id('n16AbilityDesc').value.trim().slice(0,1800)});$id('n16AbilityForm').reset();$id('n16AbilityForm').classList.add('hide');drawAbilities();save();toast('Habilidade adicionada.');};
  document.addEventListener('click',e=>{const attr=e.target.closest('#attributes .attr');if(attr){const inp=attr.querySelector('.attr-hidden-input');if(inp){inp.focus();inp.select&&inp.select();}return;}const b=e.target.closest('button');if(!b)return;
    if(b.dataset.n16RemoveAbility){ensure();state.n16.abilities=state.n16.abilities.filter(a=>a.id!==b.dataset.n16RemoveAbility);drawAbilities();save();}
+   if(b.dataset.n16RemovePower){ensure();state.powers=state.powers.filter(p=>String(p.id)!==b.dataset.n16RemovePower);renderStats();save();toast("Habilidade removida.");}
    if(b.dataset.n16Category){category=b.dataset.n16Category;document.querySelectorAll('[data-n16-category]').forEach(el=>el.classList.toggle('selected',el.dataset.n16Category===category));drawInventory();}
    if(b.dataset.deleteItem){queueMicrotask(()=>drawInventory());}
    if(b.id==='addItem'||b.id==='addCatalog')queueMicrotask(()=>drawInventory());
