@@ -402,6 +402,12 @@
       width:29px!important;min-width:29px!important;
     }
   }
+  #homebrewScreen .nex-hb-action-roll{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;max-width:340px!important;width:100%!important;padding:7px 9px!important;margin:5px 0!important;background:#24151c!important;border:1px solid #65404a!important;border-radius:6px!important;color:#f5eaf0!important;cursor:pointer!important;text-align:left!important;font-size:12px!important}
+  #homebrewScreen .nex-hb-action-roll:hover{background:#44212d!important;border-color:#c44e66!important}
+  #homebrewScreen .nex-hb-action-roll .nex-hb-npc-d20-image{display:block!important;width:19px!important;height:21px!important;flex-shrink:0!important;object-fit:contain!important}
+  #homebrewScreen .nex-hb-action-info{font-size:12px!important;padding:6px 2px!important}
+  #homebrewScreen .nex-hb-action-roll-result{padding:8px!important;margin:8px 0!important;background:#311a24!important;border:1px solid #69414d!important;border-radius:6px!important;color:white!important;font-size:12px!important}
+  #homebrewScreen .nex-hb-action-roll-result[hidden]{display:none!important}
   #homebrewScreen .nex-hb-npc-roll-row{padding:0;margin:0;border-bottom:1px solid #45343e}
   #homebrewScreen .nex-hb-npc-roll{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:39px;border:0;background:transparent;color:#f3eaf0;padding:7px 4px;cursor:pointer;text-align:left}
   #homebrewScreen .nex-hb-npc-roll:hover{background:#48222b55;color:white}
@@ -1058,7 +1064,28 @@
           '<img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true">'+
         '</button></div>';
     }).join(''):'<p>Nenhuma perícia selecionada.</p>')+'<p class="nex-hb-npc-roll-result" id="nexHbNpcRollResult" role="status" aria-live="polite" hidden></p>':'';
-  const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
+  const actionDiceButton=(label,source,index,field)=>{
+   const formula=String(source||'').trim();
+   if(!formula)return '';
+   const valid=extractNpcDiceFormula(formula);
+   if(!valid)return '<div class="nex-hb-action-info"><span>'+esc(label)+': </span>'+esc(formula)+'</div>';
+   return '<button type="button" class="nex-hb-action-roll" data-npc-action-roll="'+index+'" data-npc-action-field="'+field+'" aria-label="Rolar '+esc(label)+' '+esc(valid)+'">'+
+      '<span>'+esc(label)+': <strong>'+esc(formula)+'</strong></span>'+
+      '<img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true">'+
+    '</button>';
+  };
+  const combatPanel=(t.actions.length?t.actions.map((a,index)=>
+    '<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong>'+
+    (a.action?'<p>'+esc(a.action)+'</p>':'')+
+    actionDiceButton('Teste',a.test,index,'test')+
+    actionDiceButton('Dano',a.damage,index,'damage')+
+    actionDiceButton('Dano secundário',a.secondaryDamage,index,'secondaryDamage')+
+    (a.secondaryType?'<p>Tipo: '+esc(a.secondaryType)+'</p>':'')+
+    (a.range?'<p>Alcance: '+esc(a.range)+'</p>':'')+
+    (a.effect?'<p>'+esc(a.effect)+'</p>':'')+
+    (extractNpcDiceFormula(a.effect)?actionDiceButton('Rolar efeito',a.effect,index,'effect'):'')+
+    '<p class="nex-hb-action-roll-result" role="status" aria-live="polite" hidden></p></div>'
+   ).join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+(item.type==='npc'?'':note('Enigma de Medo',t.enigma));
   return '<section class="nex-hb-threat-sheet'+(item.type==='npc'?' nex-hb-npc-preview':'')+'" data-nex-threat-preview style="--nex-threat-bg:'+(item.type==='npc'?'none':'url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;)')+';--nex-threat-accent:'+esc(threatBg.color)+'">'+
    '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem de '+esc(LABEL[item.type])+'">':'')+
@@ -1069,7 +1096,47 @@
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="combate" hidden>'+combatPanel+'</div>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="descricao" hidden>'+descriptionPanel+'</div></section>';
  }
+ // Expressões simples de dados nas habilidades: 1d20, 2d6+3, 1d8+1d4, etc.
+ function extractNpcDiceFormula(value){
+  const text=String(value||'');
+  const match=text.match(/(?:^|[^\\w])((?:\\d{1,2}d(?:4|6|8|10|12|20|100)(?:\\s*[+-]\\s*(?:\\d{1,2}d(?:4|6|8|10|12|20|100)|\\d{1,3}))*)|(?:d(?:4|6|8|10|12|20|100)))(?!\\w)/i);
+  return match?match[1].replace(/\\s+/g,''):'';
+ }
+ function rollNpcDiceFormula(formula){
+  const expression=String(formula||'').replace(/\\s+/g,'').toLowerCase();
+  const parts=expression.match(/[+-]?\\d*d\\d+|[+-]\\d+/g)||[];
+  if(!parts.length||parts.join('')!==expression)return null;
+  let total=0;const details=[];
+  for(const part of parts){
+   const dice=part.match(/^([+-]?)(\\d*)d(\\d+)$/);
+   if(dice){
+    const count=Number(dice[2]||1),sides=Number(dice[3]),sign=dice[1]==='-'?-1:1;
+    if(count<1||count>30||![4,6,8,10,12,20,100].includes(sides))return null;
+    const rolls=Array.from({length:count},()=>1+Math.floor(Math.random()*sides));
+    const subtotal=rolls.reduce((a,b)=>a+b,0)*sign;
+    total+=subtotal;details.push((sign<0?'-':'')+count+'d'+sides+' ['+rolls.join(', ')+']');
+   }else{
+    const bonus=Number(part);
+    if(!Number.isSafeInteger(bonus)||Math.abs(bonus)>999)return null;
+    total+=bonus;details.push((bonus>=0?'+':'')+bonus);
+   }
+  }
+  return {total,details:details.join(' ')};
+ }
  $('nex52DetailBody').addEventListener('click',event=>{
+  const actionRoll=event.target.closest('[data-npc-action-roll]');
+  if(actionRoll){
+   const item=read().find(record=>record.id===opened&&record.type==='npc');
+   const action=item?.threatSheet?normalizeThreat(item).actions[Number(actionRoll.dataset.npcActionRoll)]:null;
+   const field=actionRoll.dataset.npcActionField;
+   if(!action||!['test','damage','secondaryDamage','effect'].includes(field))return;
+   const formula=extractNpcDiceFormula(action[field]);
+   const rolled=rollNpcDiceFormula(formula);
+   const output=actionRoll.closest('.nex-hb-threat-action')?.querySelector('.nex-hb-action-roll-result');
+   if(output){output.hidden=false;output.textContent=rolled?(action.name||'Habilidade')+' · '+formula+' → '+rolled.details+' = '+rolled.total:'Fórmula de dados inválida.';}
+   return;
+  }
+
   const rollButton=event.target.closest('[data-npc-roll]');
   if(rollButton){
    const item=read().find(record=>record.id===opened&&record.type==='npc');
