@@ -2089,6 +2089,38 @@ body.nex-vtt-sheet-overlay #sheetScreen #inventory .nexv16-search{
 
 /* Tabletop: nunca exibir o subtitulo legado do inventario. */
 body.nex-vtt-sheet-overlay #sheetScreen #inventory .nexv16-toolbar .hint{display:none!important}
+
+/* NEX Tabletop: descricao sem campos cortados */
+body.nex-vtt-sheet-overlay #sheetScreen #notes{
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ overflow:visible!important;box-sizing:border-box!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen #notes .stack{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:12px!important;width:100%!important;min-width:0!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen #notes .field{
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:6px!important;min-width:0!important;width:100%!important;
+ box-sizing:border-box!important;overflow:visible!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen #notes .field label{
+ display:block!important;min-width:0!important;white-space:normal!important;
+ overflow-wrap:anywhere!important;line-height:1.35!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen #notes textarea{
+ display:block!important;width:100%!important;max-width:100%!important;
+ min-width:0!important;box-sizing:border-box!important;
+ min-height:96px!important;height:auto;resize:vertical!important;
+ overflow-y:auto!important;overflow-x:hidden!important;
+ padding:10px!important;line-height:1.5!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen #notes #backstory{
+ min-height:150px!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen #notes #notesText{
+ min-height:110px!important;
+}
 </style>
 </head><body>
 <script src="nex-sobrevivendo-ao-horror.js?v=2072"></script>
