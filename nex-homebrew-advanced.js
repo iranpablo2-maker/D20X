@@ -80,7 +80,7 @@
   out.actions=Array.isArray(raw.actions)?raw.actions.slice(0,12).map(a=>({
     name:cut(a?.name||'',90),action:cut(a?.action??'Padrão',60),
     kind:a?.kind==='ability'||a?.kind==='attack'?a.kind:(a?.damage||a?.secondaryDamage?'attack':'ability'),
-    test:cut(a?.test||'',80),damage:cut(a?.damage||'',80),secondaryDamage:cut(a?.secondaryDamage||'',80),secondaryType:cut(a?.secondaryType||'Normal',40),
+    test:cut(a?.test||'',80),testSkill:NPC_SKILLS.includes(a?.testSkill)?a.testSkill:'',damage:cut(a?.damage||'',80),secondaryDamage:cut(a?.secondaryDamage||'',80),secondaryType:cut(a?.secondaryType||'Normal',40),
     range:cut(a?.range||'',70),effect:cut(a?.effect||'',1000)
   })).filter(a=>a.name):[];
   return out;
@@ -403,6 +403,7 @@
       width:29px!important;min-width:29px!important;
     }
   }
+  #homebrewScreen .nex-hb-npc-test-preview{display:block;padding:4px 0;color:#e2a9b6;font-size:11px}
   #homebrewScreen .nex-hb-npc-action-buttons{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
     #homebrewScreen .nex-hb-npc-action-group{margin:10px 0 20px;padding:12px;border:1px solid #58313f;border-radius:8px;background:#1c1218}
   #homebrewScreen .nex-hb-npc-action-group-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
@@ -997,14 +998,28 @@
    const attackFields=[['name','Nome'],['action','Tipo de ação'],['test','Teste (opcional)'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Descrição / efeito']];
    const abilityFields=[['name','Nome da habilidade'],['action','Ativação (opcional)'],['test','Rolagem (opcional)'],['effect','Descrição / efeito']];
    const fields=npc&&kind==='ability'?abilityFields:attackFields;
+   const skillOptions=normalizeNpcSkills(npcSkillRows).map(x=>x.name);
+   const selectField=(k,options,current)=>'<select data-threat-key="'+k+'">'+
+      options.map(option=>'<option value="'+esc(option)+'"'+(option===current?' selected':'')+'>'+esc(option||'Selecionar')+'</option>').join('')+'</select>';
+   const npcTestSkill=a.testSkill||'';
+   const skillEntry=npcSkillRows.find(r=>r.name===npcTestSkill);
+   const npcTestPreview=skillEntry?npcSkillDice(skillEntry,currentNpcAttributes()).count+'d20'+
+      (skillEntry.bonus>=0?'+':'')+skillEntry.bonus:'';
    return '<div class="nex-hb-threat-action-editor" data-threat-row="'+i+'">'+
     '<div class="nex-hb-threat-action-summary">'+
       '<button type="button" class="nex-hb-threat-action-toggle" data-threat-toggle="'+i+'" aria-expanded="'+expanded+'"><strong>'+esc(title)+'</strong><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
       (!expanded?'<div class="nex-hb-threat-action-controls"><button type="button" class="btn sm" data-threat-edit="'+i+'">Editar</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div>':'')+
     '</div>'+
     (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
-     fields.map(([k,label])=>'<label>'+label+
-      (k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="3">'+esc(a[k]||'')+'</textarea>':
+     fields.map(([k,label])=>'<label>'+(npc&&kind==='attack'&&k==='test'?'Teste (perícia)':label)
+      (npc&&kind==='attack'&&k==='test'?
+        selectField('testSkill',['',...skillOptions,...(npcTestSkill&&!skillOptions.includes(npcTestSkill)?[npcTestSkill]:[])],npcTestSkill)+
+        (npcTestPreview?'<small class="nex-hb-npc-test-preview">'+esc(npcTestPreview)+'</small>':''):
+       npc&&kind==='attack'&&k==='action'?
+        selectField('action',['','Padrão','Movimento','Completa','Reação','Livre',...(a.action&&!['Padrão','Movimento','Completa','Reação','Livre'].includes(a.action)?[a.action]:[])],a.action||''):
+       npc&&kind==='attack'&&k==='range'?
+        selectField('range',['','Pessoal','Toque','Curto','Médio','Longo','Extremo','Ilimitado',...(a.range&&!['Pessoal','Toque','Curto','Médio','Longo','Extremo','Ilimitado'].includes(a.range)?[a.range]:[])],a.range||''):
+       k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="3">'+esc(a[k]||'')+'</textarea>':
        k==='secondaryType'?'<select data-threat-key="secondaryType" aria-label="Tipo do dano secundário">'+
          [...new Set(['Normal','Corte','Perfuração','Impacto','Balístico','Fogo','Frio','Eletricidade','Químico','Mental','Sangue','Morte','Conhecimento','Energia','Medo','Outros',a.secondaryType].filter(Boolean))].map(option=>'<option value="'+esc(option)+'"'+(option===(a.secondaryType||'Normal')?' selected':'')+'>'+esc(option)+'</option>').join('')+
          '</select>':
@@ -1049,7 +1064,10 @@
  });
  $('nexHbThreatActions').addEventListener('change',event=>{
   const row=event.target.closest('[data-threat-row]'),field=event.target.closest('select[data-threat-key]');
-  if(row&&field&&threatActions[Number(row.dataset.threatRow)])threatActions[Number(row.dataset.threatRow)][field.dataset.threatKey]=field.value;
+  if(row&&field&&threatActions[Number(row.dataset.threatRow)]){
+   threatActions[Number(row.dataset.threatRow)][field.dataset.threatKey]=field.value;
+   if(field.dataset.threatKey==='testSkill')renderThreatActions();
+  }
  });
  $('nexHbThreatActions').addEventListener('input',event=>{
   const row=event.target.closest('[data-threat-row]'),field=event.target.closest('[data-threat-key]');
@@ -1061,7 +1079,7 @@
    if(threatActions.length>=12){message('Limite de 12 habilidades e ataques para esta ficha.');return;}
    const kind=btn.dataset.npcAddKind;
    if(kind!=='ability'&&kind!=='attack')return;
-   threatActions.push({kind,name:kind==='ability'?'Nova habilidade':'Novo ataque',action:'',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});
+   threatActions.push({kind,name:kind==='ability'?'Nova habilidade':'Novo ataque',action:'',test:'',testSkill:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});
    openThreatActionIndex=threatActions.length-1;renderThreatActions();return;
   }
   if(btn.hasAttribute('data-threat-delete')){
@@ -1118,9 +1136,19 @@
       '<img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true">'+
     '</button>';
   };
+  const npcTestFor=a=>{
+   const name=a.testSkill;
+   if(!name||!NPC_SKILLS.includes(name))return null;
+   const skill=t.npcSkills.find(row=>row.name===name);
+   if(!skill)return null;
+   const dice=npcSkillDice(skill,t.attributes);
+   return {name,dice,bonus:skill.bonus,formula:dice.count+'d20'+(skill.bonus>=0?'+':'')+skill.bonus};
+  };
   const renderCombatAction=(a,index)=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong>'+
     (a.action?'<p>'+esc(a.action)+'</p>':'')+
-    actionDiceButton('Teste',a.test,index,'test')+
+    (item.type==='npc'&&npcTestFor(a)?
+      '<button type="button" class="nex-hb-action-roll" data-npc-action-roll="'+index+'" data-npc-action-field="skillTest"><span>Teste · '+esc(npcTestFor(a).name)+': <strong>'+esc(npcTestFor(a).formula)+'</strong></span><img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':
+      actionDiceButton('Teste',a.test,index,'test'))+
     actionDiceButton('Dano',a.damage,index,'damage')+
     actionDiceButton('Dano secundário',a.secondaryDamage,index,'secondaryDamage')+
     (a.secondaryType&&a.secondaryDamage?'<p>Tipo: '+esc(a.secondaryType)+'</p>':'')+
@@ -1177,9 +1205,21 @@
    const item=read().find(record=>record.id===opened&&isThreatType(record.type));
    const action=item?.threatSheet?normalizeThreat(item).actions[Number(actionRoll.dataset.npcActionRoll)]:null;
    const field=actionRoll.dataset.npcActionField;
-   if(!action||!['test','damage','secondaryDamage','effect'].includes(field))return;
-   const formula=extractNpcDiceFormula(action[field]);
-   const rolled=rollNpcDiceFormula(formula);
+   if(!action||!['test','skillTest','damage','secondaryDamage','effect'].includes(field))return;
+   const sheet=normalizeThreat(item);
+   let formula='',rolled=null;
+   if(field==='skillTest'){
+    const skill=sheet.npcSkills.find(row=>row.name===action.testSkill);
+    if(!skill)return;
+    const dice=npcSkillDice(skill,sheet.attributes);
+    const rolls=Array.from({length:dice.count},()=>1+Math.floor(Math.random()*20));
+    const chosen=dice.keepLowest?Math.min(...rolls):Math.max(...rolls);
+    formula=dice.count+'d20'+(skill.bonus>=0?'+':'')+skill.bonus;
+    rolled={total:chosen+skill.bonus,details:'['+rolls.join(', ')+'] · '+(dice.keepLowest?'menor ':'maior ')+chosen+' '+(skill.bonus>=0?'+':'')+skill.bonus};
+   }else{
+    formula=extractNpcDiceFormula(action[field]);
+    rolled=rollNpcDiceFormula(formula);
+   }
    const output=actionRoll.closest('.nex-hb-threat-action')?.querySelector('.nex-hb-action-roll-result');
    if(output){output.hidden=false;output.textContent=rolled?(action.name||'Habilidade')+' · '+formula+' → '+rolled.details+' = '+rolled.total:'Fórmula de dados inválida.';}
    return;
