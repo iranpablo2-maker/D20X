@@ -1126,7 +1126,7 @@
  $('nex52DetailBody').addEventListener('click',event=>{
   const actionRoll=event.target.closest('[data-npc-action-roll]');
   if(actionRoll){
-   const item=read().find(record=>record.id===opened&&record.type==='npc');
+   const item=read().find(record=>record.id===opened&&isThreatType(record.type));
    const action=item?.threatSheet?normalizeThreat(item).actions[Number(actionRoll.dataset.npcActionRoll)]:null;
    const field=actionRoll.dataset.npcActionField;
    if(!action||!['test','damage','secondaryDamage','effect'].includes(field))return;
