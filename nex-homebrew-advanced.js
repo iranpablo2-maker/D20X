@@ -955,6 +955,7 @@
    if(!name)return;
    npcSkillRows.push({name,bonus:5});
    renderNpcSkills();
+   refreshNpcAttackTestPreviews();
  });
  $('nexHbNpcSkillsList').addEventListener('change',event=>{
    const row=event.target.closest('[data-npc-skill-index]');
@@ -973,11 +974,12 @@
      entry.bonus=num(event.target.value,-99,99,0);
      renderNpcSkills();
    }
+   refreshNpcAttackTestPreviews();
  });
  // Alterações nos atributos atualizam imediatamente os dados de todas as perícias.
  $('nex52ThreatFields').querySelectorAll('[data-nex-threat-attr]').forEach(input=>{
    input.addEventListener('input',()=>{
-     if($('nex51Type').value==='npc')renderNpcSkills();
+     if($('nex51Type').value==='npc'){renderNpcSkills();refreshNpcAttackTestPreviews();}
    });
  });
  $('nexHbNpcSkillsList').addEventListener('click',event=>{
@@ -985,8 +987,25 @@
    if(!button)return;
    npcSkillRows.splice(Number(button.dataset.npcSkillRemove),1);
    renderNpcSkills();
+   refreshNpcAttackTestPreviews();
  });
  let openThreatActionIndex=null;
+ function refreshNpcAttackTestPreviews(){
+  const root=$('nexHbThreatActions');
+  if(!root||$('nex51Type').value!=='npc')return;
+  const attributes=currentNpcAttributes();
+  root.querySelectorAll('[data-npc-attack-test-preview]').forEach(el=>{
+   const index=Number(el.dataset.npcAttackTestPreview);
+   const name=threatActions[index]?.testSkill;
+   if(!['Luta','Pontaria'].includes(name)){el.textContent='';el.hidden=true;return;}
+   const trained=npcSkillRows.find(row=>row.name===name);
+   const bonus=trained?.bonus??0;
+   const dice=npcSkillDice({name},attributes);
+   el.textContent=dice.count+'d20'+(bonus>=0?'+':'')+bonus+' · '+dice.attribute.toUpperCase()+' '+dice.value+' · '+(trained?'Treinado':'Não treinado');
+   el.title=dice.keepLowest?'Atributo 0: role 2d20 e use o menor resultado':'Use o maior resultado dos dados';
+   el.hidden=false;
+  });
+ }
  function renderThreatActions(){
   const el=$('nexHbThreatActions');if(!el)return;
   const npc=$('nex51Type').value==='npc';
@@ -1014,7 +1033,7 @@
      fields.map(([k,label])=>'<label>'+(npc&&kind==='attack'&&k==='test'?'Teste (perícia)':label)+
       (npc&&kind==='attack'&&k==='test'?
         selectField('testSkill',['',...skillOptions,...(npcTestSkill&&!skillOptions.includes(npcTestSkill)?[npcTestSkill]:[])],npcTestSkill)+
-        (npcTestPreview?'<small class="nex-hb-npc-test-preview">'+esc(npcTestPreview)+'</small>':''):
+        (npcTestPreview?'<small class="nex-hb-npc-test-preview" data-npc-attack-test-preview="'+i+'">'+esc(npcTestPreview)+'</small>':'<small class="nex-hb-npc-test-preview" data-npc-attack-test-preview="'+i+'" hidden></small>'):
        npc&&kind==='attack'&&k==='action'?
         selectField('action',['','Padrão','Movimento','Completa','Reação','Livre',...(a.action&&!['Padrão','Movimento','Completa','Reação','Livre'].includes(a.action)?[a.action]:[])],a.action||''):
        npc&&kind==='attack'&&k==='range'?
@@ -1033,6 +1052,7 @@
      '<button type="button" class="btn sm" data-npc-add-kind="attack">+ Adicionar ataque</button></div>'+
      threatActions.map((a,i)=>row(a,i)).join('');
   }else el.innerHTML=threatActions.map(row).join('');
+  if(npc)refreshNpcAttackTestPreviews();
  }
  function readThreatSheet(){
   const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=num(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value,0,6,1);});
