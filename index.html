@@ -5037,6 +5037,73 @@ body.nex-vtt-sheet-overlay #sheetScreen:not(.hide) .shell{max-width:100%!importa
  body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){top:0!important;width:100vw!important;max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;border-radius:0!important;padding:5px!important}
 }
 </style>
+<style id="nex-vtt-mobile-sheet-in-tabletop-v1">
+/* Aplica o layout da ficha móvel somente quando aberta na mesa virtual. */
+body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){
+ top:2vh!important;left:50%!important;transform:translateX(-50%)!important;
+ width:min(480px,96vw)!important;max-width:96vw!important;
+ height:96dvh!important;max-height:96dvh!important;
+ padding:8px 8px 24px!important;
+ overflow-x:hidden!important;overflow-y:auto!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen .shell{
+ width:100%!important;max-width:100%!important;
+ padding:0 9px 42px!important;
+ box-sizing:border-box!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen .layout{
+ display:block!important;grid-template-columns:minmax(0,1fr)!important;
+ width:100%!important;min-width:0!important;padding-top:10px!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen .layout > .col{
+ display:block!important;width:100%!important;min-width:0!important;
+ max-width:100%!important;grid-column:auto!important;grid-row:auto!important;
+ margin:0 0 16px!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen .identity-top{
+ grid-template-columns:76px minmax(0,1fr)!important;
+ gap:10px!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen .portrait{width:70px!important;height:76px!important}
+body.nex-vtt-sheet-overlay #sheetScreen .attributes{
+ width:min(100%,330px)!important;max-width:330px!important;
+ margin:9px auto 14px!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen .right .tabs{
+ position:sticky!important;top:55px!important;z-index:10!important;
+ display:flex!important;width:100%!important;max-width:100%!important;
+ overflow-x:auto!important;flex-wrap:nowrap!important;
+ background:#111!important;scrollbar-width:thin!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen .right .tabs .tab{
+ flex:0 0 auto!important;min-height:42px!important;
+ font-size:11px!important;padding:9px 10px!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen .middle,
+body.nex-vtt-sheet-overlay #sheetScreen .right{
+ overflow-x:hidden!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen :is(input,select,textarea){
+ max-width:100%;min-width:0;
+}
+body.nex-vtt-sheet-overlay #sheetScreen .mini-nav{
+ overflow-x:auto!important;max-width:100%!important;
+}
+body.nex-vtt-sheet-overlay #nexVttSheetClose{
+ position:sticky!important;top:0!important;z-index:1000010!important;
+ font-size:13px!important;padding:12px 14px!important;
+}
+@media(max-width:700px){
+ body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){
+  inset:0 auto auto 0!important;transform:none!important;
+  width:100vw!important;max-width:100vw!important;
+  height:100dvh!important;max-height:100dvh!important;
+  border-radius:0!important;padding:5px 5px 18px!important;
+ }
+ body.nex-vtt-sheet-overlay #sheetScreen .shell{padding:0 6px 48px!important}
+ body.nex-vtt-sheet-overlay #sheetScreen .right .tabs{top:51px!important}
+}
+</style>
 <style id="nex-campaign-tabletop-fullscreen">
 body.nex-tabletop-body{overflow:hidden!important}
 #campaignPanel.nex-tabletop-expanded{position:fixed!important;inset:0!important;z-index:999999!important;display:block!important;width:100vw!important;height:100dvh!important;max-width:none!important;margin:0!important;padding:0!important;background:#08090b!important;overflow:hidden!important}
