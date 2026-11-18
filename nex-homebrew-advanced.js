@@ -362,32 +362,44 @@
     #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-row button{font-size:10px!important;padding:4px!important}
     #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-row select{padding:5px!important}
   }
-  /* O editor de NPC exibe perícia(atributo), Nd20+bônus e o D20 como a ficha. */
+  /* Perícias de NPC: editor compacto, sem espaços excessivos. */
   #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline{
-    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(165px,auto) 72px!important;
-    gap:9px!important;align-items:center!important;
+    display:grid!important;grid-template-columns:minmax(0,1fr) 118px 53px!important;
+    gap:5px!important;align-items:center!important;
+    min-height:32px!important;padding:3px 0!important;
+  }
+  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline select{
+    min-height:28px!important;height:28px!important;padding:3px 7px!important;
+    font-size:11px!important;
+  }
+  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline button[data-npc-skill-remove]{
+    min-height:28px!important;height:28px!important;padding:3px!important;
+    font-size:10px!important;
   }
   #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-dice-formula{
-    display:flex!important;align-items:center!important;gap:3px!important;
-    min-height:36px!important;white-space:nowrap!important;color:#fff!important;
+    display:flex!important;align-items:center!important;gap:2px!important;
+    min-height:28px!important;white-space:nowrap!important;color:#fff!important;
+    font-size:11px!important;
   }
   #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline .nex-hb-npc-dice-auto{
-    background:none!important;border:0!important;padding:0 2px!important;min-height:0!important;
-    font-size:13px!important;cursor:default!important;
+    background:none!important;border:0!important;padding:0!important;min-height:0!important;
+    font-size:11px!important;cursor:default!important;
   }
-  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-bonus-sign{font-weight:800;font-size:13px}
+  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-bonus-sign{font-weight:800;font-size:11px}
   #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline input[data-npc-skill-bonus]{
-    width:44px!important;min-width:44px!important;min-height:32px!important;padding:4px!important;
+    width:31px!important;min-width:31px!important;height:27px!important;min-height:27px!important;
+    padding:2px!important;font-size:11px!important;
   }
   #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-dice-formula .nex-hb-npc-d20-image{
-    width:20px!important;height:22px!important;display:block!important;object-fit:contain!important;
+    width:15px!important;height:17px!important;display:block!important;object-fit:contain!important;
   }
   @media(max-width:560px){
     #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline{
-      grid-template-columns:minmax(0,1fr) minmax(142px,auto) 56px!important;gap:5px!important;
+      grid-template-columns:minmax(0,1fr) 111px 49px!important;gap:4px!important;
     }
-    #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-dice-formula{gap:2px!important}
-    #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline input[data-npc-skill-bonus]{width:36px!important;min-width:36px!important}
+    #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline input[data-npc-skill-bonus]{
+      width:29px!important;min-width:29px!important;
+    }
   }
   #homebrewScreen .nex-hb-npc-roll-row{padding:0;margin:0;border-bottom:1px solid #45343e}
   #homebrewScreen .nex-hb-npc-roll{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:39px;border:0;background:transparent;color:#f3eaf0;padding:7px 4px;cursor:pointer;text-align:left}
