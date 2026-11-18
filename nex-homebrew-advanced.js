@@ -79,6 +79,7 @@
   out.npcSkills=normalizeNpcSkills(raw.npcSkills);
   out.actions=Array.isArray(raw.actions)?raw.actions.slice(0,12).map(a=>({
     name:cut(a?.name||'',90),action:cut(a?.action??'Padrão',60),
+    kind:a?.kind==='ability'||a?.kind==='attack'?a.kind:(a?.damage||a?.secondaryDamage?'attack':'ability'),
     test:cut(a?.test||'',80),damage:cut(a?.damage||'',80),secondaryDamage:cut(a?.secondaryDamage||'',80),secondaryType:cut(a?.secondaryType||'Normal',40),
     range:cut(a?.range||'',70),effect:cut(a?.effect||'',1000)
   })).filter(a=>a.name):[];
@@ -402,7 +403,12 @@
       width:29px!important;min-width:29px!important;
     }
   }
-  #homebrewScreen .nex-hb-action-roll{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;max-width:340px!important;width:100%!important;padding:7px 9px!important;margin:5px 0!important;background:#24151c!important;border:1px solid #65404a!important;border-radius:6px!important;color:#f5eaf0!important;cursor:pointer!important;text-align:left!important;font-size:12px!important}
+  #homebrewScreen .nex-hb-npc-action-group{margin:10px 0 20px;padding:12px;border:1px solid #58313f;border-radius:8px;background:#1c1218}
+  #homebrewScreen .nex-hb-npc-action-group-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+  #homebrewScreen .nex-hb-npc-action-group h4{margin:0 0 4px;font-size:15px;color:#f5d9e1}
+  #homebrewScreen .nex-hb-npc-action-group-head p{font-size:11px;color:#bfaeb6;margin:0}
+  #homebrewScreen .nex-hb-npc-action-group .nex-hb-threat-action-editor{margin-top:8px}
+    #homebrewScreen .nex-hb-action-roll{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;max-width:340px!important;width:100%!important;padding:7px 9px!important;margin:5px 0!important;background:#24151c!important;border:1px solid #65404a!important;border-radius:6px!important;color:#f5eaf0!important;cursor:pointer!important;text-align:left!important;font-size:12px!important}
   #homebrewScreen .nex-hb-action-roll:hover{background:#44212d!important;border-color:#c44e66!important}
   #homebrewScreen .nex-hb-action-roll .nex-hb-npc-d20-image{display:block!important;width:19px!important;height:21px!important;flex-shrink:0!important;object-fit:contain!important}
   #homebrewScreen .nex-hb-action-info{font-size:12px!important;padding:6px 2px!important}
@@ -635,7 +641,11 @@
    const abilityPanel=mount.querySelector('[data-threat-editor-panel="combate"]');
    const abilityHeading=abilityPanel?.querySelector('h4');
    if(abilityHeading)abilityHeading.textContent=npc?'Habilidades e ações':'Ações e ataques';
-   $('nexHbThreatAddAction').textContent=npc?'+ Adicionar habilidade/ação':'+ Adicionar ação';
+   $('nexHbThreatAddAction').textContent='+ Adicionar ação';
+   $('nexHbThreatAddAction').hidden=npc;
+   if(npc)$('nexHbThreatAddAction').style.setProperty('display','none','important');
+   else $('nexHbThreatAddAction').style.removeProperty('display');
+   renderThreatActions();
    for(const id of ['nex52CreatureType','nex52Size','nexHbThreatElement','nex52VD']){
      const label=$(id).closest('label');
      label.hidden=npc;
@@ -977,19 +987,30 @@
  let openThreatActionIndex=null;
  function renderThreatActions(){
   const el=$('nexHbThreatActions');if(!el)return;
-  el.innerHTML=threatActions.map((a,i)=>{
+  const npc=$('nex51Type').value==='npc';
+  const kindFor=a=>a.kind==='attack'||a.kind==='ability'?a.kind:(a.damage||a.secondaryDamage?'attack':'ability');
+  const row=(a,i)=>{
    const expanded=openThreatActionIndex===i;
+   const kind=kindFor(a);
    const title=[a.action,a.name||'Sem nome'].filter(Boolean).join(' — ');
+   const attackFields=[['name','Nome'],['action','Tipo de ação'],['test','Teste (opcional)'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Descrição / efeito']];
+   const abilityFields=[['name','Nome da habilidade'],['action','Ativação (opcional)'],['test','Rolagem (opcional)'],['effect','Descrição / efeito']];
+   const fields=npc&&kind==='ability'?abilityFields:attackFields;
    return '<div class="nex-hb-threat-action-editor" data-threat-row="'+i+'">'+
     '<div class="nex-hb-threat-action-summary">'+
       '<button type="button" class="nex-hb-threat-action-toggle" data-threat-toggle="'+i+'" aria-expanded="'+expanded+'"><strong>'+esc(title)+'</strong><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
       (!expanded?'<div class="nex-hb-threat-action-controls"><button type="button" class="btn sm" data-threat-edit="'+i+'">Editar</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div>':'')+
     '</div>'+
     (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
-     [['name','Nome'],['action','Tipo / ativação'],['test','Teste (opcional)'],['damage','Dano (opcional)'],['secondaryDamage','Dano secundário (opcional)'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Efeito / descrição']].map(([k,label])=>'<label>'+label+(k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="2">'+esc(a[k]||'')+'</textarea>':'<input data-threat-key="'+k+'" maxlength="90" value="'+esc(a[k]||'')+'">')+'</label>').join('')+
-     '</div><div class="nex-hb-threat-action-controls"><button type="button" class="btn primary sm" data-threat-save="'+i+'">Salvar ação</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div></div>':'')+
+     fields.map(([k,label])=>'<label>'+label+(k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="3">'+esc(a[k]||'')+'</textarea>':'<input data-threat-key="'+k+'" maxlength="90" value="'+esc(a[k]||'')+'">')+'</label>').join('')+
+     '</div><div class="nex-hb-threat-action-controls"><button type="button" class="btn primary sm" data-threat-save="'+i+'">Salvar '+(npc&&kind==='ability'?'habilidade':'ataque')+'</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div></div>':'')+
     '</div>';
-  }).join('');
+  };
+  if(npc){
+   const group=(kind,title,caption)=>'<section class="nex-hb-npc-action-group"><div class="nex-hb-npc-action-group-head"><div><h4>'+title+'</h4><p>'+caption+'</p></div><button type="button" class="btn sm" data-npc-add-kind="'+kind+'">+ Adicionar '+(kind==='ability'?'habilidade':'ataque')+'</button></div>'+
+     threatActions.map((a,i)=>kindFor(a)===kind?row(a,i):'').join('')+'</section>';
+   el.innerHTML=group('ability','Habilidades','Passivas, suporte, cura e habilidades especiais. Rolagens são opcionais.')+group('attack','Ataques','Testes, dano e dano secundário com rolagens.');
+  }else el.innerHTML=threatActions.map(row).join('');
  }
  function readThreatSheet(){
   const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=num(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value,0,6,1);});
@@ -1017,7 +1038,7 @@
  $('nexHbThreatAddAction').addEventListener('click',()=>{
   const npc=$('nex51Type').value==='npc';
   if(threatActions.length>=12){message('Limite de 12 habilidades/ações para esta ficha.');return;}
-  threatActions.push({name:npc?'Nova habilidade':'Nova ação',action:npc?'':'Padrão',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});openThreatActionIndex=threatActions.length-1;renderThreatActions();
+  threatActions.push({kind:'attack',name:'Nova ação',action:'Padrão',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});openThreatActionIndex=threatActions.length-1;renderThreatActions();
  });
  $('nexHbThreatActions').addEventListener('input',event=>{
   const row=event.target.closest('[data-threat-row]'),field=event.target.closest('[data-threat-key]');
@@ -1025,6 +1046,13 @@
  });
  $('nexHbThreatActions').addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn)return;
+  if(btn.hasAttribute('data-npc-add-kind')){
+   if(threatActions.length>=12){message('Limite de 12 habilidades e ataques para esta ficha.');return;}
+   const kind=btn.dataset.npcAddKind;
+   if(kind!=='ability'&&kind!=='attack')return;
+   threatActions.push({kind,name:kind==='ability'?'Nova habilidade':'Novo ataque',action:'',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});
+   openThreatActionIndex=threatActions.length-1;renderThreatActions();return;
+  }
   if(btn.hasAttribute('data-threat-delete')){
     const index=Number(btn.dataset.threatDelete);
     threatActions.splice(index,1);
@@ -1079,18 +1107,22 @@
       '<img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true">'+
     '</button>';
   };
-  const combatPanel=(t.actions.length?t.actions.map((a,index)=>
-    '<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong>'+
+  const renderCombatAction=(a,index)=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong>'+
     (a.action?'<p>'+esc(a.action)+'</p>':'')+
     actionDiceButton('Teste',a.test,index,'test')+
     actionDiceButton('Dano',a.damage,index,'damage')+
     actionDiceButton('Dano secundário',a.secondaryDamage,index,'secondaryDamage')+
-    (a.secondaryType?'<p>Tipo: '+esc(a.secondaryType)+'</p>':'')+
+    (a.secondaryType&&a.secondaryDamage?'<p>Tipo: '+esc(a.secondaryType)+'</p>':'')+
     (a.range?'<p>Alcance: '+esc(a.range)+'</p>':'')+
     (a.effect?'<p>'+esc(a.effect)+'</p>':'')+
     (extractNpcDiceFormula(a.effect)?actionDiceButton('Rolar efeito',a.effect,index,'effect'):'')+
-    '<p class="nex-hb-action-roll-result" role="status" aria-live="polite" hidden></p></div>'
-   ).join(''):'<p>Nenhuma ação cadastrada.</p>');
+    '<p class="nex-hb-action-roll-result" role="status" aria-live="polite" hidden></p></div>';
+  const combatPanel=item.type==='npc'?
+    ['ability','attack'].map(kind=>{
+     const entries=t.actions.map((a,index)=>({a,index})).filter(({a})=>(a.kind==='attack'||a.kind==='ability'?a.kind:(a.damage||a.secondaryDamage?'attack':'ability'))===kind);
+     return '<section class="nex-hb-npc-action-group"><h4>'+(kind==='ability'?'Habilidades':'Ataques')+'</h4>'+
+        (entries.length?entries.map(({a,index})=>renderCombatAction(a,index)).join(''):'<p>Nenhum registro cadastrado.</p>')+'</section>';
+    }).join(''):(t.actions.length?t.actions.map(renderCombatAction).join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+(item.type==='npc'?'':note('Enigma de Medo',t.enigma));
   return '<section class="nex-hb-threat-sheet'+(item.type==='npc'?' nex-hb-npc-preview':'')+'" data-nex-threat-preview style="--nex-threat-bg:'+(item.type==='npc'?'none':'url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;)')+';--nex-threat-accent:'+esc(threatBg.color)+'">'+
    '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem de '+esc(LABEL[item.type])+'">':'')+
