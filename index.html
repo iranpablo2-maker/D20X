@@ -4335,12 +4335,16 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
  const original=String(detail||'').trim(),guidance=NEX_ABILITY_EXPLANATIONS[String(name||'').trim()];
  const parts=original?[original]:[];
  if(guidance&&!original.includes(guidance))parts.push('Aplicação na ficha: '+guidance);
- if(extra.originName){
-  const o=NEX12_ORIGINS.find(x=>x[0]===extra.originName);
+ const originName=extra.originName||(String(source||'').startsWith('Origem: ')?String(source).slice(8).split(' · ')[0]:'');
+ if(originName){
+  const o=NEX12_ORIGINS.find(x=>x[0]===originName);
   const skills=o?[o[1],o[2]].filter(Boolean):[];
   if(skills.length)parts.push('Perícias concedidas pela origem: '+skills.join(' e ')+'.');
  }
- if(extra.trail&&Number(extra.req)>0)parts.push('Progressão: trilha '+extra.trail+' — habilidade liberada no NEX '+extra.req+'%.');
+ const trailSource=String(source||'').match(/^Trilha: (.+?) · NEX (\\d+)%$/);
+ const trailName=extra.trail||trailSource?.[1];
+ const trailNex=Number(extra.req||trailSource?.[2]||0);
+ if(trailName&&trailNex>0)parts.push('Progressão: trilha '+trailName+' — habilidade liberada no NEX '+trailNex+'%.');
  if(extra.classPower)parts.push('Classe exigida: '+extra.classPower+'. Consulte os pré-requisitos do poder antes de selecioná-lo.');
  if(!parts.length)parts.push('Esta entrada ainda não possui descrição mecânica verificada; nenhum efeito numérico adicional foi presumido.');
  return parts.join('\n\n');
