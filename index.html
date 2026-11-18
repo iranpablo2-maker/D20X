@@ -2963,6 +2963,55 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    if(show)captureDisplayedFields();
    return persist(show);
  };
+ // A ficha operacional deve ficar ACOPLADA à borda da janela,
+ // não no centro da área do Tabletop. Reforço inline evita estilos legados conflitantes.
+ function syncVttRealSheetDock(){
+  const sheet=$('sheetScreen');
+  const campaign=$('campaignPanel');
+  const host=campaign?.querySelector('.nex-campaign-integrated');
+  const frame=$('nexCampaignRoomFrame');
+  if(!sheet||!host||!frame)return;
+  const propsSheet=['position','top','left','right','bottom','transform','width','max-width','min-width','height','max-height','margin','border-radius'];
+  const propsHost=['left','right','top','bottom','width','max-width','height','max-height'];
+  const propsFrame=['width','max-width','height','max-height'];
+  const cleanup=(node,props)=>{for(const prop of props)node.style.removeProperty(prop);};
+  const set=(node,prop,value)=>node.style.setProperty(prop,value,'important');
+  const active=document.body.classList.contains('nex-vtt-sheet-overlay')
+    &&campaign.classList.contains('nex-tabletop-expanded')
+    &&!sheet.classList.contains('hide');
+  if(!active){
+   cleanup(sheet,propsSheet);
+   cleanup(host,propsHost);
+   cleanup(frame,propsFrame);
+   return;
+  }
+  const split=window.innerWidth>=740;
+  const dockWidth=Math.min(480,Math.max(320,Math.round(window.innerWidth*.32)));
+  const bounds=split
+    ?{top:'0',bottom:'0',left:'auto',right:'0',width:dockWidth+'px',height:'100dvh'}
+    :{top:'auto',bottom:'0',left:'0',right:'0',width:'100vw',height:'64dvh'};
+  set(sheet,'position','fixed');
+  for(const [prop,value] of Object.entries(bounds))set(sheet,prop,value);
+  set(sheet,'transform','none');
+  set(sheet,'min-width','0');
+  set(sheet,'max-width',bounds.width);
+  set(sheet,'max-height',bounds.height);
+  set(sheet,'margin','0');
+  set(sheet,'border-radius','0');
+  set(host,'left','0');
+  set(host,'right','auto');
+  set(host,'top','0');
+  set(host,'bottom','auto');
+  const remainingWidth=split?'calc(100vw - '+dockWidth+'px)':'100vw';
+  const remainingHeight=split?'100dvh':'36dvh';
+  for(const node of [host,frame]){
+   set(node,'width',remainingWidth);
+   set(node,'max-width',remainingWidth);
+   set(node,'height',remainingHeight);
+   set(node,'max-height',remainingHeight);
+  }
+ }
+ window.addEventListener('resize',syncVttRealSheetDock);
  function visible(which){
   const tabletop=$('campaignPanel')?.classList.contains('nex-tabletop-expanded');
   const sheetOverlay=which==='sheet'&&tabletop;
@@ -2975,6 +3024,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   $('wizardScreen').classList.toggle('hide',which!=='wizard');
   $('homebrewScreen').classList.toggle('hide',which!=='homebrew');
   document.body.classList.toggle('nex-vtt-sheet-overlay',sheetOverlay);
+  syncVttRealSheetDock();
   let close=document.getElementById('nexVttSheetClose');
   if(sheetOverlay&&!close){
     close=document.createElement('button');
@@ -5020,9 +5070,9 @@ const PARANORMAL=[
 <style id="nex-vtt-sheet-overlay-style">
 /* Ficha operacional dentro da mesa: mantém o iframe, mapa e sincronização ativos. */
 body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){
- position:fixed!important;z-index:1000002!important;top:3.5vh!important;left:50%!important;
- transform:translateX(-50%)!important;width:min(1100px,93vw)!important;
- max-width:93vw!important;height:93dvh!important;max-height:93dvh!important;
+ position:fixed!important;z-index:1000002!important;top:0!important;left:auto!important;right:0!important;
+ transform:none!important;width:min(480px,38vw)!important;
+ max-width:100vw!important;height:100dvh!important;max-height:100dvh!important;
  overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain!important;
  background:#0d0e12!important;border:1px solid #853b48!important;border-radius:12px!important;
  box-shadow:0 20px 90px rgba(0,0,0,.8)!important;padding:8px 12px 24px!important;
@@ -5040,9 +5090,9 @@ body.nex-vtt-sheet-overlay #sheetScreen:not(.hide) .shell{max-width:100%!importa
 <style id="nex-vtt-mobile-sheet-in-tabletop-v1">
 /* Aplica o layout da ficha móvel somente quando aberta na mesa virtual. */
 body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){
- top:2vh!important;left:50%!important;transform:translateX(-50%)!important;
- width:min(480px,96vw)!important;max-width:96vw!important;
- height:96dvh!important;max-height:96dvh!important;
+ top:0!important;left:auto!important;right:0!important;transform:none!important;
+ width:min(480px,38vw)!important;max-width:100vw!important;
+ height:100dvh!important;max-height:100dvh!important;
  padding:8px 8px 24px!important;
  overflow-x:hidden!important;overflow-y:auto!important;
 }
