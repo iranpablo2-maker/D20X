@@ -69,13 +69,20 @@ function weaponTraining(item){
  const required=/(?:^|\W)(?:armas? )?pesad[ao]s?(?:\W|$)/.test(text)?'Armas pesadas':
  /(?:^|\W)(?:armas? )?tatic[ao]s?(?:\W|$)/.test(text)?'Armas táticas':
  /(?:^|\W)(?:armas? )?simples(?:\W|$)/.test(text)?'Armas simples':'';
- const powers=[...(Array.isArray(state.powers)?state.powers:[]),...(Array.isArray(state.n16?.abilities)?state.n16.abilities:[])].map(x=>norm(x.name));
+ const powers=[...(Array.isArray(state.powers)?state.powers:[]),...(Array.isArray(state.n16?.abilities)?state.n16.abilities:[])].map(x=>norm(x?.name));
  const names=new Set(['Armas simples']);
- if(state.class==='Combatente')names.add('Armas táticas');
- if(powers.includes('ninja urbano'))names.add('Armas táticas');
- if(powers.includes('armamento pesado'))names.add('Armas pesadas');
+ const cls=String(state.class||'');
+ if(cls==='Combatente')names.add('Armas táticas');
+ if(cls==='Combatente'&&powers.includes('armamento pesado'))names.add('Armas pesadas');
+ // Cada poder concede apenas o grupo de armas indicado, não todas as armas táticas.
+ const firearm=/(?:arma(?:s)? de fogo|pistola|revolver|rifle|fuzil|submetralhadora|espingarda|metralhadora)/.test(text);
+ const tacticalFirearm=cls==='Especialista'&&powers.includes('balistica avancada')&&firearm;
+ const tacticalOther=cls==='Especialista'&&powers.includes('ninja urbano')&&!firearm;
  for(const x of state.nexDefenseSelect?.extraProficiencies||[])names.add(x);
- return {required,allowed:required?names.has(required):false};
+ const allowed=required==='Armas táticas'
+   ? names.has(required)||tacticalFirearm||tacticalOther
+   : (required?names.has(required):false);
+ return {required,allowed};
 }
 window.NEX_WEAPON_PROFICIENCY=weaponTraining;
 function homebrewItems(){
