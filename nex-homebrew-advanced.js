@@ -896,8 +896,8 @@
        '</select>'+
        '<span class="nex-hb-npc-dice-formula" title="'+esc(tip)+'">'+
          '<span class="nex-hb-npc-dice-auto" data-npc-auto-dice>'+esc(dice.count)+'d20</span>'+
-         '<span class="nex-hb-npc-bonus-sign">'+(row.bonus<0?'−':'+')+'</span>'+
-         '<input type="number" data-npc-skill-bonus min="-99" max="99" step="1" value="'+esc(Math.abs(row.bonus))+'" aria-label="Valor do bônus da perícia">'+
+         '<span class="nex-hb-npc-bonus-sign">'+(row.bonus<0?'':'+')+'</span>'+
+         '<input type="number" data-npc-skill-bonus min="-99" max="99" step="1" value="'+esc(row.bonus)+'" aria-label="Valor do bônus da perícia">'+
          '<img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true">'+
        '</span>'+
        '<button type="button" class="btn sm" data-npc-skill-remove="'+index+'" aria-label="Excluir '+esc(row.name)+'">Excluir</button>'+
@@ -926,7 +926,7 @@
      }
      entry.name=name;
    }else if(event.target.matches('[data-npc-skill-bonus]')){
-     entry.bonus=(entry.bonus<0?-1:1)*num(event.target.value,0,99,0);
+     entry.bonus=num(event.target.value,-99,99,0);
      renderNpcSkills();
    }
  });
