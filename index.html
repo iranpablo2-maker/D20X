@@ -2121,6 +2121,22 @@ body.nex-vtt-sheet-overlay #sheetScreen #notes #backstory{
 body.nex-vtt-sheet-overlay #sheetScreen #notes #notesText{
  min-height:110px!important;
 }
+
+/* NEX Tabletop: somente descricao e historia */
+body.nex-vtt-sheet-overlay #sheetScreen #notes .stack>.field:has(#personality),
+body.nex-vtt-sheet-overlay #sheetScreen #notes .stack>.field:has(#objective),
+body.nex-vtt-sheet-overlay #sheetScreen #notes .stack>.field:has(#notesText){
+ display:none!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen #notes label[for="appearance"]{
+ font-size:0!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen #notes label[for="appearance"]::after{
+ content:"DESCRIÇÃO";font-size:11px!important;line-height:1.35!important;
+}
+body.nex-vtt-sheet-overlay #sheetScreen #notes #appearance{
+ min-height:125px!important;
+}
 </style>
 </head><body>
 <script src="nex-sobrevivendo-ao-horror.js?v=2072"></script>
