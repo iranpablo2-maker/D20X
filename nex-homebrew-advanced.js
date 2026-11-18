@@ -362,6 +362,33 @@
     #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-row button{font-size:10px!important;padding:4px!important}
     #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-row select{padding:5px!important}
   }
+  /* O editor de NPC exibe perícia(atributo), Nd20+bônus e o D20 como a ficha. */
+  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline{
+    display:grid!important;grid-template-columns:minmax(0,1fr) minmax(165px,auto) 72px!important;
+    gap:9px!important;align-items:center!important;
+  }
+  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-dice-formula{
+    display:flex!important;align-items:center!important;gap:3px!important;
+    min-height:36px!important;white-space:nowrap!important;color:#fff!important;
+  }
+  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline .nex-hb-npc-dice-auto{
+    background:none!important;border:0!important;padding:0 2px!important;min-height:0!important;
+    font-size:13px!important;cursor:default!important;
+  }
+  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-bonus-sign{font-weight:800;font-size:13px}
+  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline input[data-npc-skill-bonus]{
+    width:44px!important;min-width:44px!important;min-height:32px!important;padding:4px!important;
+  }
+  #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-dice-formula .nex-hb-npc-d20-image{
+    width:20px!important;height:22px!important;display:block!important;object-fit:contain!important;
+  }
+  @media(max-width:560px){
+    #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline{
+      grid-template-columns:minmax(0,1fr) minmax(142px,auto) 56px!important;gap:5px!important;
+    }
+    #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-dice-formula{gap:2px!important}
+    #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline input[data-npc-skill-bonus]{width:36px!important;min-width:36px!important}
+  }
   #homebrewScreen .nex-hb-npc-roll-row{padding:0;margin:0;border-bottom:1px solid #45343e}
   #homebrewScreen .nex-hb-npc-roll{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:39px;border:0;background:transparent;color:#f3eaf0;padding:7px 4px;cursor:pointer;text-align:left}
   #homebrewScreen .nex-hb-npc-roll:hover{background:#48222b55;color:white}
@@ -860,22 +887,25 @@
    const root=$('nexHbNpcSkillsList');
    if(!root)return;
    const attrs=currentNpcAttributes();
-   const header='<div class="nex-hb-npc-skills-head" aria-hidden="true"><span>Perícia</span><span>Dados</span><span>Bônus</span><span></span></div>';
-   root.innerHTML=npcSkillRows.length?header+npcSkillRows.map((row,index)=>{
+   root.innerHTML=npcSkillRows.length?npcSkillRows.map((row,index)=>{
      const dice=npcSkillDice(row,attrs);
      const tip='Atributo '+dice.attribute.toUpperCase()+' '+dice.value+': '+dice.count+'d20'+(dice.keepLowest?' (usar o menor)':' (usar o maior)');
-     return '<div class="nex-hb-npc-skill-row" data-npc-skill-index="'+index+'">'+
+     return '<div class="nex-hb-npc-skill-row nex-hb-npc-skill-inline" data-npc-skill-index="'+index+'">'+
        '<select data-npc-skill-name aria-label="Perícia do NPC">'+
-       NPC_SKILLS.map(skill=>'<option value="'+esc(skill)+'"'+(skill===row.name?' selected':'')+'>'+esc(skill)+'</option>').join('')+
+       NPC_SKILLS.map(skill=>'<option value="'+esc(skill)+'"'+(skill===row.name?' selected':'')+'>'+esc(skill)+'('+esc((NPC_SKILL_ATTR[skill]||'int').toUpperCase())+')</option>').join('')+
        '</select>'+
-       '<span class="nex-hb-npc-dice-auto" data-npc-auto-dice title="'+esc(tip)+'" aria-label="'+esc(tip)+'">'+esc(dice.count)+'d20</span>'+
-       '<input type="number" data-npc-skill-bonus min="-99" max="99" step="1" value="'+esc(row.bonus)+'" aria-label="Bônus da perícia">'+
+       '<span class="nex-hb-npc-dice-formula" title="'+esc(tip)+'">'+
+         '<span class="nex-hb-npc-dice-auto" data-npc-auto-dice>'+esc(dice.count)+'d20</span>'+
+         '<span class="nex-hb-npc-bonus-sign">'+(row.bonus<0?'−':'+')+'</span>'+
+         '<input type="number" data-npc-skill-bonus min="-99" max="99" step="1" value="'+esc(Math.abs(row.bonus))+'" aria-label="Valor do bônus da perícia">'+
+         '<img class="nex-hb-npc-d20-image" src="'+NPC_D20_ICON+'" alt="" aria-hidden="true">'+
+       '</span>'+
        '<button type="button" class="btn sm" data-npc-skill-remove="'+index+'" aria-label="Excluir '+esc(row.name)+'">Excluir</button>'+
      '</div>';
    }).join(''):'<p class="nex-hb-npc-skills-empty">Nenhuma perícia selecionada.</p>';
    $('nexHbNpcAddSkill').disabled=npcSkillRows.length>=NPC_SKILLS.length;
  }
- $('nexHbNpcAddSkill').addEventListener('click',()=>{
+  $('nexHbNpcAddSkill').addEventListener('click',()=>{
    if(npcSkillRows.length>=NPC_SKILLS.length)return;
    const name=NPC_SKILLS.find(s=>!npcSkillRows.some(row=>row.name===s));
    if(!name)return;
@@ -896,7 +926,7 @@
      }
      entry.name=name;
    }else if(event.target.matches('[data-npc-skill-bonus]')){
-     entry.bonus=num(event.target.value,-99,99,0);
+     entry.bonus=(entry.bonus<0?-1:1)*num(event.target.value,0,99,0);
      renderNpcSkills();
    }
  });
