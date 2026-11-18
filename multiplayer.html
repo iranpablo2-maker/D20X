@@ -2475,6 +2475,28 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  #roomTabletopPanel #nexVttSheetsPanel .nex-vtt-sheet{min-height:51px}
 }
 </style>
+<style id="nex-vtt-remove-characters-sidepanel-v1">
+/* Ocultar somente o antigo painel lateral de Personagens do Tabletop.
+   Os registros e o editor original das fichas continuam intactos. */
+#room #roomTabletopPanel #nexVttSheetsPanel,
+#room #roomTabletopPanel #nexVttResizeHandle{
+ display:none!important;
+ visibility:hidden!important;
+ pointer-events:none!important;
+}
+#room #roomTabletopPanel #nexVttSheetsToggle,
+#room #roomTabletopPanel #nexVttNavSheets,
+#room #roomTabletopPanel #nexVttQuickSheets,
+#room #roomTabletopPanel #nexVttMenuSheets,
+#room #roomTabletopPanel [data-nex-main-tab="sheets"],
+#room #roomTabletopPanel #nexVttBar button[title="Abrir ou recolher o painel de fichas"],
+#room #roomTabletopPanel .nex-vtt-right-tabs button[title="Mostrar fichas"]{
+ display:none!important;
+}
+#room #roomTabletopPanel .nex-vtt-stage{
+ flex:1 1 auto!important;min-width:0!important;
+}
+</style>
 </head>
 <body>
 <script>
@@ -2689,7 +2711,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
  </section>
 </section>
 </main>
-<script>window.NEX_CAMPAIGN_UI_VERSION="20261118fullsheet1";</script>
+<script>window.NEX_CAMPAIGN_UI_VERSION="20261118nocharacterspanel1";</script>
 <script src="./firebase-config.js?v=20261112"></script>
 <script>
 window.addEventListener('error',function(event){
@@ -3811,12 +3833,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
   }
   menuTabs.forEach(btn=>btn.addEventListener('click',()=>{
-   if(btn.dataset.nexMainTab==='sheets'){
-    updateMenu(false);
-    const panel=$('nexVttSheetsPanel');
-    if(panel){panel.hidden=false;renderVttSheets();syncVttPanels();}
-    return;
-   }
+   if(btn.dataset.nexMainTab==='sheets')return; // Aba removida do Tabletop.
    showMainTab(btn.dataset.nexMainTab);
    if(btn.dataset.nexMainTab==='art'){
     const active=libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer||'mapa';
@@ -3935,11 +3952,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  window.addEventListener('resize',()=>{
    vttResize.hidden=vttSheetPanel.hidden||vttMobile();
  });
+  // Painel lateral desativado no Tabletop. Mantenha o elemento oculto para
+  // compatibilidade com o controlador da mesa e as fichas salvas.
   $('nexVttSheetsToggle').addEventListener('click',()=>{
-  const panel=$('nexVttSheetsPanel');panel.hidden=!panel.hidden;
-  if(!panel.hidden){updateMenu(false);renderVttSheets();}
-  syncVttPanels();
- });
+   $('nexVttSheetsPanel').hidden=true;
+   syncVttPanels();
+  });
  $('nexVttSheetsClose').addEventListener('click',()=>{$('nexVttSheetsPanel').hidden=true;syncVttPanels();});
  $('nexVttSheetsList').addEventListener('click',event=>{const button=event.target.closest('[data-vtt-mini-sheet]');if(button){openVttSheet(button.dataset.vttMiniSheet);}});
  $('nexVttReload')?.addEventListener('click',()=>{
