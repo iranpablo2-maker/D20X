@@ -2577,7 +2577,7 @@ function nexHomebrewBonuses(){
  for(const item of Array.isArray(state.nex51Items)?state.nex51Items:[]){
    if(!item||typeof item!=='object')continue;
    if(item.type==='trilha'){
-     if(item.className!==state.class||item.name!==state.trail)continue;
+     if(item.className!==state.class||item.name!==(state.trailByClass?.[state.class]||state.trail))continue;
      for(const stage of Array.isArray(item.trailAbilities)?item.trailAbilities:[]){
        if(Number(stage.nex)>nex)continue;
        const effects=Array.isArray(stage.bonuses)?stage.bonuses:(stage.bonusType?[{type:stage.bonusType,value:stage.bonusValue}]:[]);
@@ -2587,6 +2587,11 @@ function nexHomebrewBonuses(){
      // Item ou maldição só aplicam benefícios após confirmação de equipamento/ativação.
      continue;
    }else{
+     // Aplica somente origens escolhidas e poderes realmente registrados na ficha.
+     const isOrigin=item.type==='origem'&&item.name===state.origin;
+     const isPower=['poder','poder_geral','poder_paranormal','habilidade'].includes(item.type)&&
+       [...(state.powers||[]),...(state.n16?.abilities||[])].some(x=>x.catalogKey==='nexhb:'+item.id || (x.name===item.name && (x.source||'').includes('Homebrew')));
+     if(!isOrigin&&!isPower)continue;
      const effects=Array.isArray(item.effectBonuses)?item.effectBonuses:(item.effectBonusType?[{type:item.effectBonusType,value:item.effectBonusValue}]:[]);
      for(const effect of effects)apply(effect);
    }
@@ -4146,7 +4151,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   $id('skillsList').innerHTML='<div class="nexv16-skill-head"><span>Perícia</span><span>Dados</span><span>Bônus</span><span>Treino</span><span>Outros</span></div>'+
   SKILL_DATA.map(([name,attr])=>{
    const skill=state.skills[name]||{attr,training:0};
-   const training=int(skill.training),other=int(skill.other),total=training+other+(nexItemBonuses().skills[name]||0);
+   const training=int(skill.training),other=int(skill.other),total=training+other+(nexItemBonuses().skills[name]||0)+(nexHomebrewBonuses().pericia||0)+(nexHomebrewBonuses()[({Iniciativa:'iniciativa',Fortitude:'fortitude',Reflexos:'reflexos',Vontade:'vontade'})[name]]||0);
    return `<div class="nexv16-skill-row ${training>0?'trained':''}">
      <div class="nexv16-skill-name">
        <button class="nex-skill-dice-button" type="button" title="Rolar teste de ${escape(name)}" aria-label="Rolar teste de ${escape(name)}" data-nex-skill-roll="${escape(name)}"><img src="${NEX_SKILL_DICE_ICON}" alt="" aria-hidden="true"></button>
@@ -4248,7 +4253,7 @@ function abilityRecords(){
    return Object.prototype.hasOwnProperty.call(alias,raw)?alias[raw]:0;
  }
  function isBackpack(i){return /^(mochila|mochila militar)$/i.test(String(i?.name||'').trim())&&Number(i?.quantity)>0;}
- function capacity(){const force=Math.max(0,Number(state.attributes.for)||0);const bonus=typeof nexOfficialPassiveBonuses==='function'?nexOfficialPassiveBonuses().extraLoadAttributes:0;return (force+bonus===0?2:5*(force+bonus))+((state.items||[]).some(isBackpack)?2:0);}
+ function capacity(){const force=Math.max(0,Number(state.attributes.for)||0);const bonus=typeof nexOfficialPassiveBonuses==='function'?nexOfficialPassiveBonuses().extraLoadAttributes:0;return (force+bonus===0?2:5*(force+bonus))+((state.items||[]).some(isBackpack)?2:0)+(nexHomebrewBonuses().carga||0);}
  function spacesUsed(){return (state.items||[]).reduce((sum,i)=>sum+Math.max(0,Number(i.quantity)||0)*Math.max(0,Number(i.spaces??1)||0),0);}
  function categoryUsed(tier,omitId=null){
    return (state.items||[]).reduce((sum,i)=>sum+(String(i.id)===String(omitId)||itemTier(i)!==tier?0:Math.max(0,Math.trunc(Number(i.quantity)||0))),0);
@@ -4385,7 +4390,9 @@ function abilityRecords(){
    const skill=state.skills?.[name];
    const definition=SKILL_DATA.find(x=>x[0]===name);
    if(!definition||!skill)return;
-   const training=int(skill.training),others=int(skill.other)+(nexItemBonuses().skills[name]||0);
+   const hb=nexHomebrewBonuses();
+   const specific=({Iniciativa:'iniciativa',Fortitude:'fortitude',Reflexos:'reflexos',Vontade:'vontade'})[name];
+   const training=int(skill.training),others=int(skill.other)+(nexItemBonuses().skills[name]||0)+(hb.pericia||0)+(specific?(hb[specific]||0):0);
    const attr=skill.attr in state.attributes?skill.attr:definition[1];
    const count=clamp(int(state.attributes[attr])+(attr==='pre'?nexItemBonuses().presence:0),0,9);
    if(mustTrain.has(name)&&training<=0){
