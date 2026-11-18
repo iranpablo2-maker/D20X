@@ -77,6 +77,10 @@
   THREAT_TESTS.forEach(([k])=>{out[k]=cut(raw[k]??'',90);});
   THREAT_TEXT.forEach(([k])=>{out[k]=cut(raw[k]||'',k==='habilidades'?4000:1200);});
   out.npcSkills=normalizeNpcSkills(raw.npcSkills);
+  out.rituals=(Array.isArray(raw.rituals)?raw.rituals:[]).slice(0,80).map(r=>({
+    name:cut(r?.name||'',100),element:cut(r?.element||'',40),circle:num(r?.circle,1,4,1),
+    source:cut(r?.source||'',110),description:cut(r?.description||'',1300)
+  })).filter(r=>r.name);
   out.actions=Array.isArray(raw.actions)?raw.actions.slice(0,12).map(a=>({
     name:cut(a?.name||'',90),action:cut(a?.action??'Padrão',60),
     kind:a?.kind==='ability'||a?.kind==='attack'?a.kind:(a?.damage||a?.secondaryDamage?'attack':'ability'),
@@ -422,7 +426,19 @@
   #homebrewScreen .nex-hb-npc-attack-summary strong{color:#f6e6e9;font-size:12px;letter-spacing:.025em}
   #homebrewScreen .nex-hb-npc-attack-summary span{color:#e0d4d6;font-size:12px;font-weight:650}
   #homebrewScreen .nex-hb-npc-attack-summary small{color:#c6b9be;font-size:11px;white-space:normal;line-height:1.5}
-    #homebrewScreen .nex-hb-npc-action-buttons{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+    #homebrewScreen .nex-hb-threat-ritual-picker{border:1px solid #70404b;border-radius:8px;margin:8px 0 14px;padding:10px;background:#21151b}
+  #homebrewScreen .nex-hb-threat-ritual-picker[hidden]{display:none!important}
+  #homebrewScreen .nex-hb-threat-ritual-search{display:flex;gap:8px;align-items:end;justify-content:space-between}
+  #homebrewScreen .nex-hb-threat-ritual-search label{flex:1;font-size:12px}
+  #homebrewScreen .nex-hb-threat-ritual-search input{width:100%;margin-top:6px}
+  #homebrewScreen .nex-hb-threat-ritual-results{max-height:300px;overflow:auto;margin-top:9px}
+  #homebrewScreen .nex-hb-threat-ritual-choice{width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:9px;background:#241920;border:1px solid #4b313b;border-radius:5px;color:#f5e7ec;margin:4px 0;cursor:pointer}
+  #homebrewScreen .nex-hb-threat-ritual-choice:hover{background:#44222d}
+  #homebrewScreen .nex-hb-threat-ritual-choice:disabled{opacity:.55;cursor:default}
+  #homebrewScreen .nex-hb-threat-ritual-choice small,.nex-hb-threat-ritual-name small{color:#c7aab4;font-size:11px}
+  #homebrewScreen .nex-hb-threat-ritual-name{display:flex;flex-direction:column;gap:5px}
+  #homebrewScreen .nex-hb-threat-ritual-description{padding:2px 12px 10px;font-size:12px}
+  #homebrewScreen .nex-hb-npc-action-buttons{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
     #homebrewScreen .nex-hb-npc-action-group{margin:10px 0 20px;padding:12px;border:1px solid #58313f;border-radius:8px;background:#1c1218}
   #homebrewScreen .nex-hb-npc-action-group-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
   #homebrewScreen .nex-hb-npc-action-group h4{margin:0 0 4px;font-size:15px;color:#f5d9e1}
@@ -943,6 +959,9 @@
  });
  $('nexHbThreatRemovePhoto').addEventListener('click',()=>{threatImage='';$('nexHbThreatPreview').hidden=true;$('nexHbThreatPreview').removeAttribute('src');$('nexHbThreatFile').value='';$('nexHbThreatRemovePhoto').hidden=true;});
  let threatActions=[];
+ let threatRituals=[];
+ let showThreatRitualPicker=false;
+ let threatRitualSearch='';
  let npcSkillRows=[];
  function renderNpcSkills(){
    const root=$('nexHbNpcSkillsList');
@@ -1024,6 +1043,32 @@
    el.hidden=false;
   });
  }
+ function threatRitualCatalog(){
+  try{
+   const list=typeof window.NEX_RITUAL_CATALOG==='function'?window.NEX_RITUAL_CATALOG():[];
+   return Array.isArray(list)?list.filter(r=>r&&r.name).map(r=>({
+     name:String(r.name||''),element:String(r.element||''),circle:Number(r.circle)||1,
+     source:String(r.source||''),description:String(r.description||'')
+   })):[];
+  }catch(e){return [];}
+ }
+ const ritualKey=r=>[r.name,r.element,r.circle].join('|');
+ function renderThreatRitualPicker(){
+  const root=$('nexHbThreatRitualPicker');
+  if(!root)return;
+  root.hidden=!showThreatRitualPicker;
+  if(!showThreatRitualPicker){root.innerHTML='';return;}
+  const catalog=threatRitualCatalog();
+  const query=threatRitualSearch.toLocaleLowerCase('pt-BR').trim();
+  const matches=catalog.filter(r=>!query||[r.name,r.element,r.source,String(r.circle)].join(' ').toLocaleLowerCase('pt-BR').includes(query));
+  root.innerHTML='<div class="nex-hb-threat-ritual-search"><label>Pesquisar rituais<input type="search" data-threat-ritual-search placeholder="Nome, elemento, círculo ou fonte" value="'+esc(threatRitualSearch)+'"></label>'+
+   '<button type="button" class="btn sm" data-threat-close-ritual>Fechar</button></div>'+
+   '<div class="nex-hb-threat-ritual-results">'+(matches.length?matches.slice(0,160).map(r=>{
+    const key=ritualKey(r),selected=threatRituals.some(item=>ritualKey(item)===key);
+    return '<button type="button" class="nex-hb-threat-ritual-choice" data-threat-pick-ritual="'+esc(key)+'"'+(selected?' disabled':'')+'>'+
+      '<strong>'+esc(r.name)+'</strong><small>'+esc(r.element)+' · '+r.circle+'º círculo · '+esc(r.source)+(selected?' · Adicionado':'')+'</small></button>';
+   }).join(''):'<p>Nenhum ritual encontrado no catálogo.</p>')+'</div>';
+ }
  function renderThreatActions(){
   const el=$('nexHbThreatActions');if(!el)return;
   const npc=isThreatType($('nex51Type').value);
@@ -1084,14 +1129,23 @@
   if(npc){
    el.innerHTML='<div class="nex-hb-npc-action-buttons">'+
      '<button type="button" class="btn sm" data-npc-add-kind="ability">+ Adicionar habilidade</button>'+
-     '<button type="button" class="btn sm" data-npc-add-kind="attack">+ Adicionar ataque</button></div>'+
-     threatActions.map((a,i)=>row(a,i)).join('');
+     '<button type="button" class="btn sm" data-npc-add-kind="attack">+ Adicionar ataque</button>'+
+     ($('nex51Type').value==='ameaca'?'<button type="button" class="btn sm" data-threat-add-ritual>+ Adicionar Ritual</button>':'')+
+     '</div>'+
+     ($('nex51Type').value==='ameaca'?'<div id="nexHbThreatRitualPicker" class="nex-hb-threat-ritual-picker" hidden></div>':'')+
+     threatActions.map((a,i)=>row(a,i)).join('')+
+     ($('nex51Type').value==='ameaca'?threatRituals.map((r,i)=>
+       '<div class="nex-hb-threat-action-editor nex-hb-threat-ritual-row"><div class="nex-hb-threat-action-summary"><div class="nex-hb-threat-ritual-name"><strong>RITUAL ◆ '+esc(r.name.toUpperCase())+'</strong><small>'+esc(r.element)+' · '+r.circle+'º círculo'+(r.source?' · '+esc(r.source):'')+'</small></div>'+
+       '<button type="button" class="btn sm" data-threat-remove-ritual="'+i+'">Excluir</button></div>'+
+       (r.description?'<p class="nex-hb-threat-ritual-description">'+esc(r.description)+'</p>':'')+'</div>'
+     ).join(''):'');
   }else el.innerHTML=threatActions.map(row).join('');
   if(npc)refreshNpcAttackTestPreviews();
+  if($('nex51Type').value==='ameaca')renderThreatRitualPicker();
  }
  function readThreatSheet(){
   const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=num(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value,0,6,1);});
-  const out={element:$('nexHbThreatElement').value,attributes,actions:threatActions.map(a=>({...a})),npcSkills:normalizeNpcSkills(npcSkillRows)};
+  const out={element:$('nexHbThreatElement').value,attributes,actions:threatActions.map(a=>({...a})),rituals:threatRituals.map(r=>({...r})),npcSkills:normalizeNpcSkills(npcSkillRows)};
   THREAT_NUMERIC.forEach(([k])=>{out[k]=Number(mount.querySelector('[data-nex-threat-number="'+k+'"]').value)||0;});
   out.pv=Number($('nexHbThreatPvAlias').value)||0;
   THREAT_TESTS.forEach(([k])=>{out[k]=mount.querySelector('[data-nex-threat-test="'+k+'"]').value;});
@@ -1108,7 +1162,7 @@
   THREAT_TESTS.forEach(([k])=>{mount.querySelector('[data-nex-threat-test="'+k+'"]').value=data[k];});
   THREAT_TEXT.forEach(([k])=>{mount.querySelector('[data-nex-threat-text="'+k+'"]').value=data[k];});
   npcSkillRows=data.npcSkills.map(row=>({...row}));renderNpcSkills();
-  threatActions=data.actions.map(a=>({...a}));openThreatActionIndex=null;openNpcAttackDescriptionIndex=null;renderThreatActions();
+  threatActions=data.actions.map(a=>({...a}));threatRituals=data.rituals.map(r=>({...r}));showThreatRitualPicker=false;threatRitualSearch='';openThreatActionIndex=null;openNpcAttackDescriptionIndex=null;renderThreatActions();
  }
  $('nexHbThreatPvAlias').addEventListener('input',()=>{mount.querySelector('[data-nex-threat-number="pv"]').value=$('nexHbThreatPvAlias').value;});
  mount.querySelector('[data-nex-threat-number="pv"]').addEventListener('input',event=>{$('nexHbThreatPvAlias').value=event.target.value;});
@@ -1128,8 +1182,34 @@
   const row=event.target.closest('[data-threat-row]'),field=event.target.closest('[data-threat-key]');
   if(row&&field&&threatActions[Number(row.dataset.threatRow)])threatActions[Number(row.dataset.threatRow)][field.dataset.threatKey]=field.value;
  });
+ $('nexHbThreatActions').addEventListener('input',event=>{
+  if(!event.target.matches('[data-threat-ritual-search]'))return;
+  threatRitualSearch=event.target.value;
+  const start=event.target.selectionStart;
+  renderThreatRitualPicker();
+  const input=$('nexHbThreatActions').querySelector('[data-threat-ritual-search]');
+  if(input){input.focus();try{input.setSelectionRange(start,start);}catch(e){}}
+ });
  $('nexHbThreatActions').addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn)return;
+  if(btn.hasAttribute('data-threat-add-ritual')){
+   if($('nex51Type').value!=='ameaca')return;
+   showThreatRitualPicker=!showThreatRitualPicker;threatRitualSearch='';
+   renderThreatRitualPicker();return;
+  }
+  if(btn.hasAttribute('data-threat-close-ritual')){
+   showThreatRitualPicker=false;renderThreatRitualPicker();return;
+  }
+  if(btn.hasAttribute('data-threat-pick-ritual')){
+   const picked=threatRitualCatalog().find(r=>ritualKey(r)===btn.dataset.threatPickRitual);
+   if(!picked||threatRituals.some(r=>ritualKey(r)===ritualKey(picked)))return;
+   if(threatRituals.length>=80){message('Limite de 80 rituais por ameaça.');return;}
+   threatRituals.push({...picked});showThreatRitualPicker=false;threatRitualSearch='';
+   renderThreatActions();return;
+  }
+  if(btn.hasAttribute('data-threat-remove-ritual')){
+   threatRituals.splice(Number(btn.dataset.threatRemoveRitual),1);renderThreatActions();return;
+  }
   if(btn.hasAttribute('data-npc-add-kind')){
    if(threatActions.length>=12){message('Limite de 12 habilidades e ataques para esta ficha.');return;}
    const kind=btn.dataset.npcAddKind;
@@ -1255,12 +1335,18 @@
      (extractNpcDiceFormula(a.effect)?actionDiceButton('Rolar efeito',a.effect,index,'effect'):'')+
      '<p class="nex-hb-action-roll-result" role="status" aria-live="polite" hidden></p></div>';
   };
+  const ritualsPanel=item.type==='ameaca'&&t.rituals.length?
+   '<section class="nex-hb-npc-action-group"><h4>Rituais</h4>'+
+    t.rituals.map(r=>'<div class="nex-hb-threat-action nex-hb-npc-attack-sheet">'+
+     '<div class="nex-hb-npc-attack-title">RITUAL ◆ '+esc(r.name.toUpperCase())+'</div>'+
+     '<p>'+esc(r.element)+' · '+r.circle+'º círculo'+(r.source?' · '+esc(r.source):'')+'</p>'+
+     (r.description?'<p>'+esc(r.description)+'</p>':'')+'</div>').join('')+'</section>':'';
   const combatPanel=isThreatType(item.type)?
     ['ability','attack'].map(kind=>{
      const entries=t.actions.map((a,index)=>({a,index})).filter(({a})=>(a.kind==='attack'||a.kind==='ability'?a.kind:(a.damage||a.secondaryDamage?'attack':'ability'))===kind);
      return '<section class="nex-hb-npc-action-group"><h4>'+(kind==='ability'?'Habilidades':'Ataques')+'</h4>'+
         (entries.length?entries.map(({a,index})=>kind==='attack'?renderNpcAttack(a,index):renderNpcAbility(a,index)).join(''):'<p>Nenhum registro cadastrado.</p>')+'</section>';
-    }).join(''):(t.actions.length?t.actions.map(renderCombatAction).join(''):'<p>Nenhuma ação cadastrada.</p>');
+    }).join('')+ritualsPanel:(t.actions.length?t.actions.map(renderCombatAction).join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+(item.type==='npc'?'':note('Enigma de Medo',t.enigma));
   return '<section class="nex-hb-threat-sheet'+(item.type==='npc'?' nex-hb-npc-preview':'')+'" data-nex-threat-preview style="--nex-threat-bg:'+(item.type==='npc'?'none':'url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;)')+';--nex-threat-accent:'+esc(threatBg.color)+'">'+
    '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem de '+esc(LABEL[item.type])+'">':'')+
