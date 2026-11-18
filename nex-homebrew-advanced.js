@@ -36,6 +36,16 @@
  const THREAT_ATTRS=[['agi','Agilidade'],['for','Força'],['int','Intelecto'],['pre','Presença'],['vig','Vigor']];
  const THREAT_NUMERIC=[['defense','Defesa'],['pv','Pontos de Vida']];
  const THREAT_TESTS=[['fortitude','Fortitude'],['reflexos','Reflexos'],['vontade','Vontade'],['iniciativa','Iniciativa'],['percepcao','Percepção']];
+ const NPC_SKILLS=['Acrobacia','Adestramento','Artes','Atletismo','Atualidades','Ciências','Crime','Diplomacia','Enganação','Fortitude','Furtividade','Iniciativa','Intimidação','Intuição','Investigação','Luta','Medicina','Ocultismo','Percepção','Pilotagem','Pontaria','Profissão','Reflexos','Religião','Sobrevivência','Tática','Tecnologia','Vontade'];
+ const normalizeNpcSkills=raw=>{
+   const seen=new Set();
+   return (Array.isArray(raw)?raw:[]).slice(0,NPC_SKILLS.length).map(row=>{
+     const name=cut(row?.name||'',60);
+     if(!NPC_SKILLS.includes(name)||seen.has(name))return null;
+     seen.add(name);
+     return {name,bonus:num(row?.bonus,-99,99,5)};
+   }).filter(Boolean);
+ };
  const THREAT_TEXT=[['deslocamento','Deslocamento'],['presencaPerturbadora','Presença perturbadora'],['sentidos','Sentidos'],['resistencias','Resistências a dano'],['imunidades','Imunidades'],['vulnerabilidades','Vulnerabilidades'],['habilidades','Habilidades e características'],['enigma','Enigma de Medo'],['notas','Observações']];
  function normalizeThreat(x){
   const raw=x?.threatSheet&&typeof x.threatSheet==='object'?x.threatSheet:{};
@@ -45,6 +55,7 @@
   THREAT_NUMERIC.forEach(([k])=>{out[k]=num(raw[k],0,99999,0);});
   THREAT_TESTS.forEach(([k])=>{out[k]=cut(raw[k]??'',90);});
   THREAT_TEXT.forEach(([k])=>{out[k]=cut(raw[k]||'',k==='habilidades'?4000:1200);});
+  out.npcSkills=normalizeNpcSkills(raw.npcSkills);
   out.actions=Array.isArray(raw.actions)?raw.actions.slice(0,12).map(a=>({
     name:cut(a?.name||'',90),action:cut(a?.action||'Padrão',60),
     test:cut(a?.test||'',80),damage:cut(a?.damage||'',80),secondaryDamage:cut(a?.secondaryDamage||'',80),secondaryType:cut(a?.secondaryType||'Normal',40),
@@ -285,6 +296,13 @@
 
 
 
+  .nex-hb-threat-editor #nexHbNpcSkillsSection[hidden]{display:none!important}
+  .nex-hb-npc-skill-row{display:grid;grid-template-columns:minmax(150px,2fr) minmax(90px,1fr) auto;align-items:end;gap:10px;margin:9px 0}
+  .nex-hb-npc-skill-row label{display:flex;flex-direction:column;gap:4px;color:#d6c9cb;min-width:0}
+  .nex-hb-npc-skill-row select,.nex-hb-npc-skill-row input{width:100%;min-width:0;box-sizing:border-box;padding:8px}
+  .nex-hb-npc-skill-row button{min-height:36px}
+  .nex-hb-npc-skills-hint,.nex-hb-npc-skills-empty{font-size:12px;color:#baa9b2}
+  @media(max-width:540px){.nex-hb-npc-skill-row{grid-template-columns:minmax(0,1fr) 80px}.nex-hb-npc-skill-row button{grid-column:1/-1;justify-self:end}}
   /* NPCs têm fundo neutro, sem a carta do elemento, tanto no editor como na ficha. */
   #homebrewScreen .nex52-form #nex52ThreatFields[data-nex-npc="true"],
   #homebrewScreen .nex52-form #nex52ThreatFields[data-nex-npc="true"] .nex-hb-threat-edit-header{
@@ -380,6 +398,7 @@
  '<label><span>Defesa</span><input type="number" data-nex-threat-number="defense" min="0" max="99999" value="0"></label>'+
  '<label><span>Deslocamento</span><input data-nex-threat-text="deslocamento" maxlength="1200" placeholder="Ex.: 9m"></label>'+
  '<label><span>PV máximos</span><input type="number" data-nex-threat-number="pv" min="0" max="99999" value="0"></label></div>'+
+ '<section class="nex-hb-threat-inline-section" id="nexHbNpcSkillsSection" hidden><h4>Perícias</h4><p class="nex-hb-npc-skills-hint">Escolha as perícias do NPC e defina o bônus de cada uma.</p><div id="nexHbNpcSkillsList"></div><button type="button" id="nexHbNpcAddSkill" class="btn sm">+ Adicionar perícia</button></section>'+
  '<section class="nex-hb-threat-inline-section"><h4>Presença perturbadora</h4><textarea data-nex-threat-text="presencaPerturbadora" maxlength="1200" rows="2" placeholder="DT 15 · 3d6 mental · imunidade NEX 30%+"></textarea></section>'+
  '<section class="nex-hb-threat-inline-section"><h4>Testes de resistência</h4>'+THREAT_TESTS.filter(([id])=>['fortitude','reflexos','vontade'].includes(id)).map(([id,label])=>'<label class="nex-hb-threat-edit-line"><span>'+label+'</span><input data-nex-threat-test="'+id+'" maxlength="90" placeholder="Ex.: 3d20+10"></label>').join('')+'</section>'+
  '<section class="nex-hb-threat-inline-section"><h4>Sentidos</h4>'+THREAT_TESTS.filter(([id])=>['percepcao','iniciativa'].includes(id)).map(([id,label])=>'<label class="nex-hb-threat-edit-line"><span>'+label+'</span><input data-nex-threat-test="'+id+'" maxlength="90" placeholder="Ex.: 1d20+5"></label>').join('')+'<textarea data-nex-threat-text="sentidos" maxlength="1200" rows="2" placeholder="Sentidos especiais, ex.: percepção às cegas"></textarea></section>'+
@@ -495,6 +514,7 @@
    // Campos exclusivos das ameaças permanecem disponíveis nas fichas de ameaça.
    const npc=type==='npc';
    $('nex52ThreatFields').dataset.nexNpc=String(npc);
+   $('nexHbNpcSkillsSection').hidden=!npc;
    for(const id of ['nex52CreatureType','nex52Size','nexHbThreatElement','nex52VD']){
      const label=$(id).closest('label');
      label.hidden=npc;
@@ -764,6 +784,52 @@
  });
  $('nexHbThreatRemovePhoto').addEventListener('click',()=>{threatImage='';$('nexHbThreatPreview').hidden=true;$('nexHbThreatPreview').removeAttribute('src');$('nexHbThreatFile').value='';$('nexHbThreatRemovePhoto').hidden=true;});
  let threatActions=[];
+ let npcSkillRows=[];
+ function renderNpcSkills(){
+   const root=$('nexHbNpcSkillsList');
+   if(!root)return;
+   root.innerHTML=npcSkillRows.length?npcSkillRows.map((row,index)=>
+     '<div class="nex-hb-npc-skill-row" data-npc-skill-index="'+index+'">'+
+     '<label>Perícia<select data-npc-skill-name aria-label="Perícia do NPC">'+
+     '<option value="">Selecione a perícia</option>'+
+     NPC_SKILLS.map(skill=>'<option value="'+esc(skill)+'"'+(skill===row.name?' selected':'')+'>'+esc(skill)+'</option>').join('')+
+     '</select></label>'+
+     '<label>Bônus<input type="number" data-npc-skill-bonus min="-99" max="99" step="1" value="'+esc(row.bonus)+'" aria-label="Bônus da perícia"></label>'+
+     '<button type="button" class="btn sm" data-npc-skill-remove="'+index+'" aria-label="Remover perícia">Excluir</button></div>'
+   ).join(''):'<p class="nex-hb-npc-skills-empty">Nenhuma perícia selecionada.</p>';
+   $('nexHbNpcAddSkill').disabled=npcSkillRows.length>=NPC_SKILLS.length;
+ }
+ $('nexHbNpcAddSkill').addEventListener('click',()=>{
+   if(npcSkillRows.length>=NPC_SKILLS.length)return;
+   const name=NPC_SKILLS.find(s=>!npcSkillRows.some(row=>row.name===s));
+   if(!name)return;
+   npcSkillRows.push({name,bonus:5});
+   renderNpcSkills();
+ });
+ $('nexHbNpcSkillsList').addEventListener('change',event=>{
+   const row=event.target.closest('[data-npc-skill-index]');
+   if(!row)return;
+   const index=Number(row.dataset.npcSkillIndex),entry=npcSkillRows[index];
+   if(!entry)return;
+   if(event.target.matches('[data-npc-skill-name]')){
+     const name=event.target.value;
+     if(!NPC_SKILLS.includes(name)||npcSkillRows.some((other,i)=>i!==index&&other.name===name)){
+       message('Escolha uma perícia diferente para cada linha.');
+       renderNpcSkills();
+       return;
+     }
+     entry.name=name;
+   }else if(event.target.matches('[data-npc-skill-bonus]')){
+     entry.bonus=num(event.target.value,-99,99,0);
+     renderNpcSkills();
+   }
+ });
+ $('nexHbNpcSkillsList').addEventListener('click',event=>{
+   const button=event.target.closest('[data-npc-skill-remove]');
+   if(!button)return;
+   npcSkillRows.splice(Number(button.dataset.npcSkillRemove),1);
+   renderNpcSkills();
+ });
  let openThreatActionIndex=null;
  function renderThreatActions(){
   const el=$('nexHbThreatActions');if(!el)return;
@@ -783,7 +849,7 @@
  }
  function readThreatSheet(){
   const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=num(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value,0,6,1);});
-  const out={element:$('nexHbThreatElement').value,attributes,actions:threatActions.map(a=>({...a}))};
+  const out={element:$('nexHbThreatElement').value,attributes,actions:threatActions.map(a=>({...a})),npcSkills:normalizeNpcSkills(npcSkillRows)};
   THREAT_NUMERIC.forEach(([k])=>{out[k]=Number(mount.querySelector('[data-nex-threat-number="'+k+'"]').value)||0;});
   out.pv=Number($('nexHbThreatPvAlias').value)||0;
   THREAT_TESTS.forEach(([k])=>{out[k]=mount.querySelector('[data-nex-threat-test="'+k+'"]').value;});
@@ -799,6 +865,7 @@
   $('nexHbThreatPvAlias').value=data.pv;
   THREAT_TESTS.forEach(([k])=>{mount.querySelector('[data-nex-threat-test="'+k+'"]').value=data[k];});
   THREAT_TEXT.forEach(([k])=>{mount.querySelector('[data-nex-threat-text="'+k+'"]').value=data[k];});
+  npcSkillRows=data.npcSkills.map(row=>({...row}));renderNpcSkills();
   threatActions=data.actions.map(a=>({...a}));openThreatActionIndex=null;renderThreatActions();
  }
  $('nexHbThreatPvAlias').addEventListener('input',()=>{mount.querySelector('[data-nex-threat-number="pv"]').value=$('nexHbThreatPvAlias').value;});
@@ -845,6 +912,8 @@
       '<h4>Sentidos</h4>'+[['Percepção',t.percepcao],['Iniciativa',t.iniciativa]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
       note('Sentidos especiais',t.sentidos)+note('Resistências',t.resistencias)+note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades)
     ));
+  const npcSkillsPanel=item.type==='npc'?
+    '<h4>Perícias</h4>'+(t.npcSkills.length?t.npcSkills.map(row=>'<div class="nex-hb-threat-skill-line"><span>'+esc(row.name)+'</span><strong>'+esc(row.bonus>=0?'+':'')+esc(row.bonus)+'</strong></div>').join(''):'<p>Nenhuma perícia selecionada.</p>'):'';
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+note('Enigma de Medo',t.enigma);
   return '<section class="nex-hb-threat-sheet'+(item.type==='npc'?' nex-hb-npc-preview':'')+'" data-nex-threat-preview style="--nex-threat-bg:'+(item.type==='npc'?'none':'url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;)')+';--nex-threat-accent:'+esc(threatBg.color)+'">'+
@@ -852,7 +921,7 @@
      '<div><small>'+esc(item.type==='npc'?'NPC HOMEBREW':'AMEAÇA HOMEBREW')+'</small><h2>'+esc(item.name)+'</h2>'+(item.type==='npc'?'':'<p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span>')+'</div></div>'+
    '<div class="nex-hb-threat-pv">'+esc(t.pv)+' PV</div>'+
    '<nav class="nex-hb-threat-tabs" role="tablist" aria-label="Seções da ficha"><button type="button" data-threat-preview-tab="status" aria-selected="true">STATUS</button><button type="button" data-threat-preview-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-threat-preview-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
-   '<div class="nex-hb-threat-panel" data-threat-preview-panel="status">'+statPanel+'</div>'+
+   '<div class="nex-hb-threat-panel" data-threat-preview-panel="status">'+statPanel+npcSkillsPanel+'</div>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="combate" hidden>'+combatPanel+'</div>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="descricao" hidden>'+descriptionPanel+'</div></section>';
  }
