@@ -1099,16 +1099,16 @@
  // Expressões simples de dados nas habilidades: 1d20, 2d6+3, 1d8+1d4, etc.
  function extractNpcDiceFormula(value){
   const text=String(value||'');
-  const match=text.match(/(?:^|[^\\w])((?:\\d{1,2}d(?:4|6|8|10|12|20|100)(?:\\s*[+-]\\s*(?:\\d{1,2}d(?:4|6|8|10|12|20|100)|\\d{1,3}))*)|(?:d(?:4|6|8|10|12|20|100)))(?!\\w)/i);
-  return match?match[1].replace(/\\s+/g,''):'';
+  const match=text.match(/(?:^|[^\w])((?:\d{1,2}d(?:4|6|8|10|12|20|100)(?:\s*[+-]\s*(?:\d{1,2}d(?:4|6|8|10|12|20|100)|\d{1,3}))*)|(?:d(?:4|6|8|10|12|20|100)))(?!\w)/i);
+  return match?match[1].replace(/\s+/g,''):'';
  }
  function rollNpcDiceFormula(formula){
-  const expression=String(formula||'').replace(/\\s+/g,'').toLowerCase();
-  const parts=expression.match(/[+-]?\\d*d\\d+|[+-]\\d+/g)||[];
+  const expression=String(formula||'').replace(/\s+/g,'').toLowerCase();
+  const parts=expression.match(/[+-]?\d*d\d+|[+-]\d+/g)||[];
   if(!parts.length||parts.join('')!==expression)return null;
   let total=0;const details=[];
   for(const part of parts){
-   const dice=part.match(/^([+-]?)(\\d*)d(\\d+)$/);
+   const dice=part.match(/^([+-]?)(\d*)d(\d+)$/);
    if(dice){
     const count=Number(dice[2]||1),sides=Number(dice[3]),sign=dice[1]==='-'?-1:1;
     if(count<1||count>30||![4,6,8,10,12,20,100].includes(sides))return null;
