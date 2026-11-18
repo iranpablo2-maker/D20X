@@ -4327,6 +4327,16 @@ function abilityRecords(){
    if(origin==='Classe: Especialista'&&a.name==='Eclético')return {id:'ecletico',name:'Eclético',cost:2,bonus:5,mode:'untrained'};
    if(origin==='Classe: Combatente'&&a.name==='Ataque Especial')return {id:'ataqueEspecial',name:a.name,cost:2,bonus:5,mode:'attack',note:'Bonus inicial +5 no proximo ataque ou dano. Aperfeicoamentos por NEX exigem escolha.'};
    if(a.name==='Teimosia Obstinada')return {id:'teimosia',name:a.name,cost:2,bonus:5,mode:'resist',note:'Somente testes contra efeitos mentais.'};
+   if(a.name==='Curiosidade Oculta')return {id:'curiosidade',name:a.name,cost:2,bonus:0,mode:'resist',replaceWith:'Ocultismo',note:'Substitui Vontade por Ocultismo.'};
+   if(origin==='Origem: Fotógrafo')return {id:'fotografo',name:a.name,cost:2,bonus:5,mode:'photo',note:'Use somente ao observar ou analisar pistas com fotografias.'};
+   if(origin==='Origem: Explorador')return {id:'explorador',name:a.name,cost:2,bonus:5,mode:'resistAll',note:'Somente resistencias a perigos ambientais e armadilhas.'};
+   if(origin==='Origem: Repórter Investigativo')return {id:'reporter',name:a.name,cost:2,bonus:5,mode:'investigacao'};
+   if(origin==='Origem: Motorista')return {id:'motorista',name:a.name,cost:2,bonus:5,mode:'pilotagem',note:'Somente ao pilotar.'};
+   if(origin==='Origem: Legista do Turno da Noite')return {id:'legista',name:a.name,cost:2,bonus:5,mode:'medicina',note:'Somente ao prestar primeiros socorros.'};
+   if(origin==='Origem: Cosplayer')return {id:'cosplayer',name:a.name,cost:0,bonus:0,mode:'enganacao',replaceWith:'Artes',note:'Somente testes de disfarce.'};
+   if(origin==='Origem: Cientista Ex-Panacea')return {id:'cientista',name:a.name,cost:0,bonus:0,mode:'ocultismo',replaceWith:'Ciências',note:'Somente nas situacoes permitidas pela origem.'};
+   if(origin==='Origem: Psicólogo')return {id:'psicologo',name:a.name,cost:0,bonus:0,mode:'diplomacia',replaceWith:'Profissão',note:'Somente conversas profissionais com o alvo.'};
+   if(origin==='Origem: Sensitivo Rebelde')return {id:'sensitivoRebelde',name:a.name,cost:2,bonus:5,mode:'social',resource:'san',note:'Custa 2 de Sanidade, nao PE.'};
    return null;
  }
  function nexAutoTargetSkills(spec){
@@ -4339,6 +4349,15 @@ function abilityRecords(){
      if(spec.mode==='rural')return ['Adestramento','Sobrevivência'].includes(name);
      if(spec.mode==='religion')return name==='Religião';
      if(spec.mode==='resist')return name==='Vontade';
+     if(spec.mode==='resistAll')return ['Fortitude','Reflexos','Vontade'].includes(name);
+     if(spec.mode==='photo')return ['Investigação','Percepção'].includes(name);
+     if(spec.mode==='social')return ['Diplomacia','Enganação','Intimidação','Intuição'].includes(name);
+     if(spec.mode==='pilotagem')return name==='Pilotagem';
+     if(spec.mode==='medicina')return name==='Medicina';
+     if(spec.mode==='investigacao')return name==='Investigação';
+     if(spec.mode==='enganacao')return name==='Enganação';
+     if(spec.mode==='ocultismo')return name==='Ocultismo';
+     if(spec.mode==='diplomacia')return name==='Diplomacia';
      if(spec.mode==='untrained')return !Number(skill?.training||0);
      return true;
    }).map(row=>row[0]);
@@ -4380,7 +4399,7 @@ function abilityRecords(){
    }
    const options=nexAutoTargetSkills(spec),pending=state.nexAutoPending,active=pending?.id===spec.id;
    const used=spec.onceScene&&Boolean(state.nexAutoSceneUses?.[spec.id]);
-   const blocked=Boolean(pending)||used||Number(state.peCurrent)<spec.cost||options.length===0;
+   const blocked=Boolean(pending)||used||Number(spec.resource==='san'?state.sanCurrent:state.peCurrent)<spec.cost||options.length===0;
    const target=active?pending.skill:'';
    const label=spec.replaceWith?'Usar '+spec.replaceWith:'Ativar '+(spec.bonus?'+'+spec.bonus:'efeito');
    return '<div class="nex-auto-effect"><label>Teste da habilidade <select data-nex-auto-skill aria-label="Perícia deste efeito">'+
@@ -4388,7 +4407,7 @@ function abilityRecords(){
       '</select></label><div class="actions">'+
       (active?'<button type="button" class="btn sm" data-nex-auto-cancel>Cancelar e devolver PE</button><strong>Preparado para '+escape(target)+'</strong>':
         '<button type="button" class="btn sm primary" data-nex-auto-activate="'+escape(spec.id)+'" '+(blocked?'disabled':'')+'>'+
-        escape(label)+' ('+spec.cost+' PE)</button>')+
+        escape(label)+' ('+spec.cost+' '+(spec.resource==='san'?'SAN':'PE')+')</button>')+
       (used?'<span class="hint">Já utilizada nesta cena</span>':'')+
       '</div><small>'+escape(spec.note||'O efeito sera usado no proximo teste da pericia selecionada.')+'</small></div>';
  }
@@ -4443,7 +4462,7 @@ function abilityRecords(){
    if(nextScene){state.nexAutoSceneUses={};save();renderStats();return;}
    if(cancel){
      const pending=state.nexAutoPending;
-     if(pending){state.peCurrent=Math.min(maxValues().pe,Math.max(0,Number(state.peCurrent)||0)+Number(pending.cost||0));state.nexAutoPending=null;save();renderStats();}
+     if(pending){const type=pending.resource==='san'?'san':'pe';const field=type==='san'?'sanCurrent':'peCurrent';state[field]=Math.min(maxValues()[type],Math.max(0,Number(state[field])||0)+Number(pending.cost||0));state.nexAutoPending=null;save();renderStats();}
      return;
    }
    const spec=abilityRecords().map(nexAutoActivationSpec).find(x=>x?.id===activate.dataset.nexAutoActivate);
@@ -4451,11 +4470,12 @@ function abilityRecords(){
    const target=spec.mode==='attack'?activate.closest('.nex-auto-effect')?.querySelector('[data-nex-auto-attack-target]')?.value:
      activate.closest('.nex-auto-effect')?.querySelector('[data-nex-auto-skill]')?.value;
    if(!target||(spec.mode==='attack'?!['attack','damage'].includes(target):!nexAutoTargetSkills(spec).includes(target)))return toast('Escolha um alvo válido.');
-   if(Number(state.peCurrent)<spec.cost)return toast('PE insuficiente para ativar.');
-   state.peCurrent=Math.max(0,Number(state.peCurrent)-spec.cost);
+   const field=spec.resource==='san'?'sanCurrent':'peCurrent';
+   if(Number(state[field])<spec.cost)return toast('Recurso insuficiente para ativar.');
+   state[field]=Math.max(0,Number(state[field])-spec.cost);
    state.nexAutoPending={id:spec.id,name:spec.name,skill:spec.mode==='attack'?'':target,
      kind:spec.mode==='attack'?'attack':'skill',attackTarget:spec.mode==='attack'?target:'',bonus:spec.bonus,cost:spec.cost,
-     replaceWith:spec.replaceWith||'',onceScene:!!spec.onceScene,source:spec.id};
+     replaceWith:spec.replaceWith||'',onceScene:!!spec.onceScene,source:spec.id,resource:spec.resource||'pe'};
    save();renderStats();toast('Efeito preparado: '+spec.name+' para '+target+'.');
  });
  document.addEventListener('change',event=>{
