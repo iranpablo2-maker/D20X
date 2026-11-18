@@ -148,6 +148,7 @@
  threatStyle.id='nex-homebrew-threat-sheet-style';
  threatStyle.textContent=`
   .nex-hb-threat-editor{display:block;max-width:100%;grid-column:1/-1}
+  .nex-hb-threat-editor .nex-hb-threat-inline-section[hidden],.nex-hb-threat-heading-info label[hidden],.nex-hb-threat-heading-badges label[hidden]{display:none!important}
   .nex-hb-threat-editor[hidden]{display:none}
   .nex-hb-threat-editor fieldset{border:1px solid #4a3338;border-radius:8px;margin:10px 0;padding:12px;min-width:0;background:rgba(20,13,16,.42)}
   .nex-hb-threat-editor legend{padding:0 7px;color:#efc0c3;font-weight:700;letter-spacing:.03em}
@@ -469,6 +470,17 @@
    $('nex51NexField').hidden=isTrail||isOrigin||isGeneral||type==='poder_paranormal';
    $('nex53ParanormalElementField').hidden=type!=='poder_paranormal';
    $('nex52ThreatFields').hidden=!isThreatType(type);
+   // Campos exclusivos das ameaças permanecem disponíveis nas fichas de ameaça.
+   const npc=type==='npc';
+   for(const id of ['nex52CreatureType','nex52Size','nexHbThreatElement','nex52VD']){
+     $(id).closest('label').hidden=npc;
+   }
+   for(const id of ['presencaPerturbadora','vulnerabilidades','imunidades']){
+     const control=mount.querySelector('[data-nex-threat-text="'+id+'"]');
+     if(control)control.closest('.nex-hb-threat-inline-section').hidden=npc;
+   }
+   const descriptionHeading=$('nexHbThreatDescriptionSlot').parentElement.querySelector('h4');
+   if(descriptionHeading)descriptionHeading.textContent=npc?'Descrição do NPC':'Descrição da ameaça';
    if(isThreatType(type)){$('nexHbThreatNameSlot').appendChild($('nex53NameField'));$('nex52Editor').classList.add('nex-hb-editing-threat');}else{$('nex55TypeField').after($('nex53NameField'));$('nex52Editor').classList.remove('nex-hb-editing-threat');}
    $('nex52AbilityFields').hidden=!['origem','poder_geral','poder','trilha','habilidade'].includes(type);
    $('nex53TrailFields').hidden=!isTrail;
@@ -785,15 +797,15 @@
   const note=(label,value)=>value?'<section class="nex-hb-threat-info"><h4>'+esc(label)+'</h4><p>'+esc(value).replace(/\n/g,'<br>')+'</p></section>':'';
   const statPanel='<div class="nex-hb-threat-attribute-bar">'+THREAT_ATTRS.map(([k,label])=>block(k.toUpperCase(),t.attributes[k])).join('')+'</div>'+
     '<div class="nex-hb-threat-main-stats">'+block('Defesa',t.defense)+block('Deslocamento',t.deslocamento||'—')+block('PV máximos',t.pv)+'</div>'+
-    note('Presença perturbadora',t.presencaPerturbadora)+
+    (item.type==='npc'?'':note('Presença perturbadora',t.presencaPerturbadora))+
     '<h4>Testes de resistência</h4>'+[['Fortitude',t.fortitude],['Reflexos',t.reflexos],['Vontade',t.vontade]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
     '<h4>Sentidos</h4>'+[['Percepção',t.percepcao],['Iniciativa',t.iniciativa]].map(([label,v])=>'<div class="nex-hb-threat-skill-line"><span>'+label+'</span><strong>'+esc(v)+'</strong></div>').join('')+
-    note('Sentidos especiais',t.sentidos)+note('Resistências',t.resistencias)+note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades);
+    note('Sentidos especiais',t.sentidos)+note('Resistências',t.resistencias)+(item.type==='npc'?'':note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades));
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+note('Enigma de Medo',t.enigma);
   return '<section class="nex-hb-threat-sheet" data-nex-threat-preview style="--nex-threat-bg:url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;);--nex-threat-accent:'+esc(threatBg.color)+'">'+
    '<div class="nex-hb-threat-sheet-head">'+(item.image?'<img class="nex-hb-threat-avatar" src="'+esc(item.image)+'" alt="Imagem de '+esc(LABEL[item.type])+'">':'')+
-     '<div><small>'+esc(item.type==='npc'?'NPC HOMEBREW':'AMEAÇA HOMEBREW')+'</small><h2>'+esc(item.name)+'</h2><p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span></div></div>'+
+     '<div><small>'+esc(item.type==='npc'?'NPC HOMEBREW':'AMEAÇA HOMEBREW')+'</small><h2>'+esc(item.name)+'</h2>'+(item.type==='npc'?'':'<p>'+esc(item.creatureType)+' · '+esc(item.size)+'</p><span>'+esc(t.element)+' · VD '+esc(item.vd)+'</span>')+'</div></div>'+
    '<div class="nex-hb-threat-pv">'+esc(t.pv)+' PV</div>'+
    '<nav class="nex-hb-threat-tabs" role="tablist" aria-label="Seções da ficha"><button type="button" data-threat-preview-tab="status" aria-selected="true">STATUS</button><button type="button" data-threat-preview-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-threat-preview-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
    '<div class="nex-hb-threat-panel" data-threat-preview-panel="status">'+statPanel+'</div>'+
@@ -912,7 +924,8 @@
    $('nex52Editor').scrollIntoView({block:'start',behavior:'smooth'});
  }
  function meta(item){
-   if(isThreatType(item.type))return ['VD: '+item.vd,item.creatureType+' - '+item.size];
+   if(item.type==='npc')return ['NPC','Ficha personalizada'];
+   if(item.type==='ameaca')return ['VD: '+item.vd,item.creatureType+' - '+item.size];
    if(item.type==='ritual')return [item.ritualType+' · '+item.circle+'º círculo · '+item.element,item.execution+' · '+item.range];
    if(item.type==='maldicao')return ['Elemento '+item.element,'Aplicável a '+item.curseTarget];
    if(item.type==='melhoria')return ['Aplicável a '+item.improvementTarget, ...(item.improvementBonuses?.length?[item.improvementBonuses.map(b=>(BONUS_TYPES.find(([id])=>id===b.type)?.[1]||b.type)+': '+(b.value>=0?'+':'')+b.value).join(' · ')]:[])];
