@@ -4227,7 +4227,15 @@ function abilityRecords(){
  }
  function drawAbilities(){
    ensure();const records=abilityRecords();
-   $id('n16AbilityList').innerHTML=records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry"><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small><div>${escape(a.detail)}</div>${a.id?`<div class="actions"><button type="button" class="btn sm" data-n16-remove-ability="${escape(a.id)}">Excluir habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>';
+   const passive=typeof nexOfficialPassiveBonuses==='function'?nexOfficialPassiveBonuses():null;
+   const automatedValue=(a)=>{
+     if(!passive)return '';
+     if(a.name==='Casca Grossa' && /^Trilha: Tropa de Choque/.test(a.source))return `Bônus aplicado automaticamente: +${passive.pv} PV máximos.`;
+     if(a.name==='Inventário Otimizado' && /^Trilha: Técnico/.test(a.source))return `Capacidade calculada com Força + Intelecto.`;
+     if(a.name==='Sangue de Ferro' && passive.pvPower)return `Bônus aplicado automaticamente: +${passive.pvPower} PV máximos.`;
+     return '';
+   };
+   $id('n16AbilityList').innerHTML=records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry"><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div>${escape(a.detail)}</div>${a.id?`<div class="actions"><button type="button" class="btn sm" data-n16-remove-ability="${escape(a.id)}">Excluir habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>';
  }
  function itemCategory(item){const c=item.category||'Geral';return ['Arma','Munição','Proteção','Geral','Item Amaldiçoado'].includes(c)?c:'Geral';}
  const prestigeTiers=[
