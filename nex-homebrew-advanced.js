@@ -413,7 +413,10 @@
   #homebrewScreen .nex-hb-npc-inline-roll:hover{background:#522836!important}
   #homebrewScreen .nex-hb-npc-inline-roll img{width:15px;height:17px;object-fit:contain}
   #homebrewScreen .nex-hb-npc-attack-critical,#homebrewScreen .nex-hb-npc-attack-divider{font-size:12px;color:#e1ced4}
-    #homebrewScreen .nex-hb-npc-attack-editor .nex-hb-threat-action-summary{align-items:flex-start}
+    #homebrewScreen .nex-hb-npc-attack-description{padding:10px 14px!important;border-top:1px solid #553240!important;color:#eee1e6!important}
+  #homebrewScreen .nex-hb-npc-attack-description strong{display:block;font-size:12px;margin-bottom:6px;color:#f6ccd5}
+  #homebrewScreen .nex-hb-npc-attack-description p{margin:0!important;font-size:12px;white-space:normal;line-height:1.6}
+  #homebrewScreen .nex-hb-npc-attack-editor .nex-hb-threat-action-summary{align-items:flex-start}
   #homebrewScreen .nex-hb-npc-attack-summary{display:flex;flex-direction:column;gap:4px;align-items:flex-start;min-width:0;padding:3px 0}
   #homebrewScreen .nex-hb-npc-attack-summary strong{color:#f6e6e9;font-size:12px;letter-spacing:.025em}
   #homebrewScreen .nex-hb-npc-attack-summary span{color:#e0d4d6;font-size:12px;font-weight:650}
@@ -1004,6 +1007,7 @@
    refreshNpcAttackTestPreviews();
  });
  let openThreatActionIndex=null;
+ let openNpcAttackDescriptionIndex=null;
  function refreshNpcAttackTestPreviews(){
   const root=$('nexHbThreatActions');
   if(!root||$('nex51Type').value!=='npc')return;
@@ -1043,6 +1047,7 @@
    const npcTestPreview=skillEntry?npcSkillDice(skillEntry,currentNpcAttributes()).count+'d20'+
       (skillEntry.bonus>=0?'+':'')+skillEntry.bonus:'';
    const isNpcAttack=npc&&kind==='attack';
+   const descriptionOpen=isNpcAttack&&openNpcAttackDescriptionIndex===i;
    const compactSummary=isNpcAttack?
      '<span class="nex-hb-npc-attack-summary"><strong>'+esc((a.action||'Padrão').toUpperCase())+' ◆ '+esc((a.name||'Novo ataque').toUpperCase())+'</strong>'+
        (a.subtitle||a.range?'<span>'+esc((a.subtitle||'').toUpperCase())+' '+esc(a.range||'')+'</span>':'')+
@@ -1051,9 +1056,10 @@
      '<strong>'+esc(title)+'</strong>';
    return '<div class="nex-hb-threat-action-editor'+(isNpcAttack?' nex-hb-npc-attack-editor':'')+'" data-threat-row="'+i+'">'+
     '<div class="nex-hb-threat-action-summary">'+
-      '<button type="button" class="nex-hb-threat-action-toggle" data-threat-toggle="'+i+'" aria-expanded="'+expanded+'">'+compactSummary+'<span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
+      '<button type="button" class="nex-hb-threat-action-toggle" data-threat-toggle="'+i+'" aria-expanded="'+(isNpcAttack?descriptionOpen:expanded)+'">'+compactSummary+'<span aria-hidden="true">'+((isNpcAttack?descriptionOpen:expanded)?'⌃':'⌄')+'</span></button>'+
       (!expanded?'<div class="nex-hb-threat-action-controls"><button type="button" class="btn sm" data-threat-edit="'+i+'">Editar</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div>':'')+
     '</div>'+
+    (descriptionOpen?'<div class="nex-hb-npc-attack-description"><strong>Descrição / efeito</strong><p>'+esc(a.effect||'Nenhuma descrição cadastrada.').replace(/\n/g,'<br>')+'</p></div>':'')+
     (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
      fields.map(([k,label])=>'<label>'+(npc&&kind==='attack'&&k==='test'?'Teste (perícia)':label)+
       (npc&&kind==='attack'&&k==='test'?
@@ -1099,7 +1105,7 @@
   THREAT_TESTS.forEach(([k])=>{mount.querySelector('[data-nex-threat-test="'+k+'"]').value=data[k];});
   THREAT_TEXT.forEach(([k])=>{mount.querySelector('[data-nex-threat-text="'+k+'"]').value=data[k];});
   npcSkillRows=data.npcSkills.map(row=>({...row}));renderNpcSkills();
-  threatActions=data.actions.map(a=>({...a}));openThreatActionIndex=null;renderThreatActions();
+  threatActions=data.actions.map(a=>({...a}));openThreatActionIndex=null;openNpcAttackDescriptionIndex=null;renderThreatActions();
  }
  $('nexHbThreatPvAlias').addEventListener('input',()=>{mount.querySelector('[data-nex-threat-number="pv"]').value=$('nexHbThreatPvAlias').value;});
  mount.querySelector('[data-nex-threat-number="pv"]').addEventListener('input',event=>{$('nexHbThreatPvAlias').value=event.target.value;});
@@ -1133,6 +1139,8 @@
     threatActions.splice(index,1);
     if(openThreatActionIndex===index)openThreatActionIndex=null;
     else if(openThreatActionIndex!==null&&openThreatActionIndex>index)openThreatActionIndex--;
+    if(openNpcAttackDescriptionIndex===index)openNpcAttackDescriptionIndex=null;
+    else if(openNpcAttackDescriptionIndex!==null&&openNpcAttackDescriptionIndex>index)openNpcAttackDescriptionIndex--;
     renderThreatActions();return;
   }
   if(btn.hasAttribute('data-threat-save')){
@@ -1141,10 +1149,20 @@
     if(!action||!cut(action.name,90)){message('Informe um nome para a ação.');return;}
     openThreatActionIndex=null;renderThreatActions();return;
   }
-  if(btn.hasAttribute('data-threat-edit')||btn.hasAttribute('data-threat-toggle')){
-    const index=Number(btn.dataset.threatEdit??btn.dataset.threatToggle);
-    openThreatActionIndex=openThreatActionIndex===index?null:index;
-    renderThreatActions();
+  if(btn.hasAttribute('data-threat-toggle')){
+    const index=Number(btn.dataset.threatToggle);
+    const action=threatActions[index];
+    if($('nex51Type').value==='npc'&&action?.kind==='attack'){
+      openNpcAttackDescriptionIndex=openNpcAttackDescriptionIndex===index?null:index;
+    }else{
+      openThreatActionIndex=openThreatActionIndex===index?null:index;
+    }
+    renderThreatActions();return;
+  }
+  if(btn.hasAttribute('data-threat-edit')){
+    const index=Number(btn.dataset.threatEdit);
+    openThreatActionIndex=index;
+    renderThreatActions();return;
   }
  });
  function threatDetails(item){
