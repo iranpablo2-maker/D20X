@@ -37,13 +37,33 @@
  const THREAT_NUMERIC=[['defense','Defesa'],['pv','Pontos de Vida']];
  const THREAT_TESTS=[['fortitude','Fortitude'],['reflexos','Reflexos'],['vontade','Vontade'],['iniciativa','Iniciativa'],['percepcao','Percepção']];
  const NPC_SKILLS=['Acrobacia','Adestramento','Artes','Atletismo','Atualidades','Ciências','Crime','Diplomacia','Enganação','Fortitude','Furtividade','Iniciativa','Intimidação','Intuição','Investigação','Luta','Medicina','Ocultismo','Percepção','Pilotagem','Pontaria','Profissão','Reflexos','Religião','Sobrevivência','Tática','Tecnologia','Vontade'];
+ const NPC_SKILL_ATTR={
+   'Acrobacia':'agi','Adestramento':'pre','Artes':'pre','Atletismo':'for','Atualidades':'int',
+   'Ciências':'int','Crime':'agi','Diplomacia':'pre','Enganação':'pre','Fortitude':'vig',
+   'Furtividade':'agi','Iniciativa':'agi','Intimidação':'pre','Intuição':'pre',
+   'Investigação':'int','Luta':'for','Medicina':'int','Ocultismo':'int','Percepção':'pre',
+   'Pilotagem':'agi','Pontaria':'agi','Profissão':'int','Reflexos':'agi','Religião':'pre',
+   'Sobrevivência':'int','Tática':'int','Tecnologia':'int','Vontade':'pre'
+ };
+ const npcSkillDice=(row,attributes)=>{
+   const attribute=NPC_SKILL_ATTR[row.name]||'int';
+   const value=num(attributes?.[attribute],0,6,1);
+   return {attribute,value,count:value===0?2:value,keepLowest:value===0};
+ };
+ const currentNpcAttributes=()=>{
+   const attributes={};
+   THREAT_ATTRS.forEach(([key])=>{
+     attributes[key]=num(mount.querySelector('[data-nex-threat-attr="'+key+'"]')?.value,0,6,1);
+   });
+   return attributes;
+ };
  const normalizeNpcSkills=raw=>{
    const seen=new Set();
    return (Array.isArray(raw)?raw:[]).slice(0,NPC_SKILLS.length).map(row=>{
      const name=cut(row?.name||'',60);
      if(!NPC_SKILLS.includes(name)||seen.has(name))return null;
      seen.add(name);
-     return {name,dice:num(row?.dice,1,20,2),bonus:num(row?.bonus,-99,99,5)};
+     return {name,bonus:num(row?.bonus,-99,99,5)};
    }).filter(Boolean);
  };
  const THREAT_TEXT=[['deslocamento','Deslocamento'],['presencaPerturbadora','Presença perturbadora'],['sentidos','Sentidos'],['resistencias','Resistências a dano'],['imunidades','Imunidades'],['vulnerabilidades','Vulnerabilidades'],['habilidades','Habilidades e características'],['enigma','Enigma de Medo'],['notas','Observações']];
@@ -297,10 +317,16 @@
 
 
   .nex-hb-threat-editor #nexHbNpcSkillsSection[hidden]{display:none!important}
-  .nex-hb-npc-skill-row{display:grid;grid-template-columns:minmax(140px,2fr) minmax(90px,.8fr) minmax(90px,.8fr) auto;align-items:end;gap:10px;margin:9px 0}
+  .nex-hb-npc-skill-row{display:grid;grid-template-columns:minmax(140px,2fr) minmax(95px,.8fr) minmax(80px,.7fr) auto;align-items:end;gap:10px;margin:9px 0}
   .nex-hb-npc-skill-row label{display:flex;flex-direction:column;gap:4px;color:#d6c9cb;min-width:0}
   .nex-hb-npc-skill-row select,.nex-hb-npc-skill-row input{width:100%;min-width:0;box-sizing:border-box;padding:8px}
   .nex-hb-npc-skill-row button{min-height:36px}
+  #homebrewScreen .nex-hb-npc-dice-auto{display:flex;flex-direction:column;gap:4px;padding:0 0 4px;align-self:stretch;justify-content:center}
+  #homebrewScreen .nex-hb-npc-dice-auto span{font-size:12px;color:#d6c9cb}
+  #homebrewScreen .nex-hb-npc-dice-auto strong{font-size:16px;color:#fff;font-variant-numeric:tabular-nums}
+  #homebrewScreen .nex-hb-npc-dice-auto small{font-size:10px;color:#bda6b1}
+  #homebrewScreen .nex-hb-npc-skill-row [data-npc-skill-name]{min-height:36px;background:#161116!important;border:1px solid #61404a!important;border-radius:6px!important}
+  #homebrewScreen .nex-hb-npc-skill-row [data-npc-skill-bonus]{min-height:36px;background:#161116!important;border:1px solid #61404a!important;border-radius:6px!important;text-align:center}
   .nex-hb-npc-skills-hint,.nex-hb-npc-skills-empty{font-size:12px;color:#baa9b2}
   @media(max-width:540px){.nex-hb-npc-skill-row{grid-template-columns:minmax(0,1fr) 70px 70px}.nex-hb-npc-skill-row button{grid-column:1/-1;justify-self:end}}
   #homebrewScreen .nex-hb-npc-roll-row{padding:0;margin:0;border-bottom:1px solid #45343e}
@@ -802,7 +828,7 @@
      '<option value="">Selecione a perícia</option>'+
      NPC_SKILLS.map(skill=>'<option value="'+esc(skill)+'"'+(skill===row.name?' selected':'')+'>'+esc(skill)+'</option>').join('')+
      '</select></label>'+
-     '<label>Dados d20<input type="number" data-npc-skill-dice min="1" max="20" step="1" value="'+esc(row.dice)+'" aria-label="Quantidade de dados d20"></label>'+
+     '<div class="nex-hb-npc-dice-auto"><span>Dados d20</span><strong data-npc-auto-dice>'+esc(npcSkillDice(row,currentNpcAttributes()).count)+'d20</strong><small>'+esc(npcSkillDice(row,currentNpcAttributes()).attribute.toUpperCase())+(npcSkillDice(row,currentNpcAttributes()).keepLowest?' · menor':'')+'</small></div>'+
      '<label>Bônus<input type="number" data-npc-skill-bonus min="-99" max="99" step="1" value="'+esc(row.bonus)+'" aria-label="Bônus da perícia"></label>'+
      '<button type="button" class="btn sm" data-npc-skill-remove="'+index+'" aria-label="Remover perícia">Excluir</button></div>'
    ).join(''):'<p class="nex-hb-npc-skills-empty">Nenhuma perícia selecionada.</p>';
@@ -812,7 +838,7 @@
    if(npcSkillRows.length>=NPC_SKILLS.length)return;
    const name=NPC_SKILLS.find(s=>!npcSkillRows.some(row=>row.name===s));
    if(!name)return;
-   npcSkillRows.push({name,dice:2,bonus:5});
+   npcSkillRows.push({name,bonus:5});
    renderNpcSkills();
  });
  $('nexHbNpcSkillsList').addEventListener('change',event=>{
@@ -828,13 +854,16 @@
        return;
      }
      entry.name=name;
-   }else if(event.target.matches('[data-npc-skill-dice]')){
-     entry.dice=num(event.target.value,1,20,2);
-     renderNpcSkills();
    }else if(event.target.matches('[data-npc-skill-bonus]')){
      entry.bonus=num(event.target.value,-99,99,0);
      renderNpcSkills();
    }
+ });
+ // Alterações nos atributos atualizam imediatamente os dados de todas as perícias.
+ $('nex52ThreatFields').querySelectorAll('[data-nex-threat-attr]').forEach(input=>{
+   input.addEventListener('input',()=>{
+     if($('nex51Type').value==='npc')renderNpcSkills();
+   });
  });
  $('nexHbNpcSkillsList').addEventListener('click',event=>{
    const button=event.target.closest('[data-npc-skill-remove]');
@@ -925,7 +954,11 @@
       note('Sentidos especiais',t.sentidos)+note('Resistências',t.resistencias)+note('Imunidades',t.imunidades)+note('Vulnerabilidades',t.vulnerabilidades)
     ));
   const npcSkillsPanel=item.type==='npc'?
-    '<h4>Perícias</h4>'+(t.npcSkills.length?t.npcSkills.map((row,index)=>'<div class="nex-hb-npc-roll-row"><button type="button" class="nex-hb-npc-roll" data-npc-roll="'+index+'" aria-label="Rolar '+esc(row.name)+' ('+esc(row.dice)+'d20'+esc(row.bonus>=0?'+':'')+esc(row.bonus)+')"><span class="nex-hb-npc-roll-name">'+esc(row.name.toUpperCase())+'</span><span class="nex-hb-npc-roll-expression">'+esc(row.dice)+'d20'+esc(row.bonus>=0?'+':'')+esc(row.bonus)+'</span><span class="nex-hb-npc-dice-icon" aria-hidden="true">⚄</span></button></div>').join(''):'<p>Nenhuma perícia selecionada.</p>')+'<p class="nex-hb-npc-roll-result" id="nexHbNpcRollResult" role="status" aria-live="polite" hidden></p>':'';
+    '<h4>Perícias</h4>'+(t.npcSkills.length?t.npcSkills.map((row,index)=>{
+      const dice=npcSkillDice(row,t.attributes);
+      const formula=dice.count+'d20'+(row.bonus>=0?'+':'')+row.bonus;
+      return '<div class="nex-hb-npc-roll-row"><button type="button" class="nex-hb-npc-roll" data-npc-roll="'+index+'" aria-label="Rolar '+esc(row.name)+' ('+esc(formula)+')"><span class="nex-hb-npc-roll-name">'+esc(row.name.toUpperCase())+'</span><span class="nex-hb-npc-roll-expression">'+esc(formula)+'</span><span class="nex-hb-npc-dice-icon" aria-hidden="true">⚄</span></button></div>';
+    }).join(''):'<p>Nenhuma perícia selecionada.</p>')+'<p class="nex-hb-npc-roll-result" id="nexHbNpcRollResult" role="status" aria-live="polite" hidden></p>':'';
   const combatPanel=(t.actions.length?t.actions.map(a=>'<div class="nex-hb-threat-action"><strong>'+esc(a.name)+'</strong><p>'+esc([a.action,a.test,a.damage&&'Dano: '+a.damage,a.secondaryDamage&&'Dano secundário: '+a.secondaryDamage,a.secondaryDamage&&'Tipo: '+a.secondaryType,a.range&&'Alcance: '+a.range].filter(Boolean).join(' · '))+'</p>'+(a.effect?'<p>'+esc(a.effect)+'</p>':'')+'</div>').join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+note('Enigma de Medo',t.enigma);
   return '<section class="nex-hb-threat-sheet'+(item.type==='npc'?' nex-hb-npc-preview':'')+'" data-nex-threat-preview style="--nex-threat-bg:'+(item.type==='npc'?'none':'url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;)')+';--nex-threat-accent:'+esc(threatBg.color)+'">'+
@@ -944,14 +977,16 @@
    const skills=item?.threatSheet?normalizeThreat(item).npcSkills:[];
    const entry=skills[Number(rollButton.dataset.npcRoll)];
    if(!entry)return;
-   // Ordem Paranormal: com vários d20, usa o maior resultado.
-   const rolls=Array.from({length:entry.dice},()=>1+Math.floor(Math.random()*20));
-   const highest=Math.max(...rolls);
-   const result=highest+entry.bonus;
+   // A quantidade de d20 depende do atributo da perícia.
+   // Atributo 0: 2d20 e usa o menor resultado.
+   const dice=npcSkillDice(entry,normalizeThreat(item).attributes);
+   const rolls=Array.from({length:dice.count},()=>1+Math.floor(Math.random()*20));
+   const chosen=dice.keepLowest?Math.min(...rolls):Math.max(...rolls);
+   const result=chosen+entry.bonus;
    const output=$('nexHbNpcRollResult');
    if(output){
     output.hidden=false;
-    output.textContent=entry.name+': '+entry.dice+'d20'+(entry.bonus>=0?'+':'')+entry.bonus+' → ['+rolls.join(', ')+'] · maior '+highest+' '+(entry.bonus>=0?'+':'')+entry.bonus+' = '+result;
+    output.textContent=entry.name+': '+dice.count+'d20'+(entry.bonus>=0?'+':'')+entry.bonus+' → ['+rolls.join(', ')+'] · '+(dice.keepLowest?'menor ':'maior ')+chosen+' '+(entry.bonus>=0?'+':'')+entry.bonus+' = '+result;
    }
    return;
   }
