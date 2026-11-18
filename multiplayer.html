@@ -1569,14 +1569,36 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  line-height:1.4!important;
  font-size:12px!important;
 }
-</style><style id="nex-vtt-hide-characters-panel-temp">
-/* Temporário: ocultar painel lateral de personagens sem afetar fichas salvas. */
-#roomTabletopPanel #nexVttSheetsPanel,
-#roomTabletopPanel #nexVttResizeHandle,
-#roomTabletopPanel #nexVttSheetsToggle,
-#roomTabletopPanel #nexVttQuickSheets,
-#roomTabletopPanel #nexVttMenuSheets{display:none!important}
+</style><style id="nex-vtt-player-sheets-overlay-v1">
+/* Fichas acessíveis dentro do Tabletop, incluindo celulares em paisagem. */
+#roomTabletopPanel #nexVttSheetsPanel[hidden]{display:none!important}
+#roomTabletopPanel #nexVttSheetsPanel{
+ position:absolute!important;z-index:175!important;right:0!important;top:0!important;bottom:0!important;
+ display:flex!important;flex-direction:column!important;flex:none!important;
+ width:min(420px,94%)!important;max-width:94%!important;min-width:0!important;height:100%!important;
+ background:#101116!important;border-left:2px solid #8d2838!important;overflow-y:auto!important;
+ box-shadow:-12px 0 35px #000a!important;overscroll-behavior:contain!important;
+}
+#roomTabletopPanel #nexVttResizeHandle{display:none!important}
+#roomTabletopPanel #nexVttSheetsToggle{display:inline-flex!important;align-items:center!important;justify-content:center!important}
 #roomTabletopPanel .nex-vtt-stage{flex:1 1 auto!important;min-width:0!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-sheet{background:#1b171d!important;color:#f5eef2!important;border:1px solid #713341!important;box-shadow:none!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-subtitle,
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-heading button{color:#e5b1bd!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-vital{background:#271d25!important;border-color:#57323c!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-vital strong{color:#fff!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-vital small{color:#efb9c5!important}
+#roomTabletopPanel #nexVttSheetsPanel .nex-vtt-mini-attributes span{background:#40242f!important;color:#fff!important}
+#roomTabletopPanel .nex-vtt-detail-group{border:1px solid #51303b;border-radius:8px;margin:5px 0;background:#18141a;overflow:hidden}
+#roomTabletopPanel .nex-vtt-detail-group summary{cursor:pointer;padding:11px 12px;font-weight:700;color:#ffb9c4}
+#roomTabletopPanel .nex-vtt-detail-entry{padding:9px 12px;border-top:1px solid #36242d;overflow-wrap:anywhere;white-space:pre-wrap;font-size:12px;color:#eee}
+#roomTabletopPanel .nex-vtt-detail-entry strong{display:block;color:#ffcad3;margin-bottom:4px}
+#roomTabletopPanel .nex-vtt-mini-open{background:#8d293a!important;color:#fff!important}
+@media(max-width:840px){
+ #roomTabletopPanel #nexVttSheetsPanel{width:min(430px,100%)!important;max-width:100%!important;right:0!important}
+ #roomTabletopPanel #nexVttSheetsPanel .nex-vtt-sheets-title{position:sticky!important;top:0;z-index:3}
+ #roomTabletopPanel #nexVttSheetsPanel .nex-vtt-sheet{min-height:51px}
+}
 </style><style id="nex-vtt-atmosphere-panel-style">
 #roomTabletopPanel .nex-vtt-atmosphere-controls{display:flex;flex-direction:column;gap:10px;padding:10px;border:1px solid #44485d;border-radius:7px;background:#1d2433}
 #roomTabletopPanel .nex-vtt-atmosphere-controls label{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#e3e5f2}
@@ -2830,7 +2852,50 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    }
    if(buttons.childElementCount){quick.append(buttons,result);box.append(quick);}
   }
-  const open=document.createElement('button');open.type='button';open.className='nex-vtt-mini-open';open.textContent='Abrir ficha completa';
+  // Seções legíveis da ficha armazenada; nunca modifica o documento sem autorização.
+  const full=sheet.fullSheet&&typeof sheet.fullSheet==='object'?sheet.fullSheet:{};
+  const sections=[
+    ['Perícias',['skills','pericias','perícias','trainedSkills']],
+    ['Combate e ataques',['combat','combate','attacks','ataques','weapons','armas']],
+    ['Habilidades',['abilities','habilidades','powers','poderes']],
+    ['Rituais',['rituals','rituais','spells']],
+    ['Inventário',['inventory','inventario','inventário','items','itens']],
+    ['Descrição',['description','descricao','descrição','history','historia','backstory']]
+  ];
+  const formatValue=(value,depth=0)=>{
+   if(value===null||value===undefined)return '';
+   if(typeof value==='string'||typeof value==='number'||typeof value==='boolean')return String(value);
+   if(depth>2)return 'Detalhes adicionais na ficha NEX';
+   if(Array.isArray(value))return value.slice(0,100).map(v=>formatValue(v,depth+1)).filter(Boolean).join(' · ');
+   if(typeof value==='object')return Object.entries(value).slice(0,40).map(([key,v])=>key+': '+formatValue(v,depth+1)).join(' | ');
+   return '';
+  };
+  const details=document.createElement('section');details.setAttribute('aria-label','Detalhes da ficha');
+  for(const [name,keys] of sections){
+   const values=keys.flatMap(key=>{
+    const data=full[key]??sheet[key];
+    return data===undefined||data===null?[]:[data];
+   });
+   if(!values.length)continue;
+   const group=document.createElement('details');group.className='nex-vtt-detail-group';
+   const summary=document.createElement('summary');summary.textContent=name;group.append(summary);
+   for(const value of values.slice(0,2)){
+    const items=Array.isArray(value)?value:typeof value==='object'?Object.entries(value).map(([key,item])=>({name:key,data:item})): [value];
+    for(const item of items.slice(0,80)){
+     const entry=document.createElement('div');entry.className='nex-vtt-detail-entry';
+     if(item&&typeof item==='object'&&!Array.isArray(item)){
+      const label=document.createElement('strong');label.textContent=String(item.name||item.nome||item.title||item.label||'Detalhes');
+      const content=document.createElement('span');content.textContent=formatValue(item.data??item.description??item.descricao??item);
+      entry.append(label,content);
+     }else entry.textContent=formatValue(item);
+     group.append(entry);
+    }
+   }
+   details.append(group);
+  }
+  if(details.childElementCount)box.append(details);
+  else{const hint=document.createElement('p');hint.textContent='Os detalhes desta ficha ainda não foram sincronizados com a campanha.';box.append(hint);}
+  const open=document.createElement('button');open.type='button';open.className='nex-vtt-mini-open';open.textContent='Ver ficha NEX original';
   open.addEventListener('click',()=>openVttSheet(sheet.id));box.append(open);
  }
  function renderVttSheets(){
@@ -3723,18 +3788,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    libraryTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexLibraryLayer===layer)));
    libraryBody.replaceChildren();
    if(layer==='mapa'){
-    const gridLabel=document.createElement('label');
-    gridLabel.className='nex-vtt-map-grid-toggle';
-    const check=document.createElement('input');check.type='checkbox';
-    check.checked=mapLibraryState.gridVisible!==false;check.disabled=!gm;
-    check.addEventListener('change',()=>{
-     // Resposta visual imediata mesmo durante o salvamento da cena.
-     const board=document.getElementById('nexTabletopBoard');
-     board?.classList.toggle('nex-vtt-hide-grid',!check.checked);
-     board?.classList.toggle('nex-vtt-grid-visible',check.checked);
-     mapAction('grid',{visible:check.checked});
-    });
-    gridLabel.append(check,document.createTextNode('Exibir grade'));libraryBody.append(gridLabel);
     if(gm){
      const actions=document.createElement('div');actions.className='nex-vtt-art-actions';libraryBody.append(actions);
      const upload=addLibraryButton('＋ Adicionar mapas',()=>{$('nexTabletopMapFile')?.click();});
@@ -3972,8 +4025,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    if(typeof requestAnimationFrame==='function')requestAnimationFrame(()=>window.dispatchEvent(new Event('resize')));
  }
  setVttWidth(vttSavedWidth);
- // Painel de Personagens temporariamente recolhido no Tabletop.
- // As fichas e os dados da campanha permanecem intactos.
+ // O painel inicia recolhido, mas pode ser aberto sem sair do mapa.
  vttSheetPanel.hidden=true;
  syncVttPanels();
  let vttResizeStart=null;
