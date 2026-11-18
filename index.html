@@ -743,7 +743,7 @@ body{background:#101011;color:#e9e8ec;font-family:Arial,Helvetica,sans-serif;fon
 .n215-row summary{padding:12px 10px;display:flex;align-items:center;gap:9px;list-style:none;cursor:pointer;color:#faf6ff;font-weight:650;font-size:12px}
 .n215-row summary::-webkit-details-marker{display:none}
 .n215-row summary:before{content:'⌄';color:#ff5d6a;font-size:18px;line-height:1}
-.n215-row .n215-description{font-size:12px;color:#ccc0cf;padding:0 11px 12px 28px;line-height:1.55;white-space:normal}
+.n215-row .n215-description{font-size:12px;color:#ccc0cf;padding:0 11px 12px 28px;line-height:1.55;white-space:pre-line;overflow-wrap:anywhere}
 .n215-row .n215-source{display:block;font-size:10px;color:#b3a6b7;margin-top:3px;font-weight:400}
 .n215-add{border:1px solid #ed5965;color:#fff;background:#c02d39;font-size:18px;font-weight:bold;line-height:1;border-radius:4px;min-width:32px;height:31px;padding:0 7px;flex:none}
 .n215-add:disabled{opacity:.65;color:#c9c1cb;border-color:#524143;background:#3a3132;cursor:default;font-size:12px}
@@ -4494,21 +4494,32 @@ Object.assign(NEX_ABILITY_EXPLANATIONS,{
  "Memória Muscular": "A experiência do granadeiro melhora a eficiência dos equipamentos especiais que ele próprio prepara. O benefício é restrito ao item e ao procedimento adequado, sem modificar outros tipos de armas."
 });
 function nexDetailedDescription(name,detail='',source='',extra={}){
- const original=String(detail||'').trim(),guidance=NEX_ABILITY_EXPLANATIONS[String(name||'').trim()];
+ const original=String(detail||'').trim();
+ const from=String(source||'');
+ const originName=extra.originName||(from.startsWith('Origem: ')?from.slice(8).split(' · ')[0]:'');
+ const guidance=NEX_ABILITY_EXPLANATIONS[String(name||'').trim()]||NEX_ABILITY_EXPLANATIONS[originName]||'';
  const parts=original?[original]:[];
- if(guidance&&!original.includes(guidance))parts.push('Aplicação na ficha: '+guidance);
- const originName=extra.originName||(String(source||'').startsWith('Origem: ')?String(source).slice(8).split(' · ')[0]:'');
+ const add=(text)=>{if(text&&!original.includes(text)&&!parts.includes(text))parts.push(text);};
+ if(guidance&&!original.includes(guidance))add('Aplicação na ficha: '+guidance);
  if(originName){
-  const o=NEX12_ORIGINS.find(x=>x[0]===originName);
-  const skills=o?[o[1],o[2]].filter(Boolean):[];
-  if(skills.length)parts.push('Perícias concedidas pela origem: '+skills.join(' e ')+'.');
+  const base=NEX12_ORIGINS.find(x=>x[0]===originName);
+  const extraOrigin=[...(NEX_EXTRA_ORIGINS.horror||[]),...(NEX_EXTRA_ORIGINS.arquivos||[])].find(x=>x.name===originName);
+  const skills=base?[base[1],base[2]].filter(Boolean):Array.isArray(extraOrigin?.skills)?extraOrigin.skills.filter(Boolean):[];
+  if(skills.length)add('Perícias de origem: '+skills.join(' e ')+'. A concessão pertence à escolha da origem e não deve ser aplicada de novo a cada abertura da ficha.');
+  if(extraOrigin?.source)add('Fonte cadastrada: '+extraOrigin.source+'.');
  }
- const trailSource=String(source||'').match(/^Trilha: (.+?) · NEX (\d+)%$/);
+ const trailSource=from.match(/^Trilha: (.+?) · NEX (\d+)%$/);
  const trailName=extra.trail||trailSource?.[1];
  const trailNex=Number(extra.req||trailSource?.[2]||0);
- if(trailName&&trailNex>0)parts.push('Progressão: trilha '+trailName+' — habilidade liberada no NEX '+trailNex+'%.');
- if(extra.classPower)parts.push('Classe exigida: '+extra.classPower+'. Consulte os pré-requisitos do poder antes de selecioná-lo.');
- if(!parts.length)parts.push('Esta entrada ainda não possui descrição mecânica verificada; nenhum efeito numérico adicional foi presumido.');
+ if(trailName&&trailNex>0)add('Progressão: '+trailName+' — habilidade liberada em NEX '+trailNex+'%. O benefício não fica ativo nos níveis anteriores.');
+ const className=extra.classPower||from.match(/^Poder de (Combatente|Especialista|Ocultista)$/)?.[1];
+ if(className)add('Requisito de classe: '+className+'. O personagem precisa cumprir as condições de escolha desse poder.');
+ const attr=String(extra.attr||'').trim();
+ const attrs={agi:'Agilidade',for:'Força',int:'Intelecto',pre:'Presença',vig:'Vigor'};
+ if(attrs[attr]&&Number(extra.threshold)>0)add('Pré-requisito de atributo: '+attrs[attr]+' '+Number(extra.threshold)+'.');
+ if(attr.startsWith('trained'))add('Pré-requisito: possuir o treinamento exigido pela habilidade.');
+ if(Number(extra.minNex)>0)add('NEX mínimo registrado para este poder: '+Number(extra.minNex)+'%.');
+ if(!parts.length)parts.push('Esta entrada não possui descrição mecânica verificada no catálogo atual. Não foram presumidos bônus, custos nem ativações.');
  return parts.join('\n\n');
 }
 window.NEX_DETAILED_DESCRIPTION=nexDetailedDescription;
