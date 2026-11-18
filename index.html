@@ -3104,18 +3104,8 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   state=live;
   try{rehydrate();}catch(error){console.error('NEX: ficha compartilhada',error);}
   visible('sheet');
-  let banner=document.getElementById('nexCampaignEditBanner');
-  if(!banner){
-   banner=document.createElement('div');
-   banner.id='nexCampaignEditBanner';
-   banner.className='nex-campaign-live-banner';
-   banner.innerHTML='<span>Ficha atribuída pelo Mestre · alterações salvas na campanha</span><button type="button">← Voltar à campanha</button><small id="nexCampaignEditStatus" role="status"></small>';
-   $('sheetScreen').prepend(banner);
-   banner.querySelector('button').onclick=()=>{finishCampaignLiveEdit();visible('campaigns');};
-  }
-  banner.hidden=false;
-  const status=banner.querySelector('#nexCampaignEditStatus');
-  if(status)status.textContent='Edição liberada para esta campanha.';
+  // O painel antigo de edição foi removido; o salvamento permanece ativo.
+  document.getElementById('nexCampaignEditBanner')?.remove();
  }
   function persist(show=false){
    if(window.NEX_SHARED_PREVIEW_RENDERING)return false;
