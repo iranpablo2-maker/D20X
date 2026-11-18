@@ -2726,7 +2726,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
  </section>
 </section>
 </main>
-<script>window.NEX_CAMPAIGN_UI_VERSION="20261118returnmap1";</script>
+<script>window.NEX_CAMPAIGN_UI_VERSION="20261118returnmap2";</script>
 <script src="./firebase-config.js?v=20261112"></script>
 <script>
 window.addEventListener('error',function(event){
@@ -2884,22 +2884,21 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
  window.addEventListener('message',event=>{
   if(window.parent===window||event.origin!==location.origin||event.source!==window.parent)return;
-  if(event.data?.type!=='nex-campaign-return-to-characters-panel')return;
-  // Voltar para a MESA, não para a aba de Fichas nem para o painel lateral antigo.
-  if(!roomId||$('roomTabletopPanel')?.classList.contains('hide'))return;
+  if(!['nex-campaign-return-to-tabletop','nex-campaign-return-to-characters-panel'].includes(event.data?.type))return;
+  // Fecha a interface antiga e devolve o foco ao mapa.
+  // Não exige que o painel da campanha esteja visível durante a transição.
   const menu=$('nexVttMainMenu');
   if(menu){
    menu.hidden=true;
+   menu.style.setProperty('display','none','important');
    $('nexVttSheetsCornerToggle')?.setAttribute('aria-expanded','false');
-   const sheetsTab=menu.querySelector('[data-nex-main-tab="sheets"]');
-   sheetsTab?.setAttribute('aria-pressed','false');
-   menu.querySelector('[data-nex-main-tab="chat"]')?.setAttribute('aria-pressed','true');
+   menu.querySelectorAll('[data-nex-main-tab]').forEach(tab=>tab.setAttribute('aria-pressed',String(tab.dataset.nexMainTab==='chat')));
    menu.querySelectorAll('[data-nex-main-page]').forEach(page=>{page.hidden=page.dataset.nexMainPage!=='chat';});
   }
   const panel=$('nexVttSheetsPanel');
   if(panel)panel.hidden=true;
-  syncVttPanels();
   $('nexVttNavMap')?.click();
+  window.dispatchEvent(new Event('resize'));
  });
  window.addEventListener('message',event=>{
   if(event.origin!==location.origin||event.source!==window.parent)return;
@@ -3531,6 +3530,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const immersionMusicHost=$('nexVttImmersionMusicHost');
   const libraryTabs=[...mainMenu.querySelectorAll('[data-nex-library-layer]')];
   const updateMenu=show=>{
+   if(show)mainMenu.style.removeProperty('display');
    mainMenu.hidden=!show;
    mainMenuToggle.setAttribute('aria-expanded',String(show));
    // Rebuild the active Art Library tab after the campaign's GM role loads.
