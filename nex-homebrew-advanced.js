@@ -1003,7 +1003,12 @@
       (!expanded?'<div class="nex-hb-threat-action-controls"><button type="button" class="btn sm" data-threat-edit="'+i+'">Editar</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div>':'')+
     '</div>'+
     (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
-     fields.map(([k,label])=>'<label>'+label+(k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="3">'+esc(a[k]||'')+'</textarea>':'<input data-threat-key="'+k+'" maxlength="90" value="'+esc(a[k]||'')+'">')+'</label>').join('')+
+     fields.map(([k,label])=>'<label>'+label+
+      (k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="3">'+esc(a[k]||'')+'</textarea>':
+       k==='secondaryType'?'<select data-threat-key="secondaryType" aria-label="Tipo do dano secundário">'+
+         [...new Set(['Normal','Corte','Perfuração','Impacto','Balístico','Fogo','Frio','Eletricidade','Químico','Mental','Sangue','Morte','Conhecimento','Energia','Medo','Outros',a.secondaryType].filter(Boolean))].map(option=>'<option value="'+esc(option)+'"'+(option===(a.secondaryType||'Normal')?' selected':'')+'>'+esc(option)+'</option>').join('')+
+         '</select>':
+       '<input data-threat-key="'+k+'" maxlength="90" value="'+esc(a[k]||'')+'">')+'</label>').join('')+
      '</div><div class="nex-hb-threat-action-controls"><button type="button" class="btn primary sm" data-threat-save="'+i+'">Salvar '+(npc&&kind==='ability'?'habilidade':'ataque')+'</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div></div>':'')+
     '</div>';
   };
@@ -1041,6 +1046,10 @@
   const npc=$('nex51Type').value==='npc';
   if(threatActions.length>=12){message('Limite de 12 habilidades/ações para esta ficha.');return;}
   threatActions.push({kind:'attack',name:'Nova ação',action:'Padrão',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});openThreatActionIndex=threatActions.length-1;renderThreatActions();
+ });
+ $('nexHbThreatActions').addEventListener('change',event=>{
+  const row=event.target.closest('[data-threat-row]'),field=event.target.closest('select[data-threat-key]');
+  if(row&&field&&threatActions[Number(row.dataset.threatRow)])threatActions[Number(row.dataset.threatRow)][field.dataset.threatKey]=field.value;
  });
  $('nexHbThreatActions').addEventListener('input',event=>{
   const row=event.target.closest('[data-threat-row]'),field=event.target.closest('[data-threat-key]');
