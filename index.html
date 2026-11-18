@@ -5056,7 +5056,7 @@ body.nex-tabletop-body{overflow:hidden!important}
     const invite=new URLSearchParams(location.search).get('campaignInvite');
     if(invite&&/^[A-Za-z0-9-]{8,40}$/.test(invite))link.searchParams.set('invite',invite);
     // Uma versão nova deve ser buscada, sem reutilizar a tela antiga guardada pelo navegador.
-    link.searchParams.set('cacheVersion','20261117tabcontroller8');
+    link.searchParams.set('cacheVersion','20261118vttsheets1');
     frame.src=link.href;
   }
   if(new URLSearchParams(location.search).has('campaignInvite')){
