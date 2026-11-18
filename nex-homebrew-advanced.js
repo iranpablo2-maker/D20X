@@ -632,6 +632,10 @@
    const npc=type==='npc';
    $('nex52ThreatFields').dataset.nexNpc=String(npc);
    $('nexHbNpcSkillsSection').hidden=!npc;
+   const abilityPanel=mount.querySelector('[data-threat-editor-panel="combate"]');
+   const abilityHeading=abilityPanel?.querySelector('h4');
+   if(abilityHeading)abilityHeading.textContent=npc?'Habilidades e ações':'Ações e ataques';
+   $('nexHbThreatAddAction').textContent=npc?'+ Adicionar habilidade/ação':'+ Adicionar ação';
    for(const id of ['nex52CreatureType','nex52Size','nexHbThreatElement','nex52VD']){
      const label=$(id).closest('label');
      label.hidden=npc;
@@ -975,14 +979,14 @@
   const el=$('nexHbThreatActions');if(!el)return;
   el.innerHTML=threatActions.map((a,i)=>{
    const expanded=openThreatActionIndex===i;
-   const title=[a.action||'Ação',a.name||'Sem nome'].filter(Boolean).join(' — ');
+   const title=[a.action,a.name||'Sem nome'].filter(Boolean).join(' — ');
    return '<div class="nex-hb-threat-action-editor" data-threat-row="'+i+'">'+
     '<div class="nex-hb-threat-action-summary">'+
       '<button type="button" class="nex-hb-threat-action-toggle" data-threat-toggle="'+i+'" aria-expanded="'+expanded+'"><strong>'+esc(title)+'</strong><span aria-hidden="true">'+(expanded?'⌃':'⌄')+'</span></button>'+
       (!expanded?'<div class="nex-hb-threat-action-controls"><button type="button" class="btn sm" data-threat-edit="'+i+'">Editar</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div>':'')+
     '</div>'+
     (expanded?'<div class="nex-hb-threat-action-fields"><div class="nex-hb-threat-grid">'+
-     [['name','Nome'],['action','Tipo de ação'],['test','Teste'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Efeito']].map(([k,label])=>'<label>'+label+(k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="2">'+esc(a[k]||'')+'</textarea>':'<input data-threat-key="'+k+'" maxlength="90" value="'+esc(a[k]||'')+'">')+'</label>').join('')+
+     [['name','Nome'],['action','Tipo / ativação'],['test','Teste (opcional)'],['damage','Dano (opcional)'],['secondaryDamage','Dano secundário (opcional)'],['secondaryType','Tipo do dano secundário'],['range','Alcance'],['effect','Efeito / descrição']].map(([k,label])=>'<label>'+label+(k==='effect'?'<textarea data-threat-key="'+k+'" maxlength="1000" rows="2">'+esc(a[k]||'')+'</textarea>':'<input data-threat-key="'+k+'" maxlength="90" value="'+esc(a[k]||'')+'">')+'</label>').join('')+
      '</div><div class="nex-hb-threat-action-controls"><button type="button" class="btn primary sm" data-threat-save="'+i+'">Salvar ação</button><button type="button" class="btn sm" data-threat-delete="'+i+'">Excluir</button></div></div>':'')+
     '</div>';
   }).join('');
@@ -1011,8 +1015,9 @@
  $('nexHbThreatPvAlias').addEventListener('input',()=>{mount.querySelector('[data-nex-threat-number="pv"]').value=$('nexHbThreatPvAlias').value;});
  mount.querySelector('[data-nex-threat-number="pv"]').addEventListener('input',event=>{$('nexHbThreatPvAlias').value=event.target.value;});
  $('nexHbThreatAddAction').addEventListener('click',()=>{
-  if(threatActions.length>=12){message('Limite de 12 ações para esta ficha.');return;}
-  threatActions.push({name:'Nova ação',action:'Padrão',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});openThreatActionIndex=threatActions.length-1;renderThreatActions();
+  const npc=$('nex51Type').value==='npc';
+  if(threatActions.length>=12){message('Limite de 12 habilidades/ações para esta ficha.');return;}
+  threatActions.push({name:npc?'Nova habilidade':'Nova ação',action:npc?'':'Padrão',test:'',damage:'',secondaryDamage:'',secondaryType:'Normal',range:'',effect:''});openThreatActionIndex=threatActions.length-1;renderThreatActions();
  });
  $('nexHbThreatActions').addEventListener('input',event=>{
   const row=event.target.closest('[data-threat-row]'),field=event.target.closest('[data-threat-key]');
