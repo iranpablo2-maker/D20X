@@ -4341,7 +4341,7 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
   const skills=o?[o[1],o[2]].filter(Boolean):[];
   if(skills.length)parts.push('Perícias concedidas pela origem: '+skills.join(' e ')+'.');
  }
- const trailSource=String(source||'').match(/^Trilha: (.+?) · NEX (\\d+)%$/);
+ const trailSource=String(source||'').match(/^Trilha: (.+?) · NEX (\d+)%$/);
  const trailName=extra.trail||trailSource?.[1];
  const trailNex=Number(extra.req||trailSource?.[2]||0);
  if(trailName&&trailNex>0)parts.push('Progressão: trilha '+trailName+' — habilidade liberada no NEX '+trailNex+'%.');
