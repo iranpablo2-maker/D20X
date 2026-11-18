@@ -335,9 +335,10 @@
  '<button type="button" data-nex53-skill="paranormais" role="tab" aria-selected="false">Poderes Paranormais</button>'+
  '<button type="button" data-nex53-skill="gerais" role="tab" aria-selected="false">Poderes Gerais</button>'+
  '<button type="button" data-nex53-skill="trilhas" role="tab" aria-selected="false">Trilhas</button></div>'+
- '<div class="nex53-ritual-filter" id="nex53RitualFilter" hidden aria-label="Tipos de ritual"></div>'+ 
  '<div class="nex-hb-item-tabs" id="nexHbItemTabs" role="tablist" aria-label="Tipos de itens homebrew" hidden>'+ITEM_CATEGORIES.map(c=>'<button type="button" role="tab" data-nex-hb-item-tab="'+esc(c)+'" aria-selected="false">'+esc(c)+'</button>').join('')+'<button type="button" role="tab" data-nex-hb-item-tab="Melhorias" aria-selected="false">Melhorias</button></div>'+ 
  '<div id="nexHbParanormalNav" class="nex-hb-paranormal-nav" hidden><div class="nex-hb-paranormal-sections"><button type="button" data-nex-psection="itens">Itens Amaldiçoados</button><button type="button" data-nex-psection="maldicoes">Maldições</button><button type="button" data-nex-psection="rituais">Rituais</button></div><div id="nexHbCursedKinds" class="nex-hb-paranormal-kinds">'+CURSED_KINDS.map(k=>'<button type="button" data-nex-ckind="'+esc(k)+'">'+esc(k)+'</button>').join('')+'</div></div>'+ 
+ '<div class="nex53-ritual-filter" id="nex53RitualFilter" hidden aria-label="Tipos de ritual"></div>'+ 
+
  '<div class="nex52-toolbar"><strong id="nex52Count">Homebrew 0/50</strong><button type="button" id="nex52Add">Adicionar</button></div>'+
  '<label class="nex52-search" for="nex51Search"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="10.7" cy="10.7" r="7.2"/><path d="m16 16 5 5"/></svg><input type="search" id="nex51Search" placeholder="Buscar" autocomplete="off" aria-label="Buscar homebrew"></label>'+
  '<section id="nex52Editor" class="nex52-editor" hidden><div class="nex52-editor-head"><strong id="nex52EditorTitle">Adicionar homebrew</strong><button type="button" id="nex52CloseEditor" aria-label="Fechar editor">×</button></div>'+
