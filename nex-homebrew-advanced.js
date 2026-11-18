@@ -364,7 +364,8 @@
   }
   /* Perícias de NPC: editor compacto, sem espaços excessivos. */
   #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline{
-    display:grid!important;grid-template-columns:minmax(0,1fr) 118px 53px!important;
+    display:grid!important;grid-template-columns:minmax(0,220px) 118px 53px!important;
+    width:min(100%,405px)!important;max-width:405px!important;
     gap:5px!important;align-items:center!important;
     min-height:32px!important;padding:3px 0!important;
   }
@@ -395,7 +396,7 @@
   }
   @media(max-width:560px){
     #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline{
-      grid-template-columns:minmax(0,1fr) 111px 49px!important;gap:4px!important;
+      grid-template-columns:minmax(0,1fr) 111px 49px!important;gap:4px!important;width:100%!important;
     }
     #homebrewScreen #nexHbNpcSkillsSection .nex-hb-npc-skill-inline input[data-npc-skill-bonus]{
       width:29px!important;min-width:29px!important;
