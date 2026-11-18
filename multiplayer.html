@@ -2623,11 +2623,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <div id="nexVttLibraryBody" class="nex-vtt-library-body"></div>
     <div id="nexVttImmersionMusicHost" hidden></div>
   </section>
-  <section data-nex-main-page="sheets" hidden>
-   <h3>Fichas dos personagens</h3>
-   <p>Abra as fichas dos participantes sem sair da mesa.</p>
-   <button type="button" id="nexVttMenuSheets">Abrir ou fechar painel de fichas</button>
-  </section>
+  <section data-nex-main-page="sheets" hidden></section>
   <section data-nex-main-page="dice" hidden>
    <h3>Dados</h3>
    <p>Abra a ferramenta de rolagem de dados do NEX.</p>
@@ -3943,6 +3939,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
   }
   menuTabs.forEach(btn=>btn.addEventListener('click',()=>{
+   if(btn.dataset.nexMainTab==='sheets'){
+    updateMenu(false);
+    const panel=$('nexVttSheetsPanel');
+    if(panel){panel.hidden=false;renderVttSheets();syncVttPanels();}
+    return;
+   }
    showMainTab(btn.dataset.nexMainTab);
    if(btn.dataset.nexMainTab==='art'){
     const active=libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer||'mapa';
@@ -3953,7 +3955,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   // Refresh the role-sensitive buttons whenever the Art tab is opened.
   mainMenuToggle.addEventListener('click',()=>updateMenu(mainMenu.hidden));
   mainClose.addEventListener('click',()=>updateMenu(false));
-  $('nexVttMenuSheets').addEventListener('click',()=>{$('nexVttSheetsToggle').click();});
+
   // O atalho de convites foi removido da interface; não interromper o módulo.
   $('nexVttMenuInvites')?.addEventListener('click',()=>{updateMenu(false);roomSection('invites');});
   $('nexVttMenuDice').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Dados"]')?.click();});
@@ -4063,6 +4065,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
   $('nexVttSheetsToggle').addEventListener('click',()=>{
   const panel=$('nexVttSheetsPanel');panel.hidden=!panel.hidden;
+  if(!panel.hidden){updateMenu(false);renderVttSheets();}
   syncVttPanels();
  });
  $('nexVttSheetsClose').addEventListener('click',()=>{$('nexVttSheetsPanel').hidden=true;syncVttPanels();});
