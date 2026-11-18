@@ -2998,6 +2998,8 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   const propsSheet=['position','top','left','right','bottom','transform','width','max-width','min-width','height','max-height','margin','border-radius'];
   const propsHost=['left','right','top','bottom','width','max-width','height','max-height'];
   const propsFrame=['width','max-width','height','max-height'];
+  const backButton=$('nexVttSheetClose');
+  const propsButton=['position','top','left','right','bottom','width','min-width','max-width','height','min-height','max-height','transform','margin','z-index'];
   const cleanup=(node,props)=>{for(const prop of props)node.style.removeProperty(prop);};
   const set=(node,prop,value)=>node.style.setProperty(prop,value,'important');
   const active=document.body.classList.contains('nex-vtt-sheet-overlay')
@@ -3007,6 +3009,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    cleanup(sheet,propsSheet);
    cleanup(host,propsHost);
    cleanup(frame,propsFrame);
+   if(backButton)cleanup(backButton,propsButton);
    return;
   }
   const split=window.innerWidth>=740;
@@ -3033,6 +3036,24 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    set(node,'max-width',remainingWidth);
    set(node,'height',remainingHeight);
    set(node,'max-height',remainingHeight);
+  }
+  if(backButton){
+   // Alinha o botão exatamente com o retângulo da ficha, nunca com o mapa.
+   const rect=sheet.getBoundingClientRect();
+   set(backButton,'position','fixed');
+   set(backButton,'left',Math.max(0,rect.left)+'px');
+   set(backButton,'right','auto');
+   set(backButton,'top',Math.max(0,rect.top)+'px');
+   set(backButton,'bottom','auto');
+   set(backButton,'width',rect.width+'px');
+   set(backButton,'min-width','0');
+   set(backButton,'max-width',rect.width+'px');
+   set(backButton,'height','51px');
+   set(backButton,'min-height','51px');
+   set(backButton,'max-height','51px');
+   set(backButton,'transform','none');
+   set(backButton,'margin','0');
+   set(backButton,'z-index','1000010');
   }
  }
  window.addEventListener('resize',syncVttRealSheetDock);
@@ -3068,6 +3089,8 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
     if(close.parentElement!==document.body)document.body.append(close);
     close.hidden=!sheetOverlay;
   }
+  // Executar novamente depois de criar o botão (a primeira chamada prepara a ficha).
+  syncVttRealSheetDock();
   if(!sheetOverlay)window.scrollTo(0,0);
   else $('sheetScreen').scrollTop=0;
  }
