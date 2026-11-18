@@ -3081,6 +3081,12 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
       if(nexCampaignLiveEdit)finishCampaignLiveEdit();
       else persist();
       visible('campaigns');
+      // A ficha abriu a partir do painel de personagens da mesa.
+      // Devolver o foco à lista da mesma campanha sem desmontar o Tabletop.
+      const frame=$('nexCampaignRoomFrame');
+      if(frame?.contentWindow && $('campaignPanel')?.classList.contains('nex-tabletop-expanded')){
+        frame.contentWindow.postMessage({type:'nex-campaign-return-to-characters-panel'},location.origin);
+      }
     });
     document.body.append(close);
   }
