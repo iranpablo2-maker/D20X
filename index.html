@@ -2787,6 +2787,7 @@ function nexAutoAttackConsume(kind,attackId){
  p.damageBonus=kind==='damage'?0:damage;
  if(p.attackBonus<=0&&p.damageBonus<=0)state.nexAutoPending=null;
  save();
+ queueMicrotask(()=>{if(typeof renderStats==='function')renderStats();});
  return total;
 }
 function nexRollAttackDamage(a,extra=0,onlySecondary=false){
