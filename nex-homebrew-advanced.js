@@ -367,10 +367,10 @@
   #homebrewScreen .nex-hb-npc-roll:hover{background:#48222b55;color:white}
   #homebrewScreen .nex-hb-npc-roll-name{font-size:12px;font-weight:800;flex:1;letter-spacing:.025em}
   #homebrewScreen .nex-hb-npc-roll-expression{font-size:13px;font-weight:800;font-variant-numeric:tabular-nums}
-  #homebrewScreen .nex-hb-npc-roll{display:grid!important;grid-template-columns:minmax(0,1fr) auto 22px!important;gap:10px!important;align-items:center!important}
+  #homebrewScreen .nex-hb-npc-roll{display:grid!important;grid-template-columns:minmax(0,1fr) auto 24px!important;gap:8px!important;align-items:center!important}
   #homebrewScreen .nex-hb-npc-roll-name{font-size:12px!important;font-weight:750!important;white-space:normal!important}
   #homebrewScreen .nex-hb-npc-roll-expression{font-size:12px!important;font-weight:800!important;white-space:nowrap!important}
-  #homebrewScreen .nex-hb-npc-d20-image{display:block!important;width:16px!important;height:18px!important;object-fit:contain!important;pointer-events:none!important;justify-self:center!important}
+  #homebrewScreen .nex-hb-npc-d20-image{display:block!important;width:20px!important;height:22px!important;object-fit:contain!important;pointer-events:none!important;justify-self:center!important}
   #homebrewScreen .nex-hb-npc-roll:focus-visible{outline:2px solid #ee8b93!important;outline-offset:2px!important}
   #homebrewScreen .nex-hb-npc-roll-result{padding:10px 12px;border:1px solid #70424a;border-radius:6px;background:#24151c;color:#fff;overflow-wrap:anywhere;font-size:12px}
   #homebrewScreen .nex-hb-npc-roll-result[hidden]{display:none!important}
@@ -998,7 +998,7 @@
     '<h4>Perícias</h4>'+(t.npcSkills.length?t.npcSkills.map((row,index)=>{
       const dice=npcSkillDice(row,t.attributes);
       const formula=dice.count+'d20'+(row.bonus>=0?'+':'')+row.bonus;
-      const name=row.name+' ('+dice.attribute.toUpperCase()+')';
+      const name=row.name+'('+dice.attribute.toUpperCase()+')';
       return '<div class="nex-hb-npc-roll-row">'+
         '<button type="button" class="nex-hb-npc-roll" data-npc-roll="'+index+'" aria-label="Rolar '+esc(name)+' '+esc(formula)+'">'+
           '<span class="nex-hb-npc-roll-name">'+esc(name)+'</span>'+
