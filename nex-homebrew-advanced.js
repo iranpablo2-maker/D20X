@@ -403,7 +403,8 @@
       width:29px!important;min-width:29px!important;
     }
   }
-  #homebrewScreen .nex-hb-npc-action-group{margin:10px 0 20px;padding:12px;border:1px solid #58313f;border-radius:8px;background:#1c1218}
+  #homebrewScreen .nex-hb-npc-action-buttons{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:8px 0 12px}
+    #homebrewScreen .nex-hb-npc-action-group{margin:10px 0 20px;padding:12px;border:1px solid #58313f;border-radius:8px;background:#1c1218}
   #homebrewScreen .nex-hb-npc-action-group-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
   #homebrewScreen .nex-hb-npc-action-group h4{margin:0 0 4px;font-size:15px;color:#f5d9e1}
   #homebrewScreen .nex-hb-npc-action-group-head p{font-size:11px;color:#bfaeb6;margin:0}
@@ -1007,9 +1008,10 @@
     '</div>';
   };
   if(npc){
-   const group=(kind,title,caption)=>'<section class="nex-hb-npc-action-group"><div class="nex-hb-npc-action-group-head"><div><h4>'+title+'</h4><p>'+caption+'</p></div><button type="button" class="btn sm" data-npc-add-kind="'+kind+'">+ Adicionar '+(kind==='ability'?'habilidade':'ataque')+'</button></div>'+
-     threatActions.map((a,i)=>kindFor(a)===kind?row(a,i):'').join('')+'</section>';
-   el.innerHTML=group('ability','Habilidades','Passivas, suporte, cura e habilidades especiais. Rolagens são opcionais.')+group('attack','Ataques','Testes, dano e dano secundário com rolagens.');
+   el.innerHTML='<div class="nex-hb-npc-action-buttons">'+
+     '<button type="button" class="btn sm" data-npc-add-kind="ability">+ Adicionar habilidade</button>'+
+     '<button type="button" class="btn sm" data-npc-add-kind="attack">+ Adicionar ataque</button></div>'+
+     threatActions.map((a,i)=>row(a,i)).join('');
   }else el.innerHTML=threatActions.map(row).join('');
  }
  function readThreatSheet(){
