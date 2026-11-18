@@ -405,7 +405,15 @@
     }
   }
   #homebrewScreen .nex-hb-npc-test-preview{display:block;padding:4px 0;color:#e2a9b6;font-size:11px}
-  #homebrewScreen .nex-hb-npc-attack-editor .nex-hb-threat-action-summary{align-items:flex-start}
+  #homebrewScreen .nex-hb-npc-attack-sheet{padding:12px 14px!important;background:#20161b!important}
+  #homebrewScreen .nex-hb-npc-attack-title{font-size:13px;font-weight:800;letter-spacing:.035em;color:#f9e8ed}
+  #homebrewScreen .nex-hb-npc-attack-subtitle{margin:4px 0 7px;padding-left:12px;font-size:12px;color:#e4cbd3}
+  #homebrewScreen .nex-hb-npc-attack-stats{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font-size:12px;padding-left:12px;color:#fff}
+  #homebrewScreen .nex-hb-npc-inline-roll{display:inline-flex!important;align-items:center!important;gap:5px!important;border:0!important;border-radius:4px!important;padding:3px 5px!important;background:transparent!important;color:#f4e7eb!important;cursor:pointer!important;font-size:12px!important}
+  #homebrewScreen .nex-hb-npc-inline-roll:hover{background:#522836!important}
+  #homebrewScreen .nex-hb-npc-inline-roll img{width:15px;height:17px;object-fit:contain}
+  #homebrewScreen .nex-hb-npc-attack-critical,#homebrewScreen .nex-hb-npc-attack-divider{font-size:12px;color:#e1ced4}
+    #homebrewScreen .nex-hb-npc-attack-editor .nex-hb-threat-action-summary{align-items:flex-start}
   #homebrewScreen .nex-hb-npc-attack-summary{display:flex;flex-direction:column;gap:4px;align-items:flex-start;min-width:0;padding:3px 0}
   #homebrewScreen .nex-hb-npc-attack-summary strong{color:#f6e6e9;font-size:12px;letter-spacing:.025em}
   #homebrewScreen .nex-hb-npc-attack-summary span{color:#e0d4d6;font-size:12px;font-weight:650}
@@ -1193,11 +1201,31 @@
     (a.effect?'<p>'+esc(a.effect)+'</p>':'')+
     (extractNpcDiceFormula(a.effect)?actionDiceButton('Rolar efeito',a.effect,index,'effect'):'')+
     '<p class="nex-hb-action-roll-result" role="status" aria-live="polite" hidden></p></div>';
+  const renderNpcAttack=(a,index)=>{
+   const skill=npcTestFor(a);
+   const top='<div class="nex-hb-npc-attack-title">'+esc((a.action||'Padrão').toUpperCase())+' ◆ '+esc((a.name||'Agredir').toUpperCase())+'</div>';
+   const weapon=a.subtitle||'';
+   const line=weapon||a.range?'<div class="nex-hb-npc-attack-subtitle">'+(weapon?'<strong>'+esc(weapon.toUpperCase())+'</strong> ':'')+esc(a.range||'')+'</div>':'';
+   const test=skill?
+     '<button type="button" class="nex-hb-npc-inline-roll" data-npc-action-roll="'+index+'" data-npc-action-field="skillTest">Teste '+esc(skill.name)+' '+esc(skill.formula)+' <img src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':
+     (a.test?actionDiceButton('Teste',a.test,index,'test'):'');
+   const damage=a.damage?
+     '<button type="button" class="nex-hb-npc-inline-roll" data-npc-action-roll="'+index+'" data-npc-action-field="damage">Dano '+esc(a.damage)+' '+esc((a.damageType||'Corte').toLowerCase())+' <img src="'+NPC_D20_ICON+'" alt="" aria-hidden="true"></button>':'';
+   return '<div class="nex-hb-threat-action nex-hb-npc-attack-sheet">'+top+line+
+     '<div class="nex-hb-npc-attack-stats">'+test+
+     (test?'<span class="nex-hb-npc-attack-critical">, crítico '+esc(a.critical||'20')+'</span>':'')+
+     (test&&damage?'<span class="nex-hb-npc-attack-divider"> | </span>':'')+damage+'</div>'+
+     (a.secondaryDamage?actionDiceButton('Dano secundário',a.secondaryDamage,index,'secondaryDamage'):'')+
+     (a.secondaryDamage&&a.secondaryType?'<p>'+esc(a.secondaryType)+'</p>':'')+
+     (a.effect?'<p>'+esc(a.effect)+'</p>':'')+
+     (extractNpcDiceFormula(a.effect)?actionDiceButton('Rolar efeito',a.effect,index,'effect'):'')+
+     '<p class="nex-hb-action-roll-result" role="status" aria-live="polite" hidden></p></div>';
+  };
   const combatPanel=item.type==='npc'?
     ['ability','attack'].map(kind=>{
      const entries=t.actions.map((a,index)=>({a,index})).filter(({a})=>(a.kind==='attack'||a.kind==='ability'?a.kind:(a.damage||a.secondaryDamage?'attack':'ability'))===kind);
      return '<section class="nex-hb-npc-action-group"><h4>'+(kind==='ability'?'Habilidades':'Ataques')+'</h4>'+
-        (entries.length?entries.map(({a,index})=>renderCombatAction(a,index)).join(''):'<p>Nenhum registro cadastrado.</p>')+'</section>';
+        (entries.length?entries.map(({a,index})=>kind==='attack'?renderNpcAttack(a,index):renderCombatAction(a,index)).join(''):'<p>Nenhum registro cadastrado.</p>')+'</section>';
     }).join(''):(t.actions.length?t.actions.map(renderCombatAction).join(''):'<p>Nenhuma ação cadastrada.</p>');
   const descriptionPanel=note('Descrição',item.description)+(item.type==='npc'?'':note('Enigma de Medo',t.enigma));
   return '<section class="nex-hb-threat-sheet'+(item.type==='npc'?' nex-hb-npc-preview':'')+'" data-nex-threat-preview style="--nex-threat-bg:'+(item.type==='npc'?'none':'url(&quot;./assets/rituais/'+esc(threatBg.file)+'&quot;)')+';--nex-threat-accent:'+esc(threatBg.color)+'">'+
