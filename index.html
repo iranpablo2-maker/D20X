@@ -3102,9 +3102,11 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  // remains necessary when moving between local HTML files or devices.
  const LAST_WRITE_KEY='nex_menu_last_write_v30';
  let nexAutoLastFingerprint='';
- function notifyAutoSync(){
+ function notifyAutoSync(agentsJson){
    if(!storageReady)return;
-   const signature=JSON.stringify({agents,campaigns,homebrew:globalHomebrew()});
+   // Reaproveita a serialização já calculada em persist(), evitando duplicar
+   // a coleção inteira a cada clique em Adicionar/Remover habilidade.
+   const signature=(agentsJson||JSON.stringify(agents))+'\n'+JSON.stringify(campaigns)+'\n'+JSON.stringify(globalHomebrew());
    if(signature!==nexAutoLastFingerprint){
      nexAutoLastFingerprint=signature;
      queueMicrotask(()=>window.dispatchEvent(new Event('nex-auto-local-change')));
@@ -3249,10 +3251,11 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
     return true;
    }
    const entry=agents.find(x=>x.id===active);
+   const stateJson=JSON.stringify(state);
    if(entry){
-     const updated=JSON.parse(JSON.stringify(state));
-     if(JSON.stringify(entry.data)!==JSON.stringify(updated)){
-       entry.data=updated;
+     // Copia o estado somente se houve alteração, sem serializar uma cópia inteira.
+     if(JSON.stringify(entry.data)!==stateJson){
+       entry.data=JSON.parse(stateJson);
        entry.updatedAt=new Date().toISOString();
      }
      ensureAgentMeta(entry);
@@ -3261,21 +3264,22 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    if(!storageReady)return false;
    const snapshot=createSnapshot();
    let localSaved=false;
+   let serialized='';
    try {
-     const serialized=JSON.stringify(agents);
+     serialized=JSON.stringify(agents);
      localStorage.setItem(AGENTS_KEY,serialized);
      localStorage.setItem(ACTIVE_KEY,active??'');
      // KEY is retained for compatibility, but is never the source of truth.
-     try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){console.warn('Cópia legada não salva',e);}
+     try{localStorage.setItem(KEY,stateJson);}catch(e){console.warn('Cópia legada não salva',e);}
      const reloaded=localStorage.getItem(AGENTS_KEY);
      if(reloaded!==serialized || localStorage.getItem(ACTIVE_KEY)!==(active??''))throw new Error('Armazenamento não confirmou gravação');
-     const committed=JSON.parse(reloaded).find(a=>a.id===active)?.data;
-     if(entry && (!committed || JSON.stringify(committed)!==JSON.stringify(entry.data)))throw new Error('Verificação da ficha falhou');
+     // A comparação integral acima já verifica os bytes gravados. Evita
+     // decodificar e serializar novamente todas as fichas em cada alteração.
      localStorage.setItem(LAST_WRITE_KEY,String(snapshot.savedAt));
      localSaved=true;
    }catch(err){console.warn('LocalStorage indisponível ou cheio',err);}
    storageOK=localSaved;
-   if(localSaved)notifyAutoSync();
+   if(localSaved)notifyAutoSync(serialized);
    if(db)scheduleDbSave(snapshot);
    const saving=!!db;
    const status=document.getElementById('nex29SheetSaveIndicator');
