@@ -3680,6 +3680,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  function showHomebrew(){persist();state.homebrew=globalHomebrew();nex12Ensure();nex12RenderHomebrew();visible('homebrew');}
  window.addEventListener('nex:open-homebrew-npc',()=>showHomebrew());
  window.addEventListener('nex:open-homebrew-npc-sheet',()=>showHomebrew());
+ window.addEventListener('nex:edit-campaign-npc-native',()=>showHomebrew());
  const hbSection=$('homebrew');hbSection.classList.add('active');$('homebrewMount').appendChild(hbSection);
  $('homebrewBack').onclick=showHome;
  $('agentsBack').onclick=showHome;
@@ -6267,6 +6268,17 @@ body > #nexVttSheetClose[hidden]{display:none!important}
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin || event.source!==frame.contentWindow)return;
     const msg=event.data||{};
+    if(msg.type==='nex-campaign-edit-npc-native'){
+      if(typeof msg.campaignId!=='string'||typeof msg.entryId!=='string'||!msg.npc||typeof msg.npc!=='object')return;
+      window.dispatchEvent(new CustomEvent('nex:edit-campaign-npc-native',{detail:{
+       campaignId:msg.campaignId,entryId:msg.entryId,npc:msg.npc
+      }}));
+      return;
+    }
+    if(msg.type==='nex-campaign-npc-save-result'){
+      window.dispatchEvent(new CustomEvent('nex:campaign-npc-save-result',{detail:msg}));
+      return;
+    }
     if(msg.type==='nex-campaign-view-homebrew-npc'){
       const npcId=String(msg.npcId||'').slice(0,100);
       if(npcId){
