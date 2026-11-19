@@ -126,6 +126,7 @@ export function mountGmShield(options){
   }).catch(error=>{
    if(room===current){committed=Math.max(committed,number);status('Falha ao salvar: '+String(error.message||error));}
   });
+  return writeQueue;
  }
  const favKey=(kind,value)=>kind+':'+value;
  const favored=(kind,value)=>state.favorites.includes(favKey(kind,value));
@@ -507,6 +508,30 @@ export function mountGmShield(options){
    status('Revelação confirmada no chat da sessão.');
   }else status('A revelação não foi enviada. Você pode copiar o segredo e tentar novamente.');
  });
+ window.addEventListener('message',event=>{
+  if(window.parent===window||event.origin!==location.origin||event.source!==window.parent)return;
+  const msg=event.data||{};
+  if(msg.type!=='nex-campaign-save-npc-native'||msg.campaignId!==room||!getContext().gm)return;
+  const entry=state.npcs.find(x=>x.id===msg.entryId);
+  if(!entry||!ready)return;
+  const npc=msg.npc;
+  if(!npc||npc.type!=='npc'||!npc.name||typeof npc.threatSheet!=='object')return;
+  const previous={title:entry.title,body:entry.body,image:entry.image,sheet:entry.sheet,hasFullSheet:entry.hasFullSheet};
+  entry.title=String(npc.name).slice(0,110);
+  entry.body=String(npc.description||'').slice(0,4000);
+  entry.image=safeImage(npc.image);
+  entry.sheet=npcSheet(npc.threatSheet);entry.hasFullSheet=true;
+  if(JSON.stringify(state).length>670000){Object.assign(entry,previous);status('Ficha muito grande para a campanha.');window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:'Ficha muito grande',entryId:entry.id},location.origin);return;}
+  const done=store();
+  if(!done){Object.assign(entry,previous);return;}
+  done.then(()=>{
+   status('Ficha de NPC salva na campanha.');
+   window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:true,entryId:entry.id},location.origin);
+  }).catch(error=>{
+   Object.assign(entry,previous);status('Erro ao salvar a ficha: '+String(error.message||error));
+   window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:String(error.message||error),entryId:entry.id},location.origin);
+  });
+ });
  root.addEventListener('submit',event=>{
   const npcForm=event.target.closest('[data-gm-npc-sheet]');
   if(npcForm){event.preventDefault();if(room&&ready&&getContext().gm)saveNpcCampaignForm(npcForm);return;}
@@ -552,6 +577,15 @@ export function mountGmShield(options){
    if(kind==='npcs'&&entry.sourceId&&!entry.hasFullSheet){
     readHomebrews();const source=homebrew.find(x=>String(x.id)===entry.sourceId);
     if(source){entry.sheet=npcSheet(source.threatSheet);entry.hasFullSheet=true;store();}
+   }
+   if(kind==='npcs'&&window.parent!==window){
+    window.parent.postMessage({
+     type:'nex-campaign-edit-npc-native',campaignId:room,entryId:entry.id,
+     npc:{id:entry.sourceId||'',name:entry.title,description:entry.body||'',
+      image:entry.image||'',threatSheet:entry.sheet||{}}
+    },location.origin);
+    status('Abrindo a ficha original de NPC do Homebrew…');
+    return;
    }
    selectedSheet={kind,id:key};render();return;
   }
