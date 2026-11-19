@@ -40,6 +40,7 @@ export function mountGmShield(options){
   ['Iniciativa','Determine a ordem de ação no confronto, considerando as habilidades específicas dos participantes.']
  ];
   let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
+ let selectedSheet=null;
  let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
  const id=()=>typeof crypto.randomUUID==='function'?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
  const attr=(name,value)=>' '+name+'="'+escape(value)+'"';
@@ -75,7 +76,7 @@ export function mountGmShield(options){
  }
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
-  room='';ready=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
+  room='';ready=false;selectedSheet=null;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
   clearTimeout(generalSaveTimer);richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
@@ -138,9 +139,48 @@ export function mountGmShield(options){
    '<p>'+escape(attrs)+'</p>'+(skills?'<p><b>Perícias:</b> '+skills+'</p>':'')+
    (actions?'<ul>'+actions+'</ul>':'')+'</details>';
  }
+ function entityCard(kind,x){
+  const npc=kind==='npcs',title=escape(x.title||'Sem nome');
+  const source=npc?(x.sourceId?'Homebrew':'Campanha'):(x.tag||'Campanha');
+  const meta=npc?'NPC da campanha':(x.status||'Ameaça da campanha');
+  const pic=safeImage(x.image);
+  const thumb=pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?');
+  const key=escape(x.id);
+  return '<article class="nex-gm-entity-card">'+
+   '<div class="nex-gm-entity-cover">'+thumb+'</div>'+
+   '<div class="nex-gm-entity-body"><div class="nex-gm-entity-top"><div><strong>'+title+'</strong>'+
+   '<div class="nex-gm-entity-sub">'+(npc?'NPC':'Ameaça')+'</div>'+
+   '<div class="nex-gm-entity-meta">'+escape(meta)+'</div></div>'+
+   '<details class="nex-gm-entity-settings"><summary aria-label="Configurações da ficha" title="Configurações">⚙</summary>'+
+   '<div class="nex-gm-entity-settings-actions"><button type="button" data-gm-edit="'+kind+':'+key+'">Editar</button>'+
+   '<button type="button" class="nex-gm-danger" data-gm-delete="'+kind+':'+key+'">Excluir</button></div></details></div>'+
+   '<button type="button" class="nex-gm-entity-open" data-gm-open-sheet="'+kind+':'+key+'">Acessar Ficha</button>'+
+   '<div class="nex-gm-entity-bottom"><small>'+(npc?'Origem':'Fonte')+'</small><b>'+escape(source)+'</b>'+
+   '<small>Pode editar: Mestre</small></div></div></article>';
+ }
+ function entitySheetView(){
+  if(!selectedSheet)return '';
+  const kind=selectedSheet.kind,x=state[kind]?.find(entry=>entry.id===selectedSheet.id);
+  if(!x)return '';
+  const npc=kind==='npcs',sheet=x.sheet;
+  const note=(x.body||'').trim();
+  const meaningful=note&&!['NPC criado na biblioteca Homebrew','NPC importado da biblioteca Homebrew'].includes(note);
+  return '<section class="nex-gm-entity-sheet" aria-label="Ficha de '+(npc?'NPC':'ameaça')+'">'+
+   '<div class="nex-gm-entity-sheet-head"><button type="button" class="alt" data-gm-close-sheet>← Voltar</button><h3>'+escape(x.title)+'</h3>'+
+   '<div class="nex-gm-entity-sheet-actions"><button type="button" class="alt" data-gm-edit="'+kind+':'+escape(x.id)+'">Editar</button>'+
+   '<button type="button" class="alt nex-gm-danger" data-gm-delete="'+kind+':'+escape(x.id)+'">Excluir</button></div></div>'+
+   '<p class="nex-gm-entity-sheet-type">'+(npc?'NPC':'Ameaça')+(x.tag&&x.tag!=='Homebrew'?' · '+escape(x.tag):'')+'</p>'+
+   (sheet?'<section class="nex-gm-sheet-stats"><h4>Ficha</h4><p>PV '+escape(sheet.pv)+' · Defesa '+escape(sheet.defense)+'</p>'+
+   '<div class="nex-gm-sheet-attrs">'+[['agi','AGI'],['for','FOR'],['int','INT'],['pre','PRE'],['vig','VIG']].map(([key,label])=>'<span><b>'+label+'</b> '+escape(sheet.attributes?.[key]??0)+'</span>').join('')+'</div>'+
+   (sheet.skills?.length?'<h4>Perícias</h4><ul>'+sheet.skills.map(a=>'<li>'+escape(a.name)+' '+(Number(a.bonus)>=0?'+':'')+escape(a.bonus)+'</li>').join('')+'</ul>':'')+
+   (sheet.actions?.length?'<h4>Habilidades e ataques</h4><ul>'+sheet.actions.map(a=>'<li><b>'+escape(a.name)+'</b> '+escape(a.test||'')+' '+escape(a.damage||'')+(a.description?'<p>'+escape(a.description)+'</p>':'')+'</li>').join('')+'</ul>':'')+'</section>':'')+
+   (meaningful?'<section class="nex-gm-sheet-description"><h4>Descrição</h4><p>'+escape(note)+'</p></section>':'')+
+   (!sheet&&!meaningful?'<p class="room-note">Esta referência ainda não possui dados detalhados. Use Editar para acrescentar informações.</p>':'')+'</section>';
+ }
  function cards(kind){
   const arr=state[kind]||[];
   const value=filter.toLocaleLowerCase('pt-BR'),matches=arr.filter(x=>!value||(x.title+' '+x.tag+' '+x.body).toLocaleLowerCase('pt-BR').includes(value));
+  if(kind==='npcs'||kind==='threats')return matches.length?'<div class="nex-gm-entity-list">'+matches.map(x=>entityCard(kind,x)).join('')+'</div>':'<p class="room-note">Nenhum registro nesta área.</p>';
   return matches.length?'<div class="nex-gm-cards">'+matches.map(x=>{
    const key=favKey(kind,x.id),favorite=state.favorites.includes(key);
    const image=kind==='secrets'&&safeImage(x.image)?'<img class="nex-gm-secret-image" src="'+escape(safeImage(x.image))+'" alt="Imagem privada associada ao segredo" loading="lazy">':'';
@@ -316,7 +356,7 @@ export function mountGmShield(options){
  function render(){
   if(!room||!getContext().gm)return;
   if(!ready){root.innerHTML='<p class="room-note">Carregando dados privados da campanha…</p>';return;}
-  const current=tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes');
+  const current=selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes'));
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '<p class="nex-gm-footer">Somente o mestre pode ler e alterar estes dados. NPCs e ameaças são referências privadas; a biblioteca de fichas do NEX continua separada.</p>';
@@ -339,6 +379,7 @@ export function mountGmShield(options){
   if(!state[kind]?.some(x=>x.id===key))return;
   if(!window.confirm('Excluir este registro do Escudo do Mestre?'))return;
   state[kind]=state[kind].filter(x=>x.id!==key);
+  if(selectedSheet?.kind===kind&&selectedSheet.id===key)selectedSheet=null;
   state.favorites=state.favorites.filter(x=>x!==favKey(kind,key));
   if(editing?.id===key)editing=null;
   store();render();
@@ -392,9 +433,11 @@ export function mountGmShield(options){
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
   if(btn.dataset.gmAction==='create-npc'){if(window.parent!==window){window.parent.postMessage({type:'nex-campaign-create-homebrew-npc'},location.origin);}else{window.location.assign('./index.html?createNpc=1');}return;}
 
-  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;render();if(tab==='threats')void readThreats();return;}
+  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
-  if(btn.dataset.gmEdit){const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
+  if(btn.hasAttribute('data-gm-close-sheet')){selectedSheet=null;render();return;}
+  if(btn.dataset.gmOpenSheet){const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);if(state[kind]?.some(x=>x.id===key)){selectedSheet={kind,id:key};render();}return;}
+  if(btn.dataset.gmEdit){selectedSheet=null;const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmDelete){const p=btn.dataset.gmDelete.indexOf(':'),kind=btn.dataset.gmDelete.slice(0,p),key=btn.dataset.gmDelete.slice(p+1);deleteRecord(kind,key);return;}
   if(btn.dataset.gmFav){const p=btn.dataset.gmFav.indexOf(':'),kind=btn.dataset.gmFav.slice(0,p),key=btn.dataset.gmFav.slice(p+1);toggleFavorite(kind,key);return;}
   if(btn.dataset.gmReveal){reveal(btn.dataset.gmReveal);return;}
