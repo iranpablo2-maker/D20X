@@ -197,16 +197,34 @@ export function mountGmShield(options){
  }
  function npcCampaignEditor(x){
   const t=npcSheet(x.sheet);
-  return '<form class="nex-gm-npc-form" data-gm-npc-sheet="'+escape(x.id)+'">'+
-   '<header class="nex-gm-npc-form-header"><button type="button" class="alt" data-gm-close-sheet>← Voltar aos NPCs</button><h3>Ficha de '+escape(x.title)+'</h3><button type="submit" class="nex-gm-npc-save">Salvar na campanha</button></header>'+
-   '<p class="nex-gm-npc-form-hint">Esta ficha é uma cópia da campanha. Alterações aqui não modificam o Homebrew original.</p>'+
-   '<div class="nex-gm-npc-fields">'+npcField('title','Nome do NPC',x.title)+npcField('body','Descrição / História',x.body,'textarea')+'</div>'+
-   '<h4>Atributos</h4><div class="nex-gm-npc-fields">'+npcAttrNames.map(([key,label])=>npcField('attr_'+key,label,t.attributes[key],'number','min="0" max="6"')).join('')+'</div>'+
-   '<h4>Dados de combate</h4><div class="nex-gm-npc-fields">'+npcField('pv','Pontos de vida',t.pv,'number','min="0" max="99999"')+npcField('defense','Defesa',t.defense,'number','min="0" max="99999"')+npcField('deslocamento','Deslocamento',t.deslocamento)+'</div>'+
-   '<div class="nex-gm-npc-editor-section"><div class="nex-gm-npc-section-head"><h4>Perícias</h4><button type="button" data-gm-npc-add="skills">+ Adicionar perícia</button></div><div data-gm-npc-list="skills">'+t.npcSkills.map(npcSkillRow).join('')+'</div></div>'+
-   '<div class="nex-gm-npc-editor-section"><div class="nex-gm-npc-section-head"><h4>Habilidades e combate</h4><button type="button" data-gm-npc-add="actions">+ Adicionar habilidade / ataque</button></div><div data-gm-npc-list="actions">'+t.actions.map(npcActionRow).join('')+'</div></div>'+
-   '<div class="nex-gm-npc-editor-section"><div class="nex-gm-npc-section-head"><h4>Rituais</h4><button type="button" data-gm-npc-add="rituals">+ Adicionar ritual</button></div><div data-gm-npc-list="rituals">'+t.rituals.map(npcRitualRow).join('')+'</div></div>'+
-   '<div class="nex-gm-npc-fields">'+npcField('habilidades','Características adicionais',t.habilidades,'textarea')+npcField('notas','Observações',t.notas,'textarea')+'</div>'+
+  const image=safeImage(x.image);
+  const options=npcSkillNames.map(name=>name);
+  const attrBoxes=npcAttrNames.map(([key,label])=>'<label class="nex-gm-npc-attribute"><span>'+key.toUpperCase()+'</span><input name="attr_'+key+'" aria-label="'+escape(label)+'" type="number" min="0" max="6" value="'+escape(t.attributes[key])+'"></label>').join('');
+  return '<form class="nex-gm-npc-form nex-gm-npc-homebrew-look" data-gm-npc-sheet="'+escape(x.id)+'">'+
+   '<div class="nex-gm-npc-editor-topbar"><button type="button" class="alt" data-gm-close-sheet>← Voltar aos NPCs</button><span>FICHA EDITÁVEL · CAMPANHA</span><button type="submit" class="nex-gm-npc-save">Salvar na campanha</button></div>'+
+   '<section class="nex-gm-npc-sheet-banner"><div class="nex-gm-npc-sheet-photo">'+
+   (image?'<img data-gm-npc-preview src="'+escape(image)+'" alt="Foto do NPC">':'<div data-gm-npc-initial>'+escape((x.title||'?').charAt(0).toUpperCase())+'</div>')+
+   '<label>+ Foto<input type="file" data-gm-npc-photo accept="image/png,image/jpeg,image/webp"></label>'+
+   '<input type="hidden" name="npcImage" value="'+escape(image)+'"></div>'+
+   '<div class="nex-gm-npc-banner-info"><small>NPC · FICHA EDITÁVEL</small>'+
+   '<input name="title" aria-label="Nome do NPC" maxlength="110" value="'+escape(x.title)+'" required>'+
+   '<p>Ficha exclusiva desta campanha</p></div></section>'+
+   '<div class="nex-gm-npc-vital-bar"><label><input name="pv" type="number" min="0" max="99999" value="'+escape(t.pv)+'"> PV</label></div>'+
+   '<nav class="nex-gm-npc-sheet-tabs" aria-label="Seções da ficha">'+
+   '<button type="button" data-gm-npc-tab="status" aria-selected="true">STATUS</button>'+
+   '<button type="button" data-gm-npc-tab="combate" aria-selected="false">COMBATE</button>'+
+   '<button type="button" data-gm-npc-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
+   '<div data-gm-npc-panel="status" class="nex-gm-npc-tab-panel">'+
+   '<div class="nex-gm-npc-attributes">'+attrBoxes+'</div>'+
+   '<div class="nex-gm-npc-core-stats">'+npcField('defense','Defesa',t.defense,'number','min="0" max="99999"')+npcField('deslocamento','Deslocamento',t.deslocamento)+'</div>'+
+   '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Perícias</h4><button type="button" data-gm-npc-add="skills">+ Adicionar perícia</button></div>'+
+   '<div class="nex-gm-npc-skills-head"><span>Perícia (Atributo)</span><span>Dados</span><span>Bônus</span><span></span></div>'+
+   '<div data-gm-npc-list="skills">'+t.npcSkills.map(npcSkillRow).join('')+'</div></div></div>'+
+   '<div data-gm-npc-panel="combate" class="nex-gm-npc-tab-panel" hidden>'+
+   '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Habilidades e combate</h4><button type="button" data-gm-npc-add="actions">+ Adicionar habilidade / ataque</button></div><div data-gm-npc-list="actions">'+t.actions.map(npcActionRow).join('')+'</div></div>'+
+   '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Rituais</h4><button type="button" data-gm-npc-add="rituals">+ Adicionar ritual</button></div><div data-gm-npc-list="rituals">'+t.rituals.map(npcRitualRow).join('')+'</div></div></div>'+
+   '<div data-gm-npc-panel="descricao" class="nex-gm-npc-tab-panel" hidden>'+
+   '<div class="nex-gm-npc-fields">'+npcField('body','Descrição / História',x.body,'textarea')+npcField('habilidades','Características adicionais',t.habilidades,'textarea')+npcField('notas','Observações',t.notas,'textarea')+'</div></div>'+
    '<div class="nex-gm-npc-form-footer"><button type="submit" class="nex-gm-npc-save">Salvar na campanha</button></div></form>';
  }
  function saveNpcCampaignForm(form){
@@ -225,8 +243,8 @@ export function mountGmShield(options){
   const title=String(data.get('title')||'').trim().slice(0,110);
   if(!title){status('Informe o nome do NPC.');form.querySelector('[name="title"]')?.focus();return;}
   const next=npcSheet(fields);
-  const previous={title:x.title,body:x.body,sheet:x.sheet,hasFullSheet:x.hasFullSheet};
-  x.title=title;x.body=String(data.get('body')||'').slice(0,4000);x.sheet=next;x.hasFullSheet=true;
+  const previous={title:x.title,body:x.body,sheet:x.sheet,hasFullSheet:x.hasFullSheet,image:x.image};
+  x.title=title;x.body=String(data.get('body')||'').slice(0,4000);x.sheet=next;x.hasFullSheet=true;x.image=safeImage(data.get('npcImage'));
   if(JSON.stringify(state).length>670000){Object.assign(x,previous);status('A ficha ultrapassou o limite de armazenamento da campanha.');return;}
   store();render();
  }
@@ -506,6 +524,13 @@ export function mountGmShield(options){
  });
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
+  if(btn.dataset.gmNpcTab){
+   const form=btn.closest('[data-gm-npc-sheet]');
+   if(!form)return;
+   form.querySelectorAll('[data-gm-npc-tab]').forEach(tab=>tab.setAttribute('aria-selected',String(tab===btn)));
+   form.querySelectorAll('[data-gm-npc-panel]').forEach(panel=>{panel.hidden=panel.dataset.gmNpcPanel!==btn.dataset.gmNpcTab;});
+   return;
+  }
   if(btn.dataset.gmNpcAdd){
    const kind=btn.dataset.gmNpcAdd,list=root.querySelector('[data-gm-npc-list="'+kind+'"]');
    if(!list)return;
@@ -551,6 +576,20 @@ export function mountGmShield(options){
   }
  });
  root.addEventListener('change',async event=>{
+  const photo=event.target.closest('[data-gm-npc-photo]');
+  if(photo?.files?.[0]){
+   try{
+    const src=await compressNoteImage(photo.files[0]);
+    const container=photo.closest('.nex-gm-npc-sheet-photo'),hidden=container?.querySelector('[name="npcImage"]');
+    if(hidden)hidden.value=src;
+    const img=container?.querySelector('[data-gm-npc-preview]'),initial=container?.querySelector('[data-gm-npc-initial]');
+    if(img)img.src=src;
+    else if(initial){initial.outerHTML='<img data-gm-npc-preview alt="Foto do NPC">';container.querySelector('[data-gm-npc-preview]').src=src;}
+    status('Foto adicionada. Clique em Salvar na campanha.');
+   }catch(error){status(error.message||'Não foi possível carregar a imagem.');}
+   return;
+  }
+
   const fileInput=event.target.closest('[data-gm-note-file], [data-gm-general-file]');
   if(!fileInput||!fileInput.files?.length)return;
   if(fileInput.matches('[data-gm-general-file]')){await addRichImages(fileInput.files);fileInput.value='';return;}
