@@ -159,12 +159,81 @@ export function mountGmShield(options){
    '<p>'+escape(attrs)+'</p>'+(skills?'<p><b>Perícias:</b> '+skills+'</p>':'')+
    (actions?'<ul>'+actions+'</ul>':'')+'</details>';
  }
+ // Retratos oficiais são lidos do próprio bestiário, sem duplicar imagens no Firebase.
+ const portraitCache=new Map();
+ let portraitFrame=null,portraitReady=false;
+ function threatSourceKey(entry){
+  const raw=String(entry?.sourceId||'');
+  if(!raw.startsWith('catalog:'))return '';
+  if(raw.includes('::'))return raw.slice(8);
+  const old=raw.slice(8),index=old.lastIndexOf(':');
+  if(index<0)return '';
+  const tag=old.slice(index+1);
+  return tag.split(' · ').slice(1).join(' · ')+'::'+old.slice(0,index);
+ }
+ function threatPortraitMarkup(key){
+  const portrait=portraitCache.get(key);
+  if(!portrait)return '';
+  const url=String(portrait.url||'');
+  const atlas=String(portrait.atlas||'');
+  const valid=value=>/^https:\/\//i.test(value)||/^\.\/assets\//.test(value)||/^data:image\/(?:webp|png|jpeg);base64,/i.test(value);
+  if(url&&valid(url)&&url.length<350000){
+   return '<img src="'+escape(url)+'" alt="" loading="lazy" onerror="this.remove()">';
+  }
+  const columns=Math.round(Number(portrait.columns)),rows=Math.round(Number(portrait.rows)),index=Math.round(Number(portrait.index));
+  if(atlas&&valid(atlas)&&atlas.length<350000&&columns>=1&&rows>=1&&columns<=8&&rows<=8&&index>=0&&index<columns*rows){
+   const left=columns>1?(index%columns)*100/(columns-1):0;
+   const top=rows>1?Math.floor(index/columns)*100/(rows-1):0;
+   return '<div aria-hidden="true" style="width:100%;height:100%;background-image:url(&quot;'+escape(atlas)+'&quot;);background-size:'+(columns*100)+'% '+(rows*100)+'%;background-position:'+left+'% '+top+'%;background-repeat:no-repeat"></div>';
+  }
+  return '';
+ }
+ function refreshThreatPortraits(){
+  root.querySelectorAll('[data-gm-threat-portrait]').forEach(node=>{
+   const key=node.dataset.gmThreatPortrait;
+   const markup=threatPortraitMarkup(key);
+   if(markup)node.innerHTML=markup;
+  });
+ }
+ function requestThreatPortraits(){
+  const keys=state.threats.map(threatSourceKey).filter(Boolean);
+  if(!keys.length)return;
+  if(!portraitFrame){
+   portraitFrame=document.createElement('iframe');
+   portraitFrame.hidden=true;
+   portraitFrame.setAttribute('aria-hidden','true');
+   portraitFrame.tabIndex=-1;
+   portraitFrame.style.display='none';
+   portraitFrame.addEventListener('load',()=>{
+    portraitReady=true;requestThreatPortraits();
+   },{once:true});
+   portraitFrame.src='./ameacas.html?portraitProvider=1&v=20261119portraits24';
+   document.body.appendChild(portraitFrame);
+   return;
+  }
+  if(portraitReady){
+   const pending=[...new Set(keys.filter(key=>!portraitCache.has(key)))];
+   if(pending.length)portraitFrame.contentWindow?.postMessage({type:'nex-request-threat-portraits',keys:pending},location.origin);
+  }
+  refreshThreatPortraits();
+ }
+ window.addEventListener('message',event=>{
+  if(!portraitFrame||event.source!==portraitFrame.contentWindow||event.origin!==location.origin)return;
+  if(event.data?.type!=='nex-threat-portrait-result')return;
+  const {key,portrait}=event.data;
+  if(typeof key!=='string'||!portrait||typeof portrait!=='object')return;
+  portraitCache.set(key,portrait);
+  refreshThreatPortraits();
+ });
  function entityCard(kind,x){
   const title=escape(x.title||'Sem nome'),pic=safeImage(x.image);
-  const thumb=pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?');
+  const sourceKey=kind==='threats'?threatSourceKey(x):'';
+  const sourced=sourceKey?threatPortraitMarkup(sourceKey):'';
+  const thumb=sourced|| (pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?'));
+  const portraitAttr=sourceKey?' data-gm-threat-portrait="'+escape(sourceKey)+'"':'';
   const key=escape(x.id);
   return '<article class="nex-gm-entity-card">'+
-   '<div class="nex-gm-entity-cover">'+thumb+'</div>'+
+   '<div class="nex-gm-entity-cover"'+portraitAttr+'>'+thumb+'</div>'+
    '<div class="nex-gm-entity-body"><div class="nex-gm-entity-top"><strong>'+title+'</strong>'+
    '<details class="nex-gm-entity-settings"><summary aria-label="Configurações da ficha" title="Configurações">⚙</summary>'+
    '<div class="nex-gm-entity-settings-actions"><button type="button" data-gm-edit="'+kind+':'+key+'">Editar</button>'+
@@ -513,6 +582,7 @@ export function mountGmShield(options){
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '';
   if(tab==='threats'&&showThreatImport){const frame=$('[data-gm-threat-picker]');if(frame)frame.addEventListener('load',syncThreatPicker,{once:true});}
+  if(tab==='threats'&&!showThreatImport)requestThreatPortraits();
  }
  function makeRecord(form,kind){
   const raw=Object.fromEntries(new FormData(form).entries());
