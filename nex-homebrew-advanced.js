@@ -1744,6 +1744,14 @@
   tab='npcs';$('nex51Search').value='';closeEditor();renderLibrary();openEditor(null);
   $('nex52Editor')?.scrollIntoView({block:'start',behavior:'smooth'});
  });
+ window.addEventListener('nex:open-homebrew-npc-sheet',event=>{
+  const npcId=String(event.detail?.npcId||'').slice(0,100);
+  if(!npcId)return;
+  tab='npcs';$('nex51Search').value='';closeEditor();renderLibrary();
+  const npc=read().find(item=>item.type==='npc'&&String(item.id)===npcId);
+  if(npc){view(npc);}
+  else message('A ficha original deste NPC não está disponível nesta biblioteca.');
+ });
  $('nex52Add').addEventListener('click',()=>openEditor(null));
  $('nex52CloseEditor').addEventListener('click',closeEditor);
  $('nex52Cancel').addEventListener('click',closeEditor);
@@ -1962,6 +1970,13 @@
   }
  };
  document.addEventListener('nex51-ready',renderLibrary);
+ const requestedNpc=new URLSearchParams(location.search).get('viewNpc');
+ if(requestedNpc){
+  window.addEventListener('load',()=>{
+   window.dispatchEvent(new CustomEvent('nex:open-homebrew-npc-sheet',{detail:{npcId:requestedNpc}}));
+   const url=new URL(location.href);url.searchParams.delete('viewNpc');history.replaceState(history.state,'',url);
+  },{once:true});
+ }
  if(new URLSearchParams(window.location.search).get('createNpc')==='1'){
   window.addEventListener('load',()=>{
    window.dispatchEvent(new CustomEvent('nex:open-homebrew-npc'));
