@@ -57,7 +57,7 @@ export function mountGmShield(options){
   ['Iniciativa','Determine a ordem de ação no confronto, considerando as habilidades específicas dos participantes.']
  ];
   let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
- let selectedSheet=null,draftNpcId=null;
+ let selectedSheet=null,draftNpcId=null,showNpcImport=false;
  function discardNpcDraft(){if(!draftNpcId)return;state.npcs=state.npcs.filter(x=>x.id!==draftNpcId);draftNpcId=null;}
  let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
  const id=()=>typeof crypto.randomUUID==='function'?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
@@ -94,7 +94,7 @@ export function mountGmShield(options){
  }
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
-  room='';ready=false;selectedSheet=null;draftNpcId=null;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
+  room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
   clearTimeout(generalSaveTimer);richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
@@ -416,8 +416,10 @@ export function mountGmShield(options){
  }
  function renderList(kind){
   const entry=editing?.kind===kind?state[kind].find(x=>x.id===editing.id)||null:null;
-  return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div><button type="button" '+(kind==='npcs'?'data-gm-action="create-npc"':'data-gm-add="'+kind+'"')+'>'+(kind==='npcs'?'+ Adicionar NPC':'+ Adicionar')+'</button></div>'+
+  return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div>'+
+   (kind==='npcs'?'<div class="nex-gm-row"><button type="button" data-gm-action="create-npc">Criar NPCs</button><button type="button" data-gm-action="show-import-npc">Adicionar NPC</button></div>':'<button type="button" data-gm-add="'+kind+'">+ Adicionar</button>')+'</div>'+
     
+    (kind==='npcs'&&showNpcImport?homebrewOptions():'')+
     (kind==='threats'?threatsControls():'')+
     (editing?.kind===kind?editor(kind,entry):'')+
     
@@ -483,7 +485,8 @@ export function mountGmShield(options){
   const x=homebrew.find(y=>String(y.id)===String(key));if(!x){status('Escolha um NPC da biblioteca.');return;}
   if(state.npcs.some(n=>n.sourceId===String(x.id))){status('Este NPC já está na campanha.');return;}
   const record={id:id(),title:String(x.name).slice(0,110),tag:'Homebrew',body:String(x.description||x.threatSheet?.notas||'NPC criado na biblioteca Homebrew').slice(0,4000),sourceId:String(x.id),sheet:npcSheet(x.threatSheet),hasFullSheet:true,date:'',status:'',image:safeImage(x.image)};
-  state.npcs.unshift(record);store();render();
+  if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
+  state.npcs.unshift(record);showNpcImport=false;store();render();
  }
  function addThreatInfo(record){
   const match=threatCatalog.find(x=>x.title.toLocaleLowerCase('pt-BR')===record.title.toLocaleLowerCase('pt-BR'));
@@ -575,6 +578,7 @@ export function mountGmShield(options){
    list.insertAdjacentHTML('beforeend',row);return;
   }
   if(btn.hasAttribute('data-gm-npc-remove')){btn.closest('[data-gm-npc-row]')?.remove();return;}
+  if(btn.dataset.gmAction==='show-import-npc'){readHomebrews();showNpcImport=!showNpcImport;render();return;}
   if(btn.dataset.gmAction==='create-npc'){
    discardNpcDraft();
    if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
@@ -584,7 +588,7 @@ export function mountGmShield(options){
    $('[data-gm-npc-sheet] [name="title"]')?.focus();return;
   }
 
-  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
+  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;showNpcImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.hasAttribute('data-gm-close-sheet')){discardNpcDraft();selectedSheet=null;render();return;}
   if(btn.dataset.gmOpenSheet){
