@@ -5,7 +5,7 @@ export function mountGmShield(options){
  const {root,db,doc,onSnapshot,setDoc,getContext,openTabletop,notify}=options;
  const $=(selector)=>root.querySelector(selector);
  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;',"'":'&#39;'}[c]));
- const safeImage=value=>/^https:\/\/[^\s<>"']{1,480}$/i.test(String(value||''))?String(value):'';
+ const safeImage=value=>{const v=String(value||'');return /^https:\/\/[^\s<>"']{1,480}$/i.test(v)||/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]{1,200000}$/i.test(v)?v:'';};
  const kinds=['notes','npcs','threats'];
  const labels={notes:'Anotações',sessions:'Sessões',npcs:'NPCs',threats:'Ameaças',rules:'Regras',secrets:'Segredos'};
  const icons={notes:'▤ ',npcs:'',threats:''};
@@ -20,7 +20,7 @@ export function mountGmShield(options){
  };
  const listKinds=['notes','sessions','npcs','threats','secrets','timeline'];
  const schema={
-  notes:[['title','Título','text'],['tag','Categoria','text'],['body','Anotação','textarea']],
+  notes:[['title','Título','text'],['tag','Categoria','text'],['body','Anotação','textarea'],['image','URL HTTPS da imagem (opcional)','url']],
   sessions:[['title','Título da sessão','text'],['date','Data','date'],['status','Situação (Preparada / Concluída)','text'],['body','Resumo e planejamento','textarea']],
   npcs:[['title','Nome do NPC','text'],['tag','Relação (Aliado / Neutro / Inimigo)','text'],['body','Descrição, objetivos e segredos','textarea']],
   threats:[['title','Nome da ameaça','text'],['tag','Origem / elemento','text'],['body','Observações para a campanha','textarea']],
@@ -126,7 +126,7 @@ export function mountGmShield(options){
   return '<form class="nex-gm-editor" data-gm-form="'+kind+'"><h4>'+(entry?'Editar':'Adicionar')+' '+(kind==='timeline'?'acontecimento':labels[kind]||kind)+'</h4>'+
    fields.map(([key,label,type])=>'<label>'+escape(label)+(type==='textarea'?'<textarea name="'+key+'" maxlength="4000" rows="4">'+escape(entry?.[key]||'')+'</textarea>':
    '<input name="'+key+'" type="'+type+'" maxlength="'+(key==='image'?480:150)+'" '+(key==='title'?'required ':'')+'value="'+escape(entry?.[key]||'')+'"'+(kind==='threats'&&key==='title'?' list="nexGmThreatNames"':'')+'>')+'</label>').join('')+
-   '<div class="nex-gm-row"><button type="submit">Salvar</button><button type="button" class="alt" data-gm-action="cancel">Cancelar</button></div></form>';
+   (kind==='notes'?'<label>Adicionar imagem do dispositivo<input type="file" accept="image/png,image/jpeg,image/webp" data-gm-note-file></label><small>Imagens compactadas para salvar junto com a anotação.</small>':'')+ '<div class="nex-gm-row"><button type="submit">Salvar</button><button type="button" class="alt" data-gm-action="cancel">Cancelar</button></div></form>';
  }
  function npcPreview(sheet){
   if(!sheet)return '';
@@ -171,7 +171,7 @@ export function mountGmShield(options){
  }
  function renderList(kind){
   const entry=editing?.kind===kind?state[kind].find(x=>x.id===editing.id)||null:null;
-  return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div><button type="button" data-gm-add="'+kind+'">+ Adicionar</button></div>'+
+  return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div><button type="button" '+(kind==='npcs'?'data-gm-action="create-npc"':'data-gm-add="'+kind+'"')+'>'+(kind==='npcs'?'Criar NPCs':'+ Adicionar')+'</button></div>'+
     (kind==='npcs'?homebrewOptions():'')+
     (kind==='threats'?threatsControls():'')+
     (editing?.kind===kind?editor(kind,entry):'')+
@@ -279,6 +279,7 @@ export function mountGmShield(options){
  });
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
+  if(btn.dataset.gmAction==='create-npc'){window.dispatchEvent(new CustomEvent('nex:open-homebrew-npc'));return;}
   if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmEdit){const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
@@ -300,6 +301,25 @@ export function mountGmShield(options){
    case 'tabletop':openTabletop();break;
 
   }
+ });
+ root.addEventListener('change',async event=>{
+  const fileInput=event.target.closest('[data-gm-note-file]');
+  if(!fileInput||!fileInput.files?.length)return;
+  const file=fileInput.files[0];
+  if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>12000000){status('Escolha uma imagem JPG, PNG ou WebP de até 12 MB.');return;}
+  const url=URL.createObjectURL(file);
+  try{
+   const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
+   const canvas=document.createElement('canvas'),scale=Math.min(1,720/Math.max(img.width,img.height));
+   canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+   canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+   let encoded='';
+   for(const quality of [.72,.55,.4,.28]){encoded=canvas.toDataURL('image/jpeg',quality);if(encoded.length<=190000)break;}
+   if(encoded.length>190000){status('Imagem muito grande para a anotação. Tente outra menor.');return;}
+   const field=fileInput.closest('form')?.querySelector('[name="image"]');
+   if(field){field.value=encoded;field.type='text';field.hidden=true;status('Imagem pronta. Clique em Salvar para guardar a anotação.');}
+  }catch(error){status('Não foi possível processar esta imagem.');}
+  finally{URL.revokeObjectURL(url);}
  });
  root.addEventListener('input',event=>{
   if(!event.target.matches('[data-gm-search]'))return;
