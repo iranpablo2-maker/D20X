@@ -147,9 +147,8 @@ export function mountGmShield(options){
    return '<article class="nex-gm-card"><div class="nex-gm-card-top"><b>'+escape(x.title)+'</b>'+
     '<button type="button" class="nex-gm-icon-btn" data-gm-fav="'+kind+':'+escape(x.id)+'" title="Favorito" aria-label="'+(favorite?'Remover favorito':'Favoritar')+'">'+(favorite?'★':'☆')+'</button></div>'+
     (x.date?'<small>'+escape(x.date)+'</small>':'')+(x.status?'<small>'+escape(x.status)+'</small>':'')+
-    (x.tag?'<small>'+escape(x.tag)+'</small>':'')+
-    '<p>'+escape(x.body||'Sem descrição.')+'</p>'+image+
-    (kind==='npcs'&&x.sourceId?'<small>NPC importado da biblioteca Homebrew</small>':'')+
+    (x.tag&&!(kind==='npcs'&&x.tag==='Homebrew')?'<small>'+escape(x.tag)+'</small>':'')+
+    (kind==='npcs'&&['NPC criado na biblioteca Homebrew','NPC importado da biblioteca Homebrew'].includes((x.body||'').trim())?'':'<p>'+escape(x.body||'Sem descrição.')+'</p>')+image+
     (kind==='npcs'?npcPreview(x.sheet):'')+
     (kind==='secrets'&&x.revealed?'<small class="nex-gm-revealed">Marcado como revelado</small>':'')+
     '<div class="nex-gm-row"><button type="button" class="alt" data-gm-edit="'+kind+':'+escape(x.id)+'">Editar</button>'+
@@ -287,7 +286,7 @@ export function mountGmShield(options){
     (kind==='npcs'?homebrewOptions():'')+
     (kind==='threats'?threatsControls():'')+
     (editing?.kind===kind?editor(kind,entry):'')+
-    '<label class="nex-gm-search">Pesquisar nesta área<input type="search" data-gm-search placeholder="Buscar por nome ou descrição" value="'+escape(filter)+'"></label>'+
+    (kind==='npcs'?'':'<label class="nex-gm-search">Pesquisar nesta área<input type="search" data-gm-search placeholder="Buscar por nome ou descrição" value="'+escape(filter)+'"></label>')+
     cards(kind);
  }
  function renderSessions(){
