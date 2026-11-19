@@ -1469,9 +1469,9 @@
    $('nexHbImageUrl').value='';$('nexHbImageFile').value='';$('nexHbImagePreview').hidden=true;$('nexHbImagePreview').removeAttribute('src');
    editorFields();
  }
- let campaignNpcContext=null;
+ let campaignNpcContext=null,campaignThreatContext=null;
  function closeEditor(){
-  campaignNpcContext=null;
+  campaignNpcContext=null;campaignThreatContext=null;
   $('nex52Save').disabled=false;
   $('nex52Save').textContent='Salvar';
   $('nex52Editor').hidden=true;resetForm();
@@ -1750,6 +1750,34 @@
   tab='npcs';$('nex51Search').value='';closeEditor();renderLibrary();openEditor(null);
   $('nex52Editor')?.scrollIntoView({block:'start',behavior:'smooth'});
  });
+ window.addEventListener('nex:create-campaign-threat-native',event=>{
+  const campaignId=String(event.detail?.campaignId||'');
+  if(!campaignId)return;
+  tab='ameacas';$('nex51Search').value='';closeEditor();renderLibrary();
+  openEditor(normalize({type:'ameaca',name:'',description:'',threatSheet:{}}));
+  $('nex51Edit').value='';
+  campaignThreatContext={campaignId,entryId:''};
+  $('nex52EditorTitle').textContent='Criar Ameaça da campanha';
+  $('nex52Save').textContent='Salvar na campanha';
+  $('nex52Editor')?.scrollIntoView({block:'start',behavior:'smooth'});
+ });
+ window.addEventListener('nex:edit-campaign-threat-native',event=>{
+  const {campaignId,entryId,threat}=event.detail||{};
+  if(!campaignId||!entryId||!threat)return;
+  tab='ameacas';$('nex51Search').value='';closeEditor();renderLibrary();
+  const draft=normalize({...threat,id:'hb51_campaign_threat_draft',type:'ameaca'});
+  openEditor(draft);$('nex51Edit').value='';
+  campaignThreatContext={campaignId,entryId};
+  $('nex52EditorTitle').textContent='Editar Ameaça da campanha';
+  $('nex52Save').textContent='Salvar na campanha';
+ });
+ window.addEventListener('nex:campaign-threat-save-result',event=>{
+  const details=event.detail||{};
+  if(!campaignThreatContext||!details.ok&&details.entryId!==campaignThreatContext.entryId)return;
+  $('nex52Save').disabled=false;$('nex52Save').textContent='Salvar na campanha';
+  if(details.ok){closeEditor();message('Ficha de Ameaça salva na campanha.');}
+  else message('Não foi possível salvar na campanha: '+String(details.error||'verifique a conexão'));
+ });
  window.addEventListener('nex:edit-campaign-npc-native',event=>{
   const details=event.detail||{},campaignId=String(details.campaignId||''),entryId=String(details.entryId||'');
   if(!campaignId||!entryId||!details.npc)return;
@@ -1931,6 +1959,19 @@
      trailAbilities:type==='trilha'?TRAIL_NEX.map(n=>({nex:n,name:$('nex53TrailName'+n).value,description:$('nex53TrailDescription'+n).value,bonusType:'',bonusValue:0,bonuses:getEffects(String(n))})):(old?.trailAbilities||[]),
      skills:type==='origem'?[$('nex55Skill1').value,$('nex55Skill2').value]:(old?.skills||[])
    });
+   if(campaignThreatContext&&record.type==='ameaca'){
+    const frame=document.getElementById('nexCampaignRoomFrame');
+    if(!frame?.contentWindow){message('Abra novamente a campanha para salvar a ameaça.');return;}
+    frame.contentWindow.postMessage({
+     type:'nex-campaign-save-threat-native',
+     campaignId:campaignThreatContext.campaignId,entryId:campaignThreatContext.entryId,
+     threat:{type:'ameaca',name:record.name,description:record.description,image:record.image,
+      vd:record.vd,size:record.size,creatureType:record.creatureType,threatSheet:record.threatSheet}
+    },location.origin);
+    $('nex52Save').disabled=true;$('nex52Save').textContent='Salvando…';
+    message('Salvando a Ameaça na campanha…');
+    return;
+   }
    if(campaignNpcContext&&record.type==='npc'){
     const frame=document.getElementById('nexCampaignRoomFrame');
     if(!frame?.contentWindow){message('A campanha não está disponível. Abra novamente a sala.');return;}
