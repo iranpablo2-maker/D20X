@@ -2584,7 +2584,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <button type="button" id="roomAddAgentsAction">Adicionar Personagens</button>
    <button type="button" id="roomInviteAction">Convidar Jogadores</button>
    <button type="button" id="roomEditAction">Editar Campanha</button>
-   <button type="button" id="roomMasterAction">Escudo do Mestre</button>
    <button type="button" id="roomOpenTabletop" class="nex-open-tabletop">Tabletop</button>
   </nav>
   <div class="room-hero">
@@ -3029,7 +3028,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('roomInviteLink').focus();
   $('roomInviteLink').select();
  };
- $('roomMasterAction').onclick=()=>roomSection('master');
  function updateRoomCover(){
   const el=$('roomCoverImage'),url=roomData?.coverUrl||'';
   el.hidden=!url;if(url)el.src=url;else el.removeAttribute('src');
@@ -4178,7 +4176,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('roomTitle').textContent=roomData.name;
   $('roomDescription').textContent=roomData.description||'';
   $('roomCode').textContent=id;$('roomInviteLink').value=inviteLink(id);$('role').textContent=gm?'Mestre':'Jogador';libraryMode('room');show('room',true);
-  for(const key of ['roomEditAction','roomMasterAction','roomInviteAction'])$(key).hidden=!gm;
+  for(const key of ['roomEditAction','roomInviteAction'])$(key).hidden=!gm;
   show('leaveCampaign',!gm);
   updateRoomCover();
   subscribeTabletop(id);
