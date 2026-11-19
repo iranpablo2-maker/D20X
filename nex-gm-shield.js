@@ -48,7 +48,7 @@ export function mountGmShield(options){
   if(!raw||typeof raw!=='object')return result;
   for(const key of listKinds)result[key]=Array.isArray(raw[key])?raw[key].slice(0,100).filter(x=>x&&typeof x==='object').map(x=>({
    id:String(x.id||id()).slice(0,70),title:String(x.title||'').slice(0,110),
-   tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,4000),
+   tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,key==='notes'?18000:4000),
    date:String(x.date||'').slice(0,80),status:String(x.status||'').slice(0,50),
    image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),revealed:!!x.revealed
   })):[]; 
@@ -76,7 +76,7 @@ export function mountGmShield(options){
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
   room='';ready=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
-  root.replaceChildren();
+  clearTimeout(generalSaveTimer);root.replaceChildren();
  }
  function open(){
   const ctx=getContext();
@@ -169,6 +169,25 @@ export function mountGmShield(options){
    '<datalist id="nexGmThreatNames">'+threatCatalog.slice(0,160).map(x=>'<option value="'+escape(x.title)+'"></option>').join('')+'</datalist>'+
    (bestiary?'<iframe class="nex-gm-bestiary" src="./ameacas.html" title="Bestiário do NEX" loading="lazy"></iframe>':'');
  }
+ function generalNote(){
+  return state.notes.find(x=>x.id==='nex-general-note')||state.notes.find(x=>x.title==='Geral')||null;
+ }
+ function renderGeneralNotes(){
+  const item=generalNote(),value=item?.body||'',image=safeImage(item?.image);
+  return '<div class="nex-gm-general-notes">'+
+   '<label class="nex-gm-general-title" for="nexGmGeneralText">Geral</label>'+
+   '<textarea id="nexGmGeneralText" data-gm-general-note maxlength="18000" placeholder="Informações gerais ao longo da sessão…">'+escape(value)+'</textarea>'+
+   '<div class="nex-gm-general-tools"><label class="nex-gm-image-upload">Adicionar imagem<input type="file" data-gm-general-file accept="image/png,image/jpeg,image/webp"></label>'+
+   (image?'<button type="button" class="alt" data-gm-action="remove-general-image">Remover imagem</button>':'')+'</div>'+
+   (image?'<img class="nex-gm-general-image" src="'+escape(image)+'" alt="Imagem da anotação Geral">':'')+
+   '</div>';
+ }
+ function updateGeneralNote(fields){
+  let item=generalNote();
+  if(!item){item={id:'nex-general-note',title:'Geral',tag:'',body:'',date:'',status:'',image:''};state.notes.unshift(item);}
+  Object.assign(item,fields);store();
+ }
+ let generalSaveTimer=null;
  function renderList(kind){
   const entry=editing?.kind===kind?state[kind].find(x=>x.id===editing.id)||null:null;
   return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div><button type="button" '+(kind==='npcs'?'data-gm-action="create-npc"':'data-gm-add="'+kind+'"')+'>'+(kind==='npcs'?'Criar NPCs':'+ Adicionar')+'</button></div>'+
@@ -205,7 +224,7 @@ export function mountGmShield(options){
  function render(){
   if(!room||!getContext().gm)return;
   if(!ready){root.innerHTML='<p class="room-note">Carregando dados privados da campanha…</p>';return;}
-  const current=renderList(kinds.includes(tab)?tab:'notes');
+  const current=tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes');
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '<p class="nex-gm-footer">Somente o mestre pode ler e alterar estes dados. NPCs e ameaças são referências privadas; a biblioteca de fichas do NEX continua separada.</p>';
@@ -280,6 +299,7 @@ export function mountGmShield(options){
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
   if(btn.dataset.gmAction==='create-npc'){if(window.parent!==window){window.parent.postMessage({type:'nex-campaign-create-homebrew-npc'},location.origin);}else{window.location.assign('./index.html?createNpc=1');}return;}
+  if(btn.dataset.gmAction==='remove-general-image'){updateGeneralNote({image:''});render();return;}
   if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmEdit){const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
@@ -303,7 +323,8 @@ export function mountGmShield(options){
   }
  });
  root.addEventListener('change',async event=>{
-  const fileInput=event.target.closest('[data-gm-note-file]');
+  if(event.target.matches('[data-gm-general-note]')){clearTimeout(generalSaveTimer);updateGeneralNote({body:event.target.value.slice(0,18000)});return;}
+  const fileInput=event.target.closest('[data-gm-note-file], [data-gm-general-file]');
   if(!fileInput||!fileInput.files?.length)return;
   const file=fileInput.files[0];
   if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>12000000){status('Escolha uma imagem JPG, PNG ou WebP de até 12 MB.');return;}
@@ -316,12 +337,18 @@ export function mountGmShield(options){
    let encoded='';
    for(const quality of [.72,.55,.4,.28]){encoded=canvas.toDataURL('image/jpeg',quality);if(encoded.length<=190000)break;}
    if(encoded.length>190000){status('Imagem muito grande para a anotação. Tente outra menor.');return;}
+   if(fileInput.matches('[data-gm-general-file]')){updateGeneralNote({image:encoded});render();return;}
    const field=fileInput.closest('form')?.querySelector('[name="image"]');
    if(field){field.value=encoded;field.type='text';field.hidden=true;status('Imagem pronta. Clique em Salvar para guardar a anotação.');}
   }catch(error){status('Não foi possível processar esta imagem.');}
   finally{URL.revokeObjectURL(url);}
  });
  root.addEventListener('input',event=>{
+  if(event.target.matches('[data-gm-general-note]')){
+   clearTimeout(generalSaveTimer);const value=event.target.value.slice(0,18000),currentRoom=room;
+   generalSaveTimer=setTimeout(()=>{if(room===currentRoom&&ready)updateGeneralNote({body:value});},900);
+   return;
+  }
   if(!event.target.matches('[data-gm-search]'))return;
   const el=event.target;
   const at=el.selectionStart;
