@@ -291,10 +291,23 @@ export function mountGmShield(options){
   }).join('')+'</div>':'<p class="room-note">Nenhum registro nesta área.</p>';
  }
  function homebrewOptions(){
-  return '<div class="nex-gm-import"><label>Importar NPC criado nos Homebrews<select data-gm-homebrew><option value="">Escolha um NPC…</option>'+
-   homebrew.map(x=>'<option value="'+escape(x.id)+'">'+escape(x.name)+'</option>').join('')+'</select></label>'+
-   '<button type="button" data-gm-action="import-npc">Adicionar NPC da biblioteca</button></div>'+
-   (!homebrew.length?'<p class="room-note">Nenhum NPC Homebrew disponível neste navegador. Você também pode cadastrar um NPC manualmente.</p>':'');
+  const records=homebrew.filter(x=>x&&x.id&&x.name);
+  return '<section class="nex-gm-npc-picker" aria-label="Adicionar NPCs dos Homebrews" style="min-height:380px;padding:8px 2px 30px">'+
+   '<button type="button" class="alt" data-gm-action="close-import-npc">← Voltar aos NPCs</button>'+
+   '<h3 style="text-align:center;margin:26px 0 24px">Escolha um NPC para adicionar à campanha!</h3>'+
+   '<p style="margin:0 0 16px">Selecione uma ficha de NPC criada nos Homebrews.</p>'+
+   (records.length?'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">'+
+    records.map(x=>{
+     const already=state.npcs.some(n=>n.sourceId===String(x.id));
+     const photo=safeImage(x.image);
+     const stats=npcSheet(x.threatSheet);
+     return '<article style="border:1px solid #393039;background:#202024;border-radius:7px;padding:16px;min-height:150px;display:flex;flex-direction:column;gap:8px">'+
+      (photo?'<img src="'+escape(photo)+'" alt="Foto de '+escape(x.name)+'" style="height:110px;max-width:100%;object-fit:contain;align-self:start;border-radius:5px">':'')+
+      '<strong>'+escape(x.name)+'</strong>'+
+      '<small>NPC · Homebrew</small><small>PV '+escape(stats.pv)+' · Defesa '+escape(stats.defense)+'</small>'+
+      '<div style="margin-top:auto;display:flex;justify-content:flex-end"><button type="button" data-gm-import-id="'+escape(x.id)+'"'+(already?' disabled':'')+'>'+(already?'Adicionado':'Adicionar')+'</button></div></article>';
+    }).join('')+'</div>':
+    '<p class="room-note">Nenhuma ficha de NPC encontrada nos Homebrews.</p>')+'</section>';
  }
  function threatsControls(){
   return '<div class="nex-gm-row nex-gm-wrap"><button type="button" data-gm-action="bestiary">'+(bestiary?'Fechar bestiário':'Consultar bestiário do NEX')+'</button>'+
@@ -419,7 +432,6 @@ export function mountGmShield(options){
   return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div>'+
    (kind==='npcs'?'<div class="nex-gm-row"><button type="button" data-gm-action="create-npc">Criar NPCs</button><button type="button" data-gm-action="show-import-npc">Adicionar NPC</button></div>':'<button type="button" data-gm-add="'+kind+'">+ Adicionar</button>')+'</div>'+
     
-    (kind==='npcs'&&showNpcImport?homebrewOptions():'')+
     (kind==='threats'?threatsControls():'')+
     (editing?.kind===kind?editor(kind,entry):'')+
     
@@ -452,7 +464,7 @@ export function mountGmShield(options){
  function render(){
   if(!room||!getContext().gm)return;
   if(!ready){root.innerHTML='<p class="room-note">Carregando dados privados da campanha…</p>';return;}
-  const current=selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes'));
+  const current=tab==='npcs'&&showNpcImport?homebrewOptions():(selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes')));
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '';
@@ -480,8 +492,8 @@ export function mountGmShield(options){
   if(editing?.id===key)editing=null;
   store();render();
  }
- function importNpc(){
-  readHomebrews();const key=$('[data-gm-homebrew]')?.value;
+ function importNpc(key){
+  readHomebrews();
   const x=homebrew.find(y=>String(y.id)===String(key));if(!x){status('Escolha um NPC da biblioteca.');return;}
   if(state.npcs.some(n=>n.sourceId===String(x.id))){status('Este NPC já está na campanha.');return;}
   const record={id:id(),title:String(x.name).slice(0,110),tag:'Homebrew',body:String(x.description||x.threatSheet?.notas||'NPC criado na biblioteca Homebrew').slice(0,4000),sourceId:String(x.id),sheet:npcSheet(x.threatSheet),hasFullSheet:true,date:'',status:'',image:safeImage(x.image)};
@@ -578,7 +590,9 @@ export function mountGmShield(options){
    list.insertAdjacentHTML('beforeend',row);return;
   }
   if(btn.hasAttribute('data-gm-npc-remove')){btn.closest('[data-gm-npc-row]')?.remove();return;}
-  if(btn.dataset.gmAction==='show-import-npc'){readHomebrews();showNpcImport=!showNpcImport;render();return;}
+  if(btn.dataset.gmAction==='show-import-npc'){readHomebrews();showNpcImport=true;render();return;}
+  if(btn.dataset.gmAction==='close-import-npc'){showNpcImport=false;render();return;}
+  if(btn.hasAttribute('data-gm-import-id')){importNpc(btn.dataset.gmImportId);return;}
   if(btn.dataset.gmAction==='create-npc'){
    discardNpcDraft();
    if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
@@ -624,7 +638,6 @@ export function mountGmShield(options){
   }
   switch(btn.dataset.gmAction){
    case 'cancel':editing=null;render();break;
-   case 'import-npc':importNpc();break;
    case 'bestiary':bestiary=!bestiary;render();break;
    case 'tabletop':openTabletop();break;
 
