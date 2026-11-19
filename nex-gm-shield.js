@@ -57,7 +57,8 @@ export function mountGmShield(options){
   ['Iniciativa','Determine a ordem de ação no confronto, considerando as habilidades específicas dos participantes.']
  ];
   let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
- let selectedSheet=null;
+ let selectedSheet=null,draftNpcId=null;
+ function discardNpcDraft(){if(!draftNpcId)return;state.npcs=state.npcs.filter(x=>x.id!==draftNpcId);draftNpcId=null;}
  let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
  const id=()=>typeof crypto.randomUUID==='function'?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
  const attr=(name,value)=>' '+name+'="'+escape(value)+'"';
@@ -93,7 +94,7 @@ export function mountGmShield(options){
  }
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
-  room='';ready=false;selectedSheet=null;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
+  room='';ready=false;selectedSheet=null;draftNpcId=null;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
   clearTimeout(generalSaveTimer);richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
@@ -247,6 +248,7 @@ export function mountGmShield(options){
   const previous={title:x.title,body:x.body,sheet:x.sheet,hasFullSheet:x.hasFullSheet,image:x.image};
   x.title=title;x.body=String(data.get('body')||'').slice(0,4000);x.sheet=next;x.hasFullSheet=true;x.image=safeImage(data.get('npcImage'));
   if(JSON.stringify(state).length>670000){Object.assign(x,previous);status('A ficha ultrapassou o limite de armazenamento da campanha.');return;}
+  draftNpcId=null;
   store();render();
  }
  function entitySheetView(){
@@ -414,7 +416,7 @@ export function mountGmShield(options){
  }
  function renderList(kind){
   const entry=editing?.kind===kind?state[kind].find(x=>x.id===editing.id)||null:null;
-  return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div><button type="button" '+(kind==='npcs'?'data-gm-action="create-npc"':'data-gm-add="'+kind+'"')+'>'+(kind==='npcs'?'Criar NPCs':'+ Adicionar')+'</button></div>'+
+  return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div><button type="button" '+(kind==='npcs'?'data-gm-action="create-npc"':'data-gm-add="'+kind+'"')+'>'+(kind==='npcs'?'+ Adicionar NPC':'+ Adicionar')+'</button></div>'+
     
     (kind==='threats'?threatsControls():'')+
     (editing?.kind===kind?editor(kind,entry):'')+
@@ -573,11 +575,18 @@ export function mountGmShield(options){
    list.insertAdjacentHTML('beforeend',row);return;
   }
   if(btn.hasAttribute('data-gm-npc-remove')){btn.closest('[data-gm-npc-row]')?.remove();return;}
-  if(btn.dataset.gmAction==='create-npc'){if(window.parent!==window){window.parent.postMessage({type:'nex-campaign-create-homebrew-npc'},location.origin);}else{window.location.assign('./index.html?createNpc=1');}return;}
+  if(btn.dataset.gmAction==='create-npc'){
+   discardNpcDraft();
+   if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
+   const newId=id();draftNpcId=newId;
+   state.npcs.unshift({id:newId,title:'',body:'',tag:'',image:'',sheet:npcSheet({}),hasFullSheet:true});
+   tab='npcs';editing=null;selectedSheet={kind:'npcs',id:newId};render();
+   $('[data-gm-npc-sheet] [name="title"]')?.focus();return;
+  }
 
-  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
+  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
-  if(btn.hasAttribute('data-gm-close-sheet')){selectedSheet=null;render();return;}
+  if(btn.hasAttribute('data-gm-close-sheet')){discardNpcDraft();selectedSheet=null;render();return;}
   if(btn.dataset.gmOpenSheet){
    const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);
    const entry=state[kind]?.find(x=>x.id===key);
