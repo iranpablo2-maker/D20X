@@ -138,7 +138,7 @@ export function mountGmShield(options){
  }
  function menu(){
   return '<div class="nex-gm-head"><div><h3>◈ ESCUDO DO MESTRE</h3><small>Painel privado · informações salvas nesta campanha</small></div>'+
-   '<div class="nex-gm-head-actions"><button type="button" data-gm-action="tabletop">Abrir Tabletop</button></div></div>'+
+   '</div>'+
    '<nav class="nex-gm-tabs" aria-label="Áreas do Escudo do Mestre">'+kinds.map(k=>'<button type="button" data-gm-tab="'+k+'" aria-pressed="'+(tab===k)+'">'+icons[k]+' '+labels[k]+'</button>').join('')+'</nav>';
  }
  function editor(kind,entry){
