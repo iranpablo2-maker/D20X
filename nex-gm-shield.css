@@ -165,3 +165,13 @@
 #roomMasterPanel .nex-gm-entity-sheet ul{padding-left:20px;line-height:1.7}
 #roomMasterPanel .nex-gm-sheet-description p{white-space:pre-wrap}
 @media(max-width:500px){#roomMasterPanel .nex-gm-entity-card{grid-template-columns:90px minmax(0,1fr)}#roomMasterPanel .nex-gm-entity-cover{min-height:160px;font-size:36px}}
+
+/* Card compacto: somente retrato, nome, engrenagem e Acessar Ficha. */
+#roomMasterPanel .nex-gm-entity-card{min-height:130px!important}
+#roomMasterPanel .nex-gm-entity-cover{min-height:130px!important}
+#roomMasterPanel .nex-gm-entity-body{justify-content:space-between;gap:12px}
+#roomMasterPanel .nex-gm-entity-open{align-self:center}
+#roomMasterPanel .nex-gm-entity-sub,
+#roomMasterPanel .nex-gm-entity-meta,
+#roomMasterPanel .nex-gm-entity-bottom{display:none!important}
+@media(max-width:500px){#roomMasterPanel .nex-gm-entity-cover{min-height:130px!important}}
