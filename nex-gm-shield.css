@@ -88,3 +88,16 @@
 .nex-gm-image-upload{display:inline-flex;align-items:center;position:relative;padding:8px 12px;border:1px solid #454545;border-radius:5px;cursor:pointer}
 .nex-gm-image-upload input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
 .nex-gm-general-image{max-width:100%;max-height:360px;object-fit:contain;align-self:flex-start;border-radius:5px}
+
+/* Editor livre com imagens intercaladas no texto */
+.nex-gm-rich-editor{display:block;box-sizing:border-box;width:100%;min-height:380px;height:min(55vh,620px);overflow:auto;padding:12px 11px;outline-offset:2px;background:#1e1e1e;border:1px solid #424242;border-radius:4px;color:#eee;font-size:14px;line-height:1.55;font-family:inherit;white-space:pre-wrap;overflow-wrap:anywhere;cursor:text}
+.nex-gm-rich-editor:empty::before{content:attr(data-placeholder);color:#858585;pointer-events:none}
+.nex-gm-rich-editor p{margin:0 0 10px;min-height:1.5em}
+.nex-gm-rich-editor.drag-over{outline:2px dashed #b4404c;outline-offset:-4px}
+.nex-gm-rich-editor .nex-gm-note-image{display:table;max-width:100%;position:relative;cursor:grab;margin:10px 0 12px;background:#181818;border:1px solid #484848;padding:5px;border-radius:5px;user-select:none}
+.nex-gm-rich-editor .nex-gm-note-image:active{cursor:grabbing}
+.nex-gm-rich-editor .nex-gm-note-image img{display:block;max-width:min(100%,690px);height:auto;pointer-events:none;border-radius:3px}
+.nex-gm-rich-editor .nex-gm-note-image-actions{position:absolute;right:6px;top:6px;display:flex;gap:4px;opacity:.9}
+.nex-gm-rich-editor .nex-gm-note-image-actions button{background:#111;color:#fff;border:1px solid #666;border-radius:4px;min-width:28px;height:28px;cursor:pointer}
+.nex-gm-rich-editor .nex-gm-note-image-actions button:hover{background:#aa3039}
+.nex-gm-rich-hint{font-size:11px;color:#aaa;line-height:1.4}
