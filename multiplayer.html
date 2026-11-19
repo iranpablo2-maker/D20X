@@ -2686,7 +2686,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
       <div class="nex-tabletop-wrap"><div id="nexTabletopBoard" class="nex-tabletop-board" aria-label="Mapa com grade de combate"></div></div>
     <p class="room-note nex-vtt-stage-note">Grade 25 × 25 · Selecione um token e use 0–9 para mudar sua imagem.</p></div><div id="nexVttResizeHandle" class="nex-vtt-resize-handle" role="separator" aria-label="Redimensionar painel de personagens" aria-orientation="vertical" aria-valuemin="250" aria-valuemax="560" aria-valuenow="328" tabindex="0" title="Arraste para ajustar a largura das fichas"></div><aside class="nex-vtt-sheets" id="nexVttSheetsPanel" aria-label="Fichas dos personagens"><div class="nex-vtt-sheets-title"><div class="nex-vtt-sheets-header"><small>PAINEL DE JOGO</small><h3>Personagens</h3></div><div class="nex-vtt-sheets-header-actions"><button type="button" id="nexVttResetPanels" title="Restaurar tamanho do painel">↺</button><button type="button" id="nexVttSheetsClose" aria-label="Recolher fichas">×</button></div></div><p class="room-note" id="nexVttSheetsHint">Abra a ficha sem sair do mapa.</p><div id="nexVttSheetsList" class="nex-vtt-sheets-list"></div><section id="nexVttMiniSheet" class="nex-vtt-mini-sheet" aria-label="Mini ficha do personagem" hidden></section></aside></div>
    </section>
- <div id="roomMasterPanel" class="room-panel hide"><h3>Escudo do Mestre</h3><p class="room-note">As permissões e o gerenciamento dos participantes ficam em Jogadores → Gerenciar Jogadores.</p></div>
+ <section id="roomMasterPanel" class="room-panel nex-gm-shield hide" aria-label="Escudo do Mestre"><div id="nexGmShieldRoot"></div></section>
    <div class="room-invite" id="roomInvitePanel">
     <div><small>Convide seus jogadores com um link</small><span class="room-invite-label">Somente o mestre pode aprovar novos participantes.</span><code id="roomCode" class="code hide"></code></div>
     <div class="room-invite-copy"><input id="roomInviteLink" type="text" readonly aria-label="Link de convite" title="Link de convite da campanha"><button class="alt" id="copyCode" type="button">Copiar convite</button></div>
@@ -2743,9 +2743,11 @@ document.addEventListener('click',function(event){
  }
 },true);
 </script>
+<link rel="stylesheet" href="./nex-gm-shield.css?v=20261119a">
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {mountNexTabletop} from './nex-tabletop-base.js?v=20261118gridfix16';
+import {mountGmShield} from './nex-gm-shield.js?v=20261119a';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -2760,6 +2762,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  }catch(err){show('setup',true);notice('Configuração Firebase inválida.');throw err;}
  let uid=null,roomId='',gm=false,roomData=null,roomMembers=[],roomSheets=[],roomRequests=[],unsubs=[],editing=null,campaignUnsub=null,myCampaigns=[],privateShield=true,playerCampaigns=[],joinedUnsub=null,inviteUnsub=null,inviteState='checking';
  let vttHostActive=false;
+ let gmShield=null;
  const localPortraits=new Map();
  let portraitSyncBusy=false;
  let extraSlotRequests=[],slotPending=false;
@@ -3149,6 +3152,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   notice('Falha: '+explanation);console.error(err);
  }};
  const clearRoom=()=>{
+  gmShield?.close();
   chatReset('');
   document.documentElement.classList.remove('nex-vtt-active');
   if(window.parent!==window){try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:false},location.origin);}catch(error){}}
@@ -3356,8 +3360,22 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomPlayersPanel',section==='players');
   show('roomInvitePanel',section==='invites'&&gm);
   show('roomMasterPanel',section==='master'&&gm);
+  if(section==='master'&&gm)gmShield?.open();
   show('roomManagePanel',section==='players'&&gm);
  }
+ gmShield=mountGmShield({
+  root:$('nexGmShieldRoot'),db,doc,onSnapshot,setDoc,
+  getContext:()=>({roomId,gm,uid}),
+  openTabletop:()=>roomSection('tabletop'),
+  revealToChat:(message,campaignId)=>{
+   if(!gm||!vttHostActive||campaignId!==roomId)return false;
+   let profile={};
+   try{profile=JSON.parse(localStorage.getItem('nex_account_profile_'+uid)||'{}')||{};}catch(error){}
+   const display=String(roomMembers.find(m=>m.uid===uid)?.name||profile.name||'Mestre').slice(0,48);
+   window.dispatchEvent(new CustomEvent('nex:vtt-chat-send',{detail:{campaignId:roomId,text:message,name:display}}));
+   return true;
+  }
+ });
  document.querySelectorAll('[data-room-section]').forEach(button=>button.addEventListener('click',()=>roomSection(button.dataset.roomSection)));
  // Vincular a abertura da mesa antes de inicializar os paineis opcionais (como Chat).
  $('roomOpenTabletop').addEventListener('click',()=>{
