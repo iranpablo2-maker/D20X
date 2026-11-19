@@ -2584,7 +2584,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <button type="button" id="roomAddAgentsAction">Adicionar Personagens</button>
    <button type="button" id="roomInviteAction">Convidar Jogadores</button>
    <button type="button" id="roomEditAction">Editar Campanha</button>
-   <button type="button" id="roomCreateCombatAction">Criar Combate</button>
    <button type="button" id="roomMasterAction">Escudo do Mestre</button>
    <button type="button" id="roomOpenTabletop" class="nex-open-tabletop">Tabletop</button>
   </nav>
@@ -2626,7 +2625,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <div id="roomNavigation" class="room-navigation" role="group" aria-label="Seções da campanha">
     <button type="button" data-room-section="characters" aria-pressed="true">Personagens</button>
     <button type="button" data-room-section="players" aria-pressed="false">Jogadores</button>
-    <button type="button" data-room-section="combats" aria-pressed="false">Combates</button>
     <button type="button" data-room-section="master" id="roomMasterTab" aria-pressed="false" class="hide">Escudo do Mestre</button>
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
@@ -2688,10 +2686,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     </div></aside><div class="nex-vtt-stage">
       <div class="nex-tabletop-wrap"><div id="nexTabletopBoard" class="nex-tabletop-board" aria-label="Mapa com grade de combate"></div></div>
     <p class="room-note nex-vtt-stage-note">Grade 25 × 25 · Selecione um token e use 0–9 para mudar sua imagem.</p></div><div id="nexVttResizeHandle" class="nex-vtt-resize-handle" role="separator" aria-label="Redimensionar painel de personagens" aria-orientation="vertical" aria-valuemin="250" aria-valuemax="560" aria-valuenow="328" tabindex="0" title="Arraste para ajustar a largura das fichas"></div><aside class="nex-vtt-sheets" id="nexVttSheetsPanel" aria-label="Fichas dos personagens"><div class="nex-vtt-sheets-title"><div class="nex-vtt-sheets-header"><small>PAINEL DE JOGO</small><h3>Personagens</h3></div><div class="nex-vtt-sheets-header-actions"><button type="button" id="nexVttResetPanels" title="Restaurar tamanho do painel">↺</button><button type="button" id="nexVttSheetsClose" aria-label="Recolher fichas">×</button></div></div><p class="room-note" id="nexVttSheetsHint">Abra a ficha sem sair do mapa.</p><div id="nexVttSheetsList" class="nex-vtt-sheets-list"></div><section id="nexVttMiniSheet" class="nex-vtt-mini-sheet" aria-label="Mini ficha do personagem" hidden></section></aside></div>
-   </section>
-   <section id="roomCombatsPanel" class="room-panel hide">
-     <div class="room-panel-head"><h3>Combates</h3></div>
-     <div id="roomCombats" class="campaign-combats"><p>Nenhum combate cadastrado.</p></div><div id="roomCombatFeedback" role="status" class="room-note"></div>
    </section>
  <div id="roomMasterPanel" class="room-panel hide"><h3>Escudo do Mestre</h3><p class="room-note">As permissões e o gerenciamento dos participantes ficam em Jogadores → Gerenciar Jogadores.</p></div>
    <div class="room-invite" id="roomInvitePanel">
@@ -2765,13 +2759,13 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  try{
   const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);
  }catch(err){show('setup',true);notice('Configuração Firebase inválida.');throw err;}
- let uid=null,roomId='',gm=false,roomData=null,roomMembers=[],roomSheets=[],roomRequests=[],unsubs=[],editing=null,campaignUnsub=null,myCampaigns=[],privateShield=true,roomCombats=[],playerCampaigns=[],joinedUnsub=null,combatRollUnsubs=[],inviteUnsub=null,inviteState='checking';
+ let uid=null,roomId='',gm=false,roomData=null,roomMembers=[],roomSheets=[],roomRequests=[],unsubs=[],editing=null,campaignUnsub=null,myCampaigns=[],privateShield=true,playerCampaigns=[],joinedUnsub=null,inviteUnsub=null,inviteState='checking';
  let vttHostActive=false;
  const localPortraits=new Map();
  let portraitSyncBusy=false;
  let extraSlotRequests=[],slotPending=false;
  let publicSheets=[],privateSheets=[];
- function refreshRoomSheets(){roomSheets=gm?[...publicSheets,...privateSheets]:publicSheets.slice();drawSheets();drawMembers();renderQuota();renderSlotManagement();renderCombats();renderVttSheets();window.dispatchEvent(new Event('nex:campaign-sheets-updated'));if(publicSheets.length)syncOwnCharacterPhotos();}
+ function refreshRoomSheets(){roomSheets=gm?[...publicSheets,...privateSheets]:publicSheets.slice();drawSheets();drawMembers();renderQuota();renderSlotManagement();renderVttSheets();window.dispatchEvent(new Event('nex:campaign-sheets-updated'));if(publicSheets.length)syncOwnCharacterPhotos();}
  let activeVttMiniSheetId=null;
  function vttStatValue(sheet,keys){
   const sources=[sheet.fullSheet,sheet].filter(x=>x&&typeof x==='object');
@@ -3107,63 +3101,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('roomTitle').textContent=name;$('roomDescription').textContent=description;
   updateRoomCover();$('roomEditConfiguration').hidden=true;notice('Campanha atualizada.');
  });
- function renderCombats(){
-  const mySheets=roomSheets.filter(sheet=>assignedTo(sheet,uid));
-  const options=mySheets.map(sh=>'<option value="'+escape(sh.id)+'">'+escape(sh.name)+'</option>').join('');
-  $('roomCombats').innerHTML=roomCombats.length?roomCombats.map(c=>{
-   const canRoll=mySheets.length>0;
-   return '<article class="campaign-combat"><strong>'+escape(c.name)+'</strong><p><small>'+escape(c.status||'Preparação')+'</small></p><p class="room-note">Personagens participantes: '+escape(roomSheets.map(sh=>sh.name).join(', ')||'Nenhum personagem')+'</p>'+
-    '<div class="combat-roller"><select aria-label="Meu personagem" data-combat-character="'+escape(c.id)+'">'+options+'</select><button type="button" data-combat-roll="'+escape(c.id)+'" '+(canRoll?'':'disabled')+'>Rolar d20</button></div><div class="nex-combat-rolls" data-combat-rolls="'+escape(c.id)+'"><small>Aguardando rolagens...</small></div></article>';
-  }).join(''):'<p>Nenhum combate cadastrado.</p>';
-  subscribeCombatRolls();
- }
- function subscribeCombatRolls(){
-  for(const unsub of combatRollUnsubs){try{unsub()}catch(error){}}
-  combatRollUnsubs=[];
-  const currentRoom=roomId;
-  for(const combat of roomCombats){
-   const combatId=combat.id;
-   const unsub=onSnapshot(collection(db,'campaigns',currentRoom,'combats',combatId,'rolls'),snapshot=>{
-    if(roomId!==currentRoom)return;
-    const target=document.querySelector('[data-combat-rolls="'+CSS.escape(combatId)+'"]');
-    if(!target)return;
-    const rolls=snapshot.docs.map(d=>d.data()).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0)).slice(0,8);
-    target.innerHTML=rolls.length?rolls.map(r=>'<div class="combat-roll-entry">'+escape(r.characterName||'Personagem')+' rolou <strong>'+escape(r.result)+'</strong> no d20</div>').join(''):'<small>Nenhuma rolagem ainda.</small>';
-   },error=>{
-    const target=document.querySelector('[data-combat-rolls="'+CSS.escape(combatId)+'"]');
-    if(target)target.textContent='Rolagens online indisponíveis. Confira as regras do Firebase.';
-   });
-   combatRollUnsubs.push(unsub);
-  }
- }
- $('roomCombats').addEventListener('click',event=>run(async()=>{
-  const button=event.target.closest('[data-combat-roll]');
-  if(!button||!roomId)return;
-  const id=button.dataset.combatRoll;
-  const select=document.querySelector('[data-combat-character="'+CSS.escape(id)+'"]');
-  const character=roomSheets.find(sheet=>sheet.id===select?.value&&assignedTo(sheet,uid));
-  if(!character)throw Error('Adicione um personagem seu à campanha para rolar.');
-  const number=new Uint32Array(1);crypto.getRandomValues(number);
-  const result=(number[0]%20)+1;
-  button.disabled=true;
-  try{
-   await addDoc(collection(db,'campaigns',roomId,'combats',id,'rolls'),{ownerUid:uid,sheetId:character.id,characterName:String(character.name).slice(0,100),result,createdAt:serverTimestamp()});
-   $('roomCombatFeedback').textContent=character.name+' rolou '+result+' no d20.';
-  }finally{button.disabled=false;}
- }));
- $('roomCreateCombatAction').onclick=()=>run(async()=>{
-  if(!gm||!roomId)throw Error('Apenas o mestre pode criar combate.');
-  const name=prompt('Nome do combate:','Novo combate');
-  if(name===null)return;
-  if(!name.trim())throw Error('Informe o nome do combate.');
-  try{
-    await addDoc(collection(db,'campaigns',roomId,'combats'),{name:name.trim().slice(0,100),status:'Preparação',createdAt:serverTimestamp()});
-    roomSection('combats');notice('Combate criado.');
-  }catch(error){
-    if(error.code==='permission-denied')throw Error('O Firebase bloqueou a criação. Publique as regras atualizadas de Combates no Firestore do projeto nex-rpg.');
-    throw error;
-  }
- });
  $('nexRefreshAgents').addEventListener('click',()=>refreshNexAgents());
  $('nexLinkAgent').addEventListener('click',()=>run(async()=>{
   if(!uid||!roomId)throw Error('Entre em uma campanha antes de vincular a ficha.');
@@ -3217,11 +3154,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   chatReset('');
   document.documentElement.classList.remove('nex-vtt-active');
   if(window.parent!==window){try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:false},location.origin);}catch(error){}}
-  for(const u of [...unsubs,...combatRollUnsubs]){try{u()}catch(e){}}unsubs=[];combatRollUnsubs=[];
+  for(const u of unsubs){try{u()}catch(e){}}unsubs=[];
   vttHostActive=false;
   $('roomOpenTabletop').disabled=true;
   vttUnavailable.hidden=true;
-  roomId='';gm=false;roomMembers=[];roomSheets=[];publicSheets=[];privateSheets=[];roomRequests=[];extraSlotRequests=[];slotPending=false;roomCombats=[];roomData=null;editing=null;localPortraits.clear();
+  roomId='';gm=false;roomMembers=[];roomSheets=[];publicSheets=[];privateSheets=[];roomRequests=[];extraSlotRequests=[];slotPending=false;roomData=null;editing=null;localPortraits.clear();
   $('roomAgentPicker').hidden=true;$('roomEditConfiguration').hidden=true;$('nexCampaignSheetDialog').close?.();
   show('room',false);show('sheetFormPanel',false);
  };
@@ -3400,7 +3337,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
  function roomSection(section){
   if(section==='manage')section='players'; // Compatibilidade com navegação anterior.
-  const allowed=['characters','master','players','invites','combats','tabletop'];
+  const allowed=['characters','master','players','invites','tabletop'];
   if(!allowed.includes(section)||(['master','invites'].includes(section)&&!gm))section='characters';
   if(section==='tabletop'&&!gm&&!vttHostActive){
    updateTabletopAccess();
@@ -3410,7 +3347,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(section==='tabletop')vttUnavailable.hidden=true;
   document.querySelectorAll('[data-room-section]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.roomSection===section)));
   show('roomCharactersPanel',section==='characters');
-  show('roomCombatsPanel',section==='combats');
   show('roomTabletopPanel',section==='tabletop');
   window.dispatchEvent(new CustomEvent('nex:vtt-view',{detail:{campaignId:roomId,open:section==='tabletop'}}));
   document.documentElement.classList.toggle('nex-vtt-active',section==='tabletop');
@@ -4242,18 +4178,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('roomTitle').textContent=roomData.name;
   $('roomDescription').textContent=roomData.description||'';
   $('roomCode').textContent=id;$('roomInviteLink').value=inviteLink(id);$('role').textContent=gm?'Mestre':'Jogador';libraryMode('room');show('room',true);
-  for(const key of ['roomEditAction','roomCreateCombatAction','roomMasterAction','roomInviteAction'])$(key).hidden=!gm;
+  for(const key of ['roomEditAction','roomMasterAction','roomInviteAction'])$(key).hidden=!gm;
   show('leaveCampaign',!gm);
   updateRoomCover();
   subscribeTabletop(id);
   show('roomMasterTab',gm);roomSection('characters');refreshNexAgents();
-  // A permissão de combates é independente da das fichas; falhas ficam restritas à aba.
-  unsubs.push(onSnapshot(collection(db,'campaigns',id,'combats'),snapshot=>{
-    roomCombats=snapshot.docs.map(d=>({id:d.id,...d.data()}));renderCombats();
-  },error=>{
-    console.warn('NEX: não foi possível consultar combates',error);
-    $('roomCombats').innerHTML='<p role="status">Não foi possível carregar os combates desta campanha. '+(error.code==='permission-denied'?'As regras de Combates precisam ser publicadas no Firebase.':'Verifique a conexão e tente novamente.')+'</p>';
-  }));
   if(gm)unsubs.push(onSnapshot(collection(db,'campaigns',id,'slotRequests'),snapshot=>{
    extraSlotRequests=snapshot.docs.map(d=>d.data());renderSlotManagement();
   },error=>console.warn('Solicitações de vagas indisponíveis',error)));
