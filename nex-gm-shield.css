@@ -197,3 +197,35 @@
 #roomMasterPanel .nex-gm-npc-repeat-row button[data-gm-npc-remove]{justify-self:start}
 #roomMasterPanel .nex-gm-npc-form-footer{display:flex;justify-content:flex-end;padding:12px 0 18px}
 @media(max-width:560px){#roomMasterPanel .nex-gm-npc-form-header h3{width:100%;flex-basis:100%}#roomMasterPanel .nex-gm-npc-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Ficha de campanha usa a organização visual da ficha NPC Homebrew */
+#roomMasterPanel .nex-gm-npc-homebrew-look{border:1px solid #703644;border-radius:9px;overflow:hidden;background:#130f13;gap:0;max-width:1100px}
+#roomMasterPanel .nex-gm-npc-editor-topbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:#191318;padding:12px;border-bottom:1px solid #63333e}
+#roomMasterPanel .nex-gm-npc-editor-topbar>span{color:#d4a9b4;font-size:11px;font-weight:700;letter-spacing:.08em}
+#roomMasterPanel .nex-gm-npc-sheet-banner{display:flex;gap:17px;align-items:center;padding:15px;background:linear-gradient(100deg,#28171d,#140d13);min-height:145px}
+#roomMasterPanel .nex-gm-npc-sheet-photo{width:115px;flex-shrink:0;position:relative}
+#roomMasterPanel .nex-gm-npc-sheet-photo>img,#roomMasterPanel .nex-gm-npc-sheet-photo>div{width:115px;height:115px;object-fit:cover;border:1px solid #874453;background:#251922;border-radius:7px;display:grid;place-items:center;color:white;font-weight:800;font-size:46px}
+#roomMasterPanel .nex-gm-npc-sheet-photo>label{display:block;text-align:center;font-size:12px;padding:5px 2px;cursor:pointer;color:#f5c2ca}
+#roomMasterPanel .nex-gm-npc-sheet-photo>label input{display:none}
+#roomMasterPanel .nex-gm-npc-banner-info{flex:1;min-width:0}
+#roomMasterPanel .nex-gm-npc-banner-info small{color:#ddaeb9;font-size:11px;letter-spacing:.08em}
+#roomMasterPanel .nex-gm-npc-banner-info input[name="title"]{font-size:23px;font-weight:800;background:transparent;border:1px solid transparent;width:100%;padding:6px 2px;color:white}
+#roomMasterPanel .nex-gm-npc-banner-info input[name="title"]:focus{border-color:#b3475c}
+#roomMasterPanel .nex-gm-npc-banner-info p{margin:0;color:#dbc3ca;font-size:12px}
+#roomMasterPanel .nex-gm-npc-vital-bar{background:#aa293d;text-align:center;padding:8px 10px;color:white;font-weight:800}
+#roomMasterPanel .nex-gm-npc-vital-bar label{display:inline-flex;flex-direction:row;align-items:center;gap:8px;font-weight:800;color:white}
+#roomMasterPanel .nex-gm-npc-vital-bar input{width:95px;text-align:right;font-size:17px;font-weight:800;padding:5px;border:0;background:#861b2f;color:white}
+#roomMasterPanel .nex-gm-npc-sheet-tabs{display:flex;justify-content:center;border-bottom:1px solid #683b4a;gap:4px;padding:3px 8px 0}
+#roomMasterPanel .nex-gm-npc-sheet-tabs button{background:transparent;border:0;border-bottom:2px solid transparent;border-radius:0;color:#c3aeb7;padding:13px 17px}
+#roomMasterPanel .nex-gm-npc-sheet-tabs button[aria-selected="true"]{border-bottom-color:#e34b63;color:white;background:transparent}
+#roomMasterPanel .nex-gm-npc-tab-panel{padding:16px}
+#roomMasterPanel .nex-gm-npc-tab-panel[hidden]{display:none!important}
+#roomMasterPanel .nex-gm-npc-attributes{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:5px 0 20px}
+#roomMasterPanel .nex-gm-npc-attribute{display:flex;align-items:center;justify-content:center;gap:5px;padding:10px 5px!important;background:#21161d;border:1px solid #52303b;border-radius:6px;text-align:center}
+#roomMasterPanel .nex-gm-npc-attribute span{font-weight:800;font-size:13px;color:#dcaab5}
+#roomMasterPanel .nex-gm-npc-attribute input{font-size:23px!important;font-weight:800;text-align:center;border:0!important;background:transparent!important;width:100%!important;padding:4px!important;min-height:35px!important}
+#roomMasterPanel .nex-gm-npc-core-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:16px}
+#roomMasterPanel .nex-gm-npc-clean-section{border:0;border-top:1px solid #563341;border-radius:0;background:transparent;padding:14px 0}
+#roomMasterPanel .nex-gm-npc-skills-head{display:grid;grid-template-columns:1fr 82px 88px 70px;gap:8px;padding:8px 7px;font-size:11px;color:#d5b1bf;border-bottom:1px solid #48303a}
+#roomMasterPanel .nex-gm-npc-form-footer{padding:12px 16px 20px}
+@media(max-width:650px){#roomMasterPanel .nex-gm-npc-attributes{gap:4px}#roomMasterPanel .nex-gm-npc-attribute{padding:7px 2px!important}#roomMasterPanel .nex-gm-npc-attribute span{font-size:10px}#roomMasterPanel .nex-gm-npc-attribute input{font-size:18px!important}#roomMasterPanel .nex-gm-npc-sheet-banner{gap:10px;padding:9px}#roomMasterPanel .nex-gm-npc-sheet-photo{width:84px}#roomMasterPanel .nex-gm-npc-sheet-photo>img,#roomMasterPanel .nex-gm-npc-sheet-photo>div{width:84px;height:84px}#roomMasterPanel .nex-gm-npc-sheet-tabs button{padding:10px 8px}}
