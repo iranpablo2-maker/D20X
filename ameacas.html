@@ -330,6 +330,45 @@ $("list").addEventListener("click",e=>{
  try{openThreatDetail(decodeURIComponent(button.dataset.showThreat));}catch(error){console.error(error);}
 });
 $("backToThreats").onclick=closeThreatDetail;
+// Retorna os mesmos retratos usados pelo bestiário para os cartões do Escudo do Mestre.
+const nexPortraitProvider=new URLSearchParams(location.search).get('portraitProvider')==='1';
+async function nexResolvePortrait(x){
+ const key=threatKey(x);
+ const main=threatIllustration(x);
+ const paired=window.NEX_FEVEREIRO_FORM_IMAGES?.[key]?.normal;
+ const uploaded=window.NEX_UPLOADED_THREAT_IMAGES?.[key];
+ const finalIndex=window.NEX_FINAL_FOUR_POSITIONS?.[key];
+ if(uploaded&&typeof window.NEX_UPLOADED_THREAT_IMAGE_URL==='function'){
+  try{const url=await window.NEX_UPLOADED_THREAT_IMAGE_URL(key);if(url)return {url};}catch(e){}
+ }
+ if(typeof window.NEX_ARQUIVOS_ZIP_IMAGE_URL==='function'){
+  try{const url=await window.NEX_ARQUIVOS_ZIP_IMAGE_URL(key);if(url)return {url};}catch(e){}
+ }
+ if(paired)return {url:paired};
+ if(main)return {url:main};
+ if(typeof window.NEX_FEVEREIRO_FORM_IMAGE_URL==='function'){
+  try{const url=await window.NEX_FEVEREIRO_FORM_IMAGE_URL(key,'normal');if(url)return {url};}catch(e){}
+ }
+ if(finalIndex!==undefined&&window.NEX_FINAL_FOUR_ATLAS){
+  return {atlas:window.NEX_FINAL_FOUR_ATLAS,columns:2,rows:2,index:Number(finalIndex)};
+ }
+ const atlas=nexArchiveAtlasPortrait(x);
+ if(atlas)return {atlas:atlas.src,columns:4,rows:5,index:Number(atlas.index)};
+ return {};
+}
+if(nexPortraitProvider){
+ window.addEventListener('message',async event=>{
+  if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='nex-request-threat-portraits')return;
+  const keys=Array.isArray(event.data.keys)?event.data.keys.slice(0,125):[];
+  for(const key of keys){
+   if(typeof key!=='string'||key.length>240)continue;
+   const threat=records.find(x=>threatKey(x)===key);
+   if(!threat)continue;
+   const portrait=await nexResolvePortrait(threat);
+   window.parent.postMessage({type:'nex-threat-portrait-result',key,portrait},location.origin);
+  }
+ });
+}
 window.addEventListener("message",e=>{
  if(nexCampaignThreatPicker&&e.origin===location.origin&&e.source===window.parent){
   if(e.data?.type==="nex-campaign-threat-picker-state"&&Array.isArray(e.data.keys)){
