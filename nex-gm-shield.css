@@ -97,7 +97,4 @@
 .nex-gm-rich-editor .nex-gm-note-image{display:table;max-width:100%;position:relative;cursor:grab;margin:10px 0 12px;background:#181818;border:1px solid #484848;padding:5px;border-radius:5px;user-select:none}
 .nex-gm-rich-editor .nex-gm-note-image:active{cursor:grabbing}
 .nex-gm-rich-editor .nex-gm-note-image img{display:block;max-width:min(100%,690px);height:auto;pointer-events:none;border-radius:3px}
-.nex-gm-rich-editor .nex-gm-note-image-actions{position:absolute;right:6px;top:6px;display:flex;gap:4px;opacity:.9}
-.nex-gm-rich-editor .nex-gm-note-image-actions button{background:#111;color:#fff;border:1px solid #666;border-radius:4px;min-width:28px;height:28px;cursor:pointer}
-.nex-gm-rich-editor .nex-gm-note-image-actions button:hover{background:#aa3039}
-.nex-gm-rich-hint{font-size:11px;color:#aaa;line-height:1.4}
+.nex-gm-rich-editor .nex-gm-note-image-actions{display:none!important}
