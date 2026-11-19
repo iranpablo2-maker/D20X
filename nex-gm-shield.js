@@ -69,7 +69,8 @@ export function mountGmShield(options){
    id:String(x.id||id()).slice(0,70),title:String(x.title||'').slice(0,110),
    tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,key==='notes'?18000:4000),richHtml:key==='notes'?String(x.richHtml||'').slice(0,590000):'',
    date:String(x.date||'').slice(0,80),status:String(x.status||'').slice(0,50),
-   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),hasFullSheet:!!x.hasFullSheet,revealed:!!x.revealed
+   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),hasFullSheet:!!x.hasFullSheet,revealed:!!x.revealed,
+   threatHomebrew:key==='threats'&&x.threatHomebrew&&typeof x.threatHomebrew==='object'?JSON.parse(JSON.stringify(x.threatHomebrew)):null
   })):[]; 
   result.favorites=Array.isArray(raw.favorites)?raw.favorites.slice(0,120).map(x=>String(x).slice(0,130)):[];
   result.rolls=Array.isArray(raw.rolls)?raw.rolls.slice(0,30).filter(x=>x&&typeof x==='object').map(x=>({expression:String(x.expression||'').slice(0,60),result:String(x.result||'').slice(0,220),at:String(x.at||'').slice(0,30)})):[];
@@ -577,6 +578,46 @@ export function mountGmShield(options){
    window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:String(error.message||error),entryId:entry.id},location.origin);
   });
  });
+ window.addEventListener('message',event=>{
+  if(window.parent===window||event.origin!==location.origin||event.source!==window.parent)return;
+  const msg=event.data||{};
+  if(msg.type!=='nex-campaign-save-threat-native'||msg.campaignId!==room||!getContext().gm||!ready)return;
+  const threat=msg.threat;
+  if(!threat||threat.type!=='ameaca'||typeof threat.name!=='string'||!threat.name.trim()||typeof threat.threatSheet!=='object')return;
+  const old=msg.entryId?state.threats.find(x=>x.id===msg.entryId):null;
+  if(msg.entryId&&!old)return;
+  if(!old&&state.threats.length>=100){
+   window.parent.postMessage({type:'nex-campaign-threat-save-result',ok:false,error:'Limite de ameaças atingido',entryId:msg.entryId||''},location.origin);return;
+  }
+  const entry=old||{id:id()};
+  const previous=old?{...old}:null;
+  Object.assign(entry,{
+   title:threat.name.slice(0,110),tag:threat.threatSheet.element||'Sangue',
+   body:String(threat.description||'').slice(0,4000),image:safeImage(threat.image),
+   threatHomebrew:JSON.parse(JSON.stringify(threat)),hasFullSheet:true
+  });
+  if(!old)state.threats.unshift(entry);
+  if(JSON.stringify(state).length>670000){
+   if(old)Object.assign(entry,previous);else state.threats=state.threats.filter(x=>x!==entry);
+   window.parent.postMessage({type:'nex-campaign-threat-save-result',ok:false,error:'Ficha grande demais para a campanha',entryId:msg.entryId||''},location.origin);
+   return;
+  }
+  render();
+  const saved=store();
+  if(!saved){
+   if(old)Object.assign(entry,previous);else state.threats=state.threats.filter(x=>x!==entry);
+   render();
+   window.parent.postMessage({type:'nex-campaign-threat-save-result',ok:false,error:'Falha ao iniciar salvamento',entryId:msg.entryId||''},location.origin);
+   return;
+  }
+  saved.then(()=>{
+   window.parent.postMessage({type:'nex-campaign-threat-save-result',ok:true,entryId:entry.id},location.origin);
+  }).catch(error=>{
+   if(old)Object.assign(entry,previous);else state.threats=state.threats.filter(x=>x!==entry);
+   render();
+   window.parent.postMessage({type:'nex-campaign-threat-save-result',ok:false,error:String(error.message||error),entryId:msg.entryId||''},location.origin);
+  });
+ });
  root.addEventListener('submit',event=>{
   const npcForm=event.target.closest('[data-gm-npc-sheet]');
   if(npcForm){event.preventDefault();if(room&&ready&&getContext().gm)saveNpcCampaignForm(npcForm);return;}
@@ -616,7 +657,12 @@ export function mountGmShield(options){
   if(btn.dataset.gmAction==='show-import-threat'){showThreatImport=true;void readThreats();render();return;}
   if(btn.dataset.gmAction==='close-import-threat'){showThreatImport=false;render();return;}
   if(btn.hasAttribute('data-gm-import-threat')){importThreat(Number(btn.dataset.gmImportThreat));return;}
-  if(btn.dataset.gmAction==='create-threat'){showThreatImport=false;editing={kind:'threats',id:null};selectedSheet=null;render();$('[data-gm-form] [name="title"]')?.focus();return;}
+  if(btn.dataset.gmAction==='create-threat'){
+   showThreatImport=false;
+   if(window.parent!==window){window.parent.postMessage({type:'nex-campaign-create-threat-native',campaignId:room},location.origin);status('Abrindo a ficha de Ameaça Homebrew…');}
+   else status('Abra o Escudo do Mestre pela campanha para criar a ficha.');
+   return;
+  }
   if(btn.dataset.gmAction==='create-npc'){
    discardNpcDraft();
    if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
@@ -633,6 +679,9 @@ export function mountGmShield(options){
    const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);
    const entry=state[kind]?.find(x=>x.id===key);
    if(!entry)return;
+   if(kind==='threats'&&entry.threatHomebrew&&window.parent!==window){
+    window.parent.postMessage({type:'nex-campaign-edit-threat-native',campaignId:room,entryId:entry.id,threat:entry.threatHomebrew},location.origin);return;
+   }
    if(kind==='npcs'&&entry.sourceId&&!entry.hasFullSheet){
     readHomebrews();const source=homebrew.find(x=>String(x.id)===entry.sourceId);
     if(source){entry.sheet=npcSheet(source.threatSheet);entry.hasFullSheet=true;store();}
