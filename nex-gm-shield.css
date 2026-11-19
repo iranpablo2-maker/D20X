@@ -72,3 +72,9 @@
  #roomMasterPanel .nex-gm-tools form{flex-wrap:wrap}
  #roomMasterPanel .nex-gm-tabs button{font-size:11px;padding:10px 3px}
 }
+
+#roomMasterPanel .nex-gm-npc-sheet{margin:10px 0 4px;border:1px solid #633641;border-radius:6px;background:#100d11;padding:9px}
+#roomMasterPanel .nex-gm-npc-sheet summary{color:#eac0ca;cursor:pointer;font-size:12px;font-weight:700}
+#roomMasterPanel .nex-gm-npc-sheet p{max-height:none;margin:9px 0;font-size:11px}
+#roomMasterPanel .nex-gm-npc-sheet ul{padding-left:18px;color:#e4d6db;font-size:11px;line-height:1.5}
+#roomMasterPanel .nex-gm-npc-sheet li{margin:6px 0}
