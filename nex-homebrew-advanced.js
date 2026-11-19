@@ -1962,5 +1962,11 @@
   }
  };
  document.addEventListener('nex51-ready',renderLibrary);
+ if(new URLSearchParams(window.location.search).get('createNpc')==='1'){
+  window.addEventListener('load',()=>{
+   window.dispatchEvent(new CustomEvent('nex:open-homebrew-npc'));
+   const url=new URL(location.href);url.searchParams.delete('createNpc');history.replaceState(history.state,'',url);
+  },{once:true});
+ }
  resetForm();renderLibrary();
 })();
