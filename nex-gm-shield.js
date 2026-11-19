@@ -169,11 +169,73 @@ export function mountGmShield(options){
    '<button type="button" class="nex-gm-entity-open" data-gm-open-sheet="'+kind+':'+key+'">Acessar Ficha</button>'+
    '</div></article>';
  }
+ function npcField(name,label,value,type='text',extra=''){
+  return '<label>'+escape(label)+(type==='textarea'?
+   '<textarea name="'+name+'" rows="4" maxlength="4000">'+escape(value||'')+'</textarea>':
+   '<input name="'+name+'" type="'+type+'" '+extra+' value="'+escape(value??'')+'">')+'</label>';
+ }
+ function npcSkillRow(value={}){
+  const choices=npcSkillNames.map(name=>'<option value="'+escape(name)+'"'+(name===value.name?' selected':'')+'>'+escape(name)+'</option>').join('');
+  return '<div class="nex-gm-npc-repeat-row" data-gm-npc-row="skills">'+
+   '<label>Perícia<select data-gm-npc-field="name"><option value="">Escolha uma perícia</option>'+choices+'</select></label>'+
+   '<label>Bônus<input data-gm-npc-field="bonus" type="number" min="-99" max="99" value="'+escape(value.bonus??0)+'"></label>'+
+   '<button type="button" class="alt" data-gm-npc-remove>Remover</button></div>';
+ }
+ function npcActionRow(value={}){
+  const fields=[['name','Nome'],['action','Ação'],['test','Teste / dados'],['testSkill','Perícia do teste'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo secundário'],['subtitle','Subtítulo'],['critical','Crítico'],['damageType','Tipo de dano'],['range','Alcance']];
+  return '<fieldset class="nex-gm-npc-repeat-row nex-gm-npc-action" data-gm-npc-row="actions"><legend>Habilidade / Combate</legend>'+
+   '<label>Tipo<select data-gm-npc-field="kind"><option value="ability"'+(value.kind!=='attack'?' selected':'')+'>Habilidade</option><option value="attack"'+(value.kind==='attack'?' selected':'')+'>Ataque</option></select></label>'+
+   fields.map(([key,label])=>'<label>'+label+'<input data-gm-npc-field="'+key+'" maxlength="1300" value="'+escape(value[key]||'')+'"></label>').join('')+
+   '<label class="nex-gm-npc-wide">Descrição / efeito<textarea data-gm-npc-field="effect" rows="3" maxlength="1300">'+escape(value.effect||'')+'</textarea></label>'+
+   '<button type="button" class="alt" data-gm-npc-remove>Remover</button></fieldset>';
+ }
+ function npcRitualRow(value={}){
+  return '<fieldset class="nex-gm-npc-repeat-row nex-gm-npc-ritual" data-gm-npc-row="rituals"><legend>Ritual</legend>'+
+   [['name','Nome'],['element','Elemento'],['circle','Círculo'],['source','Fonte']].map(([key,label])=>'<label>'+label+'<input data-gm-npc-field="'+key+'" '+(key==='circle'?'type="number" min="1" max="4"':'')+' value="'+escape(value[key]??(key==='circle'?1:''))+'"></label>').join('')+
+   '<label class="nex-gm-npc-wide">Descrição<textarea data-gm-npc-field="description" rows="3" maxlength="1300">'+escape(value.description||'')+'</textarea></label>'+
+   '<button type="button" class="alt" data-gm-npc-remove>Remover</button></fieldset>';
+ }
+ function npcCampaignEditor(x){
+  const t=npcSheet(x.sheet);
+  return '<form class="nex-gm-npc-form" data-gm-npc-sheet="'+escape(x.id)+'">'+
+   '<header class="nex-gm-npc-form-header"><button type="button" class="alt" data-gm-close-sheet>← Voltar aos NPCs</button><h3>Ficha de '+escape(x.title)+'</h3><button type="submit" class="nex-gm-npc-save">Salvar na campanha</button></header>'+
+   '<p class="nex-gm-npc-form-hint">Esta ficha é uma cópia da campanha. Alterações aqui não modificam o Homebrew original.</p>'+
+   '<div class="nex-gm-npc-fields">'+npcField('title','Nome do NPC',x.title)+npcField('body','Descrição / História',x.body,'textarea')+'</div>'+
+   '<h4>Atributos</h4><div class="nex-gm-npc-fields">'+npcAttrNames.map(([key,label])=>npcField('attr_'+key,label,t.attributes[key],'number','min="0" max="6"')).join('')+'</div>'+
+   '<h4>Dados de combate</h4><div class="nex-gm-npc-fields">'+npcField('pv','Pontos de vida',t.pv,'number','min="0" max="99999"')+npcField('defense','Defesa',t.defense,'number','min="0" max="99999"')+npcField('deslocamento','Deslocamento',t.deslocamento)+'</div>'+
+   '<div class="nex-gm-npc-editor-section"><div class="nex-gm-npc-section-head"><h4>Perícias</h4><button type="button" data-gm-npc-add="skills">+ Adicionar perícia</button></div><div data-gm-npc-list="skills">'+t.npcSkills.map(npcSkillRow).join('')+'</div></div>'+
+   '<div class="nex-gm-npc-editor-section"><div class="nex-gm-npc-section-head"><h4>Habilidades e combate</h4><button type="button" data-gm-npc-add="actions">+ Adicionar habilidade / ataque</button></div><div data-gm-npc-list="actions">'+t.actions.map(npcActionRow).join('')+'</div></div>'+
+   '<div class="nex-gm-npc-editor-section"><div class="nex-gm-npc-section-head"><h4>Rituais</h4><button type="button" data-gm-npc-add="rituals">+ Adicionar ritual</button></div><div data-gm-npc-list="rituals">'+t.rituals.map(npcRitualRow).join('')+'</div></div>'+
+   '<div class="nex-gm-npc-fields">'+npcField('habilidades','Características adicionais',t.habilidades,'textarea')+npcField('notas','Observações',t.notas,'textarea')+'</div>'+
+   '<div class="nex-gm-npc-form-footer"><button type="submit" class="nex-gm-npc-save">Salvar na campanha</button></div></form>';
+ }
+ function saveNpcCampaignForm(form){
+  const x=state.npcs.find(n=>n.id===form.dataset.gmNpcSheet);if(!x)return;
+  const data=new FormData(form);
+  const fields={pv:data.get('pv'),defense:data.get('defense'),deslocamento:data.get('deslocamento'),
+   habilidades:data.get('habilidades'),notas:data.get('notas'),attributes:{}};
+  npcAttrNames.forEach(([key])=>{fields.attributes[key]=data.get('attr_'+key);});
+  for(const kind of ['skills','actions','rituals']){
+   fields[kind==='skills'?'npcSkills':kind]=[...form.querySelectorAll('[data-gm-npc-row="'+kind+'"]')].map(row=>{
+    const record={};
+    row.querySelectorAll('[data-gm-npc-field]').forEach(control=>{record[control.dataset.gmNpcField]=control.value;});
+    return record;
+   }).filter(row=>row.name);
+  }
+  const title=String(data.get('title')||'').trim().slice(0,110);
+  if(!title){status('Informe o nome do NPC.');form.querySelector('[name="title"]')?.focus();return;}
+  const next=npcSheet(fields);
+  const previous={title:x.title,body:x.body,sheet:x.sheet,hasFullSheet:x.hasFullSheet};
+  x.title=title;x.body=String(data.get('body')||'').slice(0,4000);x.sheet=next;x.hasFullSheet=true;
+  if(JSON.stringify(state).length>670000){Object.assign(x,previous);status('A ficha ultrapassou o limite de armazenamento da campanha.');return;}
+  store();render();
+ }
  function entitySheetView(){
   if(!selectedSheet)return '';
   const kind=selectedSheet.kind,x=state[kind]?.find(entry=>entry.id===selectedSheet.id);
   if(!x)return '';
   const npc=kind==='npcs',sheet=x.sheet;
+  if(npc)return npcCampaignEditor(x);
   const note=(x.body||'').trim();
   const meaningful=note&&!['NPC criado na biblioteca Homebrew','NPC importado da biblioteca Homebrew'].includes(note);
   return '<section class="nex-gm-entity-sheet" aria-label="Ficha de '+(npc?'NPC':'ameaça')+'">'+
@@ -428,6 +490,8 @@ export function mountGmShield(options){
   }else status('A revelação não foi enviada. Você pode copiar o segredo e tentar novamente.');
  });
  root.addEventListener('submit',event=>{
+  const npcForm=event.target.closest('[data-gm-npc-sheet]');
+  if(npcForm){event.preventDefault();if(room&&ready&&getContext().gm)saveNpcCampaignForm(npcForm);return;}
   const form=event.target.closest('[data-gm-form]');if(!form)return;
   event.preventDefault();
   if(!room||!ready||!getContext().gm)return;
@@ -442,27 +506,30 @@ export function mountGmShield(options){
  });
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
+  if(btn.dataset.gmNpcAdd){
+   const kind=btn.dataset.gmNpcAdd,list=root.querySelector('[data-gm-npc-list="'+kind+'"]');
+   if(!list)return;
+   const limit=kind==='skills'?28:kind==='actions'?30:40;
+   if(list.children.length>=limit){status('Limite desta seção atingido.');return;}
+   const row=kind==='skills'?npcSkillRow():kind==='actions'?npcActionRow():npcRitualRow();
+   list.insertAdjacentHTML('beforeend',row);return;
+  }
+  if(btn.hasAttribute('data-gm-npc-remove')){btn.closest('[data-gm-npc-row]')?.remove();return;}
   if(btn.dataset.gmAction==='create-npc'){if(window.parent!==window){window.parent.postMessage({type:'nex-campaign-create-homebrew-npc'},location.origin);}else{window.location.assign('./index.html?createNpc=1');}return;}
 
   if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.hasAttribute('data-gm-close-sheet')){selectedSheet=null;render();return;}
-  if(btn.dataset.gmOpenSheet){const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);const entry=state[kind]?.find(x=>x.id===key);
-   if(entry){
-    if(kind==='npcs'&&entry.sourceId){
-     readHomebrews();
-     const homebrewNpc=homebrew.find(n=>String(n.id)===entry.sourceId);
-     if(homebrewNpc){
-      const sourceId=String(homebrewNpc.id);
-      if(window.parent!==window){
-       window.parent.postMessage({type:'nex-campaign-view-homebrew-npc',npcId:sourceId},location.origin);
-       return;
-      }
-      window.location.assign('./index.html?viewNpc='+encodeURIComponent(sourceId));return;
-     }
-    }
-    selectedSheet={kind,id:key};render();
-   }return;}
+  if(btn.dataset.gmOpenSheet){
+   const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);
+   const entry=state[kind]?.find(x=>x.id===key);
+   if(!entry)return;
+   if(kind==='npcs'&&entry.sourceId&&!entry.hasFullSheet){
+    readHomebrews();const source=homebrew.find(x=>String(x.id)===entry.sourceId);
+    if(source){entry.sheet=npcSheet(source.threatSheet);entry.hasFullSheet=true;store();}
+   }
+   selectedSheet={kind,id:key};render();return;
+  }
   if(btn.dataset.gmEdit){selectedSheet=null;const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmDelete){const p=btn.dataset.gmDelete.indexOf(':'),kind=btn.dataset.gmDelete.slice(0,p),key=btn.dataset.gmDelete.slice(p+1);deleteRecord(kind,key);return;}
   if(btn.dataset.gmFav){const p=btn.dataset.gmFav.indexOf(':'),kind=btn.dataset.gmFav.slice(0,p),key=btn.dataset.gmFav.slice(p+1);toggleFavorite(kind,key);return;}
