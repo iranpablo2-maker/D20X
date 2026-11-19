@@ -57,7 +57,7 @@ export function mountGmShield(options){
   ['Iniciativa','Determine a ordem de ação no confronto, considerando as habilidades específicas dos participantes.']
  ];
   let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
- let selectedSheet=null,draftNpcId=null,showNpcImport=false;
+ let selectedSheet=null,draftNpcId=null,showNpcImport=false,showThreatImport=false;
  function discardNpcDraft(){if(!draftNpcId)return;state.npcs=state.npcs.filter(x=>x.id!==draftNpcId);draftNpcId=null;}
  let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
  const id=()=>typeof crypto.randomUUID==='function'?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
@@ -94,7 +94,7 @@ export function mountGmShield(options){
  }
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
-  room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
+  room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;showThreatImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
   clearTimeout(generalSaveTimer);richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
@@ -315,6 +315,27 @@ export function mountGmShield(options){
    '<datalist id="nexGmThreatNames">'+threatCatalog.slice(0,160).map(x=>'<option value="'+escape(x.title)+'"></option>').join('')+'</datalist>'+
    (bestiary?'<iframe class="nex-gm-bestiary" src="./ameacas.html" title="Bestiário do NEX" loading="lazy"></iframe>':'');
  }
+ function threatPicker(){
+  return '<section class="nex-gm-threat-picker" style="min-height:380px;padding:8px 2px 30px">'+
+   '<button type="button" class="alt" data-gm-action="close-import-threat">← Voltar às Ameaças</button>'+
+   '<h3 style="text-align:center;margin:26px 0 24px">Escolha uma ameaça para adicionar à campanha!</h3>'+
+   '<p style="margin:0 0 16px">Selecione uma ameaça do bestiário do NEX.</p>'+
+   (threatCatalog.length?'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">'+
+    threatCatalog.map((x,index)=>{
+     const added=state.threats.some(t=>t.sourceId==='catalog:'+x.title+':'+x.tag);
+     return '<article style="border:1px solid #513039;background:#202024;border-radius:7px;padding:16px;min-height:140px;display:flex;flex-direction:column;gap:9px">'+
+      '<strong>'+escape(x.title)+'</strong><small>'+escape(x.tag)+'</small>'+
+      '<div style="margin-top:auto;display:flex;justify-content:flex-end"><button type="button" data-gm-import-threat="'+index+'"'+(added?' disabled':'')+'>'+(added?'Adicionada':'Adicionar')+'</button></div></article>';
+    }).join('')+'</div>':'<p class="room-note">Carregando ameaças do bestiário…</p>')+'</section>';
+ }
+ function importThreat(index){
+  const x=threatCatalog[index];
+  if(!x||state.threats.length>=100){status('Não foi possível adicionar a ameaça.');return;}
+  const sourceId='catalog:'+x.title+':'+x.tag;
+  if(state.threats.some(t=>t.sourceId===sourceId)){status('Esta ameaça já está na campanha.');return;}
+  state.threats.unshift({id:id(),title:x.title,tag:x.tag,body:'',sourceId,image:'',sheet:null,hasFullSheet:false});
+  showThreatImport=false;store();render();
+ }
  function generalNote(){
   return state.notes.find(x=>x.id==='nex-general-note')||state.notes.find(x=>x.title==='Geral')||null;
  }
@@ -430,9 +451,8 @@ export function mountGmShield(options){
  function renderList(kind){
   const entry=editing?.kind===kind?state[kind].find(x=>x.id===editing.id)||null:null;
   return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div>'+
-   (kind==='npcs'?'<div class="nex-gm-row"><button type="button" data-gm-action="create-npc">Criar NPCs</button><button type="button" data-gm-action="show-import-npc">Adicionar NPC</button></div>':'<button type="button" data-gm-add="'+kind+'">+ Adicionar</button>')+'</div>'+
+   (kind==='npcs'?'<div class="nex-gm-row"><button type="button" data-gm-action="create-npc">Criar NPCs</button><button type="button" data-gm-action="show-import-npc">Adicionar NPC</button></div>':kind==='threats'?'<div class="nex-gm-row"><button type="button" data-gm-action="create-threat">Criar Ameaça</button><button type="button" data-gm-action="show-import-threat">Adicionar Ameaça</button></div>':'<button type="button" data-gm-add="'+kind+'">+ Adicionar</button>')+'</div>'+
     
-    (kind==='threats'?threatsControls():'')+
     (editing?.kind===kind?editor(kind,entry):'')+
     
     cards(kind);
@@ -464,7 +484,7 @@ export function mountGmShield(options){
  function render(){
   if(!room||!getContext().gm)return;
   if(!ready){root.innerHTML='<p class="room-note">Carregando dados privados da campanha…</p>';return;}
-  const current=tab==='npcs'&&showNpcImport?homebrewOptions():(selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes')));
+  const current=tab==='npcs'&&showNpcImport?homebrewOptions():tab==='threats'&&showThreatImport?threatPicker():(selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes')));
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '';
@@ -593,6 +613,10 @@ export function mountGmShield(options){
   if(btn.dataset.gmAction==='show-import-npc'){readHomebrews();showNpcImport=true;render();return;}
   if(btn.dataset.gmAction==='close-import-npc'){showNpcImport=false;render();return;}
   if(btn.hasAttribute('data-gm-import-id')){importNpc(btn.dataset.gmImportId);return;}
+  if(btn.dataset.gmAction==='show-import-threat'){showThreatImport=true;void readThreats();render();return;}
+  if(btn.dataset.gmAction==='close-import-threat'){showThreatImport=false;render();return;}
+  if(btn.hasAttribute('data-gm-import-threat')){importThreat(Number(btn.dataset.gmImportThreat));return;}
+  if(btn.dataset.gmAction==='create-threat'){showThreatImport=false;editing={kind:'threats',id:null};selectedSheet=null;render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmAction==='create-npc'){
    discardNpcDraft();
    if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
@@ -602,7 +626,7 @@ export function mountGmShield(options){
    $('[data-gm-npc-sheet] [name="title"]')?.focus();return;
   }
 
-  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;showNpcImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
+  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;showNpcImport=false;showThreatImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.hasAttribute('data-gm-close-sheet')){discardNpcDraft();selectedSheet=null;render();return;}
   if(btn.dataset.gmOpenSheet){
