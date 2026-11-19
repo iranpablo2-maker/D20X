@@ -98,3 +98,18 @@
 .nex-gm-rich-editor .nex-gm-note-image:active{cursor:grabbing}
 .nex-gm-rich-editor .nex-gm-note-image img{display:block;max-width:min(100%,690px);height:auto;pointer-events:none;border-radius:3px}
 .nex-gm-rich-editor .nex-gm-note-image-actions{display:none!important}
+
+/* Imagens flutuam à esquerda para que o texto seja editável à direita, como num documento. */
+#roomMasterPanel .nex-gm-rich-editor .nex-gm-note-image{
+  float:left!important;display:block!important;clear:none!important;
+  width:max-content;max-width:min(65%,690px);height:auto;
+  margin:5px 18px 12px 0!important;
+}
+#roomMasterPanel .nex-gm-rich-editor .nex-gm-note-image img{
+  display:block;max-width:100%!important;height:auto;
+}
+#roomMasterPanel .nex-gm-rich-editor p,
+#roomMasterPanel .nex-gm-rich-editor div:not(.nex-gm-note-image){
+  clear:none!important;
+}
+#roomMasterPanel .nex-gm-rich-editor::after{content:"";display:block;clear:both}
