@@ -175,3 +175,25 @@
 #roomMasterPanel .nex-gm-entity-meta,
 #roomMasterPanel .nex-gm-entity-bottom{display:none!important}
 @media(max-width:500px){#roomMasterPanel .nex-gm-entity-cover{min-height:130px!important}}
+
+/* Ficha editável de NPC no Escudo do Mestre */
+#roomMasterPanel .nex-gm-npc-form{max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:12px;color:#f3ebee}
+#roomMasterPanel .nex-gm-npc-form-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #50313a;padding-bottom:14px}
+#roomMasterPanel .nex-gm-npc-form-header h3{flex:1;font-size:20px;font-weight:700;color:#fff;margin:0}
+#roomMasterPanel .nex-gm-npc-save{background:#b83143!important;color:white!important;border:1px solid #c94b5d!important;padding:10px 17px!important}
+#roomMasterPanel .nex-gm-npc-form-hint{color:#c7aab3;font-size:12px;margin:0}
+#roomMasterPanel .nex-gm-npc-form h4{color:#f6e1e8;font-size:15px;margin:10px 0 0}
+#roomMasterPanel .nex-gm-npc-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr));gap:12px}
+#roomMasterPanel .nex-gm-npc-form label{display:flex;flex-direction:column;gap:6px;min-width:0}
+#roomMasterPanel .nex-gm-npc-form textarea{min-height:105px}
+#roomMasterPanel .nex-gm-npc-editor-section{border:1px solid #53313d;border-radius:8px;padding:12px;background:#171116}
+#roomMasterPanel .nex-gm-npc-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+#roomMasterPanel .nex-gm-npc-section-head h4{margin:0}
+#roomMasterPanel .nex-gm-npc-repeat-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,155px),1fr));align-items:end;gap:10px;margin-bottom:12px;padding:10px;background:#221820;border-radius:7px;border:1px solid #543842;min-width:0}
+#roomMasterPanel .nex-gm-npc-repeat-row:last-child{margin-bottom:0}
+#roomMasterPanel fieldset.nex-gm-npc-repeat-row{min-inline-size:0}
+#roomMasterPanel .nex-gm-npc-repeat-row legend{font-size:12px;font-weight:bold;padding:0 6px}
+#roomMasterPanel .nex-gm-npc-wide{grid-column:1/-1}
+#roomMasterPanel .nex-gm-npc-repeat-row button[data-gm-npc-remove]{justify-self:start}
+#roomMasterPanel .nex-gm-npc-form-footer{display:flex;justify-content:flex-end;padding:12px 0 18px}
+@media(max-width:560px){#roomMasterPanel .nex-gm-npc-form-header h3{width:100%;flex-basis:100%}#roomMasterPanel .nex-gm-npc-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
