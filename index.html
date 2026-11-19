@@ -6266,6 +6266,10 @@ body > #nexVttSheetClose[hidden]{display:none!important}
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin || event.source!==frame.contentWindow)return;
     const msg=event.data||{};
+    if(msg.type==='nex-campaign-create-homebrew-npc'){
+      window.dispatchEvent(new CustomEvent('nex:open-homebrew-npc'));
+      return;
+    }
     if(msg.type==='nex-campaign-tabletop-view'){
       const active=msg.open===true;
       area.classList.toggle('nex-tabletop-expanded',active);
