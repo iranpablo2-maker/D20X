@@ -6266,6 +6266,13 @@ body > #nexVttSheetClose[hidden]{display:none!important}
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin || event.source!==frame.contentWindow)return;
     const msg=event.data||{};
+    if(msg.type==='nex-campaign-view-homebrew-npc'){
+      const npcId=String(msg.npcId||'').slice(0,100);
+      if(npcId){
+        window.dispatchEvent(new CustomEvent('nex:open-homebrew-npc-sheet',{detail:{npcId}}));
+      }
+      return;
+    }
     if(msg.type==='nex-campaign-create-homebrew-npc'){
       window.dispatchEvent(new CustomEvent('nex:open-homebrew-npc'));
       return;
