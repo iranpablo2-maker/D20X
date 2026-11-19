@@ -3679,6 +3679,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  function showAgents(){persist();renderAgents();visible('agents');}
  function showHomebrew(){persist();state.homebrew=globalHomebrew();nex12Ensure();nex12RenderHomebrew();visible('homebrew');}
  window.addEventListener('nex:open-homebrew-npc',()=>showHomebrew());
+ window.addEventListener('nex:open-homebrew-npc-sheet',()=>showHomebrew());
  const hbSection=$('homebrew');hbSection.classList.add('active');$('homebrewMount').appendChild(hbSection);
  $('homebrewBack').onclick=showHome;
  $('agentsBack').onclick=showHome;
