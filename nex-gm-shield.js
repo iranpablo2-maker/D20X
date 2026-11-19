@@ -258,6 +258,11 @@ export function mountGmShield(options){
   if(!x)return '';
   const npc=kind==='npcs',sheet=x.sheet;
   if(npc)return npcCampaignEditor(x);
+  if(kind==='threats'&&String(x.sourceId||'').startsWith('catalog:')){
+   const source=String(x.sourceId).slice(8);
+   const key=source.includes('::')?source:(()=>{const i=source.lastIndexOf(':');return i<0?'':source.slice(i+1).split(' · ').slice(1).join(' · ')+'::'+source.slice(0,i);})();
+   if(key)return '<section class="nex-gm-entity-sheet"><div class="nex-gm-entity-sheet-head"><button type="button" class="alt" data-gm-close-sheet>← Voltar às Ameaças</button><h3>'+escape(x.title)+'</h3></div><iframe data-gm-threat-sheet title="Ficha da ameaça" src="./ameaca-ficha.html?id='+encodeURIComponent(key)+'&embedded=1&v=20261119picker23" scrolling="no" style="display:block;width:100%;min-height:900px;border:0;background:#0b0b0e"></iframe></section>';
+  }
   const note=(x.body||'').trim();
   const meaningful=note&&!['NPC criado na biblioteca Homebrew','NPC importado da biblioteca Homebrew'].includes(note);
   return '<section class="nex-gm-entity-sheet" aria-label="Ficha de '+(npc?'NPC':'ameaça')+'">'+
@@ -317,25 +322,43 @@ export function mountGmShield(options){
    (bestiary?'<iframe class="nex-gm-bestiary" src="./ameacas.html" title="Bestiário do NEX" loading="lazy"></iframe>':'');
  }
  function threatPicker(){
-  return '<section class="nex-gm-threat-picker" style="min-height:380px;padding:8px 2px 30px">'+
+  return '<section class="nex-gm-threat-picker" style="min-height:400px">'+
    '<button type="button" class="alt" data-gm-action="close-import-threat">← Voltar às Ameaças</button>'+
-   '<h3 style="text-align:center;margin:26px 0 24px">Escolha uma ameaça para adicionar à campanha!</h3>'+
-   '<p style="margin:0 0 16px">Selecione uma ameaça do bestiário do NEX.</p>'+
-   (threatCatalog.length?'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">'+
-    threatCatalog.map((x,index)=>{
-     const added=state.threats.some(t=>t.sourceId==='catalog:'+x.title+':'+x.tag);
-     return '<article style="border:1px solid #513039;background:#202024;border-radius:7px;padding:16px;min-height:140px;display:flex;flex-direction:column;gap:9px">'+
-      '<strong>'+escape(x.title)+'</strong><small>'+escape(x.tag)+'</small>'+
-      '<div style="margin-top:auto;display:flex;justify-content:flex-end"><button type="button" data-gm-import-threat="'+index+'"'+(added?' disabled':'')+'>'+(added?'Adicionada':'Adicionar')+'</button></div></article>';
-    }).join('')+'</div>':'<p class="room-note">Carregando ameaças do bestiário…</p>')+'</section>';
+   '<iframe data-gm-threat-picker title="Biblioteca de Ameaças do NEX" src="./ameacas.html?campaignPicker=1&v=20261119picker23" loading="eager" scrolling="yes" style="display:block;width:100%;height:min(75vh,900px);min-height:440px;background:#0b0b0e;border:0;margin-top:12px;border-radius:8px"></iframe>'+
+   '</section>';
  }
- function importThreat(index){
-  const x=threatCatalog[index];
-  if(!x||state.threats.length>=100){status('Não foi possível adicionar a ameaça.');return;}
-  const sourceId='catalog:'+x.title+':'+x.tag;
-  if(state.threats.some(t=>t.sourceId===sourceId)){status('Esta ameaça já está na campanha.');return;}
-  state.threats.unshift({id:id(),title:x.title,tag:x.tag,body:'',sourceId,image:'',sheet:null,hasFullSheet:false});
-  showThreatImport=false;store();render();
+ function campaignThreatKeys(){
+  return state.threats.map(t=>{
+   const key=String(t.sourceId||'');
+   if(key.startsWith('catalog:')&&key.includes('::'))return key.slice(8);
+   if(key.startsWith('catalog:')){
+    const old=key.slice(8),index=old.lastIndexOf(':');
+    if(index>=0){
+     const title=old.slice(0,index),tag=old.slice(index+1);
+     return tag.split(' · ').slice(1).join(' · ')+'::'+title;
+    }
+   }
+   return '';
+  }).filter(Boolean);
+ }
+ function syncThreatPicker(){
+  const frame=$('[data-gm-threat-picker]');
+  if(frame?.contentWindow)frame.contentWindow.postMessage({type:'nex-campaign-threat-picker-state',keys:campaignThreatKeys()},location.origin);
+ }
+ function importThreatFromLibrary(msg){
+  const source=String(msg.source||''),name=String(msg.name||''),key=source+'::'+name;
+  if(msg.key!==key||!name||!source||name.length>110||source.length>120)return;
+  if(state.threats.length>=100){status('Limite de ameaças da campanha atingido.');syncThreatPicker();return;}
+  if(campaignThreatKeys().includes(key)){status('Esta ameaça já está na campanha.');syncThreatPicker();return;}
+  const record={id:id(),title:name,tag:String(msg.element||'').slice(0,40)+' · '+source,body:'',sourceId:'catalog:'+key,image:'',sheet:null,hasFullSheet:true};
+  state.threats.unshift(record);
+  status('Adicionando '+name+' à campanha…');
+  const done=store();
+  if(!done){state.threats=state.threats.filter(x=>x!==record);status('Não foi possível adicionar a ameaça.');syncThreatPicker();return;}
+  done.then(()=>{status('Ameaça adicionada à campanha.');syncThreatPicker();}).catch(error=>{
+   state.threats=state.threats.filter(x=>x!==record);
+   status('Erro ao adicionar ameaça: '+String(error?.message||error));syncThreatPicker();
+  });
  }
  function generalNote(){
   return state.notes.find(x=>x.id==='nex-general-note')||state.notes.find(x=>x.title==='Geral')||null;
@@ -489,6 +512,7 @@ export function mountGmShield(options){
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '';
+  if(tab==='threats'&&showThreatImport){const frame=$('[data-gm-threat-picker]');if(frame)frame.addEventListener('load',syncThreatPicker,{once:true});}
  }
  function makeRecord(form,kind){
   const raw=Object.fromEntries(new FormData(form).entries());
@@ -545,6 +569,19 @@ export function mountGmShield(options){
    if(secret){secret.revealed=true;store();render();}
    status('Revelação confirmada no chat da sessão.');
   }else status('A revelação não foi enviada. Você pode copiar o segredo e tentar novamente.');
+ });
+ window.addEventListener('message',event=>{
+  if(event.origin!==location.origin)return;
+  const picker=$('[data-gm-threat-picker]');
+  if(picker&&event.source===picker.contentWindow&&event.data?.type==='nex-library-add-campaign-threat'){
+   if(room&&ready&&getContext().gm)importThreatFromLibrary(event.data);
+   return;
+  }
+  const sheet=$('[data-gm-threat-sheet]');
+  if(sheet&&event.source===sheet.contentWindow&&event.data?.type==='nex-threat-sheet-height'){
+   const h=Number(event.data.height);
+   if(Number.isFinite(h)&&h>0&&h<70000)sheet.style.height=Math.ceil(h+16)+'px';
+  }
  });
  window.addEventListener('message',event=>{
   if(window.parent===window||event.origin!==location.origin||event.source!==window.parent)return;
@@ -654,9 +691,8 @@ export function mountGmShield(options){
   if(btn.dataset.gmAction==='show-import-npc'){readHomebrews();showNpcImport=true;render();return;}
   if(btn.dataset.gmAction==='close-import-npc'){showNpcImport=false;render();return;}
   if(btn.hasAttribute('data-gm-import-id')){importNpc(btn.dataset.gmImportId);return;}
-  if(btn.dataset.gmAction==='show-import-threat'){showThreatImport=true;void readThreats();render();return;}
+  if(btn.dataset.gmAction==='show-import-threat'){showThreatImport=true;render();return;}
   if(btn.dataset.gmAction==='close-import-threat'){showThreatImport=false;render();return;}
-  if(btn.hasAttribute('data-gm-import-threat')){importThreat(Number(btn.dataset.gmImportThreat));return;}
   if(btn.dataset.gmAction==='create-threat'){
    showThreatImport=false;
    if(window.parent!==window){window.parent.postMessage({type:'nex-campaign-create-threat-native',campaignId:room},location.origin);status('Abrindo a ficha de Ameaça Homebrew…');}
