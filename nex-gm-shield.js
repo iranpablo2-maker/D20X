@@ -125,7 +125,7 @@ export function mountGmShield(options){
   const fields=schema[kind]||[];
   return '<form class="nex-gm-editor" data-gm-form="'+kind+'"><h4>'+(entry?'Editar':'Adicionar')+' '+(kind==='timeline'?'acontecimento':labels[kind]||kind)+'</h4>'+
    fields.map(([key,label,type])=>'<label>'+escape(label)+(type==='textarea'?'<textarea name="'+key+'" maxlength="4000" rows="4">'+escape(entry?.[key]||'')+'</textarea>':
-   '<input name="'+key+'" type="'+type+'" maxlength="'+(key==='image'?480:150)+'" '+(key==='title'?'required ':'')+'value="'+escape(entry?.[key]||'')+'"'+(kind==='threats'&&key==='title'?' list="nexGmThreatNames"':'')+'>')+'</label>').join('')+
+   '<input name="'+key+'" type="'+(key==='image'&&String(entry?.[key]||'').startsWith('data:image/')?'text':type)+'" '+(key==='image'&&String(entry?.[key]||'').startsWith('data:image/')?'hidden ':'')+'maxlength="'+(key==='image'?200000:150)+'" '+(key==='title'?'required ':'')+'value="'+escape(entry?.[key]||'')+'"'+(kind==='threats'&&key==='title'?' list="nexGmThreatNames"':'')+'>')+'</label>').join('')+
    (kind==='notes'?'<label>Adicionar imagem do dispositivo<input type="file" accept="image/png,image/jpeg,image/webp" data-gm-note-file></label><small>Imagens compactadas para salvar junto com a anotação.</small>':'')+ '<div class="nex-gm-row"><button type="submit">Salvar</button><button type="button" class="alt" data-gm-action="cancel">Cancelar</button></div></form>';
  }
  function npcPreview(sheet){
