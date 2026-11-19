@@ -1469,7 +1469,13 @@
    $('nexHbImageUrl').value='';$('nexHbImageFile').value='';$('nexHbImagePreview').hidden=true;$('nexHbImagePreview').removeAttribute('src');
    editorFields();
  }
- function closeEditor(){$('nex52Editor').hidden=true;resetForm();}
+ let campaignNpcContext=null;
+ function closeEditor(){
+  campaignNpcContext=null;
+  $('nex52Save').disabled=false;
+  $('nex52Save').textContent='Salvar';
+  $('nex52Editor').hidden=true;resetForm();
+ }
  function openEditor(item){
    resetForm();
    if(item){
@@ -1744,6 +1750,33 @@
   tab='npcs';$('nex51Search').value='';closeEditor();renderLibrary();openEditor(null);
   $('nex52Editor')?.scrollIntoView({block:'start',behavior:'smooth'});
  });
+ window.addEventListener('nex:edit-campaign-npc-native',event=>{
+  const details=event.detail||{},campaignId=String(details.campaignId||''),entryId=String(details.entryId||'');
+  if(!campaignId||!entryId||!details.npc)return;
+  const incoming=details.npc;
+  const original=read().find(item=>item.type==='npc'&&item.id===incoming.id);
+  const draft=normalize({
+   ...(original||{id:'hb51_campaign_draft',type:'npc'}),
+   name:String(incoming.name||original?.name||'NPC').slice(0,90),
+   description:String(incoming.description||'').slice(0,2000),
+   image:incoming.image||original?.image||'',
+   threatSheet:{...(original?.threatSheet||{}),...(incoming.threatSheet||{})}
+  });
+  tab='npcs';$('nex51Search').value='';closeEditor();renderLibrary();openEditor(draft);
+  // É um editor de campanha: não usar o ID original nem gravar na biblioteca.
+  $('nex51Edit').value='';
+  campaignNpcContext={campaignId,entryId};
+  $('nex52EditorTitle').textContent='Editar NPC da campanha';
+  $('nex52Save').textContent='Salvar na campanha';
+  message('Edição vinculada à campanha. O Homebrew original não será alterado.');
+ });
+ window.addEventListener('nex:campaign-npc-save-result',event=>{
+  const details=event.detail||{};
+  if(!campaignNpcContext||details.entryId!==campaignNpcContext.entryId)return;
+  $('nex52Save').disabled=false;$('nex52Save').textContent='Salvar na campanha';
+  if(details.ok){closeEditor();message('Ficha de NPC salva na campanha.');}
+  else message('Não foi possível salvar na campanha: '+String(details.error||'verifique a conexão'));
+ });
  window.addEventListener('nex:open-homebrew-npc-sheet',event=>{
   const npcId=String(event.detail?.npcId||'').slice(0,100);
   if(!npcId)return;
@@ -1898,6 +1931,20 @@
      trailAbilities:type==='trilha'?TRAIL_NEX.map(n=>({nex:n,name:$('nex53TrailName'+n).value,description:$('nex53TrailDescription'+n).value,bonusType:'',bonusValue:0,bonuses:getEffects(String(n))})):(old?.trailAbilities||[]),
      skills:type==='origem'?[$('nex55Skill1').value,$('nex55Skill2').value]:(old?.skills||[])
    });
+   if(campaignNpcContext&&record.type==='npc'){
+    const frame=document.getElementById('nexCampaignRoomFrame');
+    if(!frame?.contentWindow){message('A campanha não está disponível. Abra novamente a sala.');return;}
+    frame.contentWindow.postMessage({
+     type:'nex-campaign-save-npc-native',
+     campaignId:campaignNpcContext.campaignId,
+     entryId:campaignNpcContext.entryId,
+     npc:{type:'npc',name:record.name,description:record.description,image:record.image,threatSheet:record.threatSheet}
+    },location.origin);
+    $('nex52Save').disabled=true;
+    $('nex52Save').textContent='Salvando…';
+    message('Salvando a ficha na campanha…');
+    return;
+   }
    const group=record.type==='maldicao'||record.type==='item'&&record.category==='Itens Amaldiçoados'?'paranormal':Object.keys(TABS).find(key=>TABS[key].includes(record.type))||tab;
    if(!editing&&group!==tab){message('Selecione a categoria correta antes de salvar.');return;}
    try{
