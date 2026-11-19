@@ -6,9 +6,9 @@ export function mountGmShield(options){
  const $=(selector)=>root.querySelector(selector);
  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;',"'":'&#39;'}[c]));
  const safeImage=value=>/^https:\/\/[^\s<>"']{1,480}$/i.test(String(value||''))?String(value):'';
- const kinds=['notes','sessions','npcs','threats','rules','secrets'];
+ const kinds=['notes','npcs','threats'];
  const labels={notes:'Anotações',sessions:'Sessões',npcs:'NPCs',threats:'Ameaças',rules:'Regras',secrets:'Segredos'};
- const icons={notes:'▤',sessions:'▦',npcs:'♟',threats:'◈',rules:'☷',secrets:'◇'};
+ const icons={notes:'▤ ',npcs:'',threats:''};
  const empty=()=>({notes:[],sessions:[],npcs:[],threats:[],secrets:[],timeline:[],favorites:[],rolls:[]});
  const npcSheet=(raw)=>{
   if(!raw||typeof raw!=='object')return null;
@@ -39,10 +39,8 @@ export function mountGmShield(options){
   ['Carga e equipamentos','Confira espaços ocupados, proficiência, categoria, patente e equipamento efetivamente vestido.'],
   ['Iniciativa','Determine a ordem de ação no confronto, considerando as habilidades específicas dos participantes.']
  ];
- const givenNames=['Aline','Caio','Clara','Davi','Elisa','Emanuel','Helena','Ícaro','Júlia','Lívia','Mauro','Noemi','Otávio','Rafaela','Sofia','Tiago','Valentina','Yuri'];
- const familyNames=['Alencar','Barros','Carvalho','Duarte','Ferraz','Lacerda','Menezes','Monteiro','Nogueira','Pereira','Ramos','Sampaio','Silveira','Tavares'];
- let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
- let homebrew=[],threatCatalog=[],nameSuggestion='',diceMessage='',saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
+  let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
+ let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
  const id=()=>typeof crypto.randomUUID==='function'?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
  const attr=(name,value)=>' '+name+'="'+escape(value)+'"';
  function dataSafe(raw){
@@ -120,7 +118,7 @@ export function mountGmShield(options){
  }
  function menu(){
   return '<div class="nex-gm-head"><div><h3>◈ ESCUDO DO MESTRE</h3><small>Painel privado · informações salvas nesta campanha</small></div>'+
-   '<div class="nex-gm-head-actions"><button type="button" data-gm-action="tabletop">Abrir Tabletop</button><button type="button" data-gm-action="dice">Dados secretos</button><button type="button" data-gm-action="names">Gerar nome</button></div></div>'+
+   '<div class="nex-gm-head-actions"><button type="button" data-gm-action="tabletop">Abrir Tabletop</button></div></div>'+
    '<nav class="nex-gm-tabs" aria-label="Áreas do Escudo do Mestre">'+kinds.map(k=>'<button type="button" data-gm-tab="'+k+'" aria-pressed="'+(tab===k)+'">'+icons[k]+' '+labels[k]+'</button>').join('')+'</nav>';
  }
  function editor(kind,entry){
@@ -196,7 +194,7 @@ export function mountGmShield(options){
  }
  function renderFavourites(){
   if(!state.favorites.length)return '';
-  const titles=state.favorites.slice(-15).map(key=>{
+  const titles=state.favorites.filter(key=>kinds.includes(key.slice(0,key.indexOf(':')))).slice(-15).map(key=>{
    const p=key.indexOf(':'),kind=key.slice(0,p),entryId=key.slice(p+1);
    if(kind==='rules')return {kind,title:entryId};
    const item=state[kind]?.find(x=>x.id===entryId);
@@ -204,22 +202,12 @@ export function mountGmShield(options){
   }).filter(Boolean);
   return '<details class="nex-gm-favorites"><summary>★ Favoritos ('+titles.length+')</summary><div class="nex-gm-chip-list">'+titles.map(x=>'<span>'+escape(labels[x.kind]||x.kind)+' · '+escape(x.title)+'</span>').join('')+'</div></details>';
  }
- function renderTools(){
-  const dice='Dados privados (ex.: 2d20+5)';
-  return '<div class="nex-gm-tools"><section><h4>Rolador secreto</h4><form data-gm-dice><label>'+dice+'<input name="expression" maxlength="24" placeholder="1d20+5" required></label><button type="submit">Rolar</button></form>'+
-   (diceMessage?'<p class="nex-gm-result" role="status">'+escape(diceMessage)+'</p>':'')+
-   '<div class="nex-gm-rolls">'+state.rolls.slice(0,8).map(r=>'<small>'+escape(r.expression)+' → '+escape(r.result)+'</small>').join('')+'</div></section>'+
-   '<section><h4>Gerador de nomes</h4><p>Nomes para improvisar personagens durante a sessão.</p>'+
-   '<button type="button" data-gm-action="generate">Gerar nome</button>'+
-   (nameSuggestion?'<p class="nex-gm-result">'+escape(nameSuggestion)+'</p><button type="button" class="alt" data-gm-action="name-to-npc">Adicionar como NPC</button>':'')+
-   '</section></div>';
- }
  function render(){
   if(!room||!getContext().gm)return;
   if(!ready){root.innerHTML='<p class="room-note">Carregando dados privados da campanha…</p>';return;}
-  const current=tab==='rules'?renderRules():tab==='sessions'?renderSessions():renderList(tab);
+  const current=renderList(kinds.includes(tab)?tab:'notes');
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
-   renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+renderTools()+
+   renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '<p class="nex-gm-footer">Somente o mestre pode ler e alterar estes dados. NPCs e ameaças são referências privadas; a biblioteca de fichas do NEX continua separada.</p>';
  }
  function makeRecord(form,kind){
@@ -255,20 +243,6 @@ export function mountGmShield(options){
   const match=threatCatalog.find(x=>x.title.toLocaleLowerCase('pt-BR')===record.title.toLocaleLowerCase('pt-BR'));
   if(match&&!record.tag)record.tag=match.tag;
  }
- function parseRoll(text){
-  const match=String(text||'').trim().toLowerCase().replace(/\s+/g,'').match(/^(\d{1,2})d(4|6|8|10|12|20|100)([+-]\d{1,3})?$/);
-  if(!match)return 'Use até 30 dados: 1d20+5, 2d6 ou 3d10-2.';
-  const count=Number(match[1]),faces=Number(match[2]),bonus=Number(match[3]||0);
-  if(count<1||count>30)return 'O máximo é 30 dados por rolagem.';
-  const rolls=[];
-  for(let i=0;i<count;i++){
-   const limit=Math.floor(4294967296/faces)*faces,bytes=new Uint32Array(1);
-   do{crypto.getRandomValues(bytes);}while(bytes[0]>=limit);
-   rolls.push(bytes[0]%faces+1);
-  }
-  const total=rolls.reduce((a,b)=>a+b,bonus);
-  return rolls.join(' + ')+(bonus?(bonus>0?' + ':' - ')+Math.abs(bonus):'')+' = '+total;
- }
  function reveal(key){
   const secret=state.secrets.find(x=>x.id===key);if(!secret)return;
   if(!window.confirm('Enviar este segredo para o chat da sessão? Os jogadores conectados poderão ler.'))return;
@@ -291,7 +265,7 @@ export function mountGmShield(options){
   }else status('A revelação não foi enviada. Você pode copiar o segredo e tentar novamente.');
  });
  root.addEventListener('submit',event=>{
-  const form=event.target.closest('[data-gm-form],[data-gm-dice]');if(!form)return;
+  const form=event.target.closest('[data-gm-form]');if(!form)return;
   event.preventDefault();
   if(!room||!ready||!getContext().gm)return;
   if(form.dataset.gmForm){
@@ -301,15 +275,11 @@ export function mountGmShield(options){
     if(old)Object.assign(old,r);else if(arr.length<100)arr.unshift({id:id(),...r});
     editing=null;store();render();
    }else submitRecord(kind,form);
-  }else if(form.hasAttribute('data-gm-dice')){
-   const expression=form.elements.expression.value;diceMessage=parseRoll(expression);
-   if(diceMessage.includes(' = ')){state.rolls.unshift({expression:expression.slice(0,60),result:diceMessage,at:new Date().toISOString()});state.rolls=state.rolls.slice(0,30);store();}
-   render();
   }
  });
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
-  if(btn.dataset.gmTab){tab=btn.dataset.gmTab;filter='';editing=null;render();if(tab==='threats')void readThreats();return;}
+  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmEdit){const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmDelete){const p=btn.dataset.gmDelete.indexOf(':'),kind=btn.dataset.gmDelete.slice(0,p),key=btn.dataset.gmDelete.slice(p+1);deleteRecord(kind,key);return;}
@@ -328,13 +298,7 @@ export function mountGmShield(options){
    case 'import-npc':importNpc();break;
    case 'bestiary':bestiary=!bestiary;render();break;
    case 'tabletop':openTabletop();break;
-   case 'dice':root.querySelector('[data-gm-dice] input')?.focus();break;
-   case 'names':case 'generate':nameSuggestion=givenNames[Math.floor(Math.random()*givenNames.length)]+' '+familyNames[Math.floor(Math.random()*familyNames.length)];render();break;
-   case 'name-to-npc':
-    if(nameSuggestion&&state.npcs.length<100){
-     state.npcs.unshift({id:id(),title:nameSuggestion,tag:'Gerado pelo mestre',body:'',date:'',status:'',image:''});
-     tab='npcs';store();render();
-    }break;
+
   }
  });
  root.addEventListener('input',event=>{
