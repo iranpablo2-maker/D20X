@@ -140,23 +140,17 @@ export function mountGmShield(options){
    (actions?'<ul>'+actions+'</ul>':'')+'</details>';
  }
  function entityCard(kind,x){
-  const npc=kind==='npcs',title=escape(x.title||'Sem nome');
-  const source=npc?(x.sourceId?'Homebrew':'Campanha'):(x.tag||'Campanha');
-  const meta=npc?'NPC da campanha':(x.status||'Ameaça da campanha');
-  const pic=safeImage(x.image);
+  const title=escape(x.title||'Sem nome'),pic=safeImage(x.image);
   const thumb=pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?');
   const key=escape(x.id);
   return '<article class="nex-gm-entity-card">'+
    '<div class="nex-gm-entity-cover">'+thumb+'</div>'+
-   '<div class="nex-gm-entity-body"><div class="nex-gm-entity-top"><div><strong>'+title+'</strong>'+
-   '<div class="nex-gm-entity-sub">'+(npc?'NPC':'Ameaça')+'</div>'+
-   '<div class="nex-gm-entity-meta">'+escape(meta)+'</div></div>'+
+   '<div class="nex-gm-entity-body"><div class="nex-gm-entity-top"><strong>'+title+'</strong>'+
    '<details class="nex-gm-entity-settings"><summary aria-label="Configurações da ficha" title="Configurações">⚙</summary>'+
    '<div class="nex-gm-entity-settings-actions"><button type="button" data-gm-edit="'+kind+':'+key+'">Editar</button>'+
    '<button type="button" class="nex-gm-danger" data-gm-delete="'+kind+':'+key+'">Excluir</button></div></details></div>'+
    '<button type="button" class="nex-gm-entity-open" data-gm-open-sheet="'+kind+':'+key+'">Acessar Ficha</button>'+
-   '<div class="nex-gm-entity-bottom"><small>'+(npc?'Origem':'Fonte')+'</small><b>'+escape(source)+'</b>'+
-   '<small>Pode editar: Mestre</small></div></div></article>';
+   '</div></article>';
  }
  function entitySheetView(){
   if(!selectedSheet)return '';
@@ -436,7 +430,22 @@ export function mountGmShield(options){
   if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.hasAttribute('data-gm-close-sheet')){selectedSheet=null;render();return;}
-  if(btn.dataset.gmOpenSheet){const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);if(state[kind]?.some(x=>x.id===key)){selectedSheet={kind,id:key};render();}return;}
+  if(btn.dataset.gmOpenSheet){const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);const entry=state[kind]?.find(x=>x.id===key);
+   if(entry){
+    if(kind==='npcs'&&entry.sourceId){
+     readHomebrews();
+     const homebrewNpc=homebrew.find(n=>String(n.id)===entry.sourceId);
+     if(homebrewNpc){
+      const sourceId=String(homebrewNpc.id);
+      if(window.parent!==window){
+       window.parent.postMessage({type:'nex-campaign-view-homebrew-npc',npcId:sourceId},location.origin);
+       return;
+      }
+      window.location.assign('./index.html?viewNpc='+encodeURIComponent(sourceId));return;
+     }
+    }
+    selectedSheet={kind,id:key};render();
+   }return;}
   if(btn.dataset.gmEdit){selectedSheet=null;const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmDelete){const p=btn.dataset.gmDelete.indexOf(':'),kind=btn.dataset.gmDelete.slice(0,p),key=btn.dataset.gmDelete.slice(p+1);deleteRecord(kind,key);return;}
   if(btn.dataset.gmFav){const p=btn.dataset.gmFav.indexOf(':'),kind=btn.dataset.gmFav.slice(0,p),key=btn.dataset.gmFav.slice(p+1);toggleFavorite(kind,key);return;}
