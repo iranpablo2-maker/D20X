@@ -134,3 +134,34 @@
   border-radius:5px!important;
   box-shadow:none!important;
 }
+
+/* Cards de NPCs/Ameaças no padrão das fichas de campanha */
+#roomMasterPanel .nex-gm-entity-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,350px),1fr));gap:13px}
+#roomMasterPanel .nex-gm-entity-card{display:grid;grid-template-columns:116px minmax(0,1fr);background:#1b1a20;border:1px solid #343039;border-radius:9px;overflow:hidden;min-height:190px}
+#roomMasterPanel .nex-gm-entity-cover{display:flex;align-items:center;justify-content:center;min-height:190px;background:#2a222c;color:#fff;font-size:44px;font-weight:800}
+#roomMasterPanel .nex-gm-entity-cover img{width:100%;height:100%;max-height:270px;object-fit:cover}
+#roomMasterPanel .nex-gm-entity-body{padding:13px 12px;display:flex;flex-direction:column;gap:5px;min-width:0}
+#roomMasterPanel .nex-gm-entity-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+#roomMasterPanel .nex-gm-entity-top strong{font-size:15px;color:#fff;overflow-wrap:anywhere}
+#roomMasterPanel .nex-gm-entity-sub{font-size:13px;color:#fff}
+#roomMasterPanel .nex-gm-entity-meta{font-size:11px;color:#d2bcc4}
+#roomMasterPanel button.nex-gm-entity-open{align-self:center;background:#b73342;color:#fff;border:0;font-weight:700;border-radius:5px;padding:8px 13px}
+#roomMasterPanel .nex-gm-entity-bottom{margin-top:auto;display:flex;flex-direction:column;gap:2px;padding-top:9px}
+#roomMasterPanel .nex-gm-entity-bottom small{font-size:11px;color:#d8b3be}
+#roomMasterPanel .nex-gm-entity-bottom b{color:#fff;font-size:13px}
+#roomMasterPanel .nex-gm-entity-settings{position:relative;flex-shrink:0}
+#roomMasterPanel .nex-gm-entity-settings summary{cursor:pointer;list-style:none;color:#f7e7ea;font-size:18px;line-height:1}
+#roomMasterPanel .nex-gm-entity-settings summary::-webkit-details-marker{display:none}
+#roomMasterPanel .nex-gm-entity-settings-actions{position:absolute;right:0;top:23px;display:flex;gap:5px;padding:6px;background:#181217;border:1px solid #643643;border-radius:7px;z-index:4}
+#roomMasterPanel .nex-gm-entity-settings-actions button{white-space:nowrap;padding:6px 9px;min-height:29px}
+#roomMasterPanel .nex-gm-entity-sheet{max-width:950px;margin:auto;background:#181419;border:1px solid #583640;border-radius:9px;padding:16px}
+#roomMasterPanel .nex-gm-entity-sheet-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#roomMasterPanel .nex-gm-entity-sheet-head h3{flex:1;min-width:120px;color:white;font-size:19px;margin:0}
+#roomMasterPanel .nex-gm-entity-sheet-actions{display:flex;gap:8px}
+#roomMasterPanel .nex-gm-entity-sheet-type{color:#e3aaba;margin:11px 0}
+#roomMasterPanel .nex-gm-sheet-stats,#roomMasterPanel .nex-gm-sheet-description{border-top:1px solid #54323d;padding-top:12px;margin-top:12px}
+#roomMasterPanel .nex-gm-sheet-attrs{display:flex;flex-wrap:wrap;gap:9px}
+#roomMasterPanel .nex-gm-sheet-attrs span{padding:7px;background:#261b24;border-radius:5px}
+#roomMasterPanel .nex-gm-entity-sheet ul{padding-left:20px;line-height:1.7}
+#roomMasterPanel .nex-gm-sheet-description p{white-space:pre-wrap}
+@media(max-width:500px){#roomMasterPanel .nex-gm-entity-card{grid-template-columns:90px minmax(0,1fr)}#roomMasterPanel .nex-gm-entity-cover{min-height:160px;font-size:36px}}
