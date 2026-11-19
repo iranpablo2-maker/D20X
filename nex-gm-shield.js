@@ -181,7 +181,7 @@ export function mountGmShield(options){
    if(tag==='img'){
     const src=safeImage(node.getAttribute('src'));
     const width=Math.max(160,Math.min(690,Number(node.getAttribute('data-width'))||420));
-    return src?'<div class="nex-gm-note-image" contenteditable="false" draggable="true"><img src="'+escape(src)+'" data-width="'+width+'" style="width:'+width+'px" alt="Imagem da anotação"><span class="nex-gm-note-image-actions"><button type="button" data-gm-image-smaller title="Diminuir imagem">−</button><button type="button" data-gm-image-larger title="Aumentar imagem">+</button><button type="button" data-gm-image-remove title="Excluir imagem">×</button></span></div>':'';
+    return src?'<div class="nex-gm-note-image" contenteditable="false" draggable="true"><img src="'+escape(src)+'" data-width="'+width+'" style="width:'+width+'px" alt="Imagem da anotação"></div>':'';
    }
    if(tag==='div'&&node.classList.contains('nex-gm-note-image')){
     const img=node.querySelector('img');
@@ -247,11 +247,7 @@ export function mountGmShield(options){
   const node=document.createElement('div');
   node.className='nex-gm-note-image';node.contentEditable='false';node.draggable=true;
   const img=document.createElement('img');img.src=src;img.alt='Imagem da anotação';img.dataset.width=String(width);img.style.width=width+'px';
-  const actions=document.createElement('span');actions.className='nex-gm-note-image-actions';
-  for(const [label,key] of [['−','smaller'],['+','larger'],['×','remove']]){
-   const btn=document.createElement('button');btn.type='button';btn.dataset['gmImage'+key[0].toUpperCase()+key.slice(1)]='';btn.textContent=label;actions.appendChild(btn);
-  }
-  node.append(img,actions);return node;
+  node.append(img);return node;
  }
  async function compressNoteImage(file){
   if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>12000000)throw Error('Escolha imagens JPG, PNG ou WebP de até 12 MB.');
@@ -394,7 +390,7 @@ export function mountGmShield(options){
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
   if(btn.dataset.gmAction==='create-npc'){if(window.parent!==window){window.parent.postMessage({type:'nex-campaign-create-homebrew-npc'},location.origin);}else{window.location.assign('./index.html?createNpc=1');}return;}
-  if(btn.closest('[data-gm-note-image]')){const wrap=btn.closest('[data-gm-note-image]'),img=wrap.querySelector('img');if(btn.hasAttribute('data-gm-image-remove'))wrap.remove();else if(img){let width=Number(img.dataset.width)||420;width=Math.max(160,Math.min(690,width+(btn.hasAttribute('data-gm-image-larger')?80:-80)));img.dataset.width=String(width);img.style.width=width+'px';}scheduleRichSave();return;}
+
   if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmEdit){const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
