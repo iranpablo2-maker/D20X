@@ -3681,6 +3681,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  window.addEventListener('nex:open-homebrew-npc',()=>showHomebrew());
  window.addEventListener('nex:open-homebrew-npc-sheet',()=>showHomebrew());
  window.addEventListener('nex:edit-campaign-npc-native',()=>showHomebrew());
+ window.addEventListener('nex:campaign-npc-save-result',event=>{if(event.detail?.ok)visible('campaigns');});
  const hbSection=$('homebrew');hbSection.classList.add('active');$('homebrewMount').appendChild(hbSection);
  $('homebrewBack').onclick=showHome;
  $('agentsBack').onclick=showHome;
