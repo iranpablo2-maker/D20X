@@ -48,7 +48,7 @@ export function mountGmShield(options){
   if(!raw||typeof raw!=='object')return result;
   for(const key of listKinds)result[key]=Array.isArray(raw[key])?raw[key].slice(0,100).filter(x=>x&&typeof x==='object').map(x=>({
    id:String(x.id||id()).slice(0,70),title:String(x.title||'').slice(0,110),
-   tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,key==='notes'?18000:4000),
+   tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,key==='notes'?18000:4000),richHtml:key==='notes'?String(x.richHtml||'').slice(0,590000):'',
    date:String(x.date||'').slice(0,80),status:String(x.status||'').slice(0,50),
    image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),revealed:!!x.revealed
   })):[]; 
@@ -76,7 +76,7 @@ export function mountGmShield(options){
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
   room='';ready=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
-  clearTimeout(generalSaveTimer);root.replaceChildren();
+  clearTimeout(generalSaveTimer);richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
   const ctx=getContext();
@@ -172,22 +172,117 @@ export function mountGmShield(options){
  function generalNote(){
   return state.notes.find(x=>x.id==='nex-general-note')||state.notes.find(x=>x.title==='Geral')||null;
  }
+ function sanitizeRich(html){
+  const docHtml=new DOMParser().parseFromString(String(html||''),'text/html');
+  const sanitizeNode=node=>{
+   if(node.nodeType===Node.TEXT_NODE)return escape(node.textContent||'');
+   if(node.nodeType!==Node.ELEMENT_NODE)return '';
+   const tag=node.tagName.toLowerCase();
+   if(tag==='img'){
+    const src=safeImage(node.getAttribute('src'));
+    const width=Math.max(160,Math.min(690,Number(node.getAttribute('data-width'))||420));
+    return src?'<div class="nex-gm-note-image" contenteditable="false" draggable="true"><img src="'+escape(src)+'" data-width="'+width+'" style="width:'+width+'px" alt="Imagem da anotação"><span class="nex-gm-note-image-actions"><button type="button" data-gm-image-smaller title="Diminuir imagem">−</button><button type="button" data-gm-image-larger title="Aumentar imagem">+</button><button type="button" data-gm-image-remove title="Excluir imagem">×</button></span></div>':'';
+   }
+   if(tag==='div'&&node.classList.contains('nex-gm-note-image')){
+    const img=node.querySelector('img');
+    return img?sanitizeNode(img):'';
+   }
+   if(['script','style','iframe','object','svg','button'].includes(tag))return '';
+   const children=[...node.childNodes].map(sanitizeNode).join('');
+   if(tag==='br')return '<br>';
+   if(['p','div','ul','ol','li','blockquote'].includes(tag))return '<'+tag+'>'+children+'</'+tag+'>';
+   if(['b','strong','i','em','u'].includes(tag))return '<'+tag+'>'+children+'</'+tag+'>';
+   return children;
+  };
+  return [...docHtml.body.childNodes].map(sanitizeNode).join('').slice(0,590000);
+ }
+ function richEditor(){
+  return $('[data-gm-rich-note]');
+ }
  function renderGeneralNotes(){
-  const item=generalNote(),value=item?.body||'',image=safeImage(item?.image);
+  const item=generalNote(),legacy=item?.body||'',image=safeImage(item?.image);
+  const initial=item?.richHtml?sanitizeRich(item.richHtml):('<p>'+escape(legacy).replace(/\\n/g,'<br>')+'</p>'+(image?'<img src="'+escape(image)+'" data-width="420">':''));
   return '<div class="nex-gm-general-notes">'+
-   '<label class="nex-gm-general-title" for="nexGmGeneralText">Geral</label>'+
-   '<textarea id="nexGmGeneralText" data-gm-general-note maxlength="18000" placeholder="Informações gerais ao longo da sessão…">'+escape(value)+'</textarea>'+
-   '<div class="nex-gm-general-tools"><label class="nex-gm-image-upload">Adicionar imagem<input type="file" data-gm-general-file accept="image/png,image/jpeg,image/webp"></label>'+
-   (image?'<button type="button" class="alt" data-gm-action="remove-general-image">Remover imagem</button>':'')+'</div>'+
-   (image?'<img class="nex-gm-general-image" src="'+escape(image)+'" alt="Imagem da anotação Geral">':'')+
-   '</div>';
+   '<label class="nex-gm-general-title" for="nexGmRichEditor">Geral</label>'+
+   '<div id="nexGmRichEditor" class="nex-gm-rich-editor" data-gm-rich-note contenteditable="true" role="textbox" aria-label="Anotações da sessão" aria-multiline="true" data-placeholder="Informações gerais ao longo da sessão…">'+sanitizeRich(initial)+'</div>'+
+   '<div class="nex-gm-general-tools"><label class="nex-gm-image-upload">Inserir imagem<input type="file" data-gm-general-file accept="image/png,image/jpeg,image/webp" multiple></label><span class="nex-gm-rich-hint">Arraste imagens para dentro do bloco e escreva entre elas. Arraste uma imagem para mudar sua posição.</span></div></div>';
  }
  function updateGeneralNote(fields){
   let item=generalNote();
-  if(!item){item={id:'nex-general-note',title:'Geral',tag:'',body:'',date:'',status:'',image:''};state.notes.unshift(item);}
+  if(!item){item={id:'nex-general-note',title:'Geral',tag:'',body:'',date:'',status:'',image:'',richHtml:''};state.notes.unshift(item);}
   Object.assign(item,fields);store();
  }
  let generalSaveTimer=null;
+ let richLastRange=null,richDragging=null;
+ function rememberRichRange(){
+  const editor=richEditor(),sel=window.getSelection();
+  if(editor&&sel?.rangeCount&&editor.contains(sel.anchorNode))richLastRange=sel.getRangeAt(0).cloneRange();
+ }
+ function insertAtRich(node,point){
+  const editor=richEditor();if(!editor)return;
+  editor.focus();
+  const selection=window.getSelection();
+  let range=null;
+  if(point&&document.caretRangeFromPoint)range=document.caretRangeFromPoint(point.clientX,point.clientY);
+  if(!range&&point&&document.caretPositionFromPoint){const pos=document.caretPositionFromPoint(point.clientX,point.clientY);if(pos){range=document.createRange();range.setStart(pos.offsetNode,pos.offset);range.collapse(true);}}
+  if(range&&!editor.contains(range.startContainer))range=null;
+  if(!range&&richLastRange&&editor.contains(richLastRange.startContainer))range=richLastRange.cloneRange();
+  if(!range&&selection?.rangeCount&&editor.contains(selection.anchorNode))range=selection.getRangeAt(0).cloneRange();
+  if(!range){range=document.createRange();range.selectNodeContents(editor);range.collapse(false);}
+  // Imagens devem ficar em blocos próprios, para permitir texto antes e depois.
+  let block=range.startContainer.nodeType===1?range.startContainer:range.startContainer.parentNode;
+  while(block&&block!==editor&&!['P','DIV','LI'].includes(block.nodeName))block=block.parentNode;
+  if(block?.classList?.contains('nex-gm-note-image')){block.after(node);}
+  else if(block&&block!==editor&&block.parentNode===editor){
+   if(range.startOffset===0&&block.textContent?.length===0)block.before(node);
+   else block.after(node);
+  }else editor.appendChild(node);
+  if(!node.nextElementSibling||node.nextElementSibling.classList?.contains('nex-gm-note-image'))node.after(document.createElement('p'));
+  const after=node.nextElementSibling,caret=document.createRange();
+  caret.selectNodeContents(after);caret.collapse(true);
+  selection.removeAllRanges();selection.addRange(caret);richLastRange=caret.cloneRange();
+  editor.focus();scheduleRichSave();
+ }
+ function imageNode(src,width=420){
+  const node=document.createElement('div');
+  node.className='nex-gm-note-image';node.contentEditable='false';node.draggable=true;
+  const img=document.createElement('img');img.src=src;img.alt='Imagem da anotação';img.dataset.width=String(width);img.style.width=width+'px';
+  const actions=document.createElement('span');actions.className='nex-gm-note-image-actions';
+  for(const [label,key] of [['−','smaller'],['+','larger'],['×','remove']]){
+   const btn=document.createElement('button');btn.type='button';btn.dataset['gmImage'+key[0].toUpperCase()+key.slice(1)]='';btn.textContent=label;actions.appendChild(btn);
+  }
+  node.append(img,actions);return node;
+ }
+ async function compressNoteImage(file){
+  if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>12000000)throw Error('Escolha imagens JPG, PNG ou WebP de até 12 MB.');
+  const url=URL.createObjectURL(file);
+  try{
+   const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
+   const canvas=document.createElement('canvas'),scale=Math.min(1,960/Math.max(img.width,img.height));
+   canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+   canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+   let encoded='';
+   for(const quality of [.72,.55,.4,.28]){encoded=canvas.toDataURL('image/jpeg',quality);if(encoded.length<=125000)break;}
+   if(encoded.length>125000)throw Error('Imagem muito grande; escolha outra imagem.');
+   return encoded;
+  }finally{URL.revokeObjectURL(url);}
+ }
+ async function addRichImages(files,point){
+  const arr=[...files].filter(f=>f.type.startsWith('image/')).slice(0,8);
+  if(!arr.length)return;
+  for(const file of arr){
+   try{const src=await compressNoteImage(file);insertAtRich(imageNode(src),point);point=null;}
+   catch(error){status(error.message||'Falha ao inserir imagem.');}
+  }
+ }
+ function scheduleRichSave(){
+  clearTimeout(generalSaveTimer);
+  const editor=richEditor(),currentRoom=room;
+  if(!editor)return;
+  const value=sanitizeRich(editor.innerHTML);
+  if(value.length>570000){status('Limite de imagens da anotação atingido. Exclua ou reduza uma imagem.');return;}
+  generalSaveTimer=setTimeout(()=>{if(room===currentRoom&&ready)updateGeneralNote({richHtml:value,body:'' ,image:''});},950);
+ }
  function renderList(kind){
   const entry=editing?.kind===kind?state[kind].find(x=>x.id===editing.id)||null:null;
   return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div><button type="button" '+(kind==='npcs'?'data-gm-action="create-npc"':'data-gm-add="'+kind+'"')+'>'+(kind==='npcs'?'Criar NPCs':'+ Adicionar')+'</button></div>'+
@@ -299,7 +394,7 @@ export function mountGmShield(options){
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
   if(btn.dataset.gmAction==='create-npc'){if(window.parent!==window){window.parent.postMessage({type:'nex-campaign-create-homebrew-npc'},location.origin);}else{window.location.assign('./index.html?createNpc=1');}return;}
-  if(btn.dataset.gmAction==='remove-general-image'){updateGeneralNote({image:''});render();return;}
+  if(btn.closest('[data-gm-note-image]')){const wrap=btn.closest('[data-gm-note-image]'),img=wrap.querySelector('img');if(btn.hasAttribute('data-gm-image-remove'))wrap.remove();else if(img){let width=Number(img.dataset.width)||420;width=Math.max(160,Math.min(690,width+(btn.hasAttribute('data-gm-image-larger')?80:-80)));img.dataset.width=String(width);img.style.width=width+'px';}scheduleRichSave();return;}
   if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;tab=btn.dataset.gmTab;filter='';editing=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.dataset.gmEdit){const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
@@ -323,32 +418,43 @@ export function mountGmShield(options){
   }
  });
  root.addEventListener('change',async event=>{
-  if(event.target.matches('[data-gm-general-note]')){clearTimeout(generalSaveTimer);updateGeneralNote({body:event.target.value.slice(0,18000)});return;}
   const fileInput=event.target.closest('[data-gm-note-file], [data-gm-general-file]');
   if(!fileInput||!fileInput.files?.length)return;
+  if(fileInput.matches('[data-gm-general-file]')){await addRichImages(fileInput.files);fileInput.value='';return;}
   const file=fileInput.files[0];
-  if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>12000000){status('Escolha uma imagem JPG, PNG ou WebP de até 12 MB.');return;}
-  const url=URL.createObjectURL(file);
   try{
-   const img=new Image();await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=reject;img.src=url;});
-   const canvas=document.createElement('canvas'),scale=Math.min(1,720/Math.max(img.width,img.height));
-   canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
-   canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-   let encoded='';
-   for(const quality of [.72,.55,.4,.28]){encoded=canvas.toDataURL('image/jpeg',quality);if(encoded.length<=190000)break;}
-   if(encoded.length>190000){status('Imagem muito grande para a anotação. Tente outra menor.');return;}
-   if(fileInput.matches('[data-gm-general-file]')){updateGeneralNote({image:encoded});render();return;}
+   const encoded=await compressNoteImage(file);
    const field=fileInput.closest('form')?.querySelector('[name="image"]');
    if(field){field.value=encoded;field.type='text';field.hidden=true;status('Imagem pronta. Clique em Salvar para guardar a anotação.');}
-  }catch(error){status('Não foi possível processar esta imagem.');}
-  finally{URL.revokeObjectURL(url);}
+  }catch(error){status(error.message||'Não foi possível processar esta imagem.');}
  });
- root.addEventListener('input',event=>{
-  if(event.target.matches('[data-gm-general-note]')){
-   clearTimeout(generalSaveTimer);const value=event.target.value.slice(0,18000),currentRoom=room;
-   generalSaveTimer=setTimeout(()=>{if(room===currentRoom&&ready)updateGeneralNote({body:value});},900);
-   return;
+ root.addEventListener('drop',event=>{
+  const editor=event.target.closest('[data-gm-rich-note]');
+  if(!editor)return;
+  event.preventDefault();editor.classList.remove('drag-over');
+  if(event.dataTransfer?.files?.length){void addRichImages(event.dataTransfer.files,event);return;}
+  if(richDragging?.isConnected&&editor.contains(richDragging)){
+   const block=event.target.closest('.nex-gm-note-image, p, div:not(.nex-gm-rich-editor)');
+   if(block&&block!==richDragging&&editor.contains(block))block.after(richDragging);else editor.appendChild(richDragging);
+   richDragging=null;scheduleRichSave();
   }
+ });
+ root.addEventListener('dragover',event=>{const editor=event.target.closest('[data-gm-rich-note]');if(editor){event.preventDefault();editor.classList.add('drag-over');}});
+ root.addEventListener('dragleave',event=>{if(event.target.matches('[data-gm-rich-note]'))event.target.classList.remove('drag-over');});
+ root.addEventListener('dragstart',event=>{const node=event.target.closest('.nex-gm-note-image');if(node){richDragging=node;event.dataTransfer.effectAllowed='move';event.dataTransfer.setData('text/plain','nex-note-image');}});
+ root.addEventListener('dragend',()=>{richDragging=null;richEditor()?.classList.remove('drag-over');});
+ root.addEventListener('paste',event=>{
+  const editor=event.target.closest('[data-gm-rich-note]');if(!editor)return;
+  const files=[...(event.clipboardData?.items||[])].filter(x=>x.kind==='file'&&x.type.startsWith('image/')).map(x=>x.getAsFile()).filter(Boolean);
+  if(files.length){event.preventDefault();void addRichImages(files);return;}
+  event.preventDefault();const plain=event.clipboardData?.getData('text/plain')||'';
+  document.execCommand('insertText',false,plain);
+  scheduleRichSave();
+ });
+ root.addEventListener('keyup',event=>{if(event.target.closest('[data-gm-rich-note]'))rememberRichRange();});
+ root.addEventListener('mouseup',event=>{if(event.target.closest('[data-gm-rich-note]'))rememberRichRange();});
+ root.addEventListener('input',event=>{
+  if(event.target.closest('[data-gm-rich-note]')){rememberRichRange();scheduleRichSave();return;}
   if(!event.target.matches('[data-gm-search]'))return;
   const el=event.target;
   const at=el.selectionStart;
