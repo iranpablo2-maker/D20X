@@ -202,9 +202,11 @@ export function mountGmShield(options){
  function renderGeneralNotes(){
   const item=generalNote(),legacy=item?.body||'',image=safeImage(item?.image);
   const initial=item?.richHtml?sanitizeRich(item.richHtml):('<p>'+escape(legacy).replace(/\\n/g,'<br>')+'</p>'+(image?'<img src="'+escape(image)+'" data-width="420">':''));
+  const sanitized=sanitizeRich(initial);
+  const editorContent=sanitized.includes('nex-gm-note-image')&&/<\/div>\s*$/.test(sanitized)?sanitized+'<p><br></p>':sanitized;
   return '<div class="nex-gm-general-notes">'+
    '<label class="nex-gm-general-title" for="nexGmRichEditor">Geral</label>'+
-   '<div id="nexGmRichEditor" class="nex-gm-rich-editor" data-gm-rich-note contenteditable="true" role="textbox" aria-label="Anotações da sessão" aria-multiline="true" data-placeholder="Informações gerais ao longo da sessão…">'+sanitizeRich(initial)+'</div>'+
+   '<div id="nexGmRichEditor" class="nex-gm-rich-editor" data-gm-rich-note contenteditable="true" role="textbox" aria-label="Anotações da sessão" aria-multiline="true" data-placeholder="Informações gerais ao longo da sessão…">'+editorContent+'</div>'+
    '<div class="nex-gm-general-tools"><label class="nex-gm-image-upload">Inserir imagem<input type="file" data-gm-general-file accept="image/png,image/jpeg,image/webp" multiple></label><span class="nex-gm-rich-hint">Arraste imagens para dentro do bloco e escreva entre elas. Arraste uma imagem para mudar sua posição.</span></div></div>';
  }
  function updateGeneralNote(fields){
