@@ -272,7 +272,7 @@ export function mountGmShield(options){
  function cards(kind){
   const arr=state[kind]||[];
   const value=filter.toLocaleLowerCase('pt-BR'),matches=arr.filter(x=>!value||(x.title+' '+x.tag+' '+x.body).toLocaleLowerCase('pt-BR').includes(value));
-  if(kind==='npcs'||kind==='threats')return matches.length?'<div class="nex-gm-entity-list">'+matches.map(x=>entityCard(kind,x)).join('')+'</div>':'<p class="room-note">Nenhum registro nesta área.</p>';
+  if(kind==='npcs'||kind==='threats')return matches.length?'<div class="nex-gm-entity-list">'+matches.map(x=>entityCard(kind,x)).join('')+'</div>':'';
   return matches.length?'<div class="nex-gm-cards">'+matches.map(x=>{
    const key=favKey(kind,x.id),favorite=state.favorites.includes(key);
    const image=kind==='secrets'&&safeImage(x.image)?'<img class="nex-gm-secret-image" src="'+escape(safeImage(x.image))+'" alt="Imagem privada associada ao segredo" loading="lazy">':'';
@@ -415,10 +415,10 @@ export function mountGmShield(options){
  function renderList(kind){
   const entry=editing?.kind===kind?state[kind].find(x=>x.id===editing.id)||null:null;
   return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div><button type="button" '+(kind==='npcs'?'data-gm-action="create-npc"':'data-gm-add="'+kind+'"')+'>'+(kind==='npcs'?'Criar NPCs':'+ Adicionar')+'</button></div>'+
-    (kind==='npcs'?homebrewOptions():'')+
+    
     (kind==='threats'?threatsControls():'')+
     (editing?.kind===kind?editor(kind,entry):'')+
-    (kind==='npcs'?'':'<label class="nex-gm-search">Pesquisar nesta área<input type="search" data-gm-search placeholder="Buscar por nome ou descrição" value="'+escape(filter)+'"></label>')+
+    
     cards(kind);
  }
  function renderSessions(){
@@ -451,7 +451,7 @@ export function mountGmShield(options){
   const current=selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes'));
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
-   '<p class="nex-gm-footer">Somente o mestre pode ler e alterar estes dados. NPCs e ameaças são referências privadas; a biblioteca de fichas do NEX continua separada.</p>';
+   '';
  }
  function makeRecord(form,kind){
   const raw=Object.fromEntries(new FormData(form).entries());
