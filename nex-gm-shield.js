@@ -522,13 +522,21 @@ export function mountGmShield(options){
   entry.image=safeImage(npc.image);
   entry.sheet=npcSheet(npc.threatSheet);entry.hasFullSheet=true;
   if(JSON.stringify(state).length>670000){Object.assign(entry,previous);status('Ficha muito grande para a campanha.');window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:'Ficha muito grande',entryId:entry.id},location.origin);return;}
+  // Atualiza a ficha na interface imediatamente, sem esperar a rede.
+  // A confirmação de salvamento continua dependendo do Firebase.
+  render();
   const done=store();
-  if(!done){Object.assign(entry,previous);return;}
+  if(!done){
+   Object.assign(entry,previous);render();
+   window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:'Não foi possível iniciar o salvamento',entryId:entry.id},location.origin);
+   return;
+  }
   done.then(()=>{
    status('Ficha de NPC salva na campanha.');
    window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:true,entryId:entry.id},location.origin);
   }).catch(error=>{
-   Object.assign(entry,previous);status('Erro ao salvar a ficha: '+String(error.message||error));
+   Object.assign(entry,previous);render();
+   status('Erro ao salvar a ficha: '+String(error.message||error));
    window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:String(error.message||error),entryId:entry.id},location.origin);
   });
  });
