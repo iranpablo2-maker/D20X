@@ -1740,6 +1740,10 @@
    reader.onload=()=>{const image=$('nexHbImagePreview');image.src=String(reader.result||'');image.hidden=false;$('nexHbImageUrl').value='';};
    reader.readAsDataURL(file);
  });
+ window.addEventListener('nex:open-homebrew-npc',()=>{
+  tab='npcs';$('nex51Search').value='';closeEditor();renderLibrary();openEditor(null);
+  $('nex52Editor')?.scrollIntoView({block:'start',behavior:'smooth'});
+ });
  $('nex52Add').addEventListener('click',()=>openEditor(null));
  $('nex52CloseEditor').addEventListener('click',closeEditor);
  $('nex52Cancel').addEventListener('click',closeEditor);
