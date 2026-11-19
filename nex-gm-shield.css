@@ -10,7 +10,7 @@
 #roomMasterPanel button:focus-visible,#roomMasterPanel a:focus-visible,#roomMasterPanel input:focus-visible,#roomMasterPanel textarea:focus-visible,#roomMasterPanel select:focus-visible{outline:2px solid #ed6977;outline-offset:2px}
 #roomMasterPanel button.alt{background:#171215;border-color:#563038}
 #roomMasterPanel .nex-gm-danger{color:#ffb9c2!important}
-#roomMasterPanel .nex-gm-tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;min-width:0;margin-bottom:13px}
+#roomMasterPanel .nex-gm-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;min-width:0;margin-bottom:13px}
 #roomMasterPanel .nex-gm-tabs button{background:#1e171c;border:1px solid #4c2c33;min-width:0;padding:12px 5px;font-size:12px;white-space:normal;word-break:normal}
 #roomMasterPanel .nex-gm-tabs button[aria-pressed="true"]{background:#7c2336;border-color:#ed5466;color:#fff}
 #roomMasterPanel .nex-gm-status{min-height:18px;color:#d7aab3;font-size:12px;margin-bottom:10px}
