@@ -338,14 +338,14 @@ async function nexResolvePortrait(x){
  const paired=window.NEX_FEVEREIRO_FORM_IMAGES?.[key]?.normal;
  const uploaded=window.NEX_UPLOADED_THREAT_IMAGES?.[key];
  const finalIndex=window.NEX_FINAL_FOUR_POSITIONS?.[key];
+ if(main)return {url:main};
+ if(paired)return {url:paired};
  if(uploaded&&typeof window.NEX_UPLOADED_THREAT_IMAGE_URL==='function'){
   try{const url=await window.NEX_UPLOADED_THREAT_IMAGE_URL(key);if(url)return {url};}catch(e){}
  }
  if(typeof window.NEX_ARQUIVOS_ZIP_IMAGE_URL==='function'){
   try{const url=await window.NEX_ARQUIVOS_ZIP_IMAGE_URL(key);if(url)return {url};}catch(e){}
  }
- if(paired)return {url:paired};
- if(main)return {url:main};
  if(typeof window.NEX_FEVEREIRO_FORM_IMAGE_URL==='function'){
   try{const url=await window.NEX_FEVEREIRO_FORM_IMAGE_URL(key,'normal');if(url)return {url};}catch(e){}
  }
