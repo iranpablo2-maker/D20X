@@ -113,3 +113,24 @@
   clear:none!important;
 }
 #roomMasterPanel .nex-gm-rich-editor::after{content:"";display:block;clear:both}
+
+/* Escudo do Mestre: apenas uma moldura visual, sem caixas sobrepostas. */
+#room #roomMasterPanel.nex-gm-shield{
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  padding:0!important;
+}
+#roomMasterPanel .nex-gm-content{
+  border:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  padding:0!important;
+}
+#roomMasterPanel .nex-gm-rich-editor{
+  border:1px solid #484149!important;
+  border-radius:5px!important;
+  box-shadow:none!important;
+}
