@@ -10,13 +10,30 @@ export function mountGmShield(options){
  const labels={notes:'Anotações',sessions:'Sessões',npcs:'NPCs',threats:'Ameaças',rules:'Regras',secrets:'Segredos'};
  const icons={notes:'▤ ',npcs:'',threats:''};
  const empty=()=>({notes:[],sessions:[],npcs:[],threats:[],secrets:[],timeline:[],favorites:[],rolls:[]});
- const npcSheet=(raw)=>{
-  if(!raw||typeof raw!=='object')return null;
-  const vals={};
-  for(const k of ['agi','for','int','pre','vig'])vals[k]=Math.max(0,Math.min(6,Number(raw.attributes?.[k])||0));
-  const skills=(Array.isArray(raw.npcSkills)?raw.npcSkills:[]).slice(0,28).map(x=>({name:String(x.name||'').slice(0,50),bonus:Number(x.bonus)||0}));
-  const actions=(Array.isArray(raw.actions)?raw.actions:[]).slice(0,12).map(x=>({name:String(x.name||'').slice(0,90),test:String(x.test||'').slice(0,70),damage:String(x.damage||'').slice(0,70),description:String(x.description||'').slice(0,300)}));
-  return {pv:Math.max(0,Number(raw.pv)||0),defense:Math.max(0,Number(raw.defense)||0),attributes:vals,skills,actions};
+ const npcSkillNames=['Acrobacia','Adestramento','Artes','Atletismo','Atualidades','Ciências','Crime','Diplomacia','Enganação','Fortitude','Furtividade','Iniciativa','Intimidação','Intuição','Investigação','Luta','Medicina','Ocultismo','Percepção','Pilotagem','Pontaria','Profissão','Reflexos','Religião','Sobrevivência','Tática','Tecnologia','Vontade'];
+ const npcAttrNames=[['agi','Agilidade'],['for','Força'],['int','Intelecto'],['pre','Presença'],['vig','Vigor']];
+ const npcSheet=raw=>{
+  if(!raw||typeof raw!=='object')raw={};
+  const num=(value,min,max)=>Math.max(min,Math.min(max,Number(value)||0));
+  const trim=(value,len)=>String(value??'').slice(0,len);
+  const attributes={};
+  for(const [k] of npcAttrNames)attributes[k]=num(raw.attributes?.[k],0,6);
+  const npcSkills=(Array.isArray(raw.npcSkills)?raw.npcSkills:raw.skills||[]).slice(0,28).filter(x=>x&&typeof x==='object').map(x=>({name:trim(x.name,60),bonus:num(x.bonus,-99,99)})).filter(x=>npcSkillNames.includes(x.name));
+  const actions=(Array.isArray(raw.actions)?raw.actions:[]).slice(0,30).filter(x=>x&&typeof x==='object').map(x=>({
+   name:trim(x.name,90),kind:x.kind==='attack'?'attack':'ability',action:trim(x.action||'Padrão',60),
+   test:trim(x.test,80),testSkill:trim(x.testSkill,60),damage:trim(x.damage,80),
+   secondaryDamage:trim(x.secondaryDamage,80),secondaryType:trim(x.secondaryType,40),
+   subtitle:trim(x.subtitle,90),critical:trim(x.critical||'20',8),
+   damageType:trim(x.damageType,40),range:trim(x.range,70),
+   effect:trim(x.effect||x.description,1300)
+  }));
+  const rituals=(Array.isArray(raw.rituals)?raw.rituals:[]).slice(0,40).filter(x=>x&&typeof x==='object').map(x=>({
+   name:trim(x.name,100),element:trim(x.element,40),circle:num(x.circle,1,4)||1,
+   source:trim(x.source,110),description:trim(x.description,1300)
+  }));
+  return {pv:num(raw.pv,0,99999),defense:num(raw.defense,0,99999),
+   deslocamento:trim(raw.deslocamento,90),attributes,npcSkills,actions,rituals,
+   notas:trim(raw.notas,4000),habilidades:trim(raw.habilidades,4000)};
  };
  const listKinds=['notes','sessions','npcs','threats','secrets','timeline'];
  const schema={
@@ -51,7 +68,7 @@ export function mountGmShield(options){
    id:String(x.id||id()).slice(0,70),title:String(x.title||'').slice(0,110),
    tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,key==='notes'?18000:4000),richHtml:key==='notes'?String(x.richHtml||'').slice(0,590000):'',
    date:String(x.date||'').slice(0,80),status:String(x.status||'').slice(0,50),
-   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),revealed:!!x.revealed
+   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),hasFullSheet:!!x.hasFullSheet,revealed:!!x.revealed
   })):[]; 
   result.favorites=Array.isArray(raw.favorites)?raw.favorites.slice(0,120).map(x=>String(x).slice(0,130)):[];
   result.rolls=Array.isArray(raw.rolls)?raw.rolls.slice(0,30).filter(x=>x&&typeof x==='object').map(x=>({expression:String(x.expression||'').slice(0,60),result:String(x.result||'').slice(0,220),at:String(x.at||'').slice(0,30)})):[];
@@ -382,7 +399,7 @@ export function mountGmShield(options){
   readHomebrews();const key=$('[data-gm-homebrew]')?.value;
   const x=homebrew.find(y=>String(y.id)===String(key));if(!x){status('Escolha um NPC da biblioteca.');return;}
   if(state.npcs.some(n=>n.sourceId===String(x.id))){status('Este NPC já está na campanha.');return;}
-  const record={id:id(),title:String(x.name).slice(0,110),tag:'Homebrew',body:String(x.description||x.threatSheet?.notas||'NPC criado na biblioteca Homebrew').slice(0,4000),sourceId:String(x.id),sheet:npcSheet(x.threatSheet),date:'',status:'',image:''};
+  const record={id:id(),title:String(x.name).slice(0,110),tag:'Homebrew',body:String(x.description||x.threatSheet?.notas||'NPC criado na biblioteca Homebrew').slice(0,4000),sourceId:String(x.id),sheet:npcSheet(x.threatSheet),hasFullSheet:true,date:'',status:'',image:safeImage(x.image)};
   state.npcs.unshift(record);store();render();
  }
  function addThreatInfo(record){
