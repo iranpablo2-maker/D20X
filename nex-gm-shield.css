@@ -82,7 +82,7 @@
 /* Campo Geral das Anotações, no formato de bloco grande. */
 .nex-gm-general-notes{width:100%;display:flex;flex-direction:column;gap:8px}
 .nex-gm-general-title{font-weight:700;font-size:13px;color:#f4f4f4}
-.nex-gm-general-notes textarea{display:block;box-sizing:border-box;width:100%;min-height:370px;height:min(52vh,580px);padding:11px 9px;resize:vertical;background:#1e1e1e;border:1px solid #424242;border-radius:4px;color:#eee;font:14px/1.55 inherit;line-height:1.55;outline-offset:2px}
+.nex-gm-general-notes textarea{display:block;box-sizing:border-box;width:100%;min-height:370px;height:min(52vh,580px);padding:11px 9px;resize:vertical;background:#1e1e1e;border:1px solid #424242;border-radius:4px;color:#eee;font-size:14px;line-height:1.55;font-family:inherit;outline-offset:2px}
 .nex-gm-general-notes textarea::placeholder{color:#858585}
 .nex-gm-general-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .nex-gm-image-upload{display:inline-flex;align-items:center;position:relative;padding:8px 12px;border:1px solid #454545;border-radius:5px;cursor:pointer}
