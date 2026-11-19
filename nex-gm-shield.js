@@ -10,6 +10,14 @@ export function mountGmShield(options){
  const labels={notes:'Anotações',sessions:'Sessões',npcs:'NPCs',threats:'Ameaças',rules:'Regras',secrets:'Segredos'};
  const icons={notes:'▤',sessions:'▦',npcs:'♟',threats:'◈',rules:'☷',secrets:'◇'};
  const empty=()=>({notes:[],sessions:[],npcs:[],threats:[],secrets:[],timeline:[],favorites:[],rolls:[]});
+ const npcSheet=(raw)=>{
+  if(!raw||typeof raw!=='object')return null;
+  const vals={};
+  for(const k of ['agi','for','int','pre','vig'])vals[k]=Math.max(0,Math.min(6,Number(raw.attributes?.[k])||0));
+  const skills=(Array.isArray(raw.npcSkills)?raw.npcSkills:[]).slice(0,28).map(x=>({name:String(x.name||'').slice(0,50),bonus:Number(x.bonus)||0}));
+  const actions=(Array.isArray(raw.actions)?raw.actions:[]).slice(0,12).map(x=>({name:String(x.name||'').slice(0,90),test:String(x.test||'').slice(0,70),damage:String(x.damage||'').slice(0,70),description:String(x.description||'').slice(0,300)}));
+  return {pv:Math.max(0,Number(raw.pv)||0),defense:Math.max(0,Number(raw.defense)||0),attributes:vals,skills,actions};
+ };
  const listKinds=['notes','sessions','npcs','threats','secrets','timeline'];
  const schema={
   notes:[['title','Título','text'],['tag','Categoria','text'],['body','Anotação','textarea']],
@@ -34,7 +42,7 @@ export function mountGmShield(options){
  const givenNames=['Aline','Caio','Clara','Davi','Elisa','Emanuel','Helena','Ícaro','Júlia','Lívia','Mauro','Noemi','Otávio','Rafaela','Sofia','Tiago','Valentina','Yuri'];
  const familyNames=['Alencar','Barros','Carvalho','Duarte','Ferraz','Lacerda','Menezes','Monteiro','Nogueira','Pereira','Ramos','Sampaio','Silveira','Tavares'];
  let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
- let homebrew=[],threatCatalog=[],nameSuggestion='',diceMessage='',saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0;
+ let homebrew=[],threatCatalog=[],nameSuggestion='',diceMessage='',saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
  const id=()=>typeof crypto.randomUUID==='function'?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
  const attr=(name,value)=>' '+name+'="'+escape(value)+'"';
  function dataSafe(raw){
@@ -44,7 +52,7 @@ export function mountGmShield(options){
    id:String(x.id||id()).slice(0,70),title:String(x.title||'').slice(0,110),
    tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,4000),
    date:String(x.date||'').slice(0,80),status:String(x.status||'').slice(0,50),
-   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),revealed:!!x.revealed
+   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),revealed:!!x.revealed
   })):[]; 
   result.favorites=Array.isArray(raw.favorites)?raw.favorites.slice(0,120).map(x=>String(x).slice(0,130)):[];
   result.rolls=Array.isArray(raw.rolls)?raw.rolls.slice(0,30).filter(x=>x&&typeof x==='object').map(x=>({expression:String(x.expression||'').slice(0,60),result:String(x.result||'').slice(0,220),at:String(x.at||'').slice(0,30)})):[];
@@ -69,7 +77,7 @@ export function mountGmShield(options){
  }
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
-  room='';ready=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';
+  room='';ready=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
   root.replaceChildren();
  }
  function open(){
@@ -122,6 +130,16 @@ export function mountGmShield(options){
    '<input name="'+key+'" type="'+type+'" maxlength="'+(key==='image'?480:150)+'" '+(key==='title'?'required ':'')+'value="'+escape(entry?.[key]||'')+'"'+(kind==='threats'&&key==='title'?' list="nexGmThreatNames"':'')+'>')+'</label>').join('')+
    '<div class="nex-gm-row"><button type="submit">Salvar</button><button type="button" class="alt" data-gm-action="cancel">Cancelar</button></div></form>';
  }
+ function npcPreview(sheet){
+  if(!sheet)return '';
+  const attr=sheet.attributes||{};
+  const attrs=[['AGI','agi'],['FOR','for'],['INT','int'],['PRE','pre'],['VIG','vig']].map(([name,key])=>name+' '+(Number(attr[key])||0)).join(' · ');
+  const skills=(sheet.skills||[]).map(x=>escape(x.name)+' '+(Number(x.bonus)>=0?'+':'')+escape(x.bonus)).join(' · ');
+  const actions=(sheet.actions||[]).map(x=>'<li><b>'+escape(x.name)+'</b> · '+escape(x.test||'')+' · '+escape(x.damage||'')+(x.description?' · '+escape(x.description):'')+'</li>').join('');
+  return '<details class="nex-gm-npc-sheet"><summary>Ver ficha do NPC</summary><p>PV '+escape(sheet.pv)+' · Defesa '+escape(sheet.defense)+'</p>'+
+   '<p>'+escape(attrs)+'</p>'+(skills?'<p><b>Perícias:</b> '+skills+'</p>':'')+
+   (actions?'<ul>'+actions+'</ul>':'')+'</details>';
+ }
  function cards(kind){
   const arr=state[kind]||[];
   const value=filter.toLocaleLowerCase('pt-BR'),matches=arr.filter(x=>!value||(x.title+' '+x.tag+' '+x.body).toLocaleLowerCase('pt-BR').includes(value));
@@ -133,10 +151,11 @@ export function mountGmShield(options){
     (x.date?'<small>'+escape(x.date)+'</small>':'')+(x.status?'<small>'+escape(x.status)+'</small>':'')+
     (x.tag?'<small>'+escape(x.tag)+'</small>':'')+
     '<p>'+escape(x.body||'Sem descrição.')+'</p>'+image+
-    (kind==='npcs'&&x.sourceId?'<small>Vinculado a NPC Homebrew · '+escape(x.sourceId)+'</small>':'')+
+    (kind==='npcs'&&x.sourceId?'<small>NPC importado da biblioteca Homebrew</small>':'')+
+    (kind==='npcs'?npcPreview(x.sheet):'')+
     (kind==='secrets'&&x.revealed?'<small class="nex-gm-revealed">Marcado como revelado</small>':'')+
     '<div class="nex-gm-row"><button type="button" class="alt" data-gm-edit="'+kind+':'+escape(x.id)+'">Editar</button>'+
-    (kind==='secrets'?'<button type="button" class="alt" data-gm-reveal="'+escape(x.id)+'">Revelar no chat</button>':'')+
+    (kind==='secrets'?'<button type="button" class="alt" data-gm-copy="'+escape(x.id)+'">Copiar segredo</button><button type="button" class="alt" data-gm-reveal="'+escape(x.id)+'">Revelar no chat</button>':'')+
     '<button type="button" class="alt nex-gm-danger" data-gm-delete="'+kind+':'+escape(x.id)+'">Excluir</button></div></article>';
   }).join('')+'</div>':'<p class="room-note">Nenhum registro nesta área.</p>';
  }
@@ -229,7 +248,7 @@ export function mountGmShield(options){
   readHomebrews();const key=$('[data-gm-homebrew]')?.value;
   const x=homebrew.find(y=>String(y.id)===String(key));if(!x){status('Escolha um NPC da biblioteca.');return;}
   if(state.npcs.some(n=>n.sourceId===String(x.id))){status('Este NPC já está na campanha.');return;}
-  const record={id:id(),title:String(x.name).slice(0,110),tag:'Homebrew',body:String(x.description||x.threatSheet?.notas||'NPC criado na biblioteca Homebrew').slice(0,4000),sourceId:String(x.id),date:'',status:'',image:''};
+  const record={id:id(),title:String(x.name).slice(0,110),tag:'Homebrew',body:String(x.description||x.threatSheet?.notas||'NPC criado na biblioteca Homebrew').slice(0,4000),sourceId:String(x.id),sheet:npcSheet(x.threatSheet),date:'',status:'',image:''};
   state.npcs.unshift(record);store();render();
  }
  function addThreatInfo(record){
@@ -258,10 +277,19 @@ export function mountGmShield(options){
   if(!message.trim()){status('O segredo não possui texto para revelar.');return;}
   const ctx=getContext();
   const success=options.revealToChat?.(message,ctx.roomId);
-  if(!success){status('Inicie o Tabletop antes de revelar no chat. Você pode copiar o segredo manualmente.');return;}
-  secret.revealed=true;store();render();
-  status('Revelação enviada ao chat da sessão; confira o recebimento na mesa.');
+  if(!success){status('Inicie o Tabletop antes de revelar no chat, ou use Copiar segredo.');return;}
+  pendingReveal={roomId:ctx.roomId,id:key};
+  status('Enviando revelação para o chat…');
  }
+ window.addEventListener('nex:vtt-chat-send-result',event=>{
+  if(!pendingReveal||!room||event.detail?.campaignId!==pendingReveal.roomId)return;
+  const request=pendingReveal;pendingReveal=null;
+  if(event.detail?.ok){
+   const secret=state.secrets.find(x=>x.id===request.id);
+   if(secret){secret.revealed=true;store();render();}
+   status('Revelação confirmada no chat da sessão.');
+  }else status('A revelação não foi enviada. Você pode copiar o segredo e tentar novamente.');
+ });
  root.addEventListener('submit',event=>{
   const form=event.target.closest('[data-gm-form],[data-gm-dice]');if(!form)return;
   event.preventDefault();
@@ -287,6 +315,14 @@ export function mountGmShield(options){
   if(btn.dataset.gmDelete){const p=btn.dataset.gmDelete.indexOf(':'),kind=btn.dataset.gmDelete.slice(0,p),key=btn.dataset.gmDelete.slice(p+1);deleteRecord(kind,key);return;}
   if(btn.dataset.gmFav){const p=btn.dataset.gmFav.indexOf(':'),kind=btn.dataset.gmFav.slice(0,p),key=btn.dataset.gmFav.slice(p+1);toggleFavorite(kind,key);return;}
   if(btn.dataset.gmReveal){reveal(btn.dataset.gmReveal);return;}
+  if(btn.dataset.gmCopy){
+   const secret=state.secrets.find(x=>x.id===btn.dataset.gmCopy);
+   if(!secret)return;
+   const text=secret.title+'\n'+secret.body+(secret.image?'\n'+secret.image:'');
+   if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>status('Segredo copiado.')).catch(()=>status('Não foi possível copiar. Selecione e copie o texto da descrição.'));
+   else status('Cópia indisponível neste navegador.');
+   return;
+  }
   switch(btn.dataset.gmAction){
    case 'cancel':editing=null;render();break;
    case 'import-npc':importNpc();break;
