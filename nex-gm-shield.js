@@ -456,7 +456,7 @@ export function mountGmShield(options){
 
  // Dados exclusivos da visualização mini do NPC no Escudo do Mestre.
 
- const gmNpcD20Icon='<svg class="nex-gm-npc-d20-icon" viewBox="0 0 36 36" width="20" height="20" role="img" aria-label="d20" xmlns="http://www.w3.org/2000/svg"><path d="M18 2 33 12v13L18 34 3 25V12Z" fill="#28151e" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M18 2 10 14l8 17 8-17L18 2ZM3 12l7 2 8 17L3 25M33 12l-7 2-8 17 15-6M10 14h16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/><text x="18" y="21" font-size="11" font-weight="800" fill="currentColor" stroke="#28151e" stroke-width="2.5" paint-order="stroke" text-anchor="middle">20</text></svg>';
+ const gmNpcD20Icon='<img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=1" alt="d20">';
  function gmNpcDiceExpression(value){
   const text=String(value||'').trim();
   const match=text.match(/(^|[^\w])(\d{1,2})\s*d\s*(100|20|12|10|8|6|4)\s*([+-]\s*\d{1,3})?/i);
@@ -471,27 +471,21 @@ export function mountGmShield(options){
   return '<button type="button" class="nex-gm-npc-roll"'+pool+' data-gm-npc-dice="'+escape(expression)+'" data-gm-npc-dice-label="'+escape(label)+'" aria-label="Rolar '+escape(label)+'" title="Rolar '+escape(expression)+'">'+gmNpcD20Icon+'<span>'+escape(label)+'</span></button>';
  }
  function gmNpcRollResult(btn){
-  const card=btn.closest('.nex-gm-npc-view-card');
-  if(!card)return;
-  const output=card.querySelector('[data-gm-npc-dice-result]');
+  const ui=window.NEX_DICE_UI;
+  if(!ui){console.warn('NEX: sistema de rolagem ainda não carregado');return;}
   const skill=btn.hasAttribute('data-gm-npc-skill-attr');
-  const item=selectedSheet?.kind==='npcs'?state.npcs.find(x=>x.id===selectedSheet.id):null;
-  const attributes=item?npcSheet(item.sheet).attributes:{};
+  const npc=selectedSheet?.kind==='npcs'?state.npcs.find(x=>x.id===selectedSheet.id):null;
+  if(!npc)return;
   const key=btn.dataset.gmNpcSkillAttr;
-  const attr=skill?Math.max(0,Math.min(6,Math.trunc(Number(attributes[key])||0))):0;
+  const attrs=npcSheet(npc.sheet).attributes;
+  const attr=skill?Math.max(0,Math.min(6,Math.trunc(Number(attrs[key])||0))):0;
   const bonus=skill?Math.trunc(Number(btn.dataset.gmNpcSkillBonus)||0):0;
-  const parsed=skill?{count:attr||2,sides:20,bonus}:gmNpcDiceExpression(btn.dataset.gmNpcDice);
-  if(!parsed){if(output){output.textContent='Expressão de dados inválida.';output.hidden=false;}return;}
-  const dice=Array.from({length:parsed.count},()=>Math.floor(Math.random()*parsed.sides)+1);
-  const pool=skill||btn.dataset.gmNpcPool==='high';
-  const chosen=pool?(skill&&attr===0?Math.min(...dice):Math.max(...dice)):dice.reduce((sum,v)=>sum+v,0);
-  const total=chosen+parsed.bonus;
-  if(output){
-   const label=btn.dataset.gmNpcDiceLabel||(skill?'Perícia':'Rolagem');
-   output.textContent=label+': '+total+' | '+parsed.count+'d'+parsed.sides+(parsed.bonus>=0?'+':'')+parsed.bonus+' | Dados: '+dice.join(', ')+(pool?' | Selecionado: '+chosen:'');
-   output.hidden=false;
-   output.setAttribute('role','status');
-  }
+  const expression=skill?null:btn.dataset.gmNpcDice;
+  const parsed=skill?{count:attr||2,sides:20,bonus}:ui.parse(expression);
+  if(!parsed)return;
+  const label=btn.dataset.gmNpcDiceLabel||btn.getAttribute('aria-label')||'Rolagem';
+  const isPool=skill||btn.dataset.gmNpcPool==='high';
+  ui.roll({title:label,expression,count:parsed.count,sides:parsed.sides,bonus:parsed.bonus,pool:isPool,low:skill&&attr===0,detail:skill?'Atributo '+key.toUpperCase()+' '+attr:''});
  }
  function npcCampaignView(x){
   const t=npcSheet(x.sheet),pic=safeImage(x.image),attrs=[['agi','AGI'],['for','FOR'],['int','INT'],['pre','PRE'],['vig','VIG']];
