@@ -40,6 +40,15 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 @media(max-width:620px){.portrait-switch{flex-basis:96px}.form-switch{font-size:10px;padding:7px 4px}.shell{padding:12px 9px 36px}.hero{padding:12px;gap:11px;min-height:122px}.portrait{flex-basis:96px;height:96px;font-size:40px}.hero h1{font-size:19px}.page{padding:16px 12px}.hp{margin:12px 12px 5px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tabs{gap:2px}.tabs button{padding:10px 8px}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
  .hp-track{height:9px;background:#512630;border-radius:8px;margin:0 20px;overflow:hidden}
 .hp-fill{height:100%;width:100%;background:#e1455d;transition:width .25s}
+.hp .nex-threat-hp-edit{width:100%;height:100%;display:flex;justify-content:center;align-items:center;gap:8px;border:0;border-radius:7px;color:white;background:transparent;cursor:pointer;font:inherit;padding:0 10px}
+.hp .nex-threat-hp-edit:hover,.hp .nex-threat-hp-edit:focus-visible{background:rgba(255,255,255,.13);outline-offset:2px}
+.hp .nex-threat-hp-edit strong{flex:0 0 auto;font-size:17px}
+.nex-threat-hp-pencil{font-size:15px;opacity:.7}
+.nex-threat-hp-editor{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin:10px 20px 12px;padding:10px;background:#22151c;border:1px solid #723749;border-radius:8px}
+.nex-threat-hp-editor[hidden]{display:none}
+.nex-threat-hp-editor label{display:grid;gap:5px;flex:1 1 105px;color:#e5c9d0;font-size:12px}
+.nex-threat-hp-editor input{width:100%;min-width:0;padding:8px;background:#120e11;color:white;border:1px solid #854253;border-radius:5px}
+.nex-threat-hp-editor button{padding:8px 10px;border-radius:5px;background:#863143;border:1px solid #b65365;color:white;cursor:pointer}
 .hp-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 20px}
 .hp-controls input{width:96px;border:1px solid #874657;background:#160d13;color:white;border-radius:6px;padding:7px}
 .hp-controls button,.dice-button{border:1px solid #9f4050;background:#752a38;color:white;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12px}
@@ -143,8 +152,13 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <nav class="threat-sheet-brand"><span class="brand">N E X</span></nav>
 <div class="card" id="screen" hidden>
 <header class="hero" id="hero"><div class="portrait-switch"><div class="portrait" id="portrait" aria-label="Retrato"></div><button id="formSwitch" class="form-switch" type="button" hidden aria-label="Mostrar outra forma">Mostrar outra ficha</button></div><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div></div></header>
-<div class="hp" id="hpBar" hidden><strong id="hpLabel"></strong></div>
-<div class="hp-track" id="hpTrack" hidden><div class="hp-fill" id="hpFill"></div></div>
+<div class="hp" id="hpBar" hidden><button type="button" id="hpEditButton" class="nex-threat-hp-edit" title="Editar pontos de vida" aria-label="Editar pontos de vida"><strong id="hpLabel"></strong><span class="nex-threat-hp-pencil" aria-hidden="true">✎</span></button></div>
+<div class="hp-track" id="hpTrack" hidden role="progressbar" aria-label="Pontos de vida restantes" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="hp-fill" id="hpFill"></div></div>
+<form id="hpEditor" class="nex-threat-hp-editor" hidden>
+ <label>PV atuais<input id="hpCurrentInput" type="number" min="0" step="1" inputmode="numeric" required></label>
+ <label>PV máximos<input id="hpMaxInput" type="number" min="1" step="1" inputmode="numeric" required></label>
+ <button type="submit">Salvar</button><button type="button" id="hpCancelButton">Cancelar</button>
+</form>
 <div class="tabs" role="tablist" aria-label="Seções da ficha">
 <button type="button" data-tab="status" aria-selected="true">Status</button><button type="button" data-tab="combat" aria-selected="false">Combate</button><button type="button" data-tab="description" aria-selected="false">Descrição</button>
 </div>
@@ -639,13 +653,63 @@ function explainThreatAbility(ability,threatData){
  '<p class="lines">'+esc(descriptionText)+'</p>'+
  (profile.length?'<h2>Características e comportamento em jogo</h2><p class="lines">'+esc(profile.join("\n\n"))+'</p>':"")+
  '';
- const visiblePV=Number(d.pv);
- $("hpBar").hidden=!(Number.isFinite(visiblePV)&&visiblePV>0);
- $("hpTrack").hidden=!(Number.isFinite(visiblePV)&&visiblePV>0);
- if(!$("hpBar").hidden){$("hpLabel").textContent=visiblePV+" PV";$("hpFill").style.width="100%";}
+ updateThreatHP(d.pv);
 
  activate(activeTab);
 }
+const NEX_THREAT_HP_STORAGE='nex_threat_hp_v1:';
+let hpState=null;
+function hpStorageKey(){
+ const id=baseThreat?threatKey(baseThreat):'';
+ return NEX_THREAT_HP_STORAGE+encodeURIComponent(id)+(currentForm==='alternativa'?':alternativa':':normal');
+}
+function updateThreatHP(baseMaximum){
+ const maxFromBook=Number(baseMaximum);
+ const available=Number.isFinite(maxFromBook)&&maxFromBook>0;
+ $("hpBar").hidden=!available;
+ $("hpTrack").hidden=!available;
+ if(!available){$("hpEditor").hidden=true;hpState=null;return;}
+ let restored=null;
+ try{restored=JSON.parse(localStorage.getItem(hpStorageKey())||'null');}catch(error){}
+ const max=Number.isSafeInteger(restored?.max)&&restored.max>=1?restored.max:Math.trunc(maxFromBook);
+ const current=Number.isSafeInteger(restored?.current)?Math.max(0,Math.min(max,restored.current)):max;
+ hpState={current,max};
+ refreshThreatHP();
+ $("hpEditor").hidden=true;
+}
+function refreshThreatHP(){
+ if(!hpState)return;
+ const {current,max}=hpState;
+ $("hpLabel").textContent=current+' / '+max+' PV';
+ $("hpFill").style.width=(100*current/max)+'%';
+ $("hpTrack").setAttribute('aria-valuemax',String(max));
+ $("hpTrack").setAttribute('aria-valuenow',String(current));
+ $("hpEditButton").setAttribute('aria-label','Editar pontos de vida: '+current+' de '+max);
+}
+$("hpEditButton").addEventListener('click',()=>{
+ if(!hpState)return;
+ $("hpCurrentInput").value=hpState.current;
+ $("hpMaxInput").value=hpState.max;
+ $("hpEditor").hidden=false;
+ $("hpCurrentInput").focus();
+ $("hpCurrentInput").select();
+});
+$("hpCancelButton").addEventListener('click',()=>{$("hpEditor").hidden=true;});
+$("hpEditor").addEventListener('submit',event=>{
+ event.preventDefault();
+ const current=Number($("hpCurrentInput").value),max=Number($("hpMaxInput").value);
+ if(!Number.isSafeInteger(current)||!Number.isSafeInteger(max)||current<0||max<1||max>1000000||current>max){
+  $("hpCurrentInput").setCustomValidity('Informe um valor entre 0 e o PV máximo.');
+  $("hpCurrentInput").reportValidity();
+  return;
+ }
+ $("hpCurrentInput").setCustomValidity('');
+ hpState={current,max};
+ try{localStorage.setItem(hpStorageKey(),JSON.stringify(hpState));}catch(error){console.warn('NEX: PV não persistiram neste navegador',error);}
+ refreshThreatHP();
+ $("hpEditor").hidden=true;
+});
+$("hpCurrentInput").addEventListener('input',()=>{$("hpCurrentInput").setCustomValidity('');});
 $("formSwitch").addEventListener("click",switchThreatForm);
 document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b)activate(b.dataset.tab)});
 
