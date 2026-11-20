@@ -1471,10 +1471,13 @@
  }
  let campaignNpcContext=null,campaignThreatContext=null;
  function closeEditor(){
+  const wasCampaign=!!(campaignNpcContext||campaignThreatContext);
   campaignNpcContext=null;campaignThreatContext=null;
   $('nex52Save').disabled=false;
   $('nex52Save').textContent='Salvar';
   $('nex52Editor').hidden=true;resetForm();
+  // Cancelar ou fechar só fecha a ficha; a tela da campanha permanece intacta.
+  if(wasCampaign)window.dispatchEvent(new CustomEvent('nex:campaign-homebrew-editor-closed'));
  }
  function openEditor(item){
    resetForm();
