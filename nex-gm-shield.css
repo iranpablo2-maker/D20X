@@ -545,3 +545,9 @@
  font-size:21px!important;line-height:1.1!important;
  font-family:Georgia,serif!important;
 }
+
+/* Dado da referência enviada: desenho branco sobre o fundo preto do NEX. */
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-roll .nex-dice20-icon{
+ display:block!important;width:29px!important;height:29px!important;min-width:29px!important;max-width:29px!important;object-fit:contain!important;flex:0 0 29px!important;pointer-events:none!important;
+}
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-roll{gap:4px!important;align-items:center!important}
