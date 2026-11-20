@@ -2823,6 +2823,16 @@ import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmai
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
 const show=(id,on)=>$(id).classList.toggle('hide',!on);
+// Session navigation is scoped to the logged-in account and browser tab.
+const NEX_NAV_KEY='nex_campaign_navigation_v1';
+let nexNavRestoring=false, nexPendingTabletopRestore='';
+function nexReadNavigation(){
+ try{return JSON.parse(sessionStorage.getItem(NEX_NAV_KEY)||'null');}catch(error){return null;}
+}
+function nexSaveNavigation(campaignId,section){
+ if(nexNavRestoring||!uid)return;
+ try{sessionStorage.setItem(NEX_NAV_KEY,JSON.stringify({uid,campaignId:campaignId||'',section:section||'characters'}));}catch(error){}
+}
 const notice=msg=>$('notice').textContent=msg||'';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const cfg=window.NEX_FIREBASE_CONFIG;
@@ -3240,6 +3250,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('campaignLibrary',mode==='list');
   $('campaignCreateScreen').hidden=mode!=='create';
   if(!inRoom)show('room',false);
+  if(mode==='list'||mode==='create')nexSaveNavigation('',mode);
   if(window.parent!==window){
    try{window.parent.postMessage({type:'nex-campaign-view',mode},location.origin);}catch(error){}
   }
@@ -3341,12 +3352,30 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
  onAuthStateChanged(auth,user=>{
   if(inviteUnsub){inviteUnsub();inviteUnsub=null;}
+  const saved=nexReadNavigation();
+  nexNavRestoring=true;
   clearRoom();uid=user?.uid||null;
   show('authPanel',!uid);show('dashboard',!!uid);
   libraryMode('list');
   subscribeCampaigns();
   show('joinInvite',!!uid&&!!inviteId);
   if(uid&&inviteId)watchCampaignInvite();
+  if(uid&&saved?.uid===uid&&saved.campaignId&&!inviteId){
+    const campaign=saved.campaignId;
+    const section=saved.section||'characters';
+    void enterRoom(campaign).then(()=>{
+      if(roomId!==campaign)return;
+      nexNavRestoring=false;
+      if(section==='tabletop'&&!gm&&!vttHostActive)nexPendingTabletopRestore=campaign;
+      else roomSection(section);
+    }).catch(error=>{
+      console.warn('NEX: campanha anterior indisponível',error);
+      libraryMode('list');
+    }).finally(()=>{nexNavRestoring=false;});
+  }else{
+    nexNavRestoring=false;
+    if(!uid)try{sessionStorage.removeItem(NEX_NAV_KEY);}catch(error){}
+  }
  });
  $('authForm').addEventListener('submit',e=>{e.preventDefault();run(async()=>{await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);});});
  $('register').addEventListener('click',()=>run(async()=>{await createUserWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);}));
@@ -3406,6 +3435,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(!event.detail||event.detail.campaignId!==roomId||gm)return;
   vttHostActive=event.detail.active===true;
   updateTabletopAccess();
+  if(vttHostActive&&nexPendingTabletopRestore===roomId){
+    nexPendingTabletopRestore='';
+    roomSection('tabletop');
+  }
   if(!vttHostActive&&!$('roomTabletopPanel').classList.contains('hide'))roomSection('characters');
  });
  // Escudo em sobreposição: nunca chamar roomSection('master') a partir do Tabletop.
@@ -3462,6 +3495,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }
   if(section==='tabletop')vttUnavailable.hidden=true;
   document.querySelectorAll('[data-room-section]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.roomSection===section)));
+  nexSaveNavigation(roomId,section);
   show('roomCharactersPanel',section==='characters');
   show('roomTabletopPanel',section==='tabletop');
   window.dispatchEvent(new CustomEvent('nex:vtt-view',{detail:{campaignId:roomId,open:section==='tabletop'}}));
