@@ -6357,16 +6357,43 @@ body > #nexVttSheetClose[hidden]{display:none!important}
   const frame=document.getElementById('nexCampaignRoomFrame');
   const area=document.getElementById('campaignPanel');
   if(!frame||!area)return;
-  let loaded=false;
+  let loaded=false, campaignUiReady=false;
+  const campaignRecovery=document.createElement('div');
+  campaignRecovery.id='nexCampaignRecovery';
+  campaignRecovery.hidden=true;
+  campaignRecovery.style.cssText='padding:16px;background:#171116;border:1px solid #73323f;border-radius:8px;color:#f5e8e9;margin:10px 0;font:13px system-ui,sans-serif';
+  campaignRecovery.innerHTML='<strong>As campanhas não terminaram de carregar.</strong> <button type="button" style="margin-left:10px;background:#802c3d;color:white;border:1px solid #b84d60;border-radius:6px;padding:7px 12px;cursor:pointer">Tentar carregar novamente</button>';
+  area.querySelector('.nex-campaign-integrated')?.append(campaignRecovery);
+  campaignRecovery.querySelector('button')?.addEventListener('click',()=>{
+    campaignUiReady=false;campaignRecovery.hidden=true;
+    const url=new URL(frame.src||frame.dataset.src,location.href);
+    url.searchParams.set('f5Retry',String(Date.now()));
+    frame.src=url.href;
+    scheduleCampaignReadinessCheck();
+  });
+  function scheduleCampaignReadinessCheck(){
+    setTimeout(()=>{
+      if(campaignUiReady||area.classList.contains('hide'))return;
+      campaignRecovery.hidden=false;
+    },12000);
+  }
+  window.addEventListener('message',event=>{
+    if(event.origin!==location.origin||event.source!==frame.contentWindow)return;
+    if(event.data?.type==='nex-campaign-ui-ready'){
+      campaignUiReady=true;campaignRecovery.hidden=true;
+      if(event.data.error)campaignRecovery.hidden=false;
+    }
+  });
   function loadWhenVisible(){
     if(loaded)return;
     loaded=true;
     const link=new URL(frame.dataset.src,location.href);
     const invite=new URLSearchParams(location.search).get('campaignInvite');
     if(invite&&/^[A-Za-z0-9-]{8,40}$/.test(invite))link.searchParams.set('invite',invite);
-    // Uma versão nova deve ser buscada, sem reutilizar a tela antiga guardada pelo navegador.
-    link.searchParams.set('cacheVersion','20261118returnfichas1');
+    // Atualizar a versão do iframe evita manter o código anterior após F5.
+    link.searchParams.set('cacheVersion','20261120f5restore1');
     frame.src=link.href;
+    scheduleCampaignReadinessCheck();
   }
   if(new URLSearchParams(location.search).has('campaignInvite')){
     window.addEventListener('load',()=>{if(window.NEX17?.openCampaigns)window.NEX17.openCampaigns();else{area.classList.remove('hide');loadWhenVisible();}});
