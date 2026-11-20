@@ -122,14 +122,24 @@
   e.preventDefault();
   const label=button.dataset.nexRollTitle||'Rolagem';
   const options={title:label,expression:button.dataset.nexRollExpression,pool:button.dataset.nexRollPool==='true'?true:button.dataset.nexRollPool==='false'?false:undefined,low:button.dataset.nexRollLow==='true',critical:button.dataset.nexRollCritical||''};
-  // A biblioteca de Ameaças é um iframe dentro de outro iframe. Exibir o
-  // resultado na página principal evita que a rolagem fique fora da viewport.
-  let librarySheet=false;
-  try{librarySheet=window.parent!==window&&window.frameElement?.id==='threatDetailFrame'&&/\/ameacas\.html$/i.test(window.parent.location.pathname);}catch(error){}
-  if(librarySheet){
-   window.parent.postMessage({type:'nex-threat-dice-roll',options},location.origin);
-   return;
+  // A ficha pública de ameaças fica aninhada em dois iframes. Chamar o
+  // rolador do topo diretamente (mesma origem) evita perder a mensagem ou
+  // exibir a notificação fora da área visível do navegador.
+  let nestedLibrary=false;
+  try{
+   nestedLibrary=window.parent!==window&&
+    window.frameElement?.id==='threatDetailFrame'&&
+    /\/ameacas\.html$/i.test(window.parent.location.pathname);
+   if(nestedLibrary&&window.top!==window&&typeof window.top.NEX_DICE_UI?.roll==='function'){
+    const result=window.top.NEX_DICE_UI.roll(options);
+    if(result)return;
+   }
+  }catch(error){
+   console.warn('NEX: rolador principal indisponível; tentando localmente',error);
   }
-  roll(options);
+  // A rolagem continua funcional em ameaca-ficha.html aberto diretamente e
+  // dentro do Escudo do Mestre (sem alterar o funcionamento do Tabletop).
+  const result=roll(options);
+  if(!result&&nestedLibrary)console.warn('NEX: expressão inválida para rolagem',options.expression);
  });
 })();
