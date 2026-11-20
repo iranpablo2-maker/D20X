@@ -4012,11 +4012,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const menuTabs=[...mainMenu.querySelectorAll('[data-nex-main-tab]')];
   const menuPages=[...mainMenu.querySelectorAll('[data-nex-main-page]')];
   function showMainTab(name){
-   if(name==='master'&&gm)attachInlineGm();
-   else detachInlineGm();
+   // Exibir a página antes de montar o Escudo evita renderização em um painel oculto.
    menuTabs.find(btn=>btn.dataset.nexMainTab==='master')?.classList.toggle('hide',!gm);
    menuTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexMainTab===name)));
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
+   if(name==='master'&&gm)attachInlineGm();
+   else detachInlineGm();
   }
   menuTabs.forEach(btn=>btn.addEventListener('click',()=>{
    if(btn.dataset.nexMainTab==='master'&&!gm){notice('Somente o mestre pode acessar o Escudo do Mestre.');return;}
