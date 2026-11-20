@@ -161,6 +161,11 @@ export function mountGmShield(options){
  }
  // Retratos oficiais são lidos do próprio bestiário, sem duplicar imagens no Firebase.
  const portraitCache=new Map();
+ const failedDirectPortraits=new Set();
+ function directThreatImage(key){
+  const path=window.NEX_ARQUIVOS_IMAGES?.[key]||window.NEX_THREAT_PRIMARY_IMAGES?.[key];
+  return typeof path==='string'&&/^\.\/assets\/ameacas\/[a-z0-9/_.-]+(?:\?[^\s"'<>]*)?$/i.test(path)?path:'';
+ }
  let portraitFrame=null,portraitReady=false;
  function threatSourceKey(entry){
   const raw=String(entry?.sourceId||'');
@@ -196,7 +201,7 @@ export function mountGmShield(options){
   });
  }
  function requestThreatPortraits(){
-  const keys=state.threats.map(threatSourceKey).filter(Boolean);
+  const keys=state.threats.map(threatSourceKey).filter(key=>key&&(!directThreatImage(key)||failedDirectPortraits.has(key)));
   if(!keys.length)return;
   if(!portraitFrame){
    portraitFrame=document.createElement('iframe');
@@ -225,11 +230,23 @@ export function mountGmShield(options){
   portraitCache.set(key,portrait);
   refreshThreatPortraits();
  });
+ root.addEventListener('error',event=>{
+  const img=event.target;
+  if(!(img instanceof HTMLImageElement)||!img.hasAttribute('data-gm-direct-threat-image'))return;
+  const key=img.dataset.gmDirectThreatImage;
+  if(!key)return;
+  failedDirectPortraits.add(key);
+  const holder=img.closest('[data-gm-threat-portrait]');
+  if(holder)holder.textContent=(key.split('::').pop()||'?').trim().charAt(0).toUpperCase();
+  requestThreatPortraits();
+ },true);
  function entityCard(kind,x){
   const title=escape(x.title||'Sem nome'),pic=safeImage(x.image);
   const sourceKey=kind==='threats'?threatSourceKey(x):'';
+  const direct=sourceKey&&!failedDirectPortraits.has(sourceKey)?directThreatImage(sourceKey):'';
   const sourced=sourceKey?threatPortraitMarkup(sourceKey):'';
-  const thumb=sourced|| (pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?'));
+  const directMarkup=direct?'<img data-gm-direct-threat-image="'+escape(sourceKey)+'" src="'+escape(direct)+'" alt="" loading="eager" decoding="async">':'';
+  const thumb=directMarkup||sourced|| (pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?'));
   const portraitAttr=sourceKey?' data-gm-threat-portrait="'+escape(sourceKey)+'"':'';
   const key=escape(x.id);
   return '<article class="nex-gm-entity-card">'+
