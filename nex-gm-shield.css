@@ -239,3 +239,37 @@
   object-fit:contain!important;
   image-rendering:auto;
 }
+
+/* Visualização de NPC da campanha, no mesmo formato compacto das Ameaças */
+.nex-gm-npc-view{width:min(100%,560px);margin:0 auto 18px;color:#f4eef2}
+.nex-gm-npc-view-tools{display:flex;justify-content:space-between;gap:8px;margin-bottom:10px}
+.nex-gm-npc-view-tools button{font-size:12px;padding:7px 9px}
+.nex-gm-npc-view-card{border:1px solid #5b303d;border-radius:12px;overflow:hidden;background:#110e13;color:#f6f3f5}
+.nex-gm-npc-view-header{display:flex;gap:13px;align-items:center;padding:13px 15px;background:linear-gradient(115deg,#211018,#0d090e)}
+.nex-gm-npc-view-photo{flex:0 0 95px;width:95px;height:95px;display:grid;place-items:center;border:1px solid #743a4a;border-radius:10px;overflow:hidden;background:#24161b;font-size:30px;font-weight:800}
+.nex-gm-npc-view-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.nex-gm-npc-view-heading{min-width:0;overflow-wrap:anywhere}
+.nex-gm-npc-view-heading small{color:#e6a9b9;font-size:10px;letter-spacing:.08em}
+.nex-gm-npc-view-heading h3{margin:5px 0;font-size:19px;line-height:1.18;color:#fff}
+.nex-gm-npc-view-pv{margin:12px 15px 8px;text-align:center}
+.nex-gm-npc-view-pv strong{display:block;padding:13px 8px;background:#b52240;border:1px solid #d34460;border-radius:7px;color:#fff;font-size:17px}
+.nex-gm-npc-view-pv span{display:block;height:8px;border-radius:8px;background:#e33864;margin:6px 8px 0}
+.nex-gm-npc-view-tabs{display:flex;justify-content:center;gap:3px;padding:7px 8px 0;border-bottom:1px solid #55303c}
+.nex-gm-npc-view-tabs button{width:auto;flex:0 1 auto;min-width:0;padding:8px 10px 10px;border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:#c7b9c2;font-size:12px}
+.nex-gm-npc-view-tabs button[aria-selected="true"]{color:#fff;border-bottom-color:#f13769}
+.nex-gm-npc-view-card [data-gm-npc-view-panel]{padding:16px 15px 18px}
+.nex-gm-npc-view-card [data-gm-npc-view-panel][hidden]{display:none!important}
+.nex-gm-npc-view-attrs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));text-align:center;gap:5px;margin-bottom:20px}
+.nex-gm-npc-view-attr small{display:block;color:#e8b7c6;font-size:11px;margin-bottom:5px}
+.nex-gm-npc-view-attr b{font-size:23px;color:#fff}
+.nex-gm-npc-view-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.nex-gm-npc-view-stats>div{background:#211820;border:1px solid #603746;padding:11px 10px;border-radius:8px;min-height:66px}
+.nex-gm-npc-view-stats small{display:block;color:#e5bbca;font-size:11px;margin-bottom:7px}
+.nex-gm-npc-view-stats strong{font-size:18px;color:#fff}
+.nex-gm-npc-view-skill{display:flex;justify-content:space-between;gap:10px;padding:9px 2px;border-bottom:1px solid #402732}
+.nex-gm-npc-view-action{padding:12px 9px;border-bottom:1px solid #55303c}
+.nex-gm-npc-view-action strong,.nex-gm-npc-view-action small{display:block}
+.nex-gm-npc-view-action small{color:#e6a9b9;margin-top:4px;font-size:11px}
+.nex-gm-npc-view-action p{margin:8px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.nex-gm-npc-view-card [data-gm-npc-view-panel="descricao"] p{white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:400px){.nex-gm-npc-view-photo{flex-basis:78px;width:78px;height:78px}.nex-gm-npc-view-header{padding:10px;gap:10px}.nex-gm-npc-view-tabs button{font-size:11px;padding:8px 7px}}
