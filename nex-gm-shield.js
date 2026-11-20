@@ -5,7 +5,7 @@ export function mountGmShield(options){
  const {root,db,doc,onSnapshot,setDoc,getContext,openTabletop,notify}=options;
  const $=(selector)=>root.querySelector(selector);
  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;',"'":'&#39;'}[c]));
- const safeImage=value=>{const v=String(value||'');return /^https:\/\/[^\s<>"']{1,480}$/i.test(v)||/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]{1,200000}$/i.test(v)?v:'';};
+ const safeImage=value=>{const v=String(value||'');return /^https:\/\/[^\s<>"']{1,480}$/i.test(v)||/^\.\/assets\/ameacas\/[a-z0-9/_-]+\.webp(?:\?[a-z0-9=_-]+)?$/i.test(v)||/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]{1,200000}$/i.test(v)?v:'';};
  const kinds=['notes','npcs','threats'];
  const labels={notes:'Anotações',sessions:'Sessões',npcs:'NPCs',threats:'Ameaças',rules:'Regras',secrets:'Segredos'};
  const icons={notes:'▤ ',npcs:'',threats:''};
@@ -364,7 +364,7 @@ export function mountGmShield(options){
   const source=String(entry.sourceId||'').startsWith('catalog:')?String(entry.sourceId).slice(8):'';
   return {
    type:'ameaca',name:entry.title,description:entry.body||d.description||'',
-   image:entry.image||'',vd:Number(d.vd)||0,size:String(d.size||'Médio'),
+   image:safeImage(entry.image)||safeImage(directThreatImage(threatSourceKey(entry)))||'',vd:Number(d.vd)||0,size:String(d.size||'Médio'),
    creatureType:String(base?.category||'Criatura'),
    sourceId:source,
    threatSheet:{
@@ -391,7 +391,8 @@ export function mountGmShield(options){
   if(window.parent===window){status('Abra o Escudo pela campanha para editar a ficha.');return;}
   if(threatEditLoader){threatEditLoader.remove();threatEditLoader=null;}
   if(entry.threatHomebrew){
-   window.parent.postMessage({type:'nex-campaign-edit-threat-native',campaignId:room,entryId:entry.id,threat:entry.threatHomebrew},location.origin);
+   const originalPhoto=safeImage(entry.threatHomebrew.image)||safeImage(entry.image)||safeImage(directThreatImage(threatSourceKey(entry)));
+   window.parent.postMessage({type:'nex-campaign-edit-threat-native',campaignId:room,entryId:entry.id,threat:{...entry.threatHomebrew,image:originalPhoto}},location.origin);
    return;
   }
   const sourceKey=threatSourceKey(entry);
@@ -762,7 +763,7 @@ export function mountGmShield(options){
   const previous={title:entry.title,body:entry.body,image:entry.image,sheet:entry.sheet,hasFullSheet:entry.hasFullSheet};
   entry.title=String(npc.name).slice(0,110);
   entry.body=String(npc.description||'').slice(0,4000);
-  entry.image=safeImage(npc.image);
+  entry.image=safeImage(npc.image)||entry.image||'';
   entry.sheet=npcSheet(npc.threatSheet);entry.hasFullSheet=true;
   if(JSON.stringify(state).length>670000){Object.assign(entry,previous);status('Ficha muito grande para a campanha.');window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:'Ficha muito grande',entryId:entry.id},location.origin);return;}
   // Atualiza a ficha na interface imediatamente, sem esperar a rede.
@@ -798,7 +799,7 @@ export function mountGmShield(options){
   const previous=old?{...old}:null;
   Object.assign(entry,{
    title:threat.name.slice(0,110),tag:threat.threatSheet.element||'Sangue',
-   body:String(threat.description||'').slice(0,4000),image:safeImage(threat.image),
+   body:String(threat.description||'').slice(0,4000),image:safeImage(threat.image)||safeImage(old?.image)||safeImage(directThreatImage(threatSourceKey(entry))),
    threatHomebrew:JSON.parse(JSON.stringify(threat)),hasFullSheet:true
   });
   if(!old)state.threats.unshift(entry);
@@ -892,7 +893,7 @@ export function mountGmShield(options){
     window.parent.postMessage({
      type:'nex-campaign-edit-npc-native',campaignId:room,entryId:entry.id,
      npc:{id:entry.sourceId||'',name:entry.title,description:entry.body||'',
-      image:entry.image||'',threatSheet:entry.sheet||{}}
+      image:safeImage(entry.image)||safeImage(homebrew.find(x=>String(x.id)===String(entry.sourceId))?.image)||'',threatSheet:entry.sheet||{}}
     },location.origin);
     status('Abrindo a ficha original de NPC do Homebrew…');
     return;
