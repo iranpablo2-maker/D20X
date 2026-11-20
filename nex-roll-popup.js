@@ -59,6 +59,6 @@
   if(!button)return;
   e.preventDefault();
   const label=button.dataset.nexRollTitle||'Rolagem';
-  roll({title:label,expression:button.dataset.nexRollExpression,pool:button.dataset.nexRollPool==='true'?true:button.dataset.nexRollPool==='false'?false:undefined});
+  roll({title:label,expression:button.dataset.nexRollExpression,pool:button.dataset.nexRollPool==='true'?true:button.dataset.nexRollPool==='false'?false:undefined,low:button.dataset.nexRollLow==='true'});
  });
 })();
