@@ -46,6 +46,18 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 .nex-threat-hp-pencil{font-size:15px;opacity:.7}
 .nex-threat-hp-editor{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin:10px 20px 12px;padding:10px;background:#22151c;border:1px solid #723749;border-radius:8px}
 .nex-threat-hp-editor[hidden]{display:none}
+.nex-threat-hp-quick{display:grid;gap:8px;margin:10px 20px 12px;padding:10px;background:#22151c;border:1px solid #723749;border-radius:8px}
+.nex-threat-hp-quick[hidden]{display:none}
+.nex-threat-hp-quick-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.nex-threat-hp-quick-row button{flex:1 1 46px;min-height:35px;border-radius:5px;border:1px solid #8b4255;background:#44202c;color:white;cursor:pointer;font-weight:700;font-size:12px}
+.nex-threat-hp-quick-row button[data-hp-delta^="-"]{background:#62232e}
+.nex-threat-hp-quick-row button[data-hp-delta^="+"]{background:#245040;border-color:#44846a}
+.nex-threat-hp-quick-row button:focus-visible{outline:2px solid #ff8698;outline-offset:2px}
+.nex-threat-hp-quick-row input{width:72px;min-width:0;flex:0 1 72px;min-height:35px;border:1px solid #874657;border-radius:5px;background:#110d12;color:white;text-align:center;font-size:14px}
+.nex-threat-hp-quick-caption{font-size:11px;color:#c6aeb8}
+.nex-threat-hp-quick-footer{display:flex;gap:7px;justify-content:space-between;flex-wrap:wrap}
+.nex-threat-hp-quick-footer button{background:transparent;border:1px solid #754052;border-radius:5px;color:#f3dce4;padding:6px 9px;cursor:pointer;font-size:11px}
+
 .nex-threat-hp-editor label{display:grid;gap:5px;flex:1 1 105px;color:#e5c9d0;font-size:12px}
 .nex-threat-hp-editor input{width:100%;min-width:0;padding:8px;background:#120e11;color:white;border:1px solid #854253;border-radius:5px}
 .nex-threat-hp-editor button{padding:8px 10px;border-radius:5px;background:#863143;border:1px solid #b65365;color:white;cursor:pointer}
@@ -154,6 +166,13 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <header class="hero" id="hero"><div class="portrait-switch"><div class="portrait" id="portrait" aria-label="Retrato"></div><button id="formSwitch" class="form-switch" type="button" hidden aria-label="Mostrar outra forma">Mostrar outra ficha</button></div><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div></div></header>
 <div class="hp" id="hpBar" hidden><button type="button" id="hpEditButton" class="nex-threat-hp-edit" title="Editar pontos de vida" aria-label="Editar pontos de vida"><strong id="hpLabel"></strong><span class="nex-threat-hp-pencil" aria-hidden="true">✎</span></button></div>
 <div class="hp-track" id="hpTrack" hidden role="progressbar" aria-label="Pontos de vida restantes" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="hp-fill" id="hpFill"></div></div>
+<div id="hpQuick" class="nex-threat-hp-quick" hidden>
+ <div class="nex-threat-hp-quick-caption">Dano (−) ou cura (+) · alterações imediatas</div>
+ <div class="nex-threat-hp-quick-row"><button type="button" data-hp-delta="-10">−10</button><button type="button" data-hp-delta="-5">−5</button><button type="button" data-hp-delta="-1">−1</button></div>
+ <div class="nex-threat-hp-quick-row"><button type="button" data-hp-delta="+1">+1</button><button type="button" data-hp-delta="+5">+5</button><button type="button" data-hp-delta="+10">+10</button></div>
+ <div class="nex-threat-hp-quick-row"><input type="number" id="hpQuickAmount" min="1" max="1000000" step="1" value="1" inputmode="numeric" aria-label="Quantidade de pontos de vida"><button type="button" id="hpQuickDamage">Aplicar dano</button><button type="button" id="hpQuickHeal">Curar</button></div>
+ <div class="nex-threat-hp-quick-footer"><button type="button" id="hpAdvancedEdit">Editar PV máximos</button><button type="button" id="hpQuickClose">Fechar</button></div>
+</div>
 <form id="hpEditor" class="nex-threat-hp-editor" hidden>
  <label>PV atuais<input id="hpCurrentInput" type="number" min="0" step="1" inputmode="numeric" required></label>
  <label>PV máximos<input id="hpMaxInput" type="number" min="1" step="1" inputmode="numeric" required></label>
@@ -668,7 +687,7 @@ function updateThreatHP(baseMaximum){
  const available=Number.isFinite(maxFromBook)&&maxFromBook>0;
  $("hpBar").hidden=!available;
  $("hpTrack").hidden=!available;
- if(!available){$("hpEditor").hidden=true;hpState=null;return;}
+ if(!available){$("hpEditor").hidden=true;$("hpQuick").hidden=true;hpState=null;return;}
  let restored=null;
  try{restored=JSON.parse(localStorage.getItem(hpStorageKey())||'null');}catch(error){}
  const max=Number.isSafeInteger(restored?.max)&&restored.max>=1?restored.max:Math.trunc(maxFromBook);
@@ -676,6 +695,7 @@ function updateThreatHP(baseMaximum){
  hpState={current,max};
  refreshThreatHP();
  $("hpEditor").hidden=true;
+ $("hpQuick").hidden=true;
 }
 function refreshThreatHP(){
  if(!hpState)return;
@@ -686,13 +706,42 @@ function refreshThreatHP(){
  $("hpTrack").setAttribute('aria-valuenow',String(current));
  $("hpEditButton").setAttribute('aria-label','Editar pontos de vida: '+current+' de '+max);
 }
+function saveThreatHP(){
+ if(!hpState)return;
+ try{localStorage.setItem(hpStorageKey(),JSON.stringify(hpState));}catch(error){console.warn('NEX: PV não persistiram neste navegador',error);}
+ refreshThreatHP();
+}
+function applyThreatHpDelta(delta){
+ if(!hpState||!Number.isSafeInteger(delta))return;
+ hpState.current=Math.max(0,Math.min(hpState.max,hpState.current+delta));
+ saveThreatHP();
+}
 $("hpEditButton").addEventListener('click',()=>{
+ if(!hpState)return;
+ $("hpQuick").hidden=!$("hpQuick").hidden;
+ $("hpEditor").hidden=true;
+});
+$("hpQuick").addEventListener('click',event=>{
+ const button=event.target.closest('[data-hp-delta]');
+ if(button)applyThreatHpDelta(Number(button.dataset.hpDelta));
+});
+function applyQuickAmount(sign){
+ const input=$("hpQuickAmount"),amount=Number(input.value);
+ if(!Number.isSafeInteger(amount)||amount<1||amount>1000000){input.setCustomValidity('Informe uma quantidade inteira de 1 a 1000000.');input.reportValidity();return;}
+ input.setCustomValidity('');applyThreatHpDelta(sign*amount);
+}
+$("hpQuickAmount").addEventListener('input',()=>{$("hpQuickAmount").setCustomValidity('');});
+$("hpQuickDamage").addEventListener('click',()=>applyQuickAmount(-1));
+$("hpQuickHeal").addEventListener('click',()=>applyQuickAmount(1));
+$("hpQuickClose").addEventListener('click',()=>{$("hpQuick").hidden=true;});
+$("hpAdvancedEdit").addEventListener('click',()=>{
  if(!hpState)return;
  $("hpCurrentInput").value=hpState.current;
  $("hpMaxInput").value=hpState.max;
  $("hpEditor").hidden=false;
- $("hpCurrentInput").focus();
- $("hpCurrentInput").select();
+ $("hpQuick").hidden=true;
+ $("hpMaxInput").focus();
+ $("hpMaxInput").select();
 });
 $("hpCancelButton").addEventListener('click',()=>{$("hpEditor").hidden=true;});
 $("hpEditor").addEventListener('submit',event=>{
@@ -705,8 +754,7 @@ $("hpEditor").addEventListener('submit',event=>{
  }
  $("hpCurrentInput").setCustomValidity('');
  hpState={current,max};
- try{localStorage.setItem(hpStorageKey(),JSON.stringify(hpState));}catch(error){console.warn('NEX: PV não persistiram neste navegador',error);}
- refreshThreatHP();
+ saveThreatHP();
  $("hpEditor").hidden=true;
 });
 $("hpCurrentInput").addEventListener('input',()=>{$("hpCurrentInput").setCustomValidity('');});
