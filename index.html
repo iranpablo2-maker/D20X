@@ -6,6 +6,7 @@
   const campaign=JSON.parse(sessionStorage.getItem('nex_campaign_navigation_v1')||'null');
   const screen=campaign?.campaignId?'campaigns':nav?.screen;
   if(!['campaigns','sheet','agents','threats','homebrew'].includes(screen))return;
+  window.NEX_F5_RESTORE_CAMPAIGN=screen==='campaigns'&&!!campaign?.campaignId;
   document.documentElement.dataset.nexRestoring=screen;
   const style=document.createElement('style');
   style.id='nex-f5-restore-style';
@@ -2274,7 +2275,7 @@ body.nex-campaign-hb-open{overflow:hidden!important}
  <div class="home-section-heading"><h2>Campanhas</h2><span class="home-tag">MESAS E PERSONAGENS</span></div>
  <p class="muted" style="margin:4px 0 16px">Crie sua campanha, autorize jogadores e acompanhe as fichas na mesma sala. Todos os participantes podem visualizar; somente o dono e o mestre podem editar.</p>
  <div class="nex-campaign-integrated" aria-label="Área de campanhas online">
-  <iframe id="nexCampaignRoomFrame" title="Campanhas online do NEX" data-src="./multiplayer.html?integrado=1&v=20261120d20icon56" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen" allowfullscreen></iframe>
+  <iframe id="nexCampaignRoomFrame" title="Campanhas online do NEX" data-src="./multiplayer.html?integrado=1&v=20261120f5restore3" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen" allowfullscreen></iframe>
  </div>
  <details class="nex-campaign-legacy">
   <summary>Campanhas salvas neste dispositivo <span class="muted">(modo local anterior)</span></summary>
@@ -3267,8 +3268,10 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
        }
      }catch(error){}
      visible(restoredScreen);
-     document.documentElement.removeAttribute('data-nex-restoring');
-     document.getElementById('nex-f5-restore-style')?.remove();
+     if(!window.NEX_F5_RESTORE_CAMPAIGN||restoredScreen!=='campaigns'){
+       document.documentElement.removeAttribute('data-nex-restoring');
+       document.getElementById('nex-f5-restore-style')?.remove();
+     }
      if(restoredScreen==='sheet')try{rehydrate();}catch(error){console.warn('NEX: ficha recuperada parcialmente',error);}
      if(previousNavigation?.screen===restoredScreen&&Number.isFinite(Number(previousNavigation.scrollY))){
        requestAnimationFrame(()=>window.scrollTo(0,Math.max(0,Math.min(200000,Number(previousNavigation.scrollY)))));
@@ -6382,7 +6385,19 @@ body > #nexVttSheetClose[hidden]{display:none!important}
   const frame=document.getElementById('nexCampaignRoomFrame');
   const area=document.getElementById('campaignPanel');
   if(!frame||!area)return;
-  let loaded=false; // A tela de erro intermediária foi removida; a restauração usa o estado da campanha.
+  let loaded=false; // A navegação original é liberada quando o iframe confirma a restauração.
+  function finishF5Restore(){
+    window.NEX_F5_RESTORE_CAMPAIGN=false;
+    document.documentElement.removeAttribute('data-nex-restoring');
+    document.getElementById('nex-f5-restore-style')?.remove();
+  }
+  window.addEventListener('message',event=>{
+    if(event.origin!==location.origin||event.source!==frame.contentWindow)return;
+    if(event.data?.type==='nex-campaign-session-restored'){
+      if(!event.data.ok)console.warn('NEX: sessão anterior não foi restaurada.');
+      finishF5Restore();
+    }
+  });
   function loadWhenVisible(){
     if(loaded)return;
     loaded=true;
@@ -6390,7 +6405,7 @@ body > #nexVttSheetClose[hidden]{display:none!important}
     const invite=new URLSearchParams(location.search).get('campaignInvite');
     if(invite&&/^[A-Za-z0-9-]{8,40}$/.test(invite))link.searchParams.set('invite',invite);
     // Atualizar a versão do iframe evita manter o código anterior após F5.
-    link.searchParams.set('cacheVersion','20261120f5restore1');
+    link.searchParams.set('cacheVersion','20261120f5restore3');
     frame.src=link.href;
   }
   if(new URLSearchParams(location.search).has('campaignInvite')){
