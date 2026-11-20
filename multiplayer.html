@@ -3633,6 +3633,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const immersionMusicHost=$('nexVttImmersionMusicHost');
   const libraryTabs=[...mainMenu.querySelectorAll('[data-nex-library-layer]')];
   const updateMenu=show=>{
+   // A função é chamada após a entrada na campanha, quando gm já foi definido.
+   // Não deixar o botão do Escudo oculto até que outra aba seja pressionada.
+   mainMenu.querySelector('[data-nex-main-tab="master"]')?.classList.toggle('hide',!gm);
    if(show)mainMenu.style.removeProperty('display');
    mainMenu.hidden=!show;
    mainMenuToggle.setAttribute('aria-expanded',String(show));
@@ -4351,7 +4354,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('leaveCampaign',!gm);
   updateRoomCover();
   subscribeTabletop(id);
-  show('roomMasterTab',gm);roomSection('characters');refreshNexAgents();
+  show('roomMasterTab',gm);
+  $('nexVttMainMenu')?.querySelector('[data-nex-main-tab="master"]')?.classList.toggle('hide',!gm);
+  roomSection('characters');refreshNexAgents();
   if(gm)unsubs.push(onSnapshot(collection(db,'campaigns',id,'slotRequests'),snapshot=>{
    extraSlotRequests=snapshot.docs.map(d=>d.data());renderSlotManagement();
   },error=>console.warn('Solicitações de vagas indisponíveis',error)));
