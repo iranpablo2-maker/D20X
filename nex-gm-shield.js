@@ -169,7 +169,11 @@ export function mountGmShield(options){
  let portraitFrame=null,portraitReady=false;
  function threatSourceKey(entry){
   const raw=String(entry?.sourceId||'');
-  if(!raw.startsWith('catalog:'))return '';
+  if(!raw.startsWith('catalog:')){
+   const name=String(entry?.title||'').trim(),tag=String(entry?.tag||'');
+   const source=tag.includes(' · ')?tag.split(' · ').slice(1).join(' · ').trim():'';
+   return source&&name?source+'::'+name:'';
+  }
   if(raw.includes('::'))return raw.slice(8);
   const old=raw.slice(8),index=old.lastIndexOf(':');
   if(index<0)return '';
@@ -197,7 +201,8 @@ export function mountGmShield(options){
   root.querySelectorAll('[data-gm-threat-portrait]').forEach(node=>{
    const key=node.dataset.gmThreatPortrait;
    const markup=threatPortraitMarkup(key);
-   if(markup)node.innerHTML=markup;
+   // Nunca substitui o retrato direto por uma miniatura antiga ou URL expirada.
+   if(markup&&!node.querySelector('img[data-gm-direct-threat-image]'))node.innerHTML=markup;
   });
  }
  function requestThreatPortraits(){
@@ -243,10 +248,11 @@ export function mountGmShield(options){
  function entityCard(kind,x){
   const title=escape(x.title||'Sem nome'),pic=safeImage(x.image);
   const sourceKey=kind==='threats'?threatSourceKey(x):'';
-  const direct=sourceKey&&!failedDirectPortraits.has(sourceKey)?directThreatImage(sourceKey):'';
+  const storedDirect=pic&&/^\.\/assets\/ameacas\//i.test(pic)?pic:'';
+  const direct=storedDirect||(sourceKey&&!failedDirectPortraits.has(sourceKey)?directThreatImage(sourceKey):'');
   const sourced=sourceKey?threatPortraitMarkup(sourceKey):'';
   const directMarkup=direct?'<img data-gm-direct-threat-image="'+escape(sourceKey)+'" src="'+escape(direct)+'" alt="" loading="eager" decoding="async">':'';
-  const thumb=directMarkup||sourced|| (pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?'));
+  const thumb=directMarkup|| (pic?'<img src="'+escape(pic)+'" alt="'+title+'">':'')||sourced||escape((x.title||'?').trim().charAt(0).toUpperCase()||'?');
   const portraitAttr=sourceKey?' data-gm-threat-portrait="'+escape(sourceKey)+'"':'';
   const key=escape(x.id);
   return '<article class="nex-gm-entity-card">'+
@@ -797,12 +803,16 @@ export function mountGmShield(options){
   }
   const entry=old||{id:id()};
   const previous=old?{...old}:null;
+  const officialKey=threatSourceKey(entry);
+  const officialPhoto=safeImage(directThreatImage(officialKey));
   Object.assign(entry,{
    title:threat.name.slice(0,110),tag:threat.threatSheet.element||'Sangue',
-   body:String(threat.description||'').slice(0,4000),image:safeImage(threat.image)||safeImage(old?.image)||safeImage(directThreatImage(threatSourceKey(entry))),
+   body:String(threat.description||'').slice(0,4000),image:safeImage(threat.image)||safeImage(old?.image)||officialPhoto,
    threatHomebrew:JSON.parse(JSON.stringify(threat)),hasFullSheet:true
   });
   if(!old)state.threats.unshift(entry);
+  // Preserva a referência do bestiário e o retrato ao editar uma cópia oficial.
+  if(old&&officialKey&&!String(entry.sourceId||'').startsWith('catalog:'))entry.sourceId='catalog:'+officialKey;
   if(JSON.stringify(state).length>670000){
    if(old)Object.assign(entry,previous);else state.threats=state.threats.filter(x=>x!==entry);
    window.parent.postMessage({type:'nex-campaign-threat-save-result',ok:false,error:'Ficha grande demais para a campanha',entryId:msg.entryId||''},location.origin);
