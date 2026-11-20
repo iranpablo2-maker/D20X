@@ -589,3 +589,12 @@
 #roomTabletopPanel #roomMasterPanel .nex-gm-npc-hp-track{height:38px!important}
 #roomTabletopPanel #roomMasterPanel .nex-gm-npc-hp-track button{font-size:18px!important;flex-basis:23px!important}
 #roomTabletopPanel #roomMasterPanel .nex-gm-npc-hp-track button.nex-gm-npc-hp-value{font-size:13px!important;flex:1 1 auto!important}
+
+/* Anular os estilos antigos de span da barra estática. */
+#roomMasterPanel .nex-gm-npc-view-pv .nex-gm-npc-hp-track > span.nex-gm-npc-hp-fill,
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-pv .nex-gm-npc-hp-track > span.nex-gm-npc-hp-fill{
+ position:absolute!important;left:0!important;top:0!important;bottom:0!important;
+ height:100%!important;margin:0!important;border-radius:0!important;
+ background:#b41e36!important;transition:width .2s!important;
+ pointer-events:none!important;
+}
