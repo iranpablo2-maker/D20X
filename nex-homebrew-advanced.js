@@ -105,7 +105,7 @@
    area:cut(x.area,150),target:cut(x.target,150),duration:cut(x.duration,150),
    effect:cut(x.effect,700),resistance:cut(x.resistance,150),
    ritualDice:cut(x.ritualDice,120),discenteDice:cut(x.discenteDice,120),verdadeiroDice:cut(x.verdadeiroDice,120),
-   image:typeof x.image==='string' && (/^https:\/\//i.test(x.image)||/^data:image\/(?:png|jpeg|webp);base64,/i.test(x.image))?x.image.slice(0,650000):'',
+   image:typeof x.image==='string' && (/^https:\/\//i.test(x.image)||/^data:image\/(?:png|jpeg|webp);base64,/i.test(x.image)||(isThreatType(x.type)&&/^\.\/assets\/ameacas\/[a-z0-9/_-]+\.webp(?:\?[a-z0-9=_-]+)?$/i.test(x.image)))?x.image.slice(0,650000):'',
    cost:num(x.cost,0,99,0),vd:num(x.vd,0,9999,0),
    threatSheet:isThreatType(x.type)?normalizeThreat(x):undefined,
    size:['Minúsculo','Pequeno','Médio','Grande','Enorme','Colossal'].includes(x.size)?x.size:'Médio',
@@ -1770,7 +1770,7 @@
   tab='ameacas';$('nex51Search').value='';closeEditor();renderLibrary();
   const draft=normalize({...threat,id:'hb51_campaign_threat_draft',type:'ameaca'});
   openEditor(draft);$('nex51Edit').value='';
-  campaignThreatContext={campaignId,entryId};
+  campaignThreatContext={campaignId,entryId,originalImage:draft.image||''};
   $('nex52EditorTitle').textContent='Editar Ameaça da campanha';
   $('nex52Save').textContent='Salvar na campanha';
  });
@@ -1796,7 +1796,7 @@
   tab='npcs';$('nex51Search').value='';closeEditor();renderLibrary();openEditor(draft);
   // É um editor de campanha: não usar o ID original nem gravar na biblioteca.
   $('nex51Edit').value='';
-  campaignNpcContext={campaignId,entryId};
+  campaignNpcContext={campaignId,entryId,originalImage:draft.image||''};
   $('nex52EditorTitle').textContent='Editar NPC da campanha';
   $('nex52Save').textContent='Salvar na campanha';
   message('Edição vinculada à campanha. O Homebrew original não será alterado.');
@@ -1963,6 +1963,7 @@
      skills:type==='origem'?[$('nex55Skill1').value,$('nex55Skill2').value]:(old?.skills||[])
    });
    if(campaignThreatContext&&record.type==='ameaca'){
+    if(!record.image)record.image=campaignThreatContext.originalImage||'';
     const frame=document.getElementById('nexCampaignRoomFrame');
     if(!frame?.contentWindow){message('Abra novamente a campanha para salvar a ameaça.');return;}
     frame.contentWindow.postMessage({
@@ -1976,6 +1977,7 @@
     return;
    }
    if(campaignNpcContext&&record.type==='npc'){
+    if(!record.image)record.image=campaignNpcContext.originalImage||'';
     const frame=document.getElementById('nexCampaignRoomFrame');
     if(!frame?.contentWindow){message('A campanha não está disponível. Abra novamente a sala.');return;}
     frame.contentWindow.postMessage({
