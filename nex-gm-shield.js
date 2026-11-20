@@ -184,17 +184,15 @@ export function mountGmShield(options){
   state.favorites=favored(kind,value)?state.favorites.filter(x=>x!==key):[...state.favorites,key].slice(0,120);
   store();render();
  }
- // A criação de fichas é exclusiva da área do Escudo montada dentro do Tabletop.
+ // Identifica o Escudo montado dentro do Tabletop para ocultar somente os botões de criação ali.
  function creatingInTabletop(){
   return !!root.closest('#roomTabletopPanel') && !document.getElementById('roomTabletopPanel')?.classList.contains('hide');
  }
  function menu(){
-  const createTools=creatingInTabletop()?'<div class="nex-gm-row nex-gm-create-tools" aria-label="Criar fichas da campanha no Tabletop">'+
-   '<button type="button" data-gm-action="create-npc">+ Criar NPC</button>'+
-   '<button type="button" data-gm-action="create-threat">+ Criar Ameaça</button></div>':'';
+
   return '<div class="nex-gm-head"><div><h3>◈ ESCUDO DO MESTRE</h3><small>Painel privado · informações salvas nesta campanha</small></div>'+
    '</div>'+
-   '<nav class="nex-gm-tabs" aria-label="Áreas do Escudo do Mestre">'+kinds.map(k=>'<button type="button" data-gm-tab="'+k+'" aria-pressed="'+(tab===k)+'">'+icons[k]+' '+labels[k]+'</button>').join('')+'</nav>'+createTools;
+   '<nav class="nex-gm-tabs" aria-label="Áreas do Escudo do Mestre">'+kinds.map(k=>'<button type="button" data-gm-tab="'+k+'" aria-pressed="'+(tab===k)+'">'+icons[k]+' '+labels[k]+'</button>').join('')+'</nav>';
  }
  function editor(kind,entry){
   const fields=schema[kind]||[];
@@ -809,7 +807,7 @@ export function mountGmShield(options){
  function renderList(kind){
   const entry=editing?.kind===kind?state[kind].find(x=>x.id===editing.id)||null:null;
   return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div>'+
-   (kind==='npcs'?'<div class="nex-gm-row"><button type="button" data-gm-action="show-import-npc">Adicionar NPC existente</button></div>':kind==='threats'?'<div class="nex-gm-row"><button type="button" data-gm-action="show-import-threat">Adicionar Ameaça existente</button></div>':'<button type="button" data-gm-add="'+kind+'">+ Adicionar</button>')+'</div>'+
+   (kind==='npcs'?'<div class="nex-gm-row">'+(!creatingInTabletop()?'<button type="button" data-gm-action="create-npc">Criar NPC</button>':'')+'<button type="button" data-gm-action="show-import-npc">Adicionar NPC existente</button></div>':kind==='threats'?'<div class="nex-gm-row">'+(!creatingInTabletop()?'<button type="button" data-gm-action="create-threat">Criar Ameaça</button>':'')+'<button type="button" data-gm-action="show-import-threat">Adicionar Ameaça existente</button></div>':'<button type="button" data-gm-add="'+kind+'">+ Adicionar</button>')+'</div>'+
     
     (editing?.kind===kind?editor(kind,entry):'')+
     
@@ -1079,7 +1077,7 @@ export function mountGmShield(options){
   if(btn.dataset.gmAction==='show-import-threat'){showThreatImport=true;render();return;}
   if(btn.dataset.gmAction==='close-import-threat'){showThreatImport=false;render();return;}
   if(btn.dataset.gmAction==='create-threat'){
-   if(!creatingInTabletop()){status('Crie ameaças pelo Escudo do Mestre dentro do Tabletop.');return;}
+   if(creatingInTabletop())return;
    showThreatImport=false;
    tab='threats';selectedSheet=null;editing=null;
    if(window.parent!==window){window.parent.postMessage({type:'nex-campaign-create-threat-native',campaignId:room},location.origin);status('Abrindo a ficha de Ameaça Homebrew…');}
@@ -1087,7 +1085,7 @@ export function mountGmShield(options){
    return;
   }
   if(btn.dataset.gmAction==='create-npc'){
-   if(!creatingInTabletop()){status('Crie NPCs pelo Escudo do Mestre dentro do Tabletop.');return;}
+   if(creatingInTabletop())return;
    tab='npcs';showNpcImport=false;selectedSheet=null;editing=null;
    discardNpcDraft();
    if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
