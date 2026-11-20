@@ -456,8 +456,8 @@ export function mountGmShield(options){
 
  // Dados exclusivos da visualização mini do NPC no Escudo do Mestre.
  function gmNpcDiceExpression(value){
-  const text=String(value||'').trim().replace(/\\s+/g,' ');
-  const match=text.match(/^([1-9]\\d{0,1})d(4|6|8|10|12|20|100)(?:\\s*([+-])\\s*(\\d{1,3}))?(?:\\s*(?:\\([^)]*\\)|[a-zÀ-ÿ ]{1,24}))?$/i);
+  const text=String(value||'').trim().replace(/\s+/g,' ');
+  const match=text.match(/^([1-9]\d{0,1})d(4|6|8|10|12|20|100)(?:\s*([+-])\s*(\d{1,3}))?(?:\s*(?:\([^)]*\)|[a-zÀ-ÿ ]{1,24}))?$/i);
   if(!match)return null;
   const count=Number(match[1]),sides=Number(match[2]),bonus=(match[3]==='-'?-1:1)*Number(match[4]||0);
   if(count>30||Math.abs(bonus)>999)return null;
@@ -465,7 +465,7 @@ export function mountGmShield(options){
  }
  function gmNpcRollButton(expression,label){
   if(!gmNpcDiceExpression(expression))return '';
-  return '<button type="button" class="nex-gm-npc-roll" data-gm-npc-dice="'+escape(expression)+'" aria-label="Rolar '+escape(label)+'" title="Rolar '+escape(expression)+'">🎲 '+escape(label)+'</button>';
+  return '<button type="button" class="nex-gm-npc-roll" '+(label==='Teste'?'data-gm-npc-pool="high" ':'')+'data-gm-npc-dice="'+escape(expression)+'" aria-label="Rolar '+escape(label)+'" title="Rolar '+escape(expression)+'">🎲 '+escape(label)+'</button>';
  }
  function gmNpcRollResult(btn){
   const skill=btn.hasAttribute('data-gm-npc-skill-attr');
