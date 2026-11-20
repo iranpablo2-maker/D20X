@@ -112,7 +112,26 @@
   while(stack.children.length>4)stack.lastElementChild.remove();
   return {total,terms:rollValues.map(x=>({dice:x.nums,selected:x.selected})),pool:usePool,critical:criticalHit};
  }
- const api={roll,parse,icon,button:(expression,label='Rolar',pool)=>{
+ // Exibe uma rolagem que a ficha de personagem JA calculou; nunca gera novos dados.
+ function showResult(options={}){
+  const total=Number(options.total);
+  if(!Number.isFinite(total))return false;
+  const stack=document.getElementById('nex-roll20-stack')||(()=>{
+   const node=document.createElement('div');node.id='nex-roll20-stack';node.setAttribute('aria-live','polite');document.body.append(node);return node;
+  })();
+  const toast=document.createElement('section');toast.className='nex-roll20-toast';
+  const emblem=document.createElement('div');emblem.className='nex-roll20-gem';emblem.setAttribute('aria-hidden','true');
+  const details=document.createElement('div');
+  const title=document.createElement('div');title.className='nex-roll20-name';title.textContent=String(options.title||'Rolagem').slice(0,90);
+  const formula=document.createElement('div');formula.className='nex-roll20-expression';formula.textContent=String(options.expression||'').slice(0,180);
+  const breakdown=document.createElement('div');breakdown.className='nex-roll20-breakdown';breakdown.textContent=String(options.detail||'').slice(0,450);
+  const number=document.createElement('strong');number.className='nex-roll20-number';number.textContent=String(total);
+  const close=document.createElement('button');close.type='button';close.className='nex-roll20-close';close.setAttribute('aria-label','Fechar rolagem');close.textContent='×';close.addEventListener('click',()=>toast.remove());
+  details.append(title,formula,breakdown);toast.append(emblem,details,number,close);stack.prepend(toast);
+  while(stack.children.length>4)stack.lastElementChild.remove();
+  return true;
+ }
+ const api={roll,showResult,parse,icon,button:(expression,label='Rolar',pool)=>{
   if(!parse(expression))return '';
   return '<button type="button" class="nex-roll20-btn" data-nex-roll-expression="'+escape(expression)+'" data-nex-roll-title="'+escape(label)+'"'+(typeof pool==='boolean'?' data-nex-roll-pool="'+pool+'"':'')+'>'+icon+'<span>'+escape(label)+'</span></button>';
  }};
