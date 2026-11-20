@@ -132,7 +132,8 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
   #hero .portrait-switch{width:96px!important;min-width:96px!important;max-width:96px!important;flex-basis:96px!important}
   #hero .portrait{width:96px!important;height:96px!important;min-width:96px!important;max-width:96px!important;min-height:96px!important;max-height:96px!important;flex-basis:96px!important}
 }
-</style></head>
+</style><script src="./nex-roll-popup.js?v=20261120roll47"></script>
+</head>
 <body>
 <div class="shell">
 <nav class="threat-sheet-brand"><span class="brand">N E X</span></nav>
@@ -309,10 +310,15 @@ function senseEntries(data){
  const other=source.replace(re,"").replace(/^[\s|;·,:-]+|[\s|;·,:-]+$/g,"").replace(/^[\s|;·,:-]+|[\s|;·,:-]+$/g,"");
  return {rolls:output,other};
 }
+function threatRollButton(expression,label,low=false){
+ const match=String(expression||'').match(/(\d{1,2})\s*d\s*(100|20|12|10|8|6|4)(?:\s*[+-]\s*\d+)?/i);
+ if(!match)return '';
+ return '<button type="button" class="nex-roll20-btn" data-nex-roll-expression="'+esc(expression)+'" data-nex-roll-title="'+esc(label)+'"'+(low?' data-nex-roll-low="true"':'')+'><img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=1" alt=""><span class="sr-only">Rolar</span></button>';
+}
 function renderSenses(data){
  if(!hasValue(data))return "";
  const parts=senseEntries(data);
- const rolls=parts.rolls.map(s=>'<div class="skill"><span>'+esc(s.label)+'</span><strong>'+esc(s.expression)+'</strong></div>').join("");
+ const rolls=parts.rolls.map(s=>'<div class="skill"><span>'+esc(s.label)+'</span><strong>'+esc(s.expression)+'</strong>'+threatRollButton(s.expression,s.label)+'</div>').join("");
  const other=parts.other?'<div class="lines">'+esc(parts.other)+'</div>':"";
  return '<section class="sense-section"><h2>Sentidos</h2>'+rolls+other+'</section>';
 }
@@ -518,21 +524,21 @@ function render(){
   portrait.appendChild(last);
   if(thumbnail)thumbnail.hidden=true;
  }
- const rollRows=items=>Array.isArray(items)?items.filter(v=>Array.isArray(v)&&hasValue(v[0])&&hasValue(v[1])).map(v=>'<div class="skill"><span>'+esc(v[0])+'</span><strong>'+esc(v[1])+'</strong></div>').join(""):"";
+ const rollRows=items=>Array.isArray(items)?items.filter(v=>Array.isArray(v)&&hasValue(v[0])&&hasValue(v[1])).map(v=>'<div class="skill"><span>'+esc(v[0])+'</span><strong>'+esc(v[1])+'</strong>'+threatRollButton(v[1],v[0])+'</div>').join(""):"";
 
  const actionRows=Array.isArray(d.actions)&&d.actions.length?d.actions.map(a=>{
  const name=a.name||"Ação",test=String(a.test||""),dmg=String(a.damage||"");
  return '<details class="action threat-action-fold"><summary class="threat-action-heading"><span class="threat-action-name">'+esc(name)+'</span><span class="threat-action-arrow" aria-hidden="true">⌄</span></summary><div class="threat-action-content">'+
  '<div class="threat-action-kind">'+esc(a.type||"Ação")+'</div>'+
- (test?'<div><strong>Teste:</strong> '+esc(test)+'</div>':'')+
- (dmg?'<div><strong>Dano:</strong> '+esc(dmg)+'</div>':'')+
+ (test?'<div><strong>Teste:</strong> '+esc(test)+' '+threatRollButton(test,name+' · Teste')+'</div>':'')+
+ (dmg?'<div><strong>Dano:</strong> '+esc(dmg)+' '+threatRollButton(dmg,name+' · Dano')+'</div>':'')+
  '<p class="lines" style="margin:10px 0 0;color:#e5d8dd;line-height:1.7;font-size:13px">'+esc(actionSummary(a))+'</p></div></details>';
  }).join(""):'';
  const statItems=[["Defesa",d.defense],["Deslocamento",d.movement],["PV máximos",d.pv]].filter(([name,value])=>hasValue(value));
  const stats=statItems.length?'<div class="stats">'+statItems.map(([name,value])=>'<div class="stat"><small>'+esc(name)+'</small><strong>'+esc(value)+'</strong></div>').join("")+'</div>':"";
  const attrs=["AGI","FOR","INT","PRE","VIG"].filter(x=>hasValue(d.attributes?.[x]));
  const skills=rollRows(d.skills),saves=rollRows(d.saves);
- $("status").innerHTML=(attrs.length?'<div class="attributes">'+attrs.map(x=>'<div><small>'+x+'</small><strong>'+esc(d.attributes[x])+'</strong></div>').join("")+'</div>':"")+
+ $("status").innerHTML=(attrs.length?'<div class="attributes">'+attrs.map(x=>'<div><small>'+x+'</small><strong>'+esc(d.attributes[x])+'</strong>'+threatRollButton((Number(d.attributes[x])||0)>0?Math.min(30,Number(d.attributes[x]))+'d20':'2d20',x,(Number(d.attributes[x])||0)===0)+'</div>').join("")+'</div>':"")+
  stats+(hasValue(d.presence)?'<div class="note"><strong>Presença perturbadora:</strong> '+esc(d.presence)+'</div>':'')+
  section("Outros deslocamentos",d.extraMovement)+
  (saves?'<h2>Testes de resistência</h2><div class="skills">'+saves+'</div>':"")+
