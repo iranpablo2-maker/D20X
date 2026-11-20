@@ -593,7 +593,7 @@ export function mountGmShield(options){
   if(kind==='threats'&&String(x.sourceId||'').startsWith('catalog:')){
    const source=String(x.sourceId).slice(8);
    const key=source.includes('::')?source:(()=>{const i=source.lastIndexOf(':');return i<0?'':source.slice(i+1).split(' · ').slice(1).join(' · ')+'::'+source.slice(0,i);})();
-   if(key)return '<section class="nex-gm-entity-sheet"><div class="nex-gm-entity-sheet-head"><button type="button" class="alt" data-gm-close-sheet>← Voltar às Ameaças</button><h3>'+escape(x.title)+'</h3></div><iframe data-gm-threat-sheet title="Ficha da ameaça" src="./ameaca-ficha.html?id='+encodeURIComponent(key)+'&embedded=1&v=20261119picker23" scrolling="no" style="display:block;width:100%;min-height:900px;border:0;background:#0b0b0e"></iframe></section>';
+   if(key)return '<section class="nex-gm-entity-sheet"><div class="nex-gm-entity-sheet-head"><button type="button" class="alt" data-gm-close-sheet>← Voltar às Ameaças</button><h3>'+escape(x.title)+'</h3></div><iframe data-gm-threat-sheet title="Ficha da ameaça" src="./ameaca-ficha.html?id='+encodeURIComponent(key)+'&embedded=1&v=20261120combatcomplete3" scrolling="no" style="display:block;width:100%;min-height:900px;border:0;background:#0b0b0e"></iframe></section>';
   }
   const note=(x.body||'').trim();
   const meaningful=note&&!['NPC criado na biblioteca Homebrew','NPC importado da biblioteca Homebrew'].includes(note);
@@ -656,7 +656,7 @@ export function mountGmShield(options){
  function threatPicker(){
   return '<section class="nex-gm-threat-picker" style="min-height:400px">'+
    '<button type="button" class="alt" data-gm-action="close-import-threat">← Voltar às Ameaças</button>'+
-   '<iframe data-gm-threat-picker title="Biblioteca de Ameaças do NEX" src="./ameacas.html?campaignPicker=1&v=20261119picker23" loading="eager" scrolling="yes" style="display:block;width:100%;height:min(75vh,900px);min-height:440px;background:#0b0b0e;border:0;margin-top:12px;border-radius:8px"></iframe>'+
+   '<iframe data-gm-threat-picker title="Biblioteca de Ameaças do NEX" src="./ameacas.html?campaignPicker=1&v=20261120combatcomplete3" loading="eager" scrolling="yes" style="display:block;width:100%;height:min(75vh,900px);min-height:440px;background:#0b0b0e;border:0;margin-top:12px;border-radius:8px"></iframe>'+
    '</section>';
  }
  function campaignThreatKeys(){
