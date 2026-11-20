@@ -1781,6 +1781,16 @@
   if(details.ok){closeEditor();message('Ficha de Ameaça salva na campanha.');}
   else message('Não foi possível salvar na campanha: '+String(details.error||'verifique a conexão'));
  });
+ window.addEventListener('nex:create-campaign-npc-native',event=>{
+  const campaignId=String(event.detail?.campaignId||'');
+  if(!campaignId)return;
+  tab='npcs';$('nex51Search').value='';closeEditor();renderLibrary();
+  openEditor(normalize({type:'npc',name:'',description:'',threatSheet:{}}));
+  $('nex51Edit').value='';
+  campaignNpcContext={campaignId,entryId:'',originalImage:''};
+  $('nex52EditorTitle').textContent='Criar NPC da campanha';
+  $('nex52Save').textContent='Salvar na campanha';
+ });
  window.addEventListener('nex:edit-campaign-npc-native',event=>{
   const details=event.detail||{},campaignId=String(details.campaignId||''),entryId=String(details.entryId||'');
   if(!campaignId||!entryId||!details.npc)return;
@@ -1803,7 +1813,7 @@
  });
  window.addEventListener('nex:campaign-npc-save-result',event=>{
   const details=event.detail||{};
-  if(!campaignNpcContext||details.entryId!==campaignNpcContext.entryId)return;
+  if(!campaignNpcContext||(campaignNpcContext.entryId&&details.entryId!==campaignNpcContext.entryId))return;
   $('nex52Save').disabled=false;$('nex52Save').textContent='Salvar na campanha';
   if(details.ok){closeEditor();message('Ficha de NPC salva na campanha.');}
   else message('Não foi possível salvar na campanha: '+String(details.error||'verifique a conexão'));
