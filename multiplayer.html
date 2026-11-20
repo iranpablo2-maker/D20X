@@ -3365,22 +3365,35 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   subscribeCampaigns();
   show('joinInvite',!!uid&&!!inviteId);
   if(uid&&inviteId)watchCampaignInvite();
+  // Confirma para a página principal que o módulo e a autenticação foram inicializados.
+  if(window.parent!==window)try{window.parent.postMessage({type:'nex-campaign-ui-ready',authenticated:!!uid},location.origin);}catch(error){}
   if(uid&&saved?.uid===uid&&saved.campaignId&&!inviteId){
     const campaign=saved.campaignId;
-    const section=saved.section||'characters';
+    const section=['characters','master','players','invites','tabletop'].includes(saved.section)?saved.section:'characters';
+    // Registrar a intenção ANTES de assinar a sessão: o snapshot do Tabletop pode chegar
+    // durante enterRoom e não pode mandar o jogador para o menu anterior.
+    if(section==='tabletop')nexPendingTabletopRestore=campaign;
     void enterRoom(campaign).then(()=>{
       if(roomId!==campaign)return;
       nexNavRestoring=false;
-      if(section==='tabletop'&&!gm&&!vttHostActive)nexPendingTabletopRestore=campaign;
-      else roomSection(section);
+      if(section==='tabletop'&&!gm&&!vttHostActive)return;
+      nexPendingTabletopRestore='';
+      roomSection(section);
     }).catch(error=>{
       console.warn('NEX: campanha anterior indisponível',error);
+      nexPendingTabletopRestore='';
       libraryMode('list');
+      notice('Não foi possível restaurar a campanha anterior. Abra sua campanha novamente.');
     }).finally(()=>{nexNavRestoring=false;});
   }else{
     nexNavRestoring=false;
     if(!uid)try{sessionStorage.removeItem(NEX_NAV_KEY);}catch(error){}
   }
+ },error=>{
+  console.error('NEX: falha ao restaurar login após F5',error);
+  show('authPanel',true);show('dashboard',false);
+  notice('Não foi possível carregar a conta. Verifique a conexão e atualize a página.');
+  if(window.parent!==window)try{window.parent.postMessage({type:'nex-campaign-ui-ready',authenticated:false,error:true},location.origin);}catch(e){}
  });
  $('authForm').addEventListener('submit',e=>{e.preventDefault();run(async()=>{await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);});});
  $('register').addEventListener('click',()=>run(async()=>{await createUserWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);}));
