@@ -21,8 +21,23 @@ nav a{color:#f0c7ce;text-decoration:none;font-weight:600}nav a:hover{text-decora
 .portrait{position:relative;overflow:hidden;flex:0 0 144px;height:144px;border-radius:9px;border:1px solid #6e3740;background:#260f17a8;display:grid;place-items:center;font:700 65px Georgia,serif;background-position:center;background-size:cover}
 .hero h1{font-size:27px;margin:4px 0 6px;line-height:1.2}.eyebrow{color:#f0b0bb;font-size:11px;text-transform:uppercase;letter-spacing:.12em}
 .tags{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}.tags span{border:1px solid #85404d;background:#351921c9;border-radius:5px;padding:3px 8px;font-size:11px}
-.hp{display:flex;align-items:center;background:#a92337;border:1px solid #db4a5f;margin:20px 20px 10px;height:46px;border-radius:7px}
-.hp[hidden]{display:none}.hp button{border:0;background:transparent;color:white;font-size:23px;padding:5px 13px}.hp button:hover{background:#ffffff24}.hp strong{flex:1;text-align:center;font-size:17px}
+.hp{margin:12px 20px 0;display:grid;gap:7px;min-width:0}
+.hp[hidden]{display:none!important}
+.nex-threat-vitals-head{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:27px}
+.nex-threat-vitals-title{color:#fff;font-size:11px;font-weight:700;letter-spacing:.04em}
+.nex-threat-temp{display:flex;align-items:center;gap:5px;font-size:10px;color:#dcc3ca}
+.nex-threat-temp button{height:27px;width:28px;background:#391d26;border:1px solid #693640;border-radius:3px;color:#fff;cursor:pointer;font-size:17px;line-height:1}
+.nex-threat-temp output{display:grid;place-items:center;height:27px;min-width:42px;background:#1b1217;border:1px solid #683541;color:#fff;font-weight:700;border-radius:3px}
+.nex-threat-hp-track{height:40px;display:flex;align-items:stretch;overflow:hidden;border-radius:2px;background:#54202a;position:relative;isolation:isolate}
+.nex-threat-hp-fill{position:absolute;inset:0 auto 0 0;background:#b21f32;width:100%;transition:width .2s;z-index:-1;pointer-events:none}
+.nex-threat-hp-track button{position:relative;flex:0 0 29px;border:0;background:transparent;color:#fff;cursor:pointer;font-weight:800;font-size:20px;line-height:1;min-width:0;padding:0}
+.nex-threat-hp-track button:hover,.nex-threat-temp button:hover{background:#ffffff29}
+.nex-threat-hp-track button:focus-visible,.nex-threat-hp-number:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+.nex-threat-hp-track .nex-threat-hp-number{flex:1 1 auto;font-size:15px;font-weight:700;text-align:center;white-space:nowrap;padding:0 2px}
+.nex-threat-hp-track .nex-threat-hp-input{width:90px;max-width:100%;height:30px;margin:auto 4px;background:#240f18;border:1px solid #ff9aa6;border-radius:4px;color:white;text-align:center;font-size:15px;font-weight:700;appearance:textfield;-moz-appearance:textfield}
+.nex-threat-hp-input::-webkit-inner-spin-button,.nex-threat-hp-input::-webkit-outer-spin-button{appearance:none;margin:0}
+.nex-threat-hp-track [hidden]{display:none!important}
+@media(max-width:620px){.hp{margin:12px 12px 0}.nex-threat-hp-track button{flex-basis:26px}}
 .tabs{display:flex;gap:15px;justify-content:center;padding:12px 12px 0;border-bottom:1px solid #34292d}
 .tabs button{border:0;border-bottom:2px solid transparent;background:transparent;color:#b8a5ad;padding:10px 14px;text-transform:uppercase;font-size:12px}
 .tabs button[aria-selected="true"]{color:white;border-color:#db3d50}
@@ -154,8 +169,18 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <nav class="threat-sheet-brand"><span class="brand">N E X</span></nav>
 <div class="card" id="screen" hidden>
 <header class="hero" id="hero"><div class="portrait-switch"><div class="portrait" id="portrait" aria-label="Retrato"></div><button id="formSwitch" class="form-switch" type="button" hidden aria-label="Mostrar outra forma">Mostrar outra ficha</button></div><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div></div></header>
-<div class="hp" id="hpBar" hidden><button type="button" id="hpEditButton" class="nex-threat-hp-edit" title="Clique para escrever os PV atuais" aria-label="Editar PV atuais"><strong id="hpLabel"></strong><span class="nex-threat-hp-pencil" aria-hidden="true">✎</span></button><label id="hpInline" class="nex-threat-hp-inline" hidden><input id="hpCurrentInline" type="number" min="0" step="1" inputmode="numeric" aria-label="PV atuais"><span id="hpInlineMax"></span></label></div>
-<div class="hp-track" id="hpTrack" hidden role="progressbar" aria-label="Pontos de vida restantes" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="hp-fill" id="hpFill"></div></div>
+<section class="hp" id="hpBar" hidden aria-label="Vida da ameaça">
+ <div class="nex-threat-vitals-head"><strong class="nex-threat-vitals-title">VIDA</strong><div class="nex-threat-temp"><span>Temp.</span><button type="button" id="hpTempMinus" aria-label="Diminuir PV temporários">‹</button><output id="hpTempValue">0</output><button type="button" id="hpTempPlus" aria-label="Aumentar PV temporários">›</button></div></div>
+ <div class="nex-threat-hp-track" id="hpTrack" role="progressbar" aria-label="Pontos de vida restantes" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+  <div class="nex-threat-hp-fill" id="hpFill"></div>
+  <button type="button" data-hp-change="-10" title="Diminuir 10 PV" aria-label="Diminuir 10 PV">«</button>
+  <button type="button" data-hp-change="-1" title="Diminuir 1 PV" aria-label="Diminuir 1 PV">‹</button>
+  <button type="button" id="hpEditButton" class="nex-threat-hp-number" title="Clique para escrever o PV atual"><span id="hpLabel"></span></button>
+  <input type="number" id="hpCurrentInline" class="nex-threat-hp-input" min="0" step="1" inputmode="numeric" aria-label="PV atuais" hidden>
+  <button type="button" data-hp-change="1" title="Aumentar 1 PV" aria-label="Aumentar 1 PV">›</button>
+  <button type="button" data-hp-change="10" title="Aumentar 10 PV" aria-label="Aumentar 10 PV">»</button>
+ </div>
+</section>
 <div class="tabs" role="tablist" aria-label="Seções da ficha">
 <button type="button" data-tab="status" aria-selected="true">Status</button><button type="button" data-tab="combat" aria-selected="false">Combate</button><button type="button" data-tab="description" aria-selected="false">Descrição</button>
 </div>
@@ -664,53 +689,66 @@ function updateThreatHP(baseMaximum){
  const maxFromBook=Number(baseMaximum);
  const available=Number.isFinite(maxFromBook)&&maxFromBook>0;
  $("hpBar").hidden=!available;
- $("hpTrack").hidden=!available;
- $("hpInline").hidden=true;
  $("hpEditButton").hidden=false;
+ $("hpCurrentInline").hidden=true;
  if(!available){hpState=null;return;}
  let restored=null;
  try{restored=JSON.parse(localStorage.getItem(hpStorageKey())||'null');}catch(error){}
  const max=Number.isSafeInteger(restored?.max)&&restored.max>=1?restored.max:Math.trunc(maxFromBook);
  const current=Number.isSafeInteger(restored?.current)?Math.max(0,Math.min(max,restored.current)):max;
- hpState={current,max};
+ const temp=Number.isSafeInteger(restored?.temp)?Math.max(0,Math.min(1000000,restored.temp)):0;
+ hpState={current,max,temp};
  refreshThreatHP();
 }
 function refreshThreatHP(){
  if(!hpState)return;
- const {current,max}=hpState;
- $("hpLabel").textContent=current+' / '+max+' PV';
+ const {current,max,temp}=hpState;
+ $("hpLabel").textContent=current+' / '+max;
  $("hpFill").style.width=(100*current/max)+'%';
  $("hpTrack").setAttribute('aria-valuemax',String(max));
  $("hpTrack").setAttribute('aria-valuenow',String(current));
- $("hpEditButton").setAttribute('aria-label','Editar PV atuais: '+current+' de '+max);
- $("hpInlineMax").textContent='/ '+max+' PV';
+ $("hpTempValue").textContent=String(temp);
  $("hpCurrentInline").max=String(max);
+ $("hpEditButton").setAttribute('aria-label','Editar PV atuais: '+current+' de '+max);
 }
 function saveThreatHP(){
  if(!hpState)return;
  try{localStorage.setItem(hpStorageKey(),JSON.stringify(hpState));}catch(error){console.warn('NEX: PV não persistiram neste navegador',error);}
  refreshThreatHP();
 }
-function closeHpInline(save){
- if($("hpInline").hidden)return;
- if(save&&hpState){
-  const input=$("hpCurrentInline");
-  const value=Number(input.value);
-  if(input.value.trim()!==''&&Number.isSafeInteger(value)&&value>=0){
-   hpState.current=Math.min(hpState.max,value);
-   saveThreatHP();
-  }
- }
- $("hpInline").hidden=true;
+function setThreatHP(value){
+ if(!hpState||!Number.isSafeInteger(value))return;
+ hpState.current=Math.max(0,Math.min(hpState.max,value));
+ saveThreatHP();
+}
+$("hpTrack").addEventListener('click',event=>{
+ const button=event.target.closest('[data-hp-change]');
+ if(!button||!hpState)return;
+ setThreatHP(hpState.current+Number(button.dataset.hpChange));
+});
+$("hpTempMinus").addEventListener('click',()=>{
+ if(!hpState)return;
+ hpState.temp=Math.max(0,hpState.temp-1);saveThreatHP();
+});
+$("hpTempPlus").addEventListener('click',()=>{
+ if(!hpState)return;
+ hpState.temp=Math.min(1000000,hpState.temp+1);saveThreatHP();
+});
+function closeHpInline(commit){
+ const input=$("hpCurrentInline");
+ if(input.hidden)return;
+ // Esconde antes de mudar o foco, evitando um segundo salvamento pelo blur.
+ input.hidden=true;
  $("hpEditButton").hidden=false;
+ if(commit&&hpState&&input.value.trim()!==''){
+  const value=Number(input.value);
+  if(Number.isSafeInteger(value)&&value>=0)setThreatHP(value);
+ }
 }
 $("hpEditButton").addEventListener('click',()=>{
  if(!hpState)return;
  $("hpEditButton").hidden=true;
- $("hpInline").hidden=false;
- $("hpCurrentInline").value=String(hpState.current);
- $("hpCurrentInline").focus();
- $("hpCurrentInline").select();
+ const input=$("hpCurrentInline");input.hidden=false;input.value=String(hpState.current);input.focus();input.select();
 });
 $("hpCurrentInline").addEventListener('keydown',event=>{
  if(event.key==='Enter'){event.preventDefault();closeHpInline(true);}
