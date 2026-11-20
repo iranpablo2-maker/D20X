@@ -458,12 +458,29 @@ export function mountGmShield(options){
    selectedSheet={kind:'npcs',id:entry.id};editing=null;render();
   }
  }
+ function npcCampaignView(x){
+  const t=npcSheet(x.sheet),pic=safeImage(x.image),attrs=[['agi','AGI'],['for','FOR'],['int','INT'],['pre','PRE'],['vig','VIG']];
+  const attrHtml=attrs.map(([key,label])=>'<div class="nex-gm-npc-view-attr"><small>'+label+'</small><b>'+escape(t.attributes[key])+'</b></div>').join('');
+  const skills=t.npcSkills.map(s=>'<div class="nex-gm-npc-view-skill"><span>'+escape(s.name)+'</span><strong>'+(s.bonus>=0?'+':'')+escape(s.bonus)+'</strong></div>').join('');
+  const attacks=t.actions.map(a=>'<article class="nex-gm-npc-view-action"><strong>'+escape(a.name||'Habilidade')+'</strong><small>'+escape(a.kind==='attack'?'ATAQUE':'HABILIDADE')+(a.action?' · '+escape(a.action):'')+'</small>'+(a.test?'<p>Teste: '+escape(a.test)+'</p>':'')+(a.damage?'<p>Dano: '+escape(a.damage)+(a.damageType?' '+escape(a.damageType):'')+'</p>':'')+(a.effect?'<p>'+escape(a.effect)+'</p>':'')+'</article>').join('');
+  const rituals=t.rituals.map(a=>'<article class="nex-gm-npc-view-action"><strong>'+escape(a.name||'Ritual')+'</strong><small>RITUAL'+(a.element?' · '+escape(a.element):'')+'</small>'+(a.description?'<p>'+escape(a.description)+'</p>':'')+'</article>').join('');
+  const description=[x.body,t.habilidades,t.notas].filter(Boolean).map(s=>'<p>'+escape(s)+'</p>').join('');
+  return '<section class="nex-gm-npc-view" aria-label="Ficha do NPC">'+
+   '<div class="nex-gm-npc-view-tools"><button type="button" class="alt" data-gm-close-sheet>← Voltar aos NPCs</button><button type="button" class="alt" data-gm-edit="npcs:'+escape(x.id)+'">Editar ficha</button></div>'+
+   '<div class="nex-gm-npc-view-card"><header class="nex-gm-npc-view-header"><div class="nex-gm-npc-view-photo">'+(pic?'<img src="'+escape(pic)+'" alt="Foto de '+escape(x.title)+'">':escape((x.title||'?').charAt(0).toUpperCase()))+'</div>'+
+   '<div class="nex-gm-npc-view-heading"><small>NPC · CAMPANHA</small><h3>'+escape(x.title||'Sem nome')+'</h3></div></header>'+
+   '<div class="nex-gm-npc-view-pv"><strong>'+escape(t.pv)+' PV</strong><span></span></div>'+
+   '<nav class="nex-gm-npc-view-tabs" aria-label="Seções da ficha do NPC"><button type="button" data-gm-npc-view-tab="status" aria-selected="true">STATUS</button><button type="button" data-gm-npc-view-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-gm-npc-view-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
+   '<section data-gm-npc-view-panel="status"><div class="nex-gm-npc-view-attrs">'+attrHtml+'</div><div class="nex-gm-npc-view-stats"><div><small>Defesa</small><strong>'+escape(t.defense)+'</strong></div><div><small>Deslocamento</small><strong>'+escape(t.deslocamento||'—')+'</strong></div><div><small>PV máximos</small><strong>'+escape(t.pv)+'</strong></div></div>'+(skills?'<h4>Perícias</h4>'+skills:'')+'</section>'+
+   '<section data-gm-npc-view-panel="combate" hidden>'+(attacks||rituals||'<p>Nenhuma habilidade ou ataque cadastrado.</p>')+'</section>'+
+   '<section data-gm-npc-view-panel="descricao" hidden>'+(description||'<p>Sem descrição cadastrada.</p>')+'</section></div></section>';
+ }
  function entitySheetView(){
   if(!selectedSheet)return '';
   const kind=selectedSheet.kind,x=state[kind]?.find(entry=>entry.id===selectedSheet.id);
   if(!x)return '';
   const npc=kind==='npcs',sheet=x.sheet;
-  if(npc)return npcCampaignEditor(x);
+  if(npc)return npcCampaignView(x);
   if(kind==='threats'&&String(x.sourceId||'').startsWith('catalog:')){
    const source=String(x.sourceId).slice(8);
    const key=source.includes('::')?source:(()=>{const i=source.lastIndexOf(':');return i<0?'':source.slice(i+1).split(' · ').slice(1).join(' · ')+'::'+source.slice(0,i);})();
@@ -896,6 +913,13 @@ export function mountGmShield(options){
  });
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
+  if(btn.dataset.gmNpcViewTab){
+   const card=btn.closest('.nex-gm-npc-view-card');
+   if(!card)return;
+   card.querySelectorAll('[data-gm-npc-view-tab]').forEach(tab=>tab.setAttribute('aria-selected',String(tab===btn)));
+   card.querySelectorAll('[data-gm-npc-view-panel]').forEach(panel=>{panel.hidden=panel.dataset.gmNpcViewPanel!==btn.dataset.gmNpcViewTab;});
+   return;
+  }
   if(btn.dataset.gmNpcTab){
    const form=btn.closest('[data-gm-npc-sheet]');
    if(!form)return;
@@ -945,7 +969,7 @@ export function mountGmShield(options){
    const entry=state[kind]?.find(x=>x.id===key);
    if(!entry)return;
    if(kind==='threats'&&entry.threatHomebrew&&window.parent!==window){editCampaignThreat(entry);return;}
-   if(kind==='npcs'){openNpcFullEditor(entry);return;}
+   if(kind==='npcs'){selectedSheet={kind,id:key};editing=null;render();return;}
    selectedSheet={kind,id:key};render();return;
   }
   if(btn.dataset.gmEdit){
