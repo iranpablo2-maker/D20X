@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0c0e"><title>NEX | Sistema de fichas</title><script src="./nex-roll-popup.js?v=20261120topframe2"></script><script id="nex-f5-restore-boot">
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0c0e"><title>NEX | Sistema de fichas</title><script src="./nex-roll-popup.js?v=20261120characterroll1"></script><script id="nex-f5-restore-boot">
 (function(){
  try{
   const nav=JSON.parse(sessionStorage.getItem('nex_navigation_screen_v1')||'null');
@@ -6718,6 +6718,32 @@ window.addEventListener('nex-cloud-sync-state',event=>{
   if(!options||typeof options.expression!=='string'||options.expression.length>360)return;
   window.NEX_DICE_UI?.roll(options);
  });
+})();
+</script>
+
+<style id="nex-vtt-character-roll-notification-css">
+/* A ficha na mesa utiliza a mesma pilha de notificacoes das ameacas e NPCs. */
+body.nex-vtt-sheet-overlay #nex25RollPopup,
+body.nex-vtt-sheet-overlay #nexAttributeRollPopup{display:none!important}
+</style>
+<script id="nex-vtt-character-roll-notification-bridge">
+(function(){
+ 'use strict';
+ // A funcao central logResult recebe os resultados JA sorteados de pericias,
+ // atributos, ataques e danos. Nao recalcular, nao consumir PE e nao duplicar dados.
+ if(typeof logResult!=='function'||typeof window.NEX_DICE_UI?.showResult!=='function')return;
+ const originalLogResult=logResult;
+ logResult=function(label,expression,rolls,total){
+  const result=originalLogResult.apply(this,arguments);
+  if(document.body.classList.contains('nex-vtt-sheet-overlay')&&
+     !document.getElementById('sheetScreen')?.classList.contains('hide')){
+   try{
+    window.NEX_DICE_UI.showResult({title:String(label||'Rolagem'),
+     expression:String(expression||''),detail:String(rolls||''),total:Number(total)});
+   }catch(error){console.warn('NEX: notificacao de rolagem do personagem',error)}
+  }
+  return result;
+ };
 })();
 </script>
 </body></html>
