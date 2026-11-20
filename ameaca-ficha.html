@@ -136,7 +136,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
   #hero .portrait-switch{width:96px!important;min-width:96px!important;max-width:96px!important;flex-basis:96px!important}
   #hero .portrait{width:96px!important;height:96px!important;min-width:96px!important;max-width:96px!important;min-height:96px!important;max-height:96px!important;flex-basis:96px!important}
 }
-</style><script src="./nex-roll-popup.js?v=20261120d20icon56"></script>
+</style><script src="./nex-roll-popup.js?v=20261120usericon1"></script>
 </head>
 <body>
 <div class="shell">
@@ -317,7 +317,7 @@ function senseEntries(data){
 function threatRollButton(expression,label,low=false,critical=''){
  const match=String(expression||'').match(/(\d{0,2})\s*d\s*(100|20|12|10|8|6|4)(?:\s*[+-]\s*\d+)?/i);
  if(!match)return '';
- return '<button type="button" class="nex-roll20-btn" data-nex-roll-expression="'+esc(expression)+'" data-nex-roll-title="'+esc(label)+'"'+(low?' data-nex-roll-low="true"':'')+(critical?' data-nex-roll-critical="'+esc(String(critical).slice(0,20))+'"':'')+'><img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=20261120blackd20v2" alt=""><span class="sr-only">Rolar</span></button>';
+ return '<button type="button" class="nex-roll20-btn" data-nex-roll-expression="'+esc(expression)+'" data-nex-roll-title="'+esc(label)+'"'+(low?' data-nex-roll-low="true"':'')+(critical?' data-nex-roll-critical="'+esc(String(critical).slice(0,20))+'"':'')+'><img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=20261120usericon1" alt=""><span class="sr-only">Rolar</span></button>';
 }
 function renderSenses(data){
  if(!hasValue(data))return "";
