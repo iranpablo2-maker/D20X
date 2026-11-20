@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0c0e"><title>NEX | Sistema de fichas</title><script id="nex-f5-restore-boot">
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0c0e"><title>NEX | Sistema de fichas</title><script src="./nex-roll-popup.js?v=20261120threatrollbridge1"></script><script id="nex-f5-restore-boot">
 (function(){
  try{
   const nav=JSON.parse(sessionStorage.getItem('nex_navigation_screen_v1')||'null');
@@ -2268,7 +2268,7 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 </details>
 </section>
 <section id="threatsPanel" class="hide" aria-label="Biblioteca de Ameaças">
- <iframe id="nexThreatLibrary" title="Biblioteca de Ameaças NEX" data-src="./ameacas.html?v=20261120anulado3" loading="lazy" scrolling="no"></iframe>
+ <iframe id="nexThreatLibrary" title="Biblioteca de Ameaças NEX" data-src="./ameacas.html?v=20261120threatrollbridge1" loading="lazy" scrolling="no"></iframe>
 </section>
 <section id="campaignPanel" class="hide" aria-label="Campanhas">
  <div class="home-toolbar"><button class="btn" id="campaignBack">← Menu principal</button></div>
@@ -6707,6 +6707,17 @@ window.addEventListener('nex-cloud-sync-state',event=>{
   }
   new MutationObserver(loadWhenVisible).observe(panel,{attributes:true,attributeFilter:['class','style']});
   loadWhenVisible();
+})();
+</script>
+<script id="nex-threat-roll-top-bridge">
+(function(){
+ window.addEventListener('message',function(event){
+  const library=document.getElementById('nexThreatLibrary');
+  if(event.origin!==location.origin||event.source!==library?.contentWindow||event.data?.type!=='nex-threat-dice-roll')return;
+  const options=event.data.options;
+  if(!options||typeof options.expression!=='string'||options.expression.length>360)return;
+  window.NEX_DICE_UI?.roll(options);
+ });
 })();
 </script>
 </body></html>
