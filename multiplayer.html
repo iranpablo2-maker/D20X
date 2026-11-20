@@ -2832,7 +2832,11 @@ function nexReadNavigation(){
 }
 function nexSaveNavigation(campaignId,section){
  if(nexNavRestoring||!nexNavUserId)return;
- try{sessionStorage.setItem(NEX_NAV_KEY,JSON.stringify({uid:nexNavUserId,campaignId:campaignId||'',section:section||'characters'}));}catch(error){}
+ try{
+  const last=nexReadNavigation();
+  const menuTab=last?.uid===nexNavUserId&&last.campaignId===campaignId?last.menuTab:null;
+  sessionStorage.setItem(NEX_NAV_KEY,JSON.stringify({uid:nexNavUserId,campaignId:campaignId||'',section:section||'characters',menuTab}));
+ }catch(error){}
 }
 const notice=msg=>$('notice').textContent=msg||'';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -3497,6 +3501,14 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(section==='tabletop')vttUnavailable.hidden=true;
   document.querySelectorAll('[data-room-section]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.roomSection===section)));
   nexSaveNavigation(roomId,section);
+  if(section==='tabletop'){
+   const last=nexReadNavigation();
+   const tabName=last?.uid===uid&&last.campaignId===roomId?last.menuTab:null;
+   if(['art','chat','sheets','master'].includes(tabName)&&(tabName!=='master'||gm)){
+    const tabButton=document.querySelector('#nexVttMainMenu [data-nex-main-tab="'+tabName+'"]');
+    if(tabButton?.getAttribute('aria-pressed')!=='true')tabButton?.click();
+   }
+  }
   show('roomCharactersPanel',section==='characters');
   show('roomTabletopPanel',section==='tabletop');
   window.dispatchEvent(new CustomEvent('nex:vtt-view',{detail:{campaignId:roomId,open:section==='tabletop'}}));
@@ -4051,6 +4063,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    menuTabs.find(btn=>btn.dataset.nexMainTab==='master')?.classList.toggle('hide',!gm);
    menuTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexMainTab===name)));
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
+   if(roomId&&uid&&!nexNavRestoring){
+    try{
+     const last=nexReadNavigation();
+     if(last?.uid===uid&&last.campaignId===roomId)sessionStorage.setItem(NEX_NAV_KEY,JSON.stringify({...last,menuTab:name}));
+    }catch(error){}
+   }
    if(name==='master'&&gm)attachInlineGm();
    else detachInlineGm();
   }
