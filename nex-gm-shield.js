@@ -501,9 +501,9 @@ export function mountGmShield(options){
  const gmNpcD20Icon='<img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=20261120user48" alt="d20">';
  function gmNpcDiceExpression(value){
   const text=String(value||'').trim();
-  const match=text.match(/(^|[^\w])(\d{1,2})\s*d\s*(100|20|12|10|8|6|4)\s*([+-]\s*\d{1,3})?/i);
+  const match=text.match(/(^|[^\w])(\d{0,2})\s*d\s*(100|20|12|10|8|6|4)\s*([+-]\s*\d{1,3})?/i);
   if(!match)return null;
-  const count=Number(match[2]),sides=Number(match[3]),bonus=Number((match[4]||'0').replace(/\s+/g,''));
+  const count=Number(match[2]||1),sides=Number(match[3]),bonus=Number((match[4]||'0').replace(/\s+/g,''));
   if(!Number.isInteger(count)||count<1||count>30||!Number.isFinite(bonus)||Math.abs(bonus)>999)return null;
   return {count,sides,bonus};
  }
