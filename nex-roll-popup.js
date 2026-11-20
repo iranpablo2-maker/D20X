@@ -25,7 +25,7 @@
  function parse(input){
   const text=String(input||'').trim();
   if(!text||text.length>360)return null;
-  const dice=/(\d{1,2})\s*d\s*(100|20|12|10|8|6|4)\b/gi;
+  const dice=/\b(\d{0,2})\s*d\s*(100|20|12|10|8|6|4)\b/gi;
   const found=[...text.matchAll(dice)];
   if(!found.length||found.length>12)return null;
   const start=found[0].index;
@@ -40,7 +40,7 @@
     if(!prefix)return null; // Múltiplos dados separados por texto sem operador: ambíguo.
     sign=prefix[1]==='-'?-1:1;
    }else if(/-\s*$/.test(text.slice(0,item.index)))sign=-1;
-   const count=Number(item[1]),sides=Number(item[2]);
+   const count=Number(item[1]||1),sides=Number(item[2]);
    if(count<1||count>30||totalDice+count>80)return null;
    parts.push({kind:'dice',sign,count,sides});
    totalDice+=count;
