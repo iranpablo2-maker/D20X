@@ -455,51 +455,55 @@ export function mountGmShield(options){
  }
 
  // Dados exclusivos da visualização mini do NPC no Escudo do Mestre.
+
+ const gmNpcD20Icon='<svg class="nex-gm-npc-d20-icon" viewBox="0 0 36 36" width="20" height="20" role="img" aria-label="d20" xmlns="http://www.w3.org/2000/svg"><path d="M18 2 33 12v13L18 34 3 25V12Z" fill="#28151e" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M18 2 10 14l8 17 8-17L18 2ZM3 12l7 2 8 17L3 25M33 12l-7 2-8 17 15-6M10 14h16" fill="none" stroke="currentColor" stroke-width="1" stroke-linejoin="round"/><text x="18" y="21" font-size="11" font-weight="800" fill="currentColor" stroke="#28151e" stroke-width="2.5" paint-order="stroke" text-anchor="middle">20</text></svg>';
  function gmNpcDiceExpression(value){
-  const text=String(value||'').trim().replace(/\s+/g,' ');
-  const match=text.match(/^([1-9]\d{0,1})d(4|6|8|10|12|20|100)(?:\s*([+-])\s*(\d{1,3}))?(?:\s*(?:\([^)]*\)|[a-zÀ-ÿ ]{1,24}))?$/i);
+  const text=String(value||'').trim();
+  const match=text.match(/(^|[^\w])(\d{1,2})\s*d\s*(100|20|12|10|8|6|4)\s*([+-]\s*\d{1,3})?/i);
   if(!match)return null;
-  const count=Number(match[1]),sides=Number(match[2]),bonus=(match[3]==='-'?-1:1)*Number(match[4]||0);
-  if(count>30||Math.abs(bonus)>999)return null;
+  const count=Number(match[2]),sides=Number(match[3]),bonus=Number((match[4]||'0').replace(/\s+/g,''));
+  if(!Number.isInteger(count)||count<1||count>30||!Number.isFinite(bonus)||Math.abs(bonus)>999)return null;
   return {count,sides,bonus};
  }
  function gmNpcRollButton(expression,label){
   if(!gmNpcDiceExpression(expression))return '';
-  return '<button type="button" class="nex-gm-npc-roll" '+(label==='Teste'?'data-gm-npc-pool="high" ':'')+'data-gm-npc-dice="'+escape(expression)+'" aria-label="Rolar '+escape(label)+'" title="Rolar '+escape(expression)+'">🎲 '+escape(label)+'</button>';
+  const pool=label==='Teste'?' data-gm-npc-pool="high"':'';
+  return '<button type="button" class="nex-gm-npc-roll"'+pool+' data-gm-npc-dice="'+escape(expression)+'" data-gm-npc-dice-label="'+escape(label)+'" aria-label="Rolar '+escape(label)+'" title="Rolar '+escape(expression)+'">'+gmNpcD20Icon+'<span>'+escape(label)+'</span></button>';
  }
  function gmNpcRollResult(btn){
+  const card=btn.closest('.nex-gm-npc-view-card');
+  if(!card)return;
+  const output=card.querySelector('[data-gm-npc-dice-result]');
   const skill=btn.hasAttribute('data-gm-npc-skill-attr');
-  const attributes=selectedSheet?.kind==='npcs'?npcSheet(state.npcs.find(x=>x.id===selectedSheet.id)?.sheet).attributes:null;
+  const item=selectedSheet?.kind==='npcs'?state.npcs.find(x=>x.id===selectedSheet.id):null;
+  const attributes=item?npcSheet(item.sheet).attributes:{};
   const key=btn.dataset.gmNpcSkillAttr;
-  const attr=skill&&attributes?Math.min(6,Math.max(0,Math.trunc(Number(attributes[key])||0))):0;
-  const parsed=skill?{count:attr||2,sides:20,bonus:Math.trunc(Number(btn.dataset.gmNpcSkillBonus)||0)}:gmNpcDiceExpression(btn.dataset.gmNpcDice);
-  if(!parsed||parsed.count>30)return;
-  const values=Array.from({length:parsed.count},()=>Math.floor(Math.random()*parsed.sides)+1);
+  const attr=skill?Math.max(0,Math.min(6,Math.trunc(Number(attributes[key])||0))):0;
+  const bonus=skill?Math.trunc(Number(btn.dataset.gmNpcSkillBonus)||0):0;
+  const parsed=skill?{count:attr||2,sides:20,bonus}:gmNpcDiceExpression(btn.dataset.gmNpcDice);
+  if(!parsed){if(output){output.textContent='Expressão de dados inválida.';output.hidden=false;}return;}
+  const dice=Array.from({length:parsed.count},()=>Math.floor(Math.random()*parsed.sides)+1);
   const pool=skill||btn.dataset.gmNpcPool==='high';
-  const base=pool?(skill&&attr===0?Math.min(...values):Math.max(...values)):values.reduce((a,b)=>a+b,0);
-  const result=base+parsed.bonus;
-  const detail=values.join(', ')+(pool?' → '+base:'');
-  const total=String(result);
-  const output=btn.closest('.nex-gm-npc-view-card')?.querySelector('[data-gm-npc-dice-result]');
+  const chosen=pool?(skill&&attr===0?Math.min(...dice):Math.max(...dice)):dice.reduce((sum,v)=>sum+v,0);
+  const total=chosen+parsed.bonus;
   if(output){
-   const prefix=btn.dataset.gmNpcDiceLabel||(skill?'Teste de perícia':'Rolagem');
-   output.textContent=prefix+': '+total+' ('+parsed.count+'d'+parsed.sides+(parsed.bonus>=0?'+':'')+parsed.bonus+'; dados: '+detail+')';
+   const label=btn.dataset.gmNpcDiceLabel||(skill?'Perícia':'Rolagem');
+   output.textContent=label+': '+total+' | '+parsed.count+'d'+parsed.sides+(parsed.bonus>=0?'+':'')+parsed.bonus+' | Dados: '+dice.join(', ')+(pool?' | Selecionado: '+chosen:'');
    output.hidden=false;
    output.setAttribute('role','status');
   }
  }
-
  function npcCampaignView(x){
   const t=npcSheet(x.sheet),pic=safeImage(x.image),attrs=[['agi','AGI'],['for','FOR'],['int','INT'],['pre','PRE'],['vig','VIG']];
   const skillAttrs={'Acrobacia':'agi','Adestramento':'pre','Artes':'pre','Atletismo':'for','Atualidades':'int','Ciências':'int','Crime':'agi','Diplomacia':'pre','Enganação':'pre','Fortitude':'vig','Furtividade':'agi','Iniciativa':'agi','Intimidação':'pre','Intuição':'pre','Investigação':'int','Luta':'for','Medicina':'int','Ocultismo':'int','Percepção':'pre','Pilotagem':'agi','Pontaria':'agi','Profissão':'int','Reflexos':'agi','Religião':'pre','Sobrevivência':'int','Tática':'int','Tecnologia':'int','Vontade':'pre'};
-  const attrHtml=attrs.map(([key,label])=>'<div class="nex-gm-npc-view-attr"><small>'+label+'</small><b>'+escape(t.attributes[key])+'</b><button type="button" class="nex-gm-npc-roll" data-gm-npc-skill-attr="'+key+'" data-gm-npc-skill-bonus="0" data-gm-npc-dice-label="Atributo '+label+'" aria-label="Rolar atributo '+label+'">🎲</button></div>').join('');
+  const attrHtml=attrs.map(([key,label])=>'<div class="nex-gm-npc-view-attr"><small>'+label+'</small><b>'+escape(t.attributes[key])+'</b><button type="button" class="nex-gm-npc-roll" data-gm-npc-skill-attr="'+key+'" data-gm-npc-skill-bonus="0" data-gm-npc-dice-label="Atributo '+label+'" aria-label="Rolar atributo '+label+'">' + gmNpcD20Icon + '</button></div>').join('');
   const empty='<p class="nex-gm-npc-view-empty">Nenhuma informação cadastrada.</p>';
   const filled=(value)=>String(value??'').trim();
   const details=(items)=>items.filter(([,value])=>filled(value)).map(([label,value])=>'<div class="nex-gm-npc-view-detail"><small>'+escape(label)+'</small><span>'+escape(value)+'</span></div>').join('');
   const blocks=(items)=>items.filter(([,value])=>filled(value)).map(([label,value])=>'<section class="nex-gm-npc-view-textblock"><h4>'+escape(label)+'</h4><p>'+escape(value)+'</p></section>').join('');
   const skills=t.npcSkills.map(s=>{
    const attr=skillAttrs[s.name]||'int',dice=t.attributes[attr],roll=dice===0?'2d20 (menor)':dice+'d20';
-   return '<div class="nex-gm-npc-view-skill"><span>'+escape(s.name)+' <small>('+attr.toUpperCase()+')</small></span><strong>'+escape(roll)+(s.bonus>=0?'+':'')+escape(s.bonus)+'</strong><button type="button" class="nex-gm-npc-roll" data-gm-npc-skill-attr="'+attr+'" data-gm-npc-skill-bonus="'+escape(s.bonus)+'" aria-label="Rolar '+escape(s.name)+'" title="Rolar '+escape(s.name)+'">🎲</button></div>';
+   return '<div class="nex-gm-npc-view-skill"><span>'+escape(s.name)+' <small>('+attr.toUpperCase()+')</small></span><strong>'+escape(roll)+(s.bonus>=0?'+':'')+escape(s.bonus)+'</strong><button type="button" class="nex-gm-npc-roll" data-gm-npc-skill-attr="'+attr+'" data-gm-npc-skill-bonus="'+escape(s.bonus)+'" aria-label="Rolar '+escape(s.name)+'" title="Rolar '+escape(s.name)+'">' + gmNpcD20Icon + '</button></div>';
   }).join('');
   const action=(a)=>{
    const heading=escape(a.name||'Habilidade');
