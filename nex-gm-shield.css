@@ -551,3 +551,41 @@
  display:block!important;width:29px!important;height:29px!important;min-width:29px!important;max-width:29px!important;object-fit:contain!important;flex:0 0 29px!important;pointer-events:none!important;
 }
 #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-roll{gap:4px!important;align-items:center!important}
+
+
+/* Ficha de NPC no estilo da ficha de ameaça: controle de vida compacto e funcional. */
+#roomMasterPanel .nex-gm-npc-view-pv{
+ display:grid!important;gap:6px!important;margin:12px 15px 9px!important;text-align:left!important;
+}
+#roomMasterPanel .nex-gm-npc-hp-title{font-size:11px;color:#f8eaf0;font-weight:700;letter-spacing:.04em}
+#roomMasterPanel .nex-gm-npc-hp-track{
+ position:relative;isolation:isolate;display:flex;align-items:stretch;overflow:hidden;
+ min-width:0;width:100%;height:39px;border-radius:3px;background:#51242d;
+}
+#roomMasterPanel .nex-gm-npc-hp-fill{
+ position:absolute;left:0;top:0;bottom:0;display:block;height:100%;background:#b41e36;
+ transition:width .2s;z-index:-1;pointer-events:none;border-radius:0;margin:0;
+}
+#roomMasterPanel .nex-gm-npc-hp-track button{
+ position:relative;z-index:1;display:grid;place-items:center;min-width:0;
+ flex:0 0 26px;padding:0;border:0;border-radius:0;background:transparent;color:white;
+ font-size:19px;font-weight:800;line-height:1;cursor:pointer;
+}
+#roomMasterPanel .nex-gm-npc-hp-track button:hover{background:#ffffff22}
+#roomMasterPanel .nex-gm-npc-hp-track button.nex-gm-npc-hp-value{
+ flex:1 1 auto;font-size:15px;font-weight:750;white-space:nowrap;padding:0 3px;
+}
+#roomMasterPanel .nex-gm-npc-hp-track input.nex-gm-npc-hp-input{
+ width:85px;max-width:40%;flex:0 1 85px;min-width:0;align-self:center;height:28px;
+ border:1px solid #ff8ba2;border-radius:4px;background:#200f16;color:#fff;
+ text-align:center;font-size:14px;font-weight:750;appearance:textfield;-moz-appearance:textfield;
+}
+#roomMasterPanel .nex-gm-npc-hp-input::-webkit-inner-spin-button,
+#roomMasterPanel .nex-gm-npc-hp-input::-webkit-outer-spin-button{appearance:none;margin:0}
+#roomMasterPanel .nex-gm-npc-hp-track [hidden]{display:none!important}
+#roomMasterPanel .nex-gm-npc-hp-track button:focus-visible,
+#roomMasterPanel .nex-gm-npc-hp-input:focus-visible{outline:2px solid #fff;outline-offset:-2px}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-pv{margin:9px!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-hp-track{height:38px!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-hp-track button{font-size:18px!important;flex-basis:23px!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-hp-track button.nex-gm-npc-hp-value{font-size:13px!important;flex:1 1 auto!important}
