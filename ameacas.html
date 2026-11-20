@@ -338,6 +338,17 @@ async function nexResolvePortrait(x){
  const paired=window.NEX_FEVEREIRO_FORM_IMAGES?.[key]?.normal;
  const uploaded=window.NEX_UPLOADED_THREAT_IMAGES?.[key];
  const finalIndex=window.NEX_FINAL_FOUR_POSITIONS?.[key];
+ const atlasPortrait=nexArchiveAtlasPortrait(x);
+ // Alguns caminhos antigos do catálogo não existem no GitHub.
+ // Confirma o arquivo antes de escolhê-lo e usa o retrato do atlas como alternativa.
+ if(main&&atlasPortrait&&/^\.\/assets\//.test(main)){
+  try{
+   const response=await fetch(main,{method:'HEAD',cache:'force-cache'});
+   if(!response.ok)return {atlas:atlasPortrait.src,columns:4,rows:5,index:Number(atlasPortrait.index)};
+  }catch(error){
+   return {atlas:atlasPortrait.src,columns:4,rows:5,index:Number(atlasPortrait.index)};
+  }
+ }
  if(main)return {url:main};
  if(paired)return {url:paired};
  if(uploaded&&typeof window.NEX_UPLOADED_THREAT_IMAGE_URL==='function'){
