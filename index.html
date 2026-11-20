@@ -2836,7 +2836,15 @@ function renderAttacks(){ $('attacksList').innerHTML=state.attacks.length?state.
 function renderInventory(){ $('inventoryList').innerHTML=state.items.length?state.items.map(i=>`<div class="item" data-item-id="${escapeHtml(i.id)}"><div class="item-head"><strong>${escapeHtml(i.name||'Item')}</strong><button class="btn sm" data-delete-item="${escapeHtml(i.id)}">Excluir</button></div><div class="item-grid"><div class="field"><label>Nome</label><input data-item-field="name" value="${escapeHtml(i.name||'')}"></div><div class="field"><label>Quantidade</label><input type="number" min="0" data-item-field="quantity" value="${clamp(int(i.quantity),0,9999)}"></div><div class="field"><label>Detalhes</label><input data-item-field="detail" value="${escapeHtml(i.detail||'')}"></div></div></div>`).join(''):'<p class="hint">Inventário vazio.</p>';}
 function renderPortrait(){const box=$('portraitPreview'); if(!box) return; if(state.photo){box.innerHTML='<img src="'+escapeHtml(state.photo)+'" alt="Foto do personagem">';}else{box.textContent='♙';}}
 function renderFields(){document.querySelectorAll('[data-field]').forEach(el=>{let k=el.dataset.field;el.value=k==='autoRules'?String(state.autoRules!==false):(state[k]??'');});const classSelect=$('class');if(classSelect){const mundane=classSelect.querySelector('option[value="Mundano"],option:last-child');if(mundane)mundane.hidden=int(state.nex)!==0;classSelect.disabled=int(state.nex)===0;}renderPortrait();renderStats();renderAttributes();renderSkills();renderAttacks();renderInventory();}
-function logResult(label,expression,rolls,total){log.unshift({label,expression,rolls,total});log=log.slice(0,40);}
+function logResult(label,expression,rolls,total){
+ log.unshift({label,expression,rolls,total});log=log.slice(0,40);
+ // A ficha da mesa reutiliza esta rolagem pronta, sem sortear dados novamente.
+ const screen=document.getElementById('sheetScreen');
+ if(document.body.classList.contains('nex-vtt-sheet-overlay')&&screen&&!screen.classList.contains('hide')){
+  try{window.NEX_DICE_UI?.showResult?.({title:label,expression,detail:rolls,total});}
+  catch(error){console.warn('NEX: falha ao mostrar rolagem no Tabletop',error);}
+ }
+}
 function dice(expr,label,extra=0){const clean=String(expr).replace(/\s/g,'').toLowerCase();if(!/^[+-]?(?:\d*d\d+|\d+)(?:[+-](?:\d*d\d+|\d+))*$/.test(clean)||clean.length>90){toast('Expressão inválida. Use, por exemplo, 2d6+3.');return;}const tokens=clean.match(/[+-]?(?:\d*d\d+|\d+)/g)||[];let total=extra;let parts=[];let rolled=0;for(let token of tokens){const sign=token.startsWith('-')?-1:1;const core=token.replace(/^[+-]/,'');if(core.includes('d')){let [count,faces]=core.split('d').map(Number);if(!count)count=1;if(count>50||faces>1000||faces<2||count<1||rolled+count>70){toast('Limite: 50 dados por termo, até d1000.');return;}let results=[];for(let j=0;j<count;j++){const rand=new Uint32Array(1);crypto.getRandomValues(rand);const value=rand[0]%faces+1;results.push(value);total+=sign*value;}rolled+=count;parts.push(`${sign<0?'-':''}[${results.join(', ')}]`);}else{total+=sign*Number(core);parts.push(token);}}if(extra)parts.push(`bônus ${extra>=0?'+':''}${extra}`);logResult(label,clean+(extra?(extra>=0?'+':'')+extra:''),parts.join(' '),total);}
 function nexOfficialAttackDamageBonus(a){
   if(!a||typeof a!=='object')return 0;
@@ -6726,24 +6734,5 @@ window.addEventListener('nex-cloud-sync-state',event=>{
 body.nex-vtt-sheet-overlay #nex25RollPopup,
 body.nex-vtt-sheet-overlay #nexAttributeRollPopup{display:none!important}
 </style>
-<script id="nex-vtt-character-roll-notification-bridge">
-(function(){
- 'use strict';
- // A funcao central logResult recebe os resultados JA sorteados de pericias,
- // atributos, ataques e danos. Nao recalcular, nao consumir PE e nao duplicar dados.
- if(typeof logResult!=='function'||typeof window.NEX_DICE_UI?.showResult!=='function')return;
- const originalLogResult=logResult;
- logResult=function(label,expression,rolls,total){
-  const result=originalLogResult.apply(this,arguments);
-  if(document.body.classList.contains('nex-vtt-sheet-overlay')&&
-     !document.getElementById('sheetScreen')?.classList.contains('hide')){
-   try{
-    window.NEX_DICE_UI.showResult({title:String(label||'Rolagem'),
-     expression:String(expression||''),detail:String(rolls||''),total:Number(total)});
-   }catch(error){console.warn('NEX: notificacao de rolagem do personagem',error)}
-  }
-  return result;
- };
-})();
-</script>
+
 </body></html>
