@@ -2825,13 +2825,13 @@ const $=id=>document.getElementById(id);
 const show=(id,on)=>$(id).classList.toggle('hide',!on);
 // Session navigation is scoped to the logged-in account and browser tab.
 const NEX_NAV_KEY='nex_campaign_navigation_v1';
-let nexNavRestoring=false, nexPendingTabletopRestore='';
+let nexNavRestoring=false, nexPendingTabletopRestore='', nexNavUserId=null;
 function nexReadNavigation(){
  try{return JSON.parse(sessionStorage.getItem(NEX_NAV_KEY)||'null');}catch(error){return null;}
 }
 function nexSaveNavigation(campaignId,section){
- if(nexNavRestoring||!uid)return;
- try{sessionStorage.setItem(NEX_NAV_KEY,JSON.stringify({uid,campaignId:campaignId||'',section:section||'characters'}));}catch(error){}
+ if(nexNavRestoring||!nexNavUserId)return;
+ try{sessionStorage.setItem(NEX_NAV_KEY,JSON.stringify({uid:nexNavUserId,campaignId:campaignId||'',section:section||'characters'}));}catch(error){}
 }
 const notice=msg=>$('notice').textContent=msg||'';
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -3354,7 +3354,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(inviteUnsub){inviteUnsub();inviteUnsub=null;}
   const saved=nexReadNavigation();
   nexNavRestoring=true;
-  clearRoom();uid=user?.uid||null;
+  clearRoom();uid=user?.uid||null;nexNavUserId=uid;
   show('authPanel',!uid);show('dashboard',!!uid);
   libraryMode('list');
   subscribeCampaigns();
