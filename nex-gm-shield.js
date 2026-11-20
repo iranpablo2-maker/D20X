@@ -207,7 +207,7 @@ export function mountGmShield(options){
    portraitFrame.addEventListener('load',()=>{
     portraitReady=true;requestThreatPortraits();
    },{once:true});
-   portraitFrame.src='./ameacas.html?portraitProvider=1&v=20261120portraitcrop26';
+   portraitFrame.src='./ameacas.html?portraitProvider=1&v=20261120ziphires27';
    document.body.appendChild(portraitFrame);
    return;
   }
