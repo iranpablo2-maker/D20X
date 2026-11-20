@@ -46,21 +46,11 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 .nex-threat-hp-pencil{font-size:15px;opacity:.7}
 .nex-threat-hp-editor{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin:10px 20px 12px;padding:10px;background:#22151c;border:1px solid #723749;border-radius:8px}
 .nex-threat-hp-editor[hidden]{display:none}
-.nex-threat-hp-quick{display:grid;gap:8px;margin:10px 20px 12px;padding:10px;background:#22151c;border:1px solid #723749;border-radius:8px}
-.nex-threat-hp-quick[hidden]{display:none}
-.nex-threat-hp-quick-row{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
-.nex-threat-hp-quick-row button{flex:1 1 46px;min-height:35px;border-radius:5px;border:1px solid #8b4255;background:#44202c;color:white;cursor:pointer;font-weight:700;font-size:12px}
-.nex-threat-hp-quick-row button[data-hp-delta^="-"]{background:#62232e}
-.nex-threat-hp-quick-row button[data-hp-delta^="+"]{background:#245040;border-color:#44846a}
-.nex-threat-hp-quick-row button:focus-visible{outline:2px solid #ff8698;outline-offset:2px}
-.nex-threat-hp-quick-row input{width:72px;min-width:0;flex:0 1 72px;min-height:35px;border:1px solid #874657;border-radius:5px;background:#110d12;color:white;text-align:center;font-size:14px}
-.nex-threat-hp-quick-caption{font-size:11px;color:#c6aeb8}
-.nex-threat-hp-quick-footer{display:flex;gap:7px;justify-content:space-between;flex-wrap:wrap}
-.nex-threat-hp-quick-footer button{background:transparent;border:1px solid #754052;border-radius:5px;color:#f3dce4;padding:6px 9px;cursor:pointer;font-size:11px}
-
-.nex-threat-hp-editor label{display:grid;gap:5px;flex:1 1 105px;color:#e5c9d0;font-size:12px}
-.nex-threat-hp-editor input{width:100%;min-width:0;padding:8px;background:#120e11;color:white;border:1px solid #854253;border-radius:5px}
-.nex-threat-hp-editor button{padding:8px 10px;border-radius:5px;background:#863143;border:1px solid #b65365;color:white;cursor:pointer}
+.nex-threat-hp-inline{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;height:100%;color:white;font-size:17px;font-weight:700}
+.nex-threat-hp-inline[hidden]{display:none}
+.nex-threat-hp-inline input{width:80px;max-width:40%;padding:4px 6px;background:#200d16;color:white;border:1px solid #ff95a6;border-radius:5px;font:700 17px inherit;text-align:center;appearance:textfield;-moz-appearance:textfield}
+.nex-threat-hp-inline input::-webkit-inner-spin-button,.nex-threat-hp-inline input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.nex-threat-hp-inline input:focus{outline:2px solid #ff8399;outline-offset:1px}
 .hp-controls{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:10px 20px}
 .hp-controls input{width:96px;border:1px solid #874657;background:#160d13;color:white;border-radius:6px;padding:7px}
 .hp-controls button,.dice-button{border:1px solid #9f4050;background:#752a38;color:white;padding:7px 10px;border-radius:6px;cursor:pointer;font-size:12px}
@@ -164,20 +154,8 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <nav class="threat-sheet-brand"><span class="brand">N E X</span></nav>
 <div class="card" id="screen" hidden>
 <header class="hero" id="hero"><div class="portrait-switch"><div class="portrait" id="portrait" aria-label="Retrato"></div><button id="formSwitch" class="form-switch" type="button" hidden aria-label="Mostrar outra forma">Mostrar outra ficha</button></div><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div></div></header>
-<div class="hp" id="hpBar" hidden><button type="button" id="hpEditButton" class="nex-threat-hp-edit" title="Editar pontos de vida" aria-label="Editar pontos de vida"><strong id="hpLabel"></strong><span class="nex-threat-hp-pencil" aria-hidden="true">✎</span></button></div>
+<div class="hp" id="hpBar" hidden><button type="button" id="hpEditButton" class="nex-threat-hp-edit" title="Clique para escrever os PV atuais" aria-label="Editar PV atuais"><strong id="hpLabel"></strong><span class="nex-threat-hp-pencil" aria-hidden="true">✎</span></button><label id="hpInline" class="nex-threat-hp-inline" hidden><input id="hpCurrentInline" type="number" min="0" step="1" inputmode="numeric" aria-label="PV atuais"><span id="hpInlineMax"></span></label></div>
 <div class="hp-track" id="hpTrack" hidden role="progressbar" aria-label="Pontos de vida restantes" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100"><div class="hp-fill" id="hpFill"></div></div>
-<div id="hpQuick" class="nex-threat-hp-quick" hidden>
- <div class="nex-threat-hp-quick-caption">Dano (−) ou cura (+) · alterações imediatas</div>
- <div class="nex-threat-hp-quick-row"><button type="button" data-hp-delta="-10">−10</button><button type="button" data-hp-delta="-5">−5</button><button type="button" data-hp-delta="-1">−1</button></div>
- <div class="nex-threat-hp-quick-row"><button type="button" data-hp-delta="+1">+1</button><button type="button" data-hp-delta="+5">+5</button><button type="button" data-hp-delta="+10">+10</button></div>
- <div class="nex-threat-hp-quick-row"><input type="number" id="hpQuickAmount" min="1" max="1000000" step="1" value="1" inputmode="numeric" aria-label="Quantidade de pontos de vida"><button type="button" id="hpQuickDamage">Aplicar dano</button><button type="button" id="hpQuickHeal">Curar</button></div>
- <div class="nex-threat-hp-quick-footer"><button type="button" id="hpAdvancedEdit">Editar PV máximos</button><button type="button" id="hpQuickClose">Fechar</button></div>
-</div>
-<form id="hpEditor" class="nex-threat-hp-editor" hidden>
- <label>PV atuais<input id="hpCurrentInput" type="number" min="0" step="1" inputmode="numeric" required></label>
- <label>PV máximos<input id="hpMaxInput" type="number" min="1" step="1" inputmode="numeric" required></label>
- <button type="submit">Salvar</button><button type="button" id="hpCancelButton">Cancelar</button>
-</form>
 <div class="tabs" role="tablist" aria-label="Seções da ficha">
 <button type="button" data-tab="status" aria-selected="true">Status</button><button type="button" data-tab="combat" aria-selected="false">Combate</button><button type="button" data-tab="description" aria-selected="false">Descrição</button>
 </div>
@@ -687,15 +665,15 @@ function updateThreatHP(baseMaximum){
  const available=Number.isFinite(maxFromBook)&&maxFromBook>0;
  $("hpBar").hidden=!available;
  $("hpTrack").hidden=!available;
- if(!available){$("hpEditor").hidden=true;$("hpQuick").hidden=true;hpState=null;return;}
+ $("hpInline").hidden=true;
+ $("hpEditButton").hidden=false;
+ if(!available){hpState=null;return;}
  let restored=null;
  try{restored=JSON.parse(localStorage.getItem(hpStorageKey())||'null');}catch(error){}
  const max=Number.isSafeInteger(restored?.max)&&restored.max>=1?restored.max:Math.trunc(maxFromBook);
  const current=Number.isSafeInteger(restored?.current)?Math.max(0,Math.min(max,restored.current)):max;
  hpState={current,max};
  refreshThreatHP();
- $("hpEditor").hidden=true;
- $("hpQuick").hidden=true;
 }
 function refreshThreatHP(){
  if(!hpState)return;
@@ -704,60 +682,41 @@ function refreshThreatHP(){
  $("hpFill").style.width=(100*current/max)+'%';
  $("hpTrack").setAttribute('aria-valuemax',String(max));
  $("hpTrack").setAttribute('aria-valuenow',String(current));
- $("hpEditButton").setAttribute('aria-label','Editar pontos de vida: '+current+' de '+max);
+ $("hpEditButton").setAttribute('aria-label','Editar PV atuais: '+current+' de '+max);
+ $("hpInlineMax").textContent='/ '+max+' PV';
+ $("hpCurrentInline").max=String(max);
 }
 function saveThreatHP(){
  if(!hpState)return;
  try{localStorage.setItem(hpStorageKey(),JSON.stringify(hpState));}catch(error){console.warn('NEX: PV não persistiram neste navegador',error);}
  refreshThreatHP();
 }
-function applyThreatHpDelta(delta){
- if(!hpState||!Number.isSafeInteger(delta))return;
- hpState.current=Math.max(0,Math.min(hpState.max,hpState.current+delta));
- saveThreatHP();
+function closeHpInline(save){
+ if($("hpInline").hidden)return;
+ if(save&&hpState){
+  const input=$("hpCurrentInline");
+  const value=Number(input.value);
+  if(input.value.trim()!==''&&Number.isSafeInteger(value)&&value>=0){
+   hpState.current=Math.min(hpState.max,value);
+   saveThreatHP();
+  }
+ }
+ $("hpInline").hidden=true;
+ $("hpEditButton").hidden=false;
 }
 $("hpEditButton").addEventListener('click',()=>{
  if(!hpState)return;
- $("hpQuick").hidden=!$("hpQuick").hidden;
- $("hpEditor").hidden=true;
+ $("hpEditButton").hidden=true;
+ $("hpInline").hidden=false;
+ $("hpCurrentInline").value=String(hpState.current);
+ $("hpCurrentInline").focus();
+ $("hpCurrentInline").select();
 });
-$("hpQuick").addEventListener('click',event=>{
- const button=event.target.closest('[data-hp-delta]');
- if(button)applyThreatHpDelta(Number(button.dataset.hpDelta));
+$("hpCurrentInline").addEventListener('keydown',event=>{
+ if(event.key==='Enter'){event.preventDefault();closeHpInline(true);}
+ if(event.key==='Escape'){event.preventDefault();closeHpInline(false);}
 });
-function applyQuickAmount(sign){
- const input=$("hpQuickAmount"),amount=Number(input.value);
- if(!Number.isSafeInteger(amount)||amount<1||amount>1000000){input.setCustomValidity('Informe uma quantidade inteira de 1 a 1000000.');input.reportValidity();return;}
- input.setCustomValidity('');applyThreatHpDelta(sign*amount);
-}
-$("hpQuickAmount").addEventListener('input',()=>{$("hpQuickAmount").setCustomValidity('');});
-$("hpQuickDamage").addEventListener('click',()=>applyQuickAmount(-1));
-$("hpQuickHeal").addEventListener('click',()=>applyQuickAmount(1));
-$("hpQuickClose").addEventListener('click',()=>{$("hpQuick").hidden=true;});
-$("hpAdvancedEdit").addEventListener('click',()=>{
- if(!hpState)return;
- $("hpCurrentInput").value=hpState.current;
- $("hpMaxInput").value=hpState.max;
- $("hpEditor").hidden=false;
- $("hpQuick").hidden=true;
- $("hpMaxInput").focus();
- $("hpMaxInput").select();
-});
-$("hpCancelButton").addEventListener('click',()=>{$("hpEditor").hidden=true;});
-$("hpEditor").addEventListener('submit',event=>{
- event.preventDefault();
- const current=Number($("hpCurrentInput").value),max=Number($("hpMaxInput").value);
- if(!Number.isSafeInteger(current)||!Number.isSafeInteger(max)||current<0||max<1||max>1000000||current>max){
-  $("hpCurrentInput").setCustomValidity('Informe um valor entre 0 e o PV máximo.');
-  $("hpCurrentInput").reportValidity();
-  return;
- }
- $("hpCurrentInput").setCustomValidity('');
- hpState={current,max};
- saveThreatHP();
- $("hpEditor").hidden=true;
-});
-$("hpCurrentInput").addEventListener('input',()=>{$("hpCurrentInput").setCustomValidity('');});
+$("hpCurrentInline").addEventListener('blur',()=>closeHpInline(true));
 $("formSwitch").addEventListener("click",switchThreatForm);
 document.querySelector(".tabs").addEventListener("click",e=>{const b=e.target.closest("[data-tab]");if(b)activate(b.dataset.tab)});
 
