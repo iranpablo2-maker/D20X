@@ -2142,10 +2142,16 @@ body.nex-vtt-sheet-overlay #sheetScreen #notes #appearance{
 /* Reuse the real Homebrew sheet editor without ever leaving the campaign. */
 body.nex-campaign-hb-open{overflow:hidden!important}
 #homebrewScreen.nex-campaign-hb-overlay{
-  display:block!important;position:fixed!important;inset:0!important;
-  width:100%!important;height:100dvh!important;overflow-y:auto!important;
+  /* Editor REAL do Homebrew, visualizado na área do Escudo/Tabletop. */
+  display:block!important;position:fixed!important;inset:auto!important;
+  left:var(--nex-npc-editor-left,0px)!important;
+  top:var(--nex-npc-editor-top,0px)!important;
+  width:var(--nex-npc-editor-width,100vw)!important;
+  height:var(--nex-npc-editor-height,100dvh)!important;
+  max-width:none!important;max-height:none!important;
+  overflow-y:auto!important;overflow-x:hidden!important;
   z-index:1000200!important;background:#0a090d!important;
-  padding:14px max(12px,calc((100vw - 1180px)/2)) 40px!important;
+  padding:14px max(12px,calc((100% - 1180px)/2)) 40px!important;
   box-sizing:border-box!important;
 }
 #homebrewScreen.nex-campaign-hb-overlay .homebrew-alone,
@@ -3707,6 +3713,25 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  window.addEventListener('nex:open-homebrew-npc-sheet',()=>showHomebrew());
  // O editor da ficha pertence à campanha: não navega para a biblioteca Homebrew
  // nem recarrega o iframe da sala. A campanha fica aberta por baixo do editor.
+ function syncCampaignSheetOverlayBounds(){
+  const screen=$('homebrewScreen');
+  if(!screen?.classList.contains('nex-campaign-hb-overlay'))return;
+  const frame=$('nexCampaignRoomFrame');
+  // O editor do Homebrew permanece no documento principal, pois seus controles
+  // são ligados a este document. Apenas sua janela acompanha o Tabletop.
+  const area=frame?.getBoundingClientRect();
+  const usable=area&&area.width>=300&&area.height>=280;
+  const bounds=usable?{
+   left:Math.max(0,area.left),top:Math.max(0,area.top),
+   width:Math.min(window.innerWidth-Math.max(0,area.left),area.width),
+   height:Math.min(window.innerHeight-Math.max(0,area.top),area.height)
+  }:{left:0,top:0,width:window.innerWidth,height:window.innerHeight};
+  screen.style.setProperty('--nex-npc-editor-left',bounds.left+'px');
+  screen.style.setProperty('--nex-npc-editor-top',bounds.top+'px');
+  screen.style.setProperty('--nex-npc-editor-width',Math.max(300,bounds.width)+'px');
+  screen.style.setProperty('--nex-npc-editor-height',Math.max(280,bounds.height)+'px');
+ }
+ window.addEventListener('resize',syncCampaignSheetOverlayBounds);
  function openCampaignSheetOverlay(){
   const screen=$('homebrewScreen');
   if(!screen||!$('campaignPanel'))return;
@@ -3714,8 +3739,9 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   screen.classList.add('nex-campaign-hb-overlay');
   screen.setAttribute('role','dialog');
   screen.setAttribute('aria-modal','true');
-  screen.setAttribute('aria-label','Editar ficha da campanha');
+  screen.setAttribute('aria-label','Editar ficha da campanha dentro do Tabletop');
   document.body.classList.add('nex-campaign-hb-open');
+  syncCampaignSheetOverlayBounds();
  }
  function closeCampaignSheetOverlay(){
   const screen=$('homebrewScreen');
