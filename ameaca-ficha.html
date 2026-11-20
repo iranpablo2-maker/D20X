@@ -159,10 +159,10 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <script src="./nex-ameacas-imagens-arquivos.js?v=nov15assecla"></script>
 <script src="./nex-arquivos-zip-imagens.js?v=20261115nov2"></script>
 <script src="./nex-ameacas-ultimos-quatro.js?v=20261115ultimo1"></script>
-<script src="./nex-ameacas-julho.js?v=20261115jul4"></script>
+<script src="./nex-ameacas-julho.js?v=20261120combatcomplete2"></script>
 <script src="./nex-arquivos-ameacas-faltantes.js?v=20261115realidade1"></script>
 <script src="./nex-sah-ameacas-faltantes.js?v=20261115sah17"></script>
-<script src="./nex-ameacas-realidade-basico.js?v=20261115basicreality1"></script>
+<script src="./nex-ameacas-realidade-basico.js?v=20261120combatcomplete2"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos3"></script>
 <script src="./nex-arquivos-atlas-lote2.js?v=nov14lote2a"></script>
 <script src="./nex-fevereiro-formas.js?v=20261114forms2"></script>
@@ -597,7 +597,7 @@ function explainThreatAbility(ability,threatData){
  const abilityRows=abilities.length?'<h2>Habilidades especiais</h2>'+abilities.map(a=>'<details class="action threat-action-fold"><summary class="threat-action-heading"><span class="threat-action-name">'+esc(a.name)+'</span><span class="threat-action-arrow" aria-hidden="true">⌄</span></summary><div class="threat-action-content">'+explainThreatAbility(a,d)+'</div></details>').join(""):"";
  $("combat").innerHTML=(actionRows||hasValue(d.attacks)?'<h2>Ataques e habilidades</h2>':"")+actionRows+abilityRows+(hasValue(d.attacks)?'<div class="action"><p class="lines">'+esc(d.attacks)+'</p></div>':'')+
  '';
- const narrative=(window.NEX_THREAT_NARRATIVES||{})[threatKey(threat)]||(threat.name==="O Anfitrião"&&(window.NEX_THREAT_NARRATIVES||{})["Livro Básico::O Anfitrião"])||d.description||"";
+ const narrative=(window.NEX_THREAT_NARRATIVES||{})[threatKey(threat)]||(threat.name==="O Anfitrião"&&(window.NEX_THREAT_NARRATIVES||{})["Livro Básico::O Anfitrião"])||d.narrative||d.description||"";
  const characteristics=[];
  if(hasValue(d.size))characteristics.push("Porte: "+d.size);
  if(hasValue(d.movement))characteristics.push("Movimentação: "+d.movement);
