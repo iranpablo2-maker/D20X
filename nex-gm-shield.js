@@ -338,6 +338,87 @@ export function mountGmShield(options){
   draftNpcId=null;
   store();render();
  }
+
+ // Abre o editor integral de Ameaças Homebrew, porém salva exclusivamente na campanha.
+ let threatEditLoader=null;
+ function threatEditorPayload(entry,details,base){
+  const d=details&&typeof details==='object'?details:{};
+  const text=value=>Array.isArray(value)?value.map(v=>typeof v==='string'?v:JSON.stringify(v)).join('; '):String(value??'');
+  const att=d.attributes||{};
+  const attributes={};
+  for(const a of ['agi','for','int','pre','vig'])attributes[a]=Number(att[a.toUpperCase()]??att[a]??0)||0;
+  const actions=[...(Array.isArray(d.actions)?d.actions:[]).map(a=>({...a,kind:'attack'})),
+   ...(Array.isArray(d.abilities)?d.abilities:[]).map(a=>({...a,kind:'ability'}))].slice(0,12).map(a=>({
+    name:String(a.name||''),kind:a.kind,
+    action:String(a.action||a.type||'Padrão'),test:String(a.test||''),
+    damage:String(a.damage||''),range:String(a.range||''),
+    effect:String(a.effect||a.description||''),
+    subtitle:String(a.subtitle||''),critical:String(a.critical||'20')
+   })).filter(a=>a.name);
+  const parseTests=(items,name)=>{
+   if(!items)return '';
+   if(typeof items==='string')return items.slice(0,90);
+   const entries=Array.isArray(items)?items:Object.entries(items).map(([label,value])=>({name:label,test:value}));
+   return text(entries.filter(v=>new RegExp(name,'i').test(String(v.name||v.label||''))).map(v=>v.test||v.expression||v.value||'')).slice(0,90);
+  };
+  const source=String(entry.sourceId||'').startsWith('catalog:')?String(entry.sourceId).slice(8):'';
+  return {
+   type:'ameaca',name:entry.title,description:entry.body||d.description||'',
+   image:entry.image||'',vd:Number(d.vd)||0,size:String(d.size||'Médio'),
+   creatureType:String(base?.category||'Criatura'),
+   sourceId:source,
+   threatSheet:{
+    element:String(base?.element||entry.tag?.split(' · ')[0]||'Sangue'),
+    attributes,pv:Number(d.pv)||0,defense:Number(d.defense)||0,
+    deslocamento:text(d.movement||''),
+    presencaPerturbadora:text(d.presence||''),
+    sentidos:text(d.senses||''),
+    resistencias:text(d.resistances||''),
+    imunidades:text(d.immunities||''),
+    vulnerabilidades:text(d.weaknesses||''),
+    fortitude:parseTests(d.saves,'Fortitude'),
+    reflexos:parseTests(d.saves,'Reflexos'),
+    vontade:parseTests(d.saves,'Vontade'),
+    iniciativa:parseTests(d.senses,'Iniciativa'),
+    percepcao:parseTests(d.senses,'Percepção'),
+    habilidades:text((Array.isArray(d.abilities)?d.abilities:[]).map(a=>a.name)).slice(0,4000),
+    enigma:text(d.enigma||''),notas:text(d.notes||''),
+    actions
+   }
+  };
+ }
+ function editCampaignThreat(entry){
+  if(window.parent===window){status('Abra o Escudo pela campanha para editar a ficha.');return;}
+  if(threatEditLoader){threatEditLoader.remove();threatEditLoader=null;}
+  if(entry.threatHomebrew){
+   window.parent.postMessage({type:'nex-campaign-edit-threat-native',campaignId:room,entryId:entry.id,threat:entry.threatHomebrew},location.origin);
+   return;
+  }
+  const sourceKey=threatSourceKey(entry);
+  if(!sourceKey){
+   window.parent.postMessage({type:'nex-campaign-edit-threat-native',campaignId:room,entryId:entry.id,
+    threat:threatEditorPayload(entry,{},null)},location.origin);
+   return;
+  }
+  const frame=document.createElement('iframe');
+  frame.hidden=true;frame.style.display='none';frame.setAttribute('aria-hidden','true');
+  frame.dataset.campaignThreatEntry=entry.id;
+  threatEditLoader=frame;
+  frame.src='./ameaca-ficha.html?id='+encodeURIComponent(sourceKey)+'&embedded=1&campaignEditSource=1&v=20261120threatedit30';
+  document.body.appendChild(frame);
+  status('Carregando a ficha completa para edição…');
+ }
+ window.addEventListener('message',event=>{
+  if(event.origin!==location.origin||!threatEditLoader||event.source!==threatEditLoader.contentWindow||event.data?.type!=='nex-campaign-threat-source-data')return;
+  const loader=threatEditLoader;
+  const entry=state.threats.find(x=>x.id===loader.dataset.campaignThreatEntry);
+  threatEditLoader=null;loader.remove();
+  if(!entry||!ready||!room||event.data.key!==threatSourceKey(entry))return;
+  const threat=threatEditorPayload(entry,event.data.details,event.data.threat);
+  window.parent.postMessage({type:'nex-campaign-edit-threat-native',campaignId:room,entryId:entry.id,threat},location.origin);
+  status('Ficha de Ameaça pronta para edição.');
+ });
+
  function entitySheetView(){
   if(!selectedSheet)return '';
   const kind=selectedSheet.kind,x=state[kind]?.find(entry=>entry.id===selectedSheet.id);
@@ -802,9 +883,7 @@ export function mountGmShield(options){
    const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);
    const entry=state[kind]?.find(x=>x.id===key);
    if(!entry)return;
-   if(kind==='threats'&&entry.threatHomebrew&&window.parent!==window){
-    window.parent.postMessage({type:'nex-campaign-edit-threat-native',campaignId:room,entryId:entry.id,threat:entry.threatHomebrew},location.origin);return;
-   }
+   if(kind==='threats'&&entry.threatHomebrew&&window.parent!==window){editCampaignThreat(entry);return;}
    if(kind==='npcs'&&entry.sourceId&&!entry.hasFullSheet){
     readHomebrews();const source=homebrew.find(x=>String(x.id)===entry.sourceId);
     if(source){entry.sheet=npcSheet(source.threatSheet);entry.hasFullSheet=true;store();}
@@ -820,7 +899,15 @@ export function mountGmShield(options){
    }
    selectedSheet={kind,id:key};render();return;
   }
-  if(btn.dataset.gmEdit){selectedSheet=null;const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;}
+  if(btn.dataset.gmEdit){
+   const p=btn.dataset.gmEdit.indexOf(':'),kind=btn.dataset.gmEdit.slice(0,p),key=btn.dataset.gmEdit.slice(p+1);
+   if(kind==='threats'){
+    const entry=state.threats.find(x=>x.id===key);
+    if(entry)editCampaignThreat(entry);
+    return;
+   }
+   selectedSheet=null;editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;
+  }
   if(btn.dataset.gmDelete){const p=btn.dataset.gmDelete.indexOf(':'),kind=btn.dataset.gmDelete.slice(0,p),key=btn.dataset.gmDelete.slice(p+1);deleteRecord(kind,key);return;}
   if(btn.dataset.gmFav){const p=btn.dataset.gmFav.indexOf(':'),kind=btn.dataset.gmFav.slice(0,p),key=btn.dataset.gmFav.slice(p+1);toggleFavorite(kind,key);return;}
   if(btn.dataset.gmReveal){reveal(btn.dataset.gmReveal);return;}
