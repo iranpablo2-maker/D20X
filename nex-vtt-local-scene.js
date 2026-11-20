@@ -17,7 +17,8 @@ export function createVttLocalScene(uid,campaignId){
    req.onerror=()=>reject(req.error||Error('Erro ao abrir IndexedDB'));
    req.onblocked=()=>reject(Error('Feche outras abas do NEX e tente novamente'));
   });
-  connection=attempt.catch(error=>{if(connection===attempt)connection=null;throw error;});
+  const pending=attempt.catch(error=>{if(connection===pending)connection=null;throw error;});
+  connection=pending;
   return connection;
  }
  async function transaction(mode,action){
