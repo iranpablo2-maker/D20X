@@ -1135,9 +1135,11 @@
      '<div id="nexHbThreatRitualPicker" class="nex-hb-threat-ritual-picker" hidden></div>'+
      threatActions.map((a,i)=>row(a,i)).join('')+
      threatRituals.map((r,i)=>
-       '<div class="nex-hb-threat-action-editor nex-hb-threat-ritual-row"><div class="nex-hb-threat-action-summary"><div class="nex-hb-threat-ritual-name"><strong>RITUAL ◆ '+esc(r.name.toUpperCase())+'</strong><small>'+esc(r.element)+' · '+r.circle+'º círculo'+(r.source?' · '+esc(r.source):'')+'</small></div>'+
-       '<button type="button" class="btn sm" data-threat-remove-ritual="'+i+'">Excluir</button></div>'+
-       (r.description?'<p class="nex-hb-threat-ritual-description">'+esc(r.description)+'</p>':'')+'</div>'
+       '<div class="nex-hb-threat-action-editor nex-hb-threat-ritual-row">'+
+       '<div class="nex-hb-threat-action-summary">'+
+       '<details class="nex-hb-ritual-collapse"><summary aria-label="Mostrar ou esconder descrição do ritual '+esc(r.name)+'"><span class="nex-hb-ritual-chevron" aria-hidden="true">▸</span><span class="nex-hb-threat-ritual-name"><strong>RITUAL ◆ '+esc(r.name.toUpperCase())+'</strong><small>'+esc(r.element)+' · '+r.circle+'º círculo'+(r.source?' · '+esc(r.source):'')+'</small></span></summary>'+
+       (r.description?'<p class="nex-hb-threat-ritual-description">'+esc(r.description)+'</p>':'<p class="nex-hb-threat-ritual-description">Sem descrição cadastrada.</p>')+'</details>'+
+       '<button type="button" class="btn sm" data-threat-remove-ritual="'+i+'">Excluir</button></div></div>'
      ).join('');
   }else el.innerHTML=threatActions.map(row).join('');
   if(npc)refreshNpcAttackTestPreviews();
@@ -1337,10 +1339,8 @@
   };
   const ritualsPanel=isThreatType(item.type)&&t.rituals.length?
    '<section class="nex-hb-npc-action-group"><h4>Rituais</h4>'+
-    t.rituals.map(r=>'<div class="nex-hb-threat-action nex-hb-npc-attack-sheet">'+
-     '<div class="nex-hb-npc-attack-title">RITUAL ◆ '+esc(r.name.toUpperCase())+'</div>'+
-     '<p>'+esc(r.element)+' · '+r.circle+'º círculo'+(r.source?' · '+esc(r.source):'')+'</p>'+
-     (r.description?'<p>'+esc(r.description)+'</p>':'')+'</div>').join('')+'</section>':'';
+    t.rituals.map(r=>'<details class="nex-hb-threat-action nex-hb-npc-attack-sheet nex-hb-ritual-collapse"><summary aria-label="Mostrar ou esconder descrição do ritual '+esc(r.name)+'"><span class="nex-hb-ritual-chevron" aria-hidden="true">▸</span><span><strong class="nex-hb-npc-attack-title">RITUAL ◆ '+esc(r.name.toUpperCase())+'</strong><small>'+esc(r.element)+' · '+r.circle+'º círculo'+(r.source?' · '+esc(r.source):'')+'</small></span></summary>'+
+     (r.description?'<p>'+esc(r.description)+'</p>':'<p>Sem descrição cadastrada.</p>')+'</details>').join('')+'</section>':'';
   const combatPanel=isThreatType(item.type)?
     ['ability','attack'].map(kind=>{
      const entries=t.actions.map((a,index)=>({a,index})).filter(({a})=>(a.kind==='attack'||a.kind==='ability'?a.kind:(a.damage||a.secondaryDamage?'attack':'ability'))===kind);
