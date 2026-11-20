@@ -2,12 +2,12 @@
    diferenciação explícita entre testes de d20 e dano, sem eval. */
 (function(){
  'use strict';
- const icon='<img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=20261120user48" alt="" aria-hidden="true">';
+ const icon='<img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=20261120blackd20v2" alt="" aria-hidden="true">';
  const style=document.createElement('style');
  style.textContent=[
  '.nex-roll20-btn{display:inline-flex;gap:5px;align-items:center;justify-content:center;vertical-align:middle;border:1px solid #63414b;border-radius:6px;background:#1b151a;color:#f5e9ee;padding:3px 5px;min-height:27px;cursor:pointer;font-size:11px}',
  '.nex-roll20-btn:hover{border-color:#e36579;background:#3d1b29}',
- '.nex-dice20-icon{width:24px;height:24px;object-fit:contain;display:inline-block;vertical-align:middle;pointer-events:none}',
+ '.nex-dice20-icon{width:29px;height:29px;object-fit:contain;display:inline-block;vertical-align:middle;pointer-events:none}',
  '#nex-roll20-stack{position:fixed;right:14px;top:14px;z-index:2147483000;display:flex;flex-direction:column;gap:7px;width:min(320px,calc(100vw - 28px));pointer-events:none}',
  '.nex-roll20-toast{pointer-events:auto;display:grid;grid-template-columns:34px minmax(0,1fr) 45px;align-items:center;gap:8px;min-height:77px;padding:10px;background:#251c20;color:#f8f4f6;border-left:2px solid #c93650;border-radius:5px;box-shadow:0 10px 30px #0009;font:12px/1.35 system-ui,Arial,sans-serif;position:relative}',
  '.nex-roll20-gem{width:24px;height:29px;margin:auto;background:#e53355;clip-path:polygon(50% 0%,94% 22%,94% 77%,50% 100%,6% 77%,6% 22%)}',
