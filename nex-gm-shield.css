@@ -493,3 +493,8 @@
  background:#43202c!important;border-bottom:1px solid #cf536c!important;
  overflow-wrap:anywhere!important;
 }
+
+/* Ícone geométrico d20 nos botões de rolagem do NPC do Escudo. */
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-roll{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;vertical-align:middle!important;touch-action:manipulation!important;pointer-events:auto!important}
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-d20-icon{width:20px!important;height:20px!important;min-width:20px!important;max-width:20px!important;flex:0 0 20px!important;display:block!important;pointer-events:none!important;color:#ffd5de!important}
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-roll>span{pointer-events:none!important}
