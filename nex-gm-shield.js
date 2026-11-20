@@ -970,9 +970,15 @@ export function mountGmShield(options){
   if(btn.dataset.gmAction==='create-npc'){
    discardNpcDraft();
    if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
-   const newId=id();draftNpcId=newId;
-   state.npcs.unshift({id:newId,title:'',body:'',tag:'',image:'',sheet:npcSheet({attributes:{agi:1,for:1,int:1,pre:1,vig:1}}),hasFullSheet:true});
-   tab='npcs';editing=null;selectedSheet={kind:'npcs',id:newId};render();
+   if(window.parent!==window){
+    // Usa o componente real da biblioteca Homebrew, não uma ficha recriada.
+    window.parent.postMessage({type:'nex-campaign-create-npc-native',campaignId:room},location.origin);
+    status('Abrindo a ficha original de NPC do Homebrew no Escudo…');
+   }else{
+    const newId=id();draftNpcId=newId;
+    state.npcs.unshift({id:newId,title:'',body:'',tag:'',image:'',sheet:npcSheet({attributes:{agi:1,for:1,int:1,pre:1,vig:1}}),hasFullSheet:true});
+    tab='npcs';editing=null;selectedSheet={kind:'npcs',id:newId};render();
+   }
    return;
   }
 
@@ -984,7 +990,7 @@ export function mountGmShield(options){
    const entry=state[kind]?.find(x=>x.id===key);
    if(!entry)return;
    if(kind==='threats'&&entry.threatHomebrew&&window.parent!==window){editCampaignThreat(entry);return;}
-   if(kind==='npcs'){selectedSheet={kind,id:key};editing=null;render();return;}
+   if(kind==='npcs'){openNpcFullEditor(entry);return;}
    selectedSheet={kind,id:key};render();return;
   }
   if(btn.dataset.gmEdit){
@@ -995,8 +1001,10 @@ export function mountGmShield(options){
     return;
    }
    if(kind==='npcs'){
-    // O editor fica no próprio Escudo do Mestre, sem abrir a tela do Homebrew fora do Tabletop.
-    selectedSheet={kind:'npcs',id:key};editing=null;render();return;
+    // Mesmo componente nativo do Homebrew para Acessar Ficha e Editar.
+    const entry=state.npcs.find(x=>x.id===key);
+    if(entry)openNpcFullEditor(entry);
+    return;
    }
    selectedSheet=null;editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;
   }
