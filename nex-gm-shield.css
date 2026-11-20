@@ -229,3 +229,13 @@
 #roomMasterPanel .nex-gm-npc-skills-head{display:grid;grid-template-columns:1fr 82px 88px 70px;gap:8px;padding:8px 7px;font-size:11px;color:#d5b1bf;border-bottom:1px solid #48303a}
 #roomMasterPanel .nex-gm-npc-form-footer{padding:12px 16px 20px}
 @media(max-width:650px){#roomMasterPanel .nex-gm-npc-attributes{gap:4px}#roomMasterPanel .nex-gm-npc-attribute{padding:7px 2px!important}#roomMasterPanel .nex-gm-npc-attribute span{font-size:10px}#roomMasterPanel .nex-gm-npc-attribute input{font-size:18px!important}#roomMasterPanel .nex-gm-npc-sheet-banner{gap:10px;padding:9px}#roomMasterPanel .nex-gm-npc-sheet-photo{width:84px}#roomMasterPanel .nex-gm-npc-sheet-photo>img,#roomMasterPanel .nex-gm-npc-sheet-photo>div{width:84px;height:84px}#roomMasterPanel .nex-gm-npc-sheet-tabs button{padding:10px 8px}}
+
+/* Retratos do bestiário: mantém o tamanho nativo das imagens pequenas. */
+#roomMasterPanel .nex-gm-entity-cover img[data-gm-direct-threat-image]{
+  width:auto!important;
+  height:auto!important;
+  max-width:100%!important;
+  max-height:130px!important;
+  object-fit:contain!important;
+  image-rendering:auto;
+}
