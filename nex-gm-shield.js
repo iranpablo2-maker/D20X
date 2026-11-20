@@ -176,7 +176,7 @@ export function mountGmShield(options){
   if(!portrait)return '';
   const url=String(portrait.url||'');
   const atlas=String(portrait.atlas||'');
-  const valid=value=>/^https:\/\//i.test(value)||/^\.\/assets\//.test(value)||/^data:image\/(?:webp|png|jpeg);base64,/i.test(value);
+  const valid=value=>/^https:\/\//i.test(value)||value.startsWith('blob:'+location.origin+'/')||/^\.\/assets\//.test(value)||/^data:image\/(?:webp|png|jpeg);base64,/i.test(value);
   if(url&&valid(url)&&url.length<350000){
    return '<img src="'+escape(url)+'" alt="" loading="lazy" onerror="this.remove()">';
   }
