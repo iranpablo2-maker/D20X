@@ -3241,7 +3241,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   gmShield?.close();
   chatReset('');
   document.documentElement.classList.remove('nex-vtt-active');
-  if(window.parent!==window){try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:false},location.origin);}catch(error){}}
+  if(!nexNavRestoring&&window.parent!==window){try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:false},location.origin);}catch(error){}}
   for(const u of unsubs){try{u()}catch(e){}}unsubs=[];
   vttHostActive=false;
   $('roomOpenTabletop').disabled=true;
@@ -3256,7 +3256,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('campaignCreateScreen').hidden=mode!=='create';
   if(!inRoom)show('room',false);
   if(mode==='list'||mode==='create')nexSaveNavigation('',mode);
-  if(window.parent!==window){
+  if(window.parent!==window&&!(nexNavRestoring&&mode==='list')){
    try{window.parent.postMessage({type:'nex-campaign-view',mode},location.origin);}catch(error){}
   }
  }
@@ -3367,27 +3367,37 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(uid&&inviteId)watchCampaignInvite();
   // Confirma para a página principal que o módulo e a autenticação foram inicializados.
   if(window.parent!==window)try{window.parent.postMessage({type:'nex-campaign-ui-ready',authenticated:!!uid},location.origin);}catch(error){}
+  const notifyRestoration=(ok,section='list')=>{
+    if(window.parent!==window)try{window.parent.postMessage({type:'nex-campaign-session-restored',ok,section,campaignId:roomId||''},location.origin);}catch(error){}
+  };
   if(uid&&saved?.uid===uid&&saved.campaignId&&!inviteId){
     const campaign=saved.campaignId;
     const section=['characters','master','players','invites','tabletop'].includes(saved.section)?saved.section:'characters';
-    // Registrar a intenção ANTES de assinar a sessão: o snapshot do Tabletop pode chegar
-    // durante enterRoom e não pode mandar o jogador para o menu anterior.
     if(section==='tabletop')nexPendingTabletopRestore=campaign;
-    void enterRoom(campaign).then(()=>{
-      if(roomId!==campaign)return;
+    void enterRoom(campaign,section).then(()=>{
+      if(roomId!==campaign){notifyRestoration(false);return;}
       nexNavRestoring=false;
-      if(section==='tabletop'&&!gm&&!vttHostActive)return;
+      if(section==='tabletop'&&!gm&&!vttHostActive){
+        // Não abrir Tabletop dos jogadores antes que o mestre inicie a sessão.
+        roomSection('characters');
+        notifyRestoration(true,'characters');
+        return;
+      }
       nexPendingTabletopRestore='';
       roomSection(section);
+      notifyRestoration(true,section);
     }).catch(error=>{
       console.warn('NEX: campanha anterior indisponível',error);
       nexPendingTabletopRestore='';
+      nexNavRestoring=false;
       libraryMode('list');
       notice('Não foi possível restaurar a campanha anterior. Abra sua campanha novamente.');
+      notifyRestoration(false);
     }).finally(()=>{nexNavRestoring=false;});
   }else{
     nexNavRestoring=false;
     if(!uid)try{sessionStorage.removeItem(NEX_NAV_KEY);}catch(error){}
+    notifyRestoration(true,'list');
   }
  },error=>{
   console.error('NEX: falha ao restaurar login após F5',error);
@@ -4394,7 +4404,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(photo&&currentDoc.data().photo!==photo)updates.photo=photo;
   if(Object.keys(updates).length)await updateDoc(member,updates);
  }
-  async function enterRoom(id){
+  async function enterRoom(id,restoringSection=''){
   clearRoom();if(!/^(?:NEX-[A-HJ-NP-Z2-9]{8}|[A-Za-z0-9]{15,40})$/.test(id)){notice('Código de campanha inválido.');return;}
   const ref=doc(db,'campaigns',id);
   const snap=await getDoc(ref);
@@ -4423,7 +4433,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   subscribeTabletop(id);
   show('roomMasterTab',gm);
   $('nexVttMainMenu')?.querySelector('[data-nex-main-tab="master"]')?.classList.toggle('hide',!gm);
-  roomSection('characters');refreshNexAgents();
+  if(!restoringSection)roomSection('characters');refreshNexAgents();
   if(gm)unsubs.push(onSnapshot(collection(db,'campaigns',id,'slotRequests'),snapshot=>{
    extraSlotRequests=snapshot.docs.map(d=>d.data());renderSlotManagement();
   },error=>console.warn('Solicitações de vagas indisponíveis',error)));
