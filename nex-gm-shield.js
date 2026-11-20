@@ -430,6 +430,29 @@ export function mountGmShield(options){
   status('Ficha de Ameaça pronta para edição.');
  });
 
+ function openNpcFullEditor(entry){
+  if(!entry)return;
+  // Reaproveita a ficha completa do Homebrew, mas salva somente na campanha.
+  readHomebrews();
+  const source=homebrew.find(x=>String(x.id)===String(entry.sourceId));
+  if(source&&!entry.hasFullSheet){
+   entry.sheet=npcSheet(source.threatSheet);
+   entry.hasFullSheet=true;
+   store();
+  }
+  if(window.parent!==window){
+   window.parent.postMessage({
+    type:'nex-campaign-edit-npc-native',campaignId:room,entryId:entry.id,
+    npc:{id:entry.sourceId||'',name:entry.title,
+     description:entry.body||source?.description||'',
+     image:safeImage(entry.image)||safeImage(source?.image)||'',
+     threatSheet:entry.sheet||source?.threatSheet||{}}
+   },location.origin);
+   status('Abrindo a ficha completa do NPC da campanha…');
+  }else{
+   selectedSheet={kind:'npcs',id:entry.id};editing=null;render();
+  }
+ }
  function entitySheetView(){
   if(!selectedSheet)return '';
   const kind=selectedSheet.kind,x=state[kind]?.find(entry=>entry.id===selectedSheet.id);
@@ -899,19 +922,7 @@ export function mountGmShield(options){
    const entry=state[kind]?.find(x=>x.id===key);
    if(!entry)return;
    if(kind==='threats'&&entry.threatHomebrew&&window.parent!==window){editCampaignThreat(entry);return;}
-   if(kind==='npcs'&&entry.sourceId&&!entry.hasFullSheet){
-    readHomebrews();const source=homebrew.find(x=>String(x.id)===entry.sourceId);
-    if(source){entry.sheet=npcSheet(source.threatSheet);entry.hasFullSheet=true;store();}
-   }
-   if(kind==='npcs'&&window.parent!==window){
-    window.parent.postMessage({
-     type:'nex-campaign-edit-npc-native',campaignId:room,entryId:entry.id,
-     npc:{id:entry.sourceId||'',name:entry.title,description:entry.body||'',
-      image:safeImage(entry.image)||safeImage(homebrew.find(x=>String(x.id)===String(entry.sourceId))?.image)||'',threatSheet:entry.sheet||{}}
-    },location.origin);
-    status('Abrindo a ficha original de NPC do Homebrew…');
-    return;
-   }
+   if(kind==='npcs'){openNpcFullEditor(entry);return;}
    selectedSheet={kind,id:key};render();return;
   }
   if(btn.dataset.gmEdit){
@@ -919,6 +930,12 @@ export function mountGmShield(options){
    if(kind==='threats'){
     const entry=state.threats.find(x=>x.id===key);
     if(entry)editCampaignThreat(entry);
+    return;
+   }
+   if(kind==='npcs'){
+    // Editar e Acessar Ficha abrem o MESMO editor completo, nunca o formulário básico.
+    const entry=state.npcs.find(x=>x.id===key);
+    openNpcFullEditor(entry);
     return;
    }
    selectedSheet=null;editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;
