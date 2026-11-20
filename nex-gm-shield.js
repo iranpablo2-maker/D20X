@@ -302,7 +302,6 @@ export function mountGmShield(options){
  function npcCampaignEditor(x){
   const t=npcSheet(x.sheet);
   const image=safeImage(x.image);
-  const options=npcSkillNames.map(name=>name);
   const attrBoxes=npcAttrNames.map(([key,label])=>'<label class="nex-gm-npc-attribute"><span>'+key.toUpperCase()+'</span><input name="attr_'+key+'" aria-label="'+escape(label)+'" type="number" min="0" max="6" value="'+escape(t.attributes[key])+'"></label>').join('');
   return '<form class="nex-gm-npc-form nex-gm-npc-homebrew-look" data-gm-npc-sheet="'+escape(x.id)+'">'+
    '<div class="nex-gm-npc-editor-topbar"><button type="button" class="alt" data-gm-close-sheet>← Voltar aos NPCs</button><span>FICHA EDITÁVEL · CAMPANHA</span><button type="submit" class="nex-gm-npc-save">Salvar na campanha</button></div>'+
@@ -310,31 +309,32 @@ export function mountGmShield(options){
    (image?'<img data-gm-npc-preview src="'+escape(image)+'" alt="Foto do NPC">':'<div data-gm-npc-initial>'+escape((x.title||'?').charAt(0).toUpperCase())+'</div>')+
    '<label>+ Foto<input type="file" data-gm-npc-photo accept="image/png,image/jpeg,image/webp"></label>'+
    '<input type="hidden" name="npcImage" value="'+escape(image)+'"></div>'+
-   '<div class="nex-gm-npc-banner-info"><small>NPC · FICHA EDITÁVEL</small>'+
+   '<div class="nex-gm-npc-banner-info"><small>HOMEBREW · FICHA EDITÁVEL</small>'+
    '<input name="title" aria-label="Nome do NPC" maxlength="110" value="'+escape(x.title)+'" required>'+
-   '<p>Ficha exclusiva desta campanha</p></div></section>'+
+   '</div></section>'+
    '<div class="nex-gm-npc-vital-bar"><label><input name="pv" type="number" min="0" max="99999" value="'+escape(t.pv)+'"> PV</label></div>'+
    '<nav class="nex-gm-npc-sheet-tabs" aria-label="Seções da ficha">'+
    '<button type="button" data-gm-npc-tab="status" aria-selected="true">STATUS</button>'+
-   '<button type="button" data-gm-npc-tab="combate" aria-selected="false">COMBATE</button>'+
+   '<button type="button" data-gm-npc-tab="combate" aria-selected="false">HABILIDADES/COMBATE</button>'+
    '<button type="button" data-gm-npc-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
    '<div data-gm-npc-panel="status" class="nex-gm-npc-tab-panel">'+
    '<div class="nex-gm-npc-attributes">'+attrBoxes+'</div>'+
-   '<div class="nex-gm-npc-core-stats">'+npcField('defense','Defesa',t.defense,'number','min="0" max="99999"')+npcField('deslocamento','Deslocamento',t.deslocamento)+'</div>'+
+   '<div class="nex-gm-npc-core-stats">'+npcField('defense','Defesa',t.defense,'number','min="0" max="99999"')+npcField('deslocamento','Deslocamento',t.deslocamento)+npcField('pvDisplay','PV máximos',t.pv,'number','readonly tabindex="-1"')+'</div>'+
    '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Perícias</h4><button type="button" data-gm-npc-add="skills">+ Adicionar perícia</button></div>'+
-   '<div class="nex-gm-npc-skills-head"><span>Perícia (Atributo)</span><span>Dados</span><span>Bônus</span><span></span></div>'+
+   (t.npcSkills.length?'<div class="nex-gm-npc-skills-head"><span>Perícia (Atributo)</span><span>Dados</span><span>Bônus</span><span></span></div>':'<p class="nex-gm-npc-empty">Nenhuma perícia selecionada.</p>')+
    '<div data-gm-npc-list="skills">'+t.npcSkills.map(npcSkillRow).join('')+'</div></div></div>'+
    '<div data-gm-npc-panel="combate" class="nex-gm-npc-tab-panel" hidden>'+
-   '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Habilidades e combate</h4><button type="button" data-gm-npc-add="actions">+ Adicionar habilidade / ataque</button></div><div data-gm-npc-list="actions">'+t.actions.map(npcActionRow).join('')+'</div></div>'+
+   '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Habilidades e ações</h4><div class="nex-gm-npc-add-buttons"><button type="button" data-gm-npc-add="ability">+ Adicionar habilidade</button><button type="button" data-gm-npc-add="attack">+ Adicionar ataque</button></div></div><div data-gm-npc-list="actions">'+t.actions.map(npcActionRow).join('')+'</div></div>'+
    '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Rituais</h4><button type="button" data-gm-npc-add="rituals">+ Adicionar ritual</button></div><div data-gm-npc-list="rituals">'+t.rituals.map(npcRitualRow).join('')+'</div></div></div>'+
    '<div data-gm-npc-panel="descricao" class="nex-gm-npc-tab-panel" hidden>'+
-   '<div class="nex-gm-npc-fields">'+npcField('body','Descrição / História',x.body,'textarea')+npcField('habilidades','Características adicionais',t.habilidades,'textarea')+npcField('notas','Observações',t.notas,'textarea')+'</div></div>'+
+   '<div class="nex-gm-npc-fields"><h4>Descrição do NPC</h4>'+npcField('body','Descrição',x.body,'textarea')+npcField('habilidades','Características adicionais',t.habilidades,'textarea')+npcField('notas','Observações',t.notas,'textarea')+'</div></div>'+
    '<div class="nex-gm-npc-form-footer"><button type="submit" class="nex-gm-npc-save">Salvar na campanha</button></div></form>';
  }
  function saveNpcCampaignForm(form){
   const x=state.npcs.find(n=>n.id===form.dataset.gmNpcSheet);if(!x)return;
   const data=new FormData(form);
-  const fields={pv:data.get('pv'),defense:data.get('defense'),deslocamento:data.get('deslocamento'),
+  // Preservar campos adicionais importados do Homebrew ao salvar o NPC na campanha.
+  const fields={...x.sheet,pv:data.get('pv'),defense:data.get('defense'),deslocamento:data.get('deslocamento'),
    habilidades:data.get('habilidades'),notas:data.get('notas'),attributes:{}};
   npcAttrNames.forEach(([key])=>{fields.attributes[key]=data.get('attr_'+key);});
   for(const kind of ['skills','actions','rituals']){
@@ -497,7 +497,7 @@ export function mountGmShield(options){
   const kind=selectedSheet.kind,x=state[kind]?.find(entry=>entry.id===selectedSheet.id);
   if(!x)return '';
   const npc=kind==='npcs',sheet=x.sheet;
-  if(npc)return npcCampaignView(x);
+  if(npc)return npcCampaignEditor(x);
   if(kind==='threats'&&String(x.sourceId||'').startsWith('catalog:')){
    const source=String(x.sourceId).slice(8);
    const key=source.includes('::')?source:(()=>{const i=source.lastIndexOf(':');return i<0?'':source.slice(i+1).split(' · ').slice(1).join(' · ')+'::'+source.slice(0,i);})();
@@ -945,12 +945,15 @@ export function mountGmShield(options){
    return;
   }
   if(btn.dataset.gmNpcAdd){
-   const kind=btn.dataset.gmNpcAdd,list=root.querySelector('[data-gm-npc-list="'+kind+'"]');
+   const requested=btn.dataset.gmNpcAdd,kind=(requested==='ability'||requested==='attack')?'actions':requested,list=root.querySelector('[data-gm-npc-list="'+kind+'"]');
    if(!list)return;
    const limit=kind==='skills'?28:kind==='actions'?30:40;
    if(list.children.length>=limit){status('Limite desta seção atingido.');return;}
-   const row=kind==='skills'?npcSkillRow():kind==='actions'?npcActionRow():npcRitualRow();
-   list.insertAdjacentHTML('beforeend',row);return;
+   const row=kind==='skills'?npcSkillRow():kind==='actions'?npcActionRow({kind:requested==='attack'?'attack':'ability'}):npcRitualRow();
+   list.insertAdjacentHTML('beforeend',row);
+   const empty=list.parentElement?.querySelector('.nex-gm-npc-empty');if(empty)empty.remove();
+   if(kind==='skills'&&!list.parentElement.querySelector('.nex-gm-npc-skills-head'))list.insertAdjacentHTML('beforebegin','<div class="nex-gm-npc-skills-head"><span>Perícia (Atributo)</span><span>Dados</span><span>Bônus</span><span></span></div>');
+   return;
   }
   if(btn.hasAttribute('data-gm-npc-remove')){btn.closest('[data-gm-npc-row]')?.remove();return;}
   if(btn.dataset.gmAction==='show-import-npc'){readHomebrews();showNpcImport=true;render();return;}
@@ -967,14 +970,9 @@ export function mountGmShield(options){
   if(btn.dataset.gmAction==='create-npc'){
    discardNpcDraft();
    if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
-   if(window.parent!==window){
-    window.parent.postMessage({type:'nex-campaign-create-npc-native',campaignId:room},location.origin);
-    status('Abrindo ficha de NPC igual ao Homebrew…');
-   }else{
-    const newId=id();draftNpcId=newId;
-    state.npcs.unshift({id:newId,title:'',body:'',tag:'',image:'',sheet:npcSheet({}),hasFullSheet:true});
-    tab='npcs';editing=null;selectedSheet={kind:'npcs',id:newId};render();
-   }
+   const newId=id();draftNpcId=newId;
+   state.npcs.unshift({id:newId,title:'',body:'',tag:'',image:'',sheet:npcSheet({attributes:{agi:1,for:1,int:1,pre:1,vig:1}}),hasFullSheet:true});
+   tab='npcs';editing=null;selectedSheet={kind:'npcs',id:newId};render();
    return;
   }
 
@@ -997,10 +995,8 @@ export function mountGmShield(options){
     return;
    }
    if(kind==='npcs'){
-    // Editar e Acessar Ficha abrem o MESMO editor completo, nunca o formulário básico.
-    const entry=state.npcs.find(x=>x.id===key);
-    openNpcFullEditor(entry);
-    return;
+    // O editor fica no próprio Escudo do Mestre, sem abrir a tela do Homebrew fora do Tabletop.
+    selectedSheet={kind:'npcs',id:key};editing=null;render();return;
    }
    selectedSheet=null;editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;
   }
@@ -1022,6 +1018,7 @@ export function mountGmShield(options){
 
   }
  });
+ root.addEventListener('input',event=>{const pv=event.target.closest('[data-gm-npc-sheet] [name="pv"]');if(pv){const display=pv.closest('form')?.querySelector('[name="pvDisplay"]');if(display)display.value=pv.value;}});
  root.addEventListener('change',async event=>{
   const photo=event.target.closest('[data-gm-npc-photo]');
   if(photo?.files?.[0]){
