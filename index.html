@@ -3226,7 +3226,18 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
      db=null;
    }finally{
      storageReady=true;
-     persist();renderAgents();renderCampaigns();visible('home');
+     persist();renderAgents();renderCampaigns();
+     // Restore the last visible area after data recovery, rather than forcing Home on F5.
+     let restoredScreen='home';
+     try{
+       const previous=JSON.parse(sessionStorage.getItem('nex_navigation_screen_v1')||'null');
+       if(previous&&['home','agents','campaigns','threats','sheet','homebrew'].includes(previous.screen))
+         restoredScreen=previous.screen;
+     }catch(error){}
+     if(restoredScreen==='sheet'&&!active)restoredScreen='agents';
+     visible(restoredScreen);
+     if(restoredScreen==='sheet')try{rehydrate();}catch(error){console.warn('NEX: ficha recuperada parcialmente',error);}
+
      document.dispatchEvent(new Event('nex51-ready'));
      if(db){
        // Wait for the IndexedDB transaction before claiming the second copy succeeded.
@@ -3433,6 +3444,10 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  }
  window.addEventListener('resize',syncVttRealSheetDock);
  function visible(which){
+  // Session-only navigation: never store private sheet contents or credentials.
+  if(storageReady&&['home','agents','campaigns','threats','sheet','wizard','homebrew'].includes(which)){
+    try{sessionStorage.setItem('nex_navigation_screen_v1',JSON.stringify({screen:which}));}catch(error){}
+  }
   const tabletop=$('campaignPanel')?.classList.contains('nex-tabletop-expanded');
   const sheetOverlay=which==='sheet'&&tabletop;
   if(nexCampaignLiveEdit&&which!=='sheet')finishCampaignLiveEdit();
