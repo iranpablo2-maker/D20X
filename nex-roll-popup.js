@@ -82,6 +82,11 @@
    if(usePool)selection=selected;
    rollValues.push({term,nums,selected});
   }
+  const criticalText=String(options.critical||'').trim();
+  const criticalMatch=criticalText.match(/(?:^|\b)(1[5-9]|20)(?:\s*[-–]\s*20)?/);
+  const criticalThreshold=criticalMatch?Number(criticalMatch[1]):null;
+  const criticalMultiplier=(criticalText.match(/[x×\/]\s*([2-5])\b/i)||[])[1]||'';
+  const criticalHit=usePool&&!options.low&&criticalThreshold!==null&&selection>=criticalThreshold;
   const stack=document.getElementById('nex-roll20-stack')||(()=>{
    const node=document.createElement('div');node.id='nex-roll20-stack';node.setAttribute('aria-live','polite');document.body.append(node);return node;
   })();
@@ -97,13 +102,14 @@
   breakdown.textContent=rollValues.map(({term,nums,selected})=>
    term.count+'d'+term.sides+' ['+nums.join(', ')+'] → '+(term.sign<0?'-':'')+selected).join(' · ')+
    (parsed.parts.some(x=>x.kind==='number')?' · bônus '+(parsed.parts.filter(x=>x.kind==='number').reduce((sum,x)=>sum+x.value,0)):'')+
-   (options.detail?' · '+String(options.detail).slice(0,100):'');
+   (options.detail?' · '+String(options.detail).slice(0,100):'')+
+   (criticalHit?' · CRÍTICO ('+criticalThreshold+'–20'+(criticalMultiplier?' / x'+criticalMultiplier:'')+')':'');
   details.append(heading,formula,breakdown);
   const number=document.createElement('strong');number.className='nex-roll20-number';number.textContent=String(total);
   const close=document.createElement('button');close.type='button';close.className='nex-roll20-close';close.setAttribute('aria-label','Fechar rolagem');close.textContent='×';close.addEventListener('click',()=>toast.remove());
   toast.append(emblem,details,number,close);stack.prepend(toast);
   while(stack.children.length>4)stack.lastElementChild.remove();
-  return {total,terms:rollValues.map(x=>({dice:x.nums,selected:x.selected})),pool:usePool};
+  return {total,terms:rollValues.map(x=>({dice:x.nums,selected:x.selected})),pool:usePool,critical:criticalHit};
  }
  const api={roll,parse,icon,button:(expression,label='Rolar',pool)=>{
   if(!parse(expression))return '';
@@ -115,6 +121,6 @@
   if(!button)return;
   e.preventDefault();
   const label=button.dataset.nexRollTitle||'Rolagem';
-  roll({title:label,expression:button.dataset.nexRollExpression,pool:button.dataset.nexRollPool==='true'?true:button.dataset.nexRollPool==='false'?false:undefined,low:button.dataset.nexRollLow==='true'});
+  roll({title:label,expression:button.dataset.nexRollExpression,pool:button.dataset.nexRollPool==='true'?true:button.dataset.nexRollPool==='false'?false:undefined,low:button.dataset.nexRollLow==='true',critical:button.dataset.nexRollCritical||''});
  });
 })();
