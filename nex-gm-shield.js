@@ -555,10 +555,14 @@ export function mountGmShield(options){
   }).join('');
   const action=(a)=>{
    const heading=escape(a.name||'Habilidade');
-   const dice=gmNpcRollButton(a.test,'Teste',a.critical)+gmNpcRollButton(a.damage,'Dano')+gmNpcRollButton(a.secondaryDamage,'Dano secundário');
+   const name=a.kind==='attack'?escape((a.action||'Padrão').toUpperCase())+' ◆ '+heading.toUpperCase():'HABILIDADE ◆ '+heading.toUpperCase();
+   const skill=a.testSkill?t.npcSkills.find(s=>s.name===a.testSkill):null;
+   const skillAttr=skillAttrs[a.testSkill];
+   const skillRoll=skillAttr?'<button type="button" class="nex-gm-npc-roll nex-gm-npc-homebrew-test" data-gm-npc-skill-attr="'+skillAttr+'" data-gm-npc-skill-bonus="'+escape(skill?.bonus||0)+'" aria-label="Rolar '+escape(a.testSkill)+'">'+escape(a.testSkill)+' '+escape(t.attributes[skillAttr]===0?'2d20 (menor)':t.attributes[skillAttr]+'d20')+(Number(skill?.bonus||0)>=0?'+':'')+escape(skill?.bonus||0)+gmNpcD20Icon+'</button>':'';
+   const dice=(skillRoll||gmNpcRollButton(a.test,'Teste',a.critical))+gmNpcRollButton(a.damage,'Dano')+gmNpcRollButton(a.secondaryDamage,'Dano secundário');
    const content=details([['Tipo',a.subtitle],['Perícia do teste',a.testSkill],['Teste',a.test],['Dano',a.damage],['Tipo de dano',a.damageType&&a.damage?a.damageType:''],['Dano secundário',a.secondaryDamage],['Tipo secundário',a.secondaryDamage?a.secondaryType:''],['Crítico',a.kind==='attack'?a.critical:''],['Alcance',a.range]])+
     (filled(a.effect)?'<p>'+escape(a.effect)+'</p>':'');
-   return '<article class="nex-gm-npc-view-action"><div class="nex-gm-npc-action-head"><div><strong>'+heading+'</strong><small>'+escape(a.kind==='attack'?'ATAQUE':'HABILIDADE')+' · '+escape(a.action||'Padrão')+'</small></div>'+
+   return '<article class="nex-gm-npc-view-action nex-gm-npc-homebrew-action"><div class="nex-gm-npc-action-head"><div><strong>'+name+'</strong>'+(a.subtitle||a.range?'<small>'+escape([a.subtitle,a.range].filter(Boolean).join(' · '))+'</small>':'')+'</div>'+
     '<button type="button" class="nex-gm-npc-description-toggle" data-gm-npc-description-toggle aria-expanded="false" aria-label="Mostrar descrição de '+heading+'">⌄</button></div>'+
     (dice?'<div class="nex-gm-npc-action-rolls">'+dice+'</div>':'')+
     '<div class="nex-gm-npc-action-description" data-gm-npc-description hidden>'+content+'</div></article>';
@@ -572,23 +576,25 @@ export function mountGmShield(options){
     '<div class="nex-gm-npc-action-description" data-gm-npc-description hidden>'+details([['Elemento',a.element],['Círculo',a.circle],['Fonte',a.source]])+
     (filled(a.description)?'<p>'+escape(a.description)+'</p>':'')+'</div></article>';
   }).join('');
-  const secondary=blocks([['Sentidos',t.sentidos],['Resistências',t.resistencias],['Imunidades',t.imunidades],['Vulnerabilidades',t.vulnerabilidades],['Presença perturbadora',t.presencaPerturbadora],['Enigma de Medo',t.enigma]]);
-  const tests=details([['Fortitude',t.fortitude],['Reflexos',t.reflexos],['Vontade',t.vontade],['Iniciativa',t.iniciativa],['Percepção',t.percepcao]]);
+  // A ficha de NPC Homebrew usa atributos, defesa, deslocamento e pericias;
+  // os campos exclusivos de ameacas nao aparecem na mini ficha.
+  const secondary='';
+  const tests='';
   const description=blocks([['História e descrição',x.body],['Habilidades e características',t.habilidades],['Observações',t.notas]]);
-  return '<section class="nex-gm-npc-view" aria-label="Ficha completa do NPC">'+
+  return '<section class="nex-gm-npc-view nex-gm-npc-homebrew-mini" aria-label="Mini ficha de NPC Homebrew no Tabletop">'+
    '<div class="nex-gm-npc-view-tools"><button type="button" class="alt" data-gm-close-sheet>← Voltar aos NPCs</button><button type="button" class="alt" data-gm-edit="npcs:'+escape(x.id)+'">Editar ficha</button></div>'+
    '<div class="nex-gm-npc-view-card"><div class="nex-gm-npc-roll-result" data-gm-npc-dice-result hidden aria-live="polite"></div><header class="nex-gm-npc-view-header"><div class="nex-gm-npc-view-photo">'+(pic?'<img src="'+escape(pic)+'" alt="Foto de '+escape(x.title)+'">':escape((x.title||'?').charAt(0).toUpperCase()))+'</div>'+
-   '<div class="nex-gm-npc-view-heading"><small>NPC · CAMPANHA</small><h3>'+escape(x.title||'Sem nome')+'</h3></div></header>'+
+   '<div class="nex-gm-npc-view-heading"><small>NPC HOMEBREW · CAMPANHA</small><h3>'+escape(x.title||'Sem nome')+'</h3></div></header>'+
    '<div class="nex-gm-npc-view-pv" data-gm-npc-hp-widget="'+escape(x.id)+'"><div class="nex-gm-npc-hp-title">VIDA</div><div class="nex-gm-npc-hp-track" role="progressbar" aria-label="PV atuais do NPC" aria-valuemin="0" aria-valuemax="'+maximum+'" aria-valuenow="'+current+'">'+
    '<span class="nex-gm-npc-hp-fill" style="width:'+fill+'%"></span>'+
    '<button type="button" data-gm-npc-hp-delta="-10" aria-label="Diminuir 10 PV">«</button><button type="button" data-gm-npc-hp-delta="-1" aria-label="Diminuir 1 PV">‹</button>'+
    '<button type="button" class="nex-gm-npc-hp-value" data-gm-npc-hp-edit aria-label="Editar PV atuais">'+current+' / '+maximum+'</button>'+
    '<input type="number" class="nex-gm-npc-hp-input" data-gm-npc-hp-input min="0" max="'+maximum+'" step="1" inputmode="numeric" aria-label="PV atuais" hidden>'+
    '<button type="button" data-gm-npc-hp-delta="1" aria-label="Aumentar 1 PV">›</button><button type="button" data-gm-npc-hp-delta="10" aria-label="Aumentar 10 PV">»</button></div></div>'+
-   '<nav class="nex-gm-npc-view-tabs" aria-label="Seções da ficha do NPC"><button type="button" data-gm-npc-view-tab="status" aria-selected="true">STATUS</button><button type="button" data-gm-npc-view-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-gm-npc-view-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
+   '<nav class="nex-gm-npc-view-tabs" aria-label="Seções da ficha do NPC"><button type="button" data-gm-npc-view-tab="status" aria-selected="true">STATUS</button><button type="button" data-gm-npc-view-tab="combate" aria-selected="false">HABILIDADES/COMBATE</button><button type="button" data-gm-npc-view-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
    '<section data-gm-npc-view-panel="status"><div class="nex-gm-npc-view-attrs">'+attrHtml+'</div><div class="nex-gm-npc-view-stats"><div><small>Defesa</small><strong>'+escape(t.defense)+'</strong></div><div><small>Deslocamento</small><strong>'+escape(t.deslocamento||'—')+'</strong></div><div><small>PV máximos</small><strong>'+escape(t.pv)+'</strong></div></div>'+
    (skills?'<h4>Perícias</h4>'+skills:'')+(tests?'<h4>Testes e sentidos</h4>'+tests:'')+secondary+'</section>'+
-   '<section data-gm-npc-view-panel="combate" hidden><h4>Ataques</h4>'+(attacks||empty)+'<h4>Habilidades</h4>'+(abilities||empty)+'<h4>Rituais</h4>'+(rituals||empty)+'</section>'+
+   '<section data-gm-npc-view-panel="combate" hidden><h4>Habilidades</h4>'+(abilities||empty)+'<h4>Ataques</h4>'+(attacks||empty)+'<h4>Rituais</h4>'+(rituals||empty)+'</section>'+
    '<section data-gm-npc-view-panel="descricao" hidden>'+(description||empty)+'</section></div></section>';
  }
  function updateNpcHpWidget(widget,entry){
