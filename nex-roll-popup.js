@@ -1,7 +1,7 @@
 /* NEX | Pop-up de rolagens das fichas de Ameaças e NPCs do Escudo */
 (function(){
  'use strict';
- const icon='<img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=1" alt="" aria-hidden="true">';
+ const icon='<img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=20261120user48" alt="" aria-hidden="true">';
  const style=document.createElement('style');
  style.textContent=[
  '.nex-roll20-btn{display:inline-flex;gap:5px;align-items:center;justify-content:center;vertical-align:middle;border:1px solid #63414b;border-radius:6px;background:#1b151a;color:#f5e9ee;padding:3px 5px;min-height:27px;cursor:pointer;font-size:11px}',
@@ -30,7 +30,7 @@
    const parsed=options.count?{count:Math.max(1,Math.min(30,Number(options.count)||1)),sides:Number(options.sides)||20,bonus:Number(options.bonus)||0}:parse(options.expression);
    if(!parsed)return false;
    const nums=Array.from({length:parsed.count},()=>Math.floor(Math.random()*parsed.sides)+1);
-   const pool=options.pool===true||(options.pool!==false&&parsed.sides===20&&String(options.title||'').toLowerCase()!=='dano');
+   const pool=options.pool===true||(options.pool!==false&&parsed.sides===20&&!/dano/i.test(String(options.title||'')));
    const chosen=pool?(options.low?Math.min(...nums):Math.max(...nums)):nums.reduce((a,b)=>a+b,0);
    const total=chosen+parsed.bonus;
    const stack=document.getElementById('nex-roll20-stack')||(()=>{
