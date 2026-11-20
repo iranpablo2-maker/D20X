@@ -2538,6 +2538,34 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  width:100%!important;max-width:none!important;min-height:0!important;
 }
 </style>
+<style id="nex-vtt-gm-inline-style">
+/* O Escudo real (sem cópia) é exibido dentro da aba do menu Tabletop. */
+#roomTabletopPanel #nexVttMainMenu:has([data-nex-main-page="master"]:not([hidden])){
+ width:min(640px,calc(100% - 18px))!important;
+}
+#roomTabletopPanel [data-nex-main-page="master"]{display:block!important;padding:4px!important}
+#roomTabletopPanel [data-nex-main-page="master"][hidden]{display:none!important}
+#roomTabletopPanel #nexVttInlineGmHost{min-width:0;width:100%;overflow-wrap:anywhere}
+#roomTabletopPanel #nexVttInlineGmHost #roomMasterPanel{
+ display:block!important;position:static!important;margin:0!important;padding:0!important;
+ border:0!important;background:transparent!important;width:100%!important;
+ min-width:0!important;max-width:100%!important;
+}
+#roomTabletopPanel #nexVttInlineGmHost .nex-gm-head{display:none!important}
+#roomTabletopPanel #nexVttInlineGmHost .nex-gm-tabs{
+ display:flex!important;flex-wrap:wrap!important;gap:4px!important;
+ margin:0 0 12px!important;padding:0 0 10px!important;
+ border-bottom:1px solid #542731!important;
+}
+#roomTabletopPanel #nexVttInlineGmHost .nex-gm-tabs button{
+ flex:0 1 auto!important;width:auto!important;min-width:0!important;
+ padding:7px 9px!important;min-height:32px!important;
+ font-size:12px!important;white-space:nowrap!important;
+}
+#roomTabletopPanel #nexVttInlineGmHost .nex-gm-content,
+#roomTabletopPanel #nexVttInlineGmHost .nex-gm-editor{min-width:0!important;max-width:100%!important}
+#roomTabletopPanel #nexVttInlineGmHost .nex-gm-entity-card{max-width:100%!important}
+</style>
 </head>
 <body>
 <script>
@@ -2687,10 +2715,8 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <p class="nex-vtt-sheets-description">Selecione um personagem para abrir sua ficha completa.</p>
    <div id="nexVttMenuSheetsList" class="nex-vtt-menu-sheets-list"></div>
   </section>
-  <section data-nex-main-page="master" hidden>
-   <h3>Escudo do Mestre</h3>
-   <p>Consulte e edite as anotações, os NPCs e as ameaças desta campanha.</p>
-   <button type="button" id="nexVttMenuMaster">Abrir Escudo do Mestre</button>
+  <section data-nex-main-page="master" hidden aria-label="Escudo do Mestre">
+   <div id="nexVttInlineGmHost"></div>
   </section>
   <section data-nex-main-page="settings" hidden>
    <h3>Configurações da mesa</h3>
@@ -3405,7 +3431,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }
  });
  function roomSection(section){
-  if(section!=='tabletop')closeVttGmOverlay();
+  if(section!=='tabletop'){closeVttGmOverlay();detachInlineGm();}
   if(section==='manage')section='players'; // Compatibilidade com navegação anterior.
   const allowed=['characters','master','players','invites','tabletop'];
   if(!allowed.includes(section)||(['master','invites'].includes(section)&&!gm))section='characters';
@@ -3924,9 +3950,35 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     }
    }
   }
+  // A instância real do Escudo é movida para a aba, não reconstruída.
+  // Mantemos o nó original e a escuta do Firebase para preservar edição e dados.
+  let inlineGmReturnMarker=null;
+  function attachInlineGm(){
+   if(!gm||!roomId)return;
+   const panel=$('roomMasterPanel'),host=$('nexVttInlineGmHost');
+   if(!panel||!host)return;
+   if(panel.parentNode!==host){
+    if(inlineGmReturnMarker?.parentNode)inlineGmReturnMarker.remove();
+    inlineGmReturnMarker=document.createComment('NEX: local original do Escudo');
+    panel.parentNode.insertBefore(inlineGmReturnMarker,panel);
+    host.appendChild(panel);
+   }
+   panel.classList.remove('hide');
+   gmShield?.open();
+  }
+  function detachInlineGm(){
+   const panel=$('roomMasterPanel');
+   if(!inlineGmReturnMarker?.parentNode||!panel)return;
+   inlineGmReturnMarker.parentNode.insertBefore(panel,inlineGmReturnMarker);
+   inlineGmReturnMarker.remove();
+   inlineGmReturnMarker=null;
+   panel.classList.add('hide');
+  }
   const menuTabs=[...mainMenu.querySelectorAll('[data-nex-main-tab]')];
   const menuPages=[...mainMenu.querySelectorAll('[data-nex-main-page]')];
   function showMainTab(name){
+   if(name==='master'&&gm)attachInlineGm();
+   else detachInlineGm();
    menuTabs.find(btn=>btn.dataset.nexMainTab==='master')?.classList.toggle('hide',!gm);
    menuTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexMainTab===name)));
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
@@ -3953,11 +4005,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
 
   // O atalho de convites foi removido da interface; não interromper o módulo.
   $('nexVttMenuInvites')?.addEventListener('click',()=>{updateMenu(false);roomSection('invites');});
-  $('nexVttMenuMaster').addEventListener('click',()=>{
-   if(!gm){notice('Somente o mestre pode acessar o Escudo do Mestre.');return;}
-   updateMenu(false);
-   openVttGmOverlay();
-  });
   $('nexVttMenuSettings').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Grade e névoa"]')?.click();});
   $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
   // Delegação estável: as abas funcionam mesmo após a reconstrução da biblioteca.
