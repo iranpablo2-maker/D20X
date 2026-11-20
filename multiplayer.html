@@ -2811,15 +2811,15 @@ document.addEventListener('click',function(event){
  }
 },true);
 </script>
-<script src="./nex-roll-popup.js?v=20261120roll48"></script>
+<script src="./nex-roll-popup.js?v=20261120rollcalc50"></script>
 <link rel="stylesheet" href="./nex-gm-shield.css?v=20261120npcd20fix46">
 <script src="./nex-ameacas-imagens-arquivos.js?v=20261120static28"></script>
 <script src="./nex-gm-card-images.js?v=20261120cardfix34"></script>
 <script src="./nex-ameacas-imagens-principais.js?v=20261120static28"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261118gridfix16';
-import {mountGmShield} from './nex-gm-shield.js?v=20261120roll48';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261120storage50';
+import {mountGmShield} from './nex-gm-shield.js?v=20261120gmrecovery50';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
