@@ -481,11 +481,14 @@ export function mountGmShield(options){
   const attr=skill?Math.max(0,Math.min(6,Math.trunc(Number(attrs[key])||0))):0;
   const bonus=skill?Math.trunc(Number(btn.dataset.gmNpcSkillBonus)||0):0;
   const expression=skill?null:btn.dataset.gmNpcDice;
-  const parsed=skill?{count:attr||2,sides:20,bonus}:ui.parse(expression);
-  if(!parsed)return;
   const label=btn.dataset.gmNpcDiceLabel||btn.getAttribute('aria-label')||'Rolagem';
   const isPool=skill||btn.dataset.gmNpcPool==='high';
-  ui.roll({title:label,expression,count:parsed.count,sides:parsed.sides,bonus:parsed.bonus,pool:isPool,low:skill&&attr===0,detail:skill?'Atributo '+key.toUpperCase()+' '+attr:''});
+  if(skill){
+   ui.roll({title:label,count:attr||2,sides:20,bonus,pool:true,low:attr===0,detail:'Atributo '+key.toUpperCase()+' '+attr});
+  }else if(ui.parse(expression)){
+   // Não converter expressões compostas em uma única fórmula: preserva os dados adicionais.
+   ui.roll({title:label,expression,pool:isPool});
+  }
  }
  function npcCampaignView(x){
   const t=npcSheet(x.sheet),pic=safeImage(x.image),attrs=[['agi','AGI'],['for','FOR'],['int','INT'],['pre','PRE'],['vig','VIG']];
