@@ -1130,18 +1130,18 @@
    el.innerHTML='<div class="nex-hb-npc-action-buttons">'+
      '<button type="button" class="btn sm" data-npc-add-kind="ability">+ Adicionar habilidade</button>'+
      '<button type="button" class="btn sm" data-npc-add-kind="attack">+ Adicionar ataque</button>'+
-     ($('nex51Type').value==='ameaca'?'<button type="button" class="btn sm" data-threat-add-ritual>+ Adicionar Ritual</button>':'')+
+     '<button type="button" class="btn sm" data-threat-add-ritual>+ Adicionar Ritual</button>'+
      '</div>'+
-     ($('nex51Type').value==='ameaca'?'<div id="nexHbThreatRitualPicker" class="nex-hb-threat-ritual-picker" hidden></div>':'')+
+     '<div id="nexHbThreatRitualPicker" class="nex-hb-threat-ritual-picker" hidden></div>'+
      threatActions.map((a,i)=>row(a,i)).join('')+
-     ($('nex51Type').value==='ameaca'?threatRituals.map((r,i)=>
+     threatRituals.map((r,i)=>
        '<div class="nex-hb-threat-action-editor nex-hb-threat-ritual-row"><div class="nex-hb-threat-action-summary"><div class="nex-hb-threat-ritual-name"><strong>RITUAL ◆ '+esc(r.name.toUpperCase())+'</strong><small>'+esc(r.element)+' · '+r.circle+'º círculo'+(r.source?' · '+esc(r.source):'')+'</small></div>'+
        '<button type="button" class="btn sm" data-threat-remove-ritual="'+i+'">Excluir</button></div>'+
        (r.description?'<p class="nex-hb-threat-ritual-description">'+esc(r.description)+'</p>':'')+'</div>'
-     ).join(''):'');
+     ).join('');
   }else el.innerHTML=threatActions.map(row).join('');
   if(npc)refreshNpcAttackTestPreviews();
-  if($('nex51Type').value==='ameaca')renderThreatRitualPicker();
+  if(npc)renderThreatRitualPicker();
  }
  function readThreatSheet(){
   const attributes={};THREAT_ATTRS.forEach(([k])=>{attributes[k]=num(mount.querySelector('[data-nex-threat-attr="'+k+'"]').value,0,6,1);});
@@ -1193,7 +1193,7 @@
  $('nexHbThreatActions').addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn)return;
   if(btn.hasAttribute('data-threat-add-ritual')){
-   if($('nex51Type').value!=='ameaca')return;
+   if(!isThreatType($('nex51Type').value))return;
    showThreatRitualPicker=!showThreatRitualPicker;threatRitualSearch='';
    renderThreatRitualPicker();return;
   }
@@ -1335,7 +1335,7 @@
      (extractNpcDiceFormula(a.effect)?actionDiceButton('Rolar efeito',a.effect,index,'effect'):'')+
      '<p class="nex-hb-action-roll-result" role="status" aria-live="polite" hidden></p></div>';
   };
-  const ritualsPanel=item.type==='ameaca'&&t.rituals.length?
+  const ritualsPanel=isThreatType(item.type)&&t.rituals.length?
    '<section class="nex-hb-npc-action-group"><h4>Rituais</h4>'+
     t.rituals.map(r=>'<div class="nex-hb-threat-action nex-hb-npc-attack-sheet">'+
      '<div class="nex-hb-npc-attack-title">RITUAL ◆ '+esc(r.name.toUpperCase())+'</div>'+
