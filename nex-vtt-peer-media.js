@@ -68,6 +68,7 @@ export function mountNexPeerMedia({
  const peersRef=collection(db,'campaigns',campaignId,'vttLivePeers');
  const ownRef=doc(db,'campaigns',campaignId,'vttLivePeers',uid);
  let destroyed=false,activeSession='',hosting=false,joinPeer=null,unsubPeers=null,unsubOwn=null;
+ let reconnectTimer=null,reconnectAttempts=0;
  let audioStream=null,playbackPending=false;
  // A seleção, início, pausa e troca de áudio pertencem somente ao mestre.
  // Jogadores tentam reproduzir a transmissão automaticamente; navegadores podem exigir interação real.
@@ -149,15 +150,26 @@ export function mountNexPeerMedia({
   pending.clear();
  }
  function teardown(){
+  if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}
   cleanupPending('Transmissao interrompida');
   if(unsubPeers){unsubPeers();unsubPeers=null;}
   if(unsubOwn){unsubOwn();unsubOwn=null;}
-  try{joinPeer?.dc?.close();joinPeer?.pc?.close();}catch(_){}
+  try{joinPeer?.channel?.close();joinPeer?.pc?.close();}catch(_){}
   joinPeer=null;
   for(const p of remotePeers.values()){try{p.channel?.close();p.pc.close();}catch(_){}}
   remotePeers.clear();
   if(audioStream){audioStream.pause();audioStream.srcObject=null;audioStream=null;}
   onDisconnected();
+ }
+ function scheduleReconnect(sess,peer){
+  if(destroyed||gm||!sess||joinPeer!==peer||reconnectTimer||peer.open)return;
+  if(reconnectAttempts>=4){say('Conexão não estabelecida. Algumas redes exigem TURN; tente outra rede ou reinicie a sessão.');return;}
+  const delay=Math.min(15000,2500*Math.pow(2,reconnectAttempts++));
+  say('Conexão interrompida. Tentando novamente ('+reconnectAttempts+'/4)...');
+  reconnectTimer=setTimeout(()=>{
+   reconnectTimer=null;
+   if(!destroyed&&!gm&&activeSession===sess&&joinPeer===peer&&!peer.open)connectToHost(sess,true);
+  },delay);
  }
  function attachChannel(peer,channel){
   peer.channel=channel;
@@ -166,6 +178,7 @@ export function mountNexPeerMedia({
   channel.onopen=()=>{
    if(destroyed)return;
    peer.open=true;
+   if(!gm)reconnectAttempts=0;
    if(gm){say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');queueScene(peer,++sceneRevision,getScene());if(chatHistory.length)channel.send(JSON.stringify({type:'chat-history',items:chatHistory}));}
    else{
     say('Conectado ao mestre. Imagens locais disponiveis.');
@@ -179,6 +192,7 @@ export function mountNexPeerMedia({
    if(!gm){
     window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:false}}));
     cleanupPending('O mestre desconectou');say('Conexao ao mestre encerrada.');onDisconnected();
+    scheduleReconnect(peer.session,peer);
    }
    else say('Um jogador desconectou. Os demais continuam na sessao.');
   };
@@ -324,8 +338,9 @@ export function mountNexPeerMedia({
   catch(error){say('Falha ao encerrar no Firestore: '+String(error.message).slice(0,120));}
   finally{say('Transmissão encerrada ao sair do Tabletop.');}
  }
- function connectToHost(sess){
-  if(destroyed||gm||joinPeer?.session===sess)return;
+ function connectToHost(sess,force=false){
+  if(destroyed||gm||(!force&&joinPeer?.session===sess))return;
+  if(joinPeer?.session!==sess)reconnectAttempts=0;
   window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:false}}));
   teardown();
   const pc=new RTCPeerConnection({iceServers:ICE_SERVERS});
@@ -349,7 +364,10 @@ export function mountNexPeerMedia({
   };
   pc.onconnectionstatechange=()=>{
    if(destroyed)return;
-   if(pc.connectionState==='failed')say('Conexao direta falhou nesta rede. Pode ser necessario servidor TURN.');
+   if(pc.connectionState==='failed'){
+    say('Conexao direta falhou nesta rede. Pode ser necessario servidor TURN.');
+    scheduleReconnect(sess,peer);
+   }
    else if(pc.connectionState==='disconnected')say('Conexao instavel. Verifique se o mestre continua conectado.');
   };
   say('Conectando ao mestre...');
@@ -366,8 +384,8 @@ export function mountNexPeerMedia({
     }
    },err=>say('Sem acesso ao sinal da sessao: '+String(err.message).slice(0,100)));
    await setDoc(ownRef,{uid,session:sess,offer,answer:''});
-   setTimeout(()=>{if(!destroyed&&joinPeer===peer&&!peer.open)say('Sem conexao direta ainda. Verifique se o mestre esta online e se a rede permite WebRTC.');},18000);
-  })().catch(error=>{if(!destroyed)say('Falha na conexao: '+String(error.message).slice(0,130));});
+   setTimeout(()=>{if(!destroyed&&joinPeer===peer&&!peer.open)scheduleReconnect(sess,peer);},18000);
+  })().catch(error=>{if(!destroyed){say('Falha na conexao: '+String(error.message).slice(0,130));scheduleReconnect(sess,peer);}});
  }
  const unsubscribe=onSnapshot(sessionRef,snapshot=>{
   if(destroyed||gm)return;
