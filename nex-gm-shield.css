@@ -498,3 +498,27 @@
 #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-roll{display:inline-flex!important;align-items:center!important;justify-content:center!important;gap:5px!important;vertical-align:middle!important;touch-action:manipulation!important;pointer-events:auto!important}
 #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-d20-icon{width:20px!important;height:20px!important;min-width:20px!important;max-width:20px!important;flex:0 0 20px!important;display:block!important;pointer-events:none!important;color:#ffd5de!important}
 #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-roll>span{pointer-events:none!important}
+
+/* Controles de recuperação exclusivos do Escudo do Mestre.
+   Mantêm a mini ficha e seus botões dentro do painel ajustável no PC e no celular. */
+#roomMasterPanel .nex-gm-status{
+ min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important;
+ display:flex;align-items:center;flex-wrap:wrap;gap:6px;
+}
+#roomMasterPanel .nex-gm-status [data-gm-retry-save],
+#roomMasterPanel .nex-gm-status [data-gm-discard-save]{
+ flex:0 1 auto!important;width:auto!important;max-width:100%!important;
+ padding:6px 9px!important;font-size:11px!important;white-space:normal!important;
+ border:1px solid #8c4657!important;border-radius:6px!important;
+ background:#21151b!important;color:#fff!important;cursor:pointer!important;
+}
+#roomTabletopPanel #nexVttInlineGmHost .nex-gm-content,
+#roomTabletopPanel #nexVttGmOverlay .nex-gm-content{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ overflow-wrap:anywhere!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view,
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look{
+ box-sizing:border-box!important;min-width:0!important;
+ max-width:min(390px,100%)!important;
+}
