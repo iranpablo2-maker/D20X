@@ -170,7 +170,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <div class="card" id="screen" hidden>
 <header class="hero" id="hero"><div class="portrait-switch"><div class="portrait" id="portrait" aria-label="Retrato"></div><button id="formSwitch" class="form-switch" type="button" hidden aria-label="Mostrar outra forma">Mostrar outra ficha</button></div><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div></div></header>
 <section class="hp" id="hpBar" hidden aria-label="Vida da ameaça">
- <div class="nex-threat-vitals-head"><strong class="nex-threat-vitals-title">VIDA</strong><div class="nex-threat-temp"><span>Temp.</span><button type="button" id="hpTempMinus" aria-label="Diminuir PV temporários">‹</button><output id="hpTempValue">0</output><button type="button" id="hpTempPlus" aria-label="Aumentar PV temporários">›</button></div></div>
+ <div class="nex-threat-vitals-head"><strong class="nex-threat-vitals-title">VIDA</strong></div>
  <div class="nex-threat-hp-track" id="hpTrack" role="progressbar" aria-label="Pontos de vida restantes" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
   <div class="nex-threat-hp-fill" id="hpFill"></div>
   <button type="button" data-hp-change="-10" title="Diminuir 10 PV" aria-label="Diminuir 10 PV">«</button>
@@ -696,18 +696,16 @@ function updateThreatHP(baseMaximum){
  try{restored=JSON.parse(localStorage.getItem(hpStorageKey())||'null');}catch(error){}
  const max=Number.isSafeInteger(restored?.max)&&restored.max>=1?restored.max:Math.trunc(maxFromBook);
  const current=Number.isSafeInteger(restored?.current)?Math.max(0,Math.min(max,restored.current)):max;
- const temp=Number.isSafeInteger(restored?.temp)?Math.max(0,Math.min(1000000,restored.temp)):0;
- hpState={current,max,temp};
+ hpState={current,max};
  refreshThreatHP();
 }
 function refreshThreatHP(){
  if(!hpState)return;
- const {current,max,temp}=hpState;
+ const {current,max}=hpState;
  $("hpLabel").textContent=current+' / '+max;
  $("hpFill").style.width=(100*current/max)+'%';
  $("hpTrack").setAttribute('aria-valuemax',String(max));
  $("hpTrack").setAttribute('aria-valuenow',String(current));
- $("hpTempValue").textContent=String(temp);
  $("hpCurrentInline").max=String(max);
  $("hpEditButton").setAttribute('aria-label','Editar PV atuais: '+current+' de '+max);
 }
@@ -725,14 +723,6 @@ $("hpTrack").addEventListener('click',event=>{
  const button=event.target.closest('[data-hp-change]');
  if(!button||!hpState)return;
  setThreatHP(hpState.current+Number(button.dataset.hpChange));
-});
-$("hpTempMinus").addEventListener('click',()=>{
- if(!hpState)return;
- hpState.temp=Math.max(0,hpState.temp-1);saveThreatHP();
-});
-$("hpTempPlus").addEventListener('click',()=>{
- if(!hpState)return;
- hpState.temp=Math.min(1000000,hpState.temp+1);saveThreatHP();
 });
 function closeHpInline(commit){
  const input=$("hpCurrentInline");
