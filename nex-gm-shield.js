@@ -248,8 +248,12 @@ export function mountGmShield(options){
  function entityCard(kind,x){
   const title=escape(x.title||'Sem nome'),pic=safeImage(x.image);
   const sourceKey=kind==='threats'?threatSourceKey(x):'';
+  // Retratos de backup já incluídos no próprio JS. Não somem mesmo após
+  // salvar, recarregar a ficha ou atualizar a campanha no Firebase.
+  const embedded=kind==='threats'&&typeof window.NEX_GM_CARD_IMAGES?.[x.title]==='string'
+   ?window.NEX_GM_CARD_IMAGES[x.title]:'';
   const storedDirect=pic&&/^\.\/assets\/ameacas\//i.test(pic)?pic:'';
-  const direct=storedDirect||(sourceKey&&!failedDirectPortraits.has(sourceKey)?directThreatImage(sourceKey):'');
+  const direct=embedded||storedDirect||(sourceKey&&!failedDirectPortraits.has(sourceKey)?directThreatImage(sourceKey):'');
   const sourced=sourceKey?threatPortraitMarkup(sourceKey):'';
   const directMarkup=direct?'<img data-gm-direct-threat-image="'+escape(sourceKey)+'" src="'+escape(direct)+'" alt="" loading="eager" decoding="async">':'';
   const thumb=directMarkup|| (pic?'<img src="'+escape(pic)+'" alt="'+title+'">':'')||sourced||escape((x.title||'?').trim().charAt(0).toUpperCase()||'?');
