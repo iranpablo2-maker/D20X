@@ -46,6 +46,10 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 .hp-controls[hidden],.hp-track[hidden],.dice-output[hidden]{display:none}
 .attributes button{background:transparent;border:1px solid #513743;color:white;width:100%;border-radius:7px;cursor:pointer;padding:7px 0}
 .attributes button:hover{background:#3b202d}.attributes button small{display:block}
+.attributes .nex-threat-attribute-number{display:flex;align-items:center;justify-content:center;width:100%;min-height:40px;padding:5px;border:1px solid #513743;border-radius:7px;background:transparent;color:inherit;cursor:pointer}
+.attributes .nex-threat-attribute-number strong{display:block;font:500 28px Georgia,serif;line-height:1.1}
+.attributes .nex-threat-attribute-number:hover{background:#3b202d;border-color:#b64c64}
+.attributes .nex-threat-attribute-number:focus-visible{outline:2px solid #e96b83;outline-offset:2px}
 .dice-output{margin:12px 20px;border:1px solid #985365;background:#21161d;padding:12px;border-radius:8px}
 .dice-output strong{font-size:18px}.dice-button{margin:8px 5px 0 0}
 
@@ -537,8 +541,15 @@ function render(){
  const statItems=[["Defesa",d.defense],["Deslocamento",d.movement],["PV máximos",d.pv]].filter(([name,value])=>hasValue(value));
  const stats=statItems.length?'<div class="stats">'+statItems.map(([name,value])=>'<div class="stat"><small>'+esc(name)+'</small><strong>'+esc(value)+'</strong></div>').join("")+'</div>':"";
  const attrs=["AGI","FOR","INT","PRE","VIG"].filter(x=>hasValue(d.attributes?.[x]));
+ const attributeRoll=(name)=>{
+  const value=Number(d.attributes?.[name]);
+  if(!Number.isFinite(value))return '<strong>'+esc(d.attributes?.[name]||'—')+'</strong>';
+  const attribute=Math.max(0,Math.min(6,Math.trunc(value)));
+  const expression=attribute>0?attribute+'d20':'2d20';
+  return '<button type="button" class="nex-threat-attribute-number" data-nex-roll-expression="'+expression+'" data-nex-roll-title="Atributo '+esc(name)+'" data-nex-roll-pool="true"'+(attribute===0?' data-nex-roll-low="true"':'')+' aria-label="Rolar atributo '+esc(name)+'" title="Rolar '+expression+'"><strong>'+esc(d.attributes[name])+'</strong></button>';
+ };
  const skills=rollRows(d.skills),saves=rollRows(d.saves);
- $("status").innerHTML=(attrs.length?'<div class="attributes">'+attrs.map(x=>'<div><small>'+x+'</small><strong>'+esc(d.attributes[x])+'</strong>'+threatRollButton((Number(d.attributes[x])||0)>0?Math.min(30,Number(d.attributes[x]))+'d20':'2d20',x,(Number(d.attributes[x])||0)===0)+'</div>').join("")+'</div>':"")+
+ $("status").innerHTML=(attrs.length?'<div class="attributes">'+attrs.map(x=>'<div><small>'+x+'</small>'+attributeRoll(x)+'</div>').join("")+'</div>':"")+
  stats+(hasValue(d.presence)?'<div class="note"><strong>Presença perturbadora:</strong> '+esc(d.presence)+'</div>':'')+
  section("Outros deslocamentos",d.extraMovement)+
  (saves?'<h2>Testes de resistência</h2><div class="skills">'+saves+'</div>':"")+
