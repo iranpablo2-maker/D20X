@@ -121,6 +121,15 @@
   if(!button)return;
   e.preventDefault();
   const label=button.dataset.nexRollTitle||'Rolagem';
-  roll({title:label,expression:button.dataset.nexRollExpression,pool:button.dataset.nexRollPool==='true'?true:button.dataset.nexRollPool==='false'?false:undefined,low:button.dataset.nexRollLow==='true',critical:button.dataset.nexRollCritical||''});
+  const options={title:label,expression:button.dataset.nexRollExpression,pool:button.dataset.nexRollPool==='true'?true:button.dataset.nexRollPool==='false'?false:undefined,low:button.dataset.nexRollLow==='true',critical:button.dataset.nexRollCritical||''};
+  // A biblioteca de Ameaças é um iframe dentro de outro iframe. Exibir o
+  // resultado na página principal evita que a rolagem fique fora da viewport.
+  let librarySheet=false;
+  try{librarySheet=window.parent!==window&&window.frameElement?.id==='threatDetailFrame'&&/\/ameacas\.html$/i.test(window.parent.location.pathname);}catch(error){}
+  if(librarySheet){
+   window.parent.postMessage({type:'nex-threat-dice-roll',options},location.origin);
+   return;
+  }
+  roll(options);
  });
 })();
