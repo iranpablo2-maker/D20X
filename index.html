@@ -3727,7 +3727,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   screen.setAttribute('aria-label','Biblioteca Homebrew');
   document.body.classList.remove('nex-campaign-hb-open');
  }
- for(const type of ['nex:edit-campaign-npc-native','nex:create-campaign-threat-native','nex:edit-campaign-threat-native']){
+ for(const type of ['nex:edit-campaign-npc-native','nex:create-campaign-npc-native','nex:create-campaign-threat-native','nex:edit-campaign-threat-native']){
   window.addEventListener(type,openCampaignSheetOverlay);
  }
  window.addEventListener('nex:campaign-homebrew-editor-closed',closeCampaignSheetOverlay);
@@ -6004,7 +6004,7 @@ const PARANORMAL=[
 })();
 </script>
 <script src="nex-duplicate-review.js?v=2055"></script>
-<script src="nex-homebrew-advanced.js?v=20261120preservephotos32"></script>
+<script src="nex-homebrew-advanced.js?v=20261120npcunified36"></script>
 <script src="nex-rituais-metadados.js?v=1"></script>
 <script src="nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script src="nex-rituais-ficha.js?v=20261114arquivosfilter1"></script>
@@ -6320,6 +6320,11 @@ body > #nexVttSheetClose[hidden]{display:none!important}
   window.addEventListener('message',event=>{
     if(event.origin!==location.origin || event.source!==frame.contentWindow)return;
     const msg=event.data||{};
+    if(msg.type==='nex-campaign-create-npc-native'){
+      if(typeof msg.campaignId!=='string'||!msg.campaignId)return;
+      window.dispatchEvent(new CustomEvent('nex:create-campaign-npc-native',{detail:{campaignId:msg.campaignId}}));
+      return;
+    }
     if(msg.type==='nex-campaign-create-threat-native'){
       if(typeof msg.campaignId!=='string')return;
       window.dispatchEvent(new CustomEvent('nex:create-campaign-threat-native',{detail:{campaignId:msg.campaignId}}));
