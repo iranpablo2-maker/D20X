@@ -65,6 +65,10 @@ export function mountGmShield(options){
  let selectedSheet=null,draftNpcId=null,showNpcImport=false,showThreatImport=false;
  function discardNpcDraft(){if(!draftNpcId)return;state.npcs=state.npcs.filter(x=>x.id!==draftNpcId);draftNpcId=null;}
  let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
+ let pendingMasterSave=null,pendingNeedsRetry=false;
+ const masterDraftKey=(campaign,user)=>'nex_gm_pending_v1:'+user+':'+campaign;
+ function clearMasterDraft(campaign,user){try{sessionStorage.removeItem(masterDraftKey(campaign,user));}catch(error){}}
+ function saveMasterDraft(payload,campaign,user){try{sessionStorage.setItem(masterDraftKey(campaign,user),JSON.stringify(payload));return true;}catch(error){console.warn('NEX: cópia temporária do Escudo indisponível',error);return false;}}
  const id=()=>typeof crypto.randomUUID==='function'?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
  const attr=(name,value)=>' '+name+'="'+escape(value)+'"';
  function dataSafe(raw){
@@ -81,7 +85,15 @@ export function mountGmShield(options){
   result.rolls=Array.isArray(raw.rolls)?raw.rolls.slice(0,30).filter(x=>x&&typeof x==='object').map(x=>({expression:String(x.expression||'').slice(0,60),result:String(x.result||'').slice(0,220),at:String(x.at||'').slice(0,30)})):[];
   return result;
  }
- function status(message){saveStatus=message;const node=$('[data-gm-status]');if(node)node.textContent=message;}
+ function refreshMasterStatus(){
+  const node=$('[data-gm-status]');if(!node)return;
+  node.textContent=saveStatus;
+  if(pendingNeedsRetry){
+   const retry=document.createElement('button');retry.type='button';retry.className='alt';retry.dataset.gmRetrySave='true';retry.textContent='Salvar novamente';retry.style.marginLeft='8px';node.append(retry);
+   const discard=document.createElement('button');discard.type='button';discard.className='alt';discard.dataset.gmDiscardSave='true';discard.textContent='Descartar cópia local';discard.style.marginLeft='5px';node.append(discard);
+  }
+ }
+ function status(message){saveStatus=message;refreshMasterStatus();}
  function readHomebrews(){
   try{const data=JSON.parse(localStorage.getItem('nex_homebrew_advanced_v2051')||'[]');homebrew=Array.isArray(data)?data.filter(x=>x&&x.type==='npc'&&x.name).slice(0,150):[];}
   catch(error){homebrew=[];}
@@ -100,7 +112,7 @@ export function mountGmShield(options){
  }
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
-  room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;showThreatImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;
+  room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;showThreatImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;pendingMasterSave=null;pendingNeedsRetry=false;
   clearTimeout(generalSaveTimer);richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
@@ -116,12 +128,22 @@ export function mountGmShield(options){
     ?{kind:previous.sheet.kind,id:String(previous.sheet.id||'').slice(0,80)}:null;
    npcInlineEditing=false;
   }catch(error){tab='notes';selectedSheet=null;}
+  try{
+   const draft=JSON.parse(sessionStorage.getItem(masterDraftKey(room,ctx.uid))||'null');
+   if(draft&&typeof draft==='object'&&Array.isArray(draft.npcs)&&Array.isArray(draft.notes)){
+    pendingMasterSave=draft;pendingNeedsRetry=true;
+   }
+  }catch(error){pendingMasterSave=null;pendingNeedsRetry=false;}
   root.innerHTML='<p class="room-note">Carregando Escudo do Mestre…</p>';
   const current=room;
   unsubscribe=onSnapshot(doc(db,'campaigns',room,'masterNotes','shield'),snap=>{
    if(room!==current)return;
    if(revision>committed)return;
-   state=dataSafe(snap.exists()?snap.data():null);ready=true;render();
+   if(pendingMasterSave){
+    state=dataSafe(pendingMasterSave);
+    saveStatus='Alterações locais não enviadas recuperadas. Confira e salve novamente.';
+   }else state=dataSafe(snap.exists()?snap.data():null);
+   ready=true;render();
   },error=>{if(room!==current)return;ready=false;root.textContent='Não foi possível carregar o Escudo do Mestre: '+String(error.message||error);});
   readHomebrews();
  }
@@ -129,8 +151,10 @@ export function mountGmShield(options){
   if(!ready||!room||!getContext().gm)return;
   const payload={...state,version:1,updatedAt:Date.now()};
   if(JSON.stringify(payload).length>680000){status('Limite de dados da campanha atingido. Reduza algumas anotações.');return;}
-  const current=room,number=++revision;
-  status('Salvando na conta…');
+  const current=room,user=getContext().uid,number=++revision;
+  pendingMasterSave=payload;pendingNeedsRetry=false;
+  const backupReady=saveMasterDraft(payload,current,user);
+  status(backupReady?'Salvando na conta…':'Salvando na conta… (cópia local indisponível)');
   writeQueue=writeQueue.catch(()=>{}).then(()=>{
    if(current!==room)return;
    return setDoc(doc(db,'campaigns',current,'masterNotes','shield'),payload);
@@ -138,9 +162,18 @@ export function mountGmShield(options){
   writeQueue.then(()=>{
    if(room!==current)return;
    committed=Math.max(committed,number);
-   if(number===revision)status('Salvo na campanha.');
+   if(number===revision){
+    pendingMasterSave=null;pendingNeedsRetry=false;
+    clearMasterDraft(current,user);
+    status('Salvo na campanha.');
+   }
   }).catch(error=>{
-   if(room===current){committed=Math.max(committed,number);status('Falha ao salvar: '+String(error.message||error));}
+   if(room===current&&number===revision){
+    // Nunca marcar uma gravação rejeitada como confirmada: isso perderia
+    // alterações quando o próximo snapshot remoto chegasse.
+    pendingNeedsRetry=true;
+    status('Falha ao salvar: '+String(error.message||error));
+   }
   });
   return writeQueue;
  }
@@ -810,6 +843,7 @@ export function mountGmShield(options){
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '';
+  refreshMasterStatus();
   if(tab==='threats'&&showThreatImport){const frame=$('[data-gm-threat-picker]');if(frame)frame.addEventListener('load',syncThreatPicker,{once:true});}
   if(tab==='threats'&&!showThreatImport)requestThreatPortraits();
  }
@@ -988,6 +1022,14 @@ export function mountGmShield(options){
  });
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
+  if(btn.dataset.gmRetrySave){void store();return;}
+  if(btn.dataset.gmDiscardSave){
+   if(!window.confirm('Descartar apenas as alterações locais não enviadas e voltar aos dados salvos na campanha?'))return;
+   clearMasterDraft(room,getContext().uid);
+   pendingMasterSave=null;pendingNeedsRetry=false;
+   const previousRoom=room;close();open();
+   return;
+  }
   if(btn.hasAttribute('data-gm-npc-description-toggle')){
    const panel=btn.closest('.nex-gm-npc-view-action')?.querySelector('[data-gm-npc-description]');
    if(panel){panel.hidden=!panel.hidden;btn.setAttribute('aria-expanded',String(!panel.hidden));btn.textContent=panel.hidden?'⌄':'⌃';}
