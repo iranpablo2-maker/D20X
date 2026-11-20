@@ -78,7 +78,7 @@ export function mountGmShield(options){
    id:String(x.id||id()).slice(0,70),title:String(x.title||'').slice(0,110),
    tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,key==='notes'?18000:4000),richHtml:key==='notes'?String(x.richHtml||'').slice(0,590000):'',
    date:String(x.date||'').slice(0,80),status:String(x.status||'').slice(0,50),
-   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),hasFullSheet:!!x.hasFullSheet,revealed:!!x.revealed,
+   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),hpCurrent:Number.isSafeInteger(Number(x.hpCurrent))&&x.hpCurrent!==null&&x.hpCurrent!==undefined&&x.hpCurrent!==''?Math.max(0,Math.min(npcSheet(x.sheet).pv,Number(x.hpCurrent))):null,hasFullSheet:!!x.hasFullSheet,revealed:!!x.revealed,
    threatHomebrew:key==='threats'&&x.threatHomebrew&&typeof x.threatHomebrew==='object'?JSON.parse(JSON.stringify(x.threatHomebrew)):null
   })):[]; 
   result.favorites=Array.isArray(raw.favorites)?raw.favorites.slice(0,120).map(x=>String(x).slice(0,130)):[];
@@ -395,7 +395,7 @@ export function mountGmShield(options){
   if(!title){status('Informe o nome do NPC.');form.querySelector('[name="title"]')?.focus();return;}
   const next=npcSheet(fields);
   const previous={title:x.title,body:x.body,sheet:x.sheet,hasFullSheet:x.hasFullSheet,image:x.image};
-  x.title=title;x.body=String(data.get('body')||'').slice(0,4000);x.sheet=next;x.hasFullSheet=true;x.image=safeImage(data.get('npcImage'));
+  x.title=title;x.body=String(data.get('body')||'').slice(0,4000);x.sheet=next;x.hpCurrent=x.hpCurrent===null||x.hpCurrent===undefined?next.pv:Math.max(0,Math.min(next.pv,Number(x.hpCurrent)||0));x.hasFullSheet=true;x.image=safeImage(data.get('npcImage'));
   if(JSON.stringify(state).length>670000){Object.assign(x,previous);status('A ficha ultrapassou o limite de armazenamento da campanha.');return;}
   draftNpcId=null;
   npcInlineEditing=false;
@@ -540,6 +540,9 @@ export function mountGmShield(options){
  }
  function npcCampaignView(x){
   const t=npcSheet(x.sheet),pic=safeImage(x.image),attrs=[['agi','AGI'],['for','FOR'],['int','INT'],['pre','PRE'],['vig','VIG']];
+  const maximum=Math.max(0,Math.trunc(t.pv));
+  const current=x.hpCurrent===null||x.hpCurrent===undefined?maximum:Math.max(0,Math.min(maximum,Math.trunc(Number(x.hpCurrent)||0)));
+  const fill=maximum?Math.round(current/maximum*100):0;
   const skillAttrs={'Acrobacia':'agi','Adestramento':'pre','Artes':'pre','Atletismo':'for','Atualidades':'int','Ciências':'int','Crime':'agi','Diplomacia':'pre','Enganação':'pre','Fortitude':'vig','Furtividade':'agi','Iniciativa':'agi','Intimidação':'pre','Intuição':'pre','Investigação':'int','Luta':'for','Medicina':'int','Ocultismo':'int','Percepção':'pre','Pilotagem':'agi','Pontaria':'agi','Profissão':'int','Reflexos':'agi','Religião':'pre','Sobrevivência':'int','Tática':'int','Tecnologia':'int','Vontade':'pre'};
   const attrHtml=attrs.map(([key,label])=>'<div class="nex-gm-npc-view-attr"><small>'+label+'</small><button type="button" class="nex-gm-npc-attr-number" data-gm-npc-skill-attr="'+key+'" data-gm-npc-skill-bonus="0" data-gm-npc-dice-label="Atributo '+label+'" aria-label="Rolar atributo '+label+'" title="Rolar atributo '+label+'"><b>'+escape(t.attributes[key])+'</b></button></div>').join('');
   const empty='<p class="nex-gm-npc-view-empty">Nenhuma informação cadastrada.</p>';
@@ -576,12 +579,41 @@ export function mountGmShield(options){
    '<div class="nex-gm-npc-view-tools"><button type="button" class="alt" data-gm-close-sheet>← Voltar aos NPCs</button><button type="button" class="alt" data-gm-edit="npcs:'+escape(x.id)+'">Editar ficha</button></div>'+
    '<div class="nex-gm-npc-view-card"><div class="nex-gm-npc-roll-result" data-gm-npc-dice-result hidden aria-live="polite"></div><header class="nex-gm-npc-view-header"><div class="nex-gm-npc-view-photo">'+(pic?'<img src="'+escape(pic)+'" alt="Foto de '+escape(x.title)+'">':escape((x.title||'?').charAt(0).toUpperCase()))+'</div>'+
    '<div class="nex-gm-npc-view-heading"><small>NPC · CAMPANHA</small><h3>'+escape(x.title||'Sem nome')+'</h3></div></header>'+
-   '<div class="nex-gm-npc-view-pv"><strong>'+escape(t.pv)+' PV</strong><span></span></div>'+
+   '<div class="nex-gm-npc-view-pv" data-gm-npc-hp-widget="'+escape(x.id)+'"><div class="nex-gm-npc-hp-title">VIDA</div><div class="nex-gm-npc-hp-track" role="progressbar" aria-label="PV atuais do NPC" aria-valuemin="0" aria-valuemax="'+maximum+'" aria-valuenow="'+current+'">'+
+   '<span class="nex-gm-npc-hp-fill" style="width:'+fill+'%"></span>'+
+   '<button type="button" data-gm-npc-hp-delta="-10" aria-label="Diminuir 10 PV">«</button><button type="button" data-gm-npc-hp-delta="-1" aria-label="Diminuir 1 PV">‹</button>'+
+   '<button type="button" class="nex-gm-npc-hp-value" data-gm-npc-hp-edit aria-label="Editar PV atuais">'+current+' / '+maximum+'</button>'+
+   '<input type="number" class="nex-gm-npc-hp-input" data-gm-npc-hp-input min="0" max="'+maximum+'" step="1" inputmode="numeric" aria-label="PV atuais" hidden>'+
+   '<button type="button" data-gm-npc-hp-delta="1" aria-label="Aumentar 1 PV">›</button><button type="button" data-gm-npc-hp-delta="10" aria-label="Aumentar 10 PV">»</button></div></div>'+
    '<nav class="nex-gm-npc-view-tabs" aria-label="Seções da ficha do NPC"><button type="button" data-gm-npc-view-tab="status" aria-selected="true">STATUS</button><button type="button" data-gm-npc-view-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-gm-npc-view-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
    '<section data-gm-npc-view-panel="status"><div class="nex-gm-npc-view-attrs">'+attrHtml+'</div><div class="nex-gm-npc-view-stats"><div><small>Defesa</small><strong>'+escape(t.defense)+'</strong></div><div><small>Deslocamento</small><strong>'+escape(t.deslocamento||'—')+'</strong></div><div><small>PV máximos</small><strong>'+escape(t.pv)+'</strong></div></div>'+
    (skills?'<h4>Perícias</h4>'+skills:'')+(tests?'<h4>Testes e sentidos</h4>'+tests:'')+secondary+'</section>'+
    '<section data-gm-npc-view-panel="combate" hidden><h4>Ataques</h4>'+(attacks||empty)+'<h4>Habilidades</h4>'+(abilities||empty)+'<h4>Rituais</h4>'+(rituals||empty)+'</section>'+
    '<section data-gm-npc-view-panel="descricao" hidden>'+(description||empty)+'</section></div></section>';
+ }
+ function updateNpcHpWidget(widget,entry){
+  if(!widget||!entry)return;
+  const max=Math.max(0,Math.trunc(Number(entry.sheet?.pv)||0));
+  const value=entry.hpCurrent===null||entry.hpCurrent===undefined?max:Math.max(0,Math.min(max,Math.trunc(Number(entry.hpCurrent)||0)));
+  const bar=widget.querySelector('.nex-gm-npc-hp-track');
+  if(bar){bar.setAttribute('aria-valuemax',String(max));bar.setAttribute('aria-valuenow',String(value));}
+  const fill=widget.querySelector('.nex-gm-npc-hp-fill');if(fill)fill.style.width=(max?value/max*100:0)+'%';
+  const display=widget.querySelector('[data-gm-npc-hp-edit]');if(display)display.textContent=value+' / '+max;
+ }
+ function setNpcHp(widget,number){
+  const entry=state.npcs.find(n=>n.id===widget?.dataset.gmNpcHpWidget);
+  if(!entry||!Number.isSafeInteger(number))return;
+  const max=Math.max(0,Math.trunc(Number(entry.sheet?.pv)||0));
+  entry.hpCurrent=Math.max(0,Math.min(max,number));
+  updateNpcHpWidget(widget,entry);store();
+ }
+ function finishNpcHpEdit(input,apply){
+  if(!input||input.hidden)return;
+  const widget=input.closest('[data-gm-npc-hp-widget]');
+  const button=widget?.querySelector('[data-gm-npc-hp-edit]');
+  const raw=input.value.trim();
+  input.hidden=true;if(button)button.hidden=false;
+  if(apply&&raw!==''){const number=Number(raw);if(Number.isSafeInteger(number)&&number>=0)setNpcHp(widget,number);}
  }
  let npcInlineEditing=false;
  function entitySheetView(){
@@ -1036,6 +1068,18 @@ export function mountGmShield(options){
    const previousRoom=room;close();open();
    return;
   }
+  const hpWidget=btn.closest('[data-gm-npc-hp-widget]');
+  if(hpWidget&&btn.hasAttribute('data-gm-npc-hp-delta')){
+   const entry=state.npcs.find(n=>n.id===hpWidget.dataset.gmNpcHpWidget);
+   if(entry){const max=Number(entry.sheet?.pv)||0;const current=entry.hpCurrent==null?max:Number(entry.hpCurrent)||0;setNpcHp(hpWidget,Math.trunc(current)+Number(btn.dataset.gmNpcHpDelta));}
+   return;
+  }
+  if(hpWidget&&btn.hasAttribute('data-gm-npc-hp-edit')){
+   const input=hpWidget.querySelector('[data-gm-npc-hp-input]');
+   const entry=state.npcs.find(n=>n.id===hpWidget.dataset.gmNpcHpWidget);
+   if(input&&entry){input.value=entry.hpCurrent==null?String(entry.sheet.pv):String(entry.hpCurrent);btn.hidden=true;input.hidden=false;input.focus();input.select();}
+   return;
+  }
   if(btn.hasAttribute('data-gm-npc-description-toggle')){
    const panel=btn.closest('.nex-gm-npc-view-action')?.querySelector('[data-gm-npc-description]');
    if(panel){panel.hidden=!panel.hidden;btn.setAttribute('aria-expanded',String(!panel.hidden));btn.textContent=panel.hidden?'⌄':'⌃';}
@@ -1148,6 +1192,14 @@ export function mountGmShield(options){
    case 'tabletop':openTabletop();break;
 
   }
+ });
+ root.addEventListener('keydown',event=>{
+  const input=event.target.closest('[data-gm-npc-hp-input]');if(!input)return;
+  if(event.key==='Enter'){event.preventDefault();finishNpcHpEdit(input,true);}
+  if(event.key==='Escape'){event.preventDefault();finishNpcHpEdit(input,false);}
+ });
+ root.addEventListener('focusout',event=>{
+  const input=event.target.closest('[data-gm-npc-hp-input]');if(input)finishNpcHpEdit(input,true);
  });
  root.addEventListener('input',event=>{const pv=event.target.closest('[data-gm-npc-sheet] [name="pv"]');if(pv){const display=pv.closest('form')?.querySelector('[name="pvDisplay"]');if(display)display.value=pv.value;}});
  root.addEventListener('change',async event=>{
