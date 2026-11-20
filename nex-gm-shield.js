@@ -107,7 +107,16 @@ export function mountGmShield(options){
   const ctx=getContext();
   if(!ctx.gm||!ctx.roomId){root.textContent='O Escudo do Mestre é exclusivo do dono da campanha.';return;}
   if(room===ctx.roomId){render();return;}
-  close();room=ctx.roomId;root.innerHTML='<p class="room-note">Carregando Escudo do Mestre…</p>';
+  close();room=ctx.roomId;
+  // Sessão do navegador: restaura apenas a visualização, nunca um formulário não salvo.
+  try{
+   const previous=JSON.parse(sessionStorage.getItem('nex_gm_navigation_v1:'+ctx.uid+':'+room)||'null');
+   tab=kinds.includes(previous?.tab)?previous.tab:'notes';
+   selectedSheet=previous?.sheet&&['npcs','threats'].includes(previous.sheet.kind)
+    ?{kind:previous.sheet.kind,id:String(previous.sheet.id||'').slice(0,80)}:null;
+   npcInlineEditing=false;
+  }catch(error){tab='notes';selectedSheet=null;}
+  root.innerHTML='<p class="room-note">Carregando Escudo do Mestre…</p>';
   const current=room;
   unsubscribe=onSnapshot(doc(db,'campaigns',room,'masterNotes','shield'),snap=>{
    if(room!==current)return;
@@ -792,6 +801,11 @@ export function mountGmShield(options){
  function render(){
   if(!room||!getContext().gm)return;
   if(!ready){root.innerHTML='<p class="room-note">Carregando dados privados da campanha…</p>';return;}
+  if(selectedSheet&&!state[selectedSheet.kind]?.some(entry=>entry.id===selectedSheet.id))selectedSheet=null;
+  try{
+   const userId=getContext().uid;
+   if(userId)sessionStorage.setItem('nex_gm_navigation_v1:'+userId+':'+room,JSON.stringify({tab,sheet:selectedSheet?{kind:selectedSheet.kind,id:selectedSheet.id}:null}));
+  }catch(error){}
   const current=tab==='npcs'&&showNpcImport?homebrewOptions():tab==='threats'&&showThreatImport?threatPicker():(selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes')));
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
