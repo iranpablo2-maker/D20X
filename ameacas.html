@@ -155,7 +155,7 @@ body.detail-open main{width:min(1250px,100%);padding:8px 10px 28px}
 <section id="threatDetailView" class="threat-detail-view" hidden aria-label="Ficha da ameaça"><div class="threat-detail-nav"><button id="backToThreats" type="button">‹ Voltar à biblioteca de Ameaças</button></div><iframe id="threatDetailFrame" title="Ficha da ameaça" scrolling="no"></iframe></section>
 </main>
 
-<script src="./nex-ameacas-complemento.js?v=20261115complete2"></script>
+<script src="./nex-ameacas-complemento.js?v=20261120anulado3"></script>
 <script src="./nex-ameacas-livro-basico.js?v=20261114basic2"></script>
 <script src="./nex-ameacas-basico-completo.js?v=20261114base2"></script>
 <script src="./nex-ameacas-imagens-principais.js?v=20261114sah1"></script>
@@ -304,7 +304,7 @@ function openThreatDetail(key){
  document.body.classList.add("detail-open");
  threatDetailView.hidden=false;
  threatDetailFrame.style.height="800px";
- threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&v=20261120combatcomplete3";
+ threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&v=20261120anulado3";
  window.scrollTo(0,0);
 }
 function closeThreatDetail(){
