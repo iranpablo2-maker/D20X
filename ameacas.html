@@ -332,38 +332,56 @@ $("list").addEventListener("click",e=>{
 $("backToThreats").onclick=closeThreatDetail;
 // Retorna os mesmos retratos usados pelo bestiário para os cartões do Escudo do Mestre.
 const nexPortraitProvider=new URLSearchParams(location.search).get('portraitProvider')==='1';
+async function nexCropAtlasPortrait(atlas){
+ const columns=4,rows=5,index=Number(atlas.index);
+ if(!atlas.src||!Number.isInteger(index)||index<0||index>=columns*rows)return null;
+ try{
+  const image=new Image();
+  await new Promise((resolve,reject)=>{
+   image.onload=resolve;image.onerror=reject;image.src=atlas.src;
+  });
+  const cellWidth=image.naturalWidth/columns,cellHeight=image.naturalHeight/rows;
+  if(!cellWidth||!cellHeight)return null;
+  const canvas=document.createElement('canvas');
+  canvas.width=Math.round(cellWidth);canvas.height=Math.round(cellHeight);
+  const ctx=canvas.getContext('2d');
+  if(!ctx)return null;
+  ctx.drawImage(image,(index%columns)*cellWidth,Math.floor(index/columns)*cellHeight,cellWidth,cellHeight,0,0,canvas.width,canvas.height);
+  return canvas.toDataURL('image/webp',0.92);
+ }catch(error){console.warn('NEX: retrato do atlas indisponível',error);return null;}
+}
 async function nexResolvePortrait(x){
  const key=threatKey(x);
  const main=threatIllustration(x);
  const paired=window.NEX_FEVEREIRO_FORM_IMAGES?.[key]?.normal;
  const uploaded=window.NEX_UPLOADED_THREAT_IMAGES?.[key];
  const finalIndex=window.NEX_FINAL_FOUR_POSITIONS?.[key];
- const atlasPortrait=nexArchiveAtlasPortrait(x);
- // Alguns caminhos antigos do catálogo não existem no GitHub.
- // Confirma o arquivo antes de escolhê-lo e usa o retrato do atlas como alternativa.
- if(main&&atlasPortrait&&/^\.\/assets\//.test(main)){
-  try{
-   const response=await fetch(main,{method:'HEAD',cache:'force-cache'});
-   if(!response.ok)return {atlas:atlasPortrait.src,columns:4,rows:5,index:Number(atlasPortrait.index)};
-  }catch(error){
-   return {atlas:atlasPortrait.src,columns:4,rows:5,index:Number(atlasPortrait.index)};
-  }
+ // Se há foto no atlas local, usa a foto recortada diretamente. Evita caminhos
+ // antigos que podem retornar HTML em vez da imagem e deixar o cartão vazio.
+ const atlas=nexArchiveAtlasPortrait(x);
+ if(atlas){
+  const cropped=await nexCropAtlasPortrait(atlas);
+  if(cropped)return {url:cropped};
  }
- if(main)return {url:main};
+ if(main&&/^\.\/assets\//.test(main)){
+  try{
+   const response=await fetch(main,{method:'GET',cache:'force-cache'});
+   if(response.ok&&String(response.headers.get('content-type')||'').startsWith('image/'))return {url:main};
+  }catch(error){}
+ }else if(main)return {url:main};
  if(paired)return {url:paired};
  if(uploaded&&typeof window.NEX_UPLOADED_THREAT_IMAGE_URL==='function'){
-  try{const url=await window.NEX_UPLOADED_THREAT_IMAGE_URL(key);if(url)return {url};}catch(e){}
+  try{const url=await window.NEX_UPLOADED_THREAT_IMAGE_URL(key);if(url)return {url};}catch(error){}
  }
  if(typeof window.NEX_ARQUIVOS_ZIP_IMAGE_URL==='function'){
-  try{const url=await window.NEX_ARQUIVOS_ZIP_IMAGE_URL(key);if(url)return {url};}catch(e){}
+  try{const url=await window.NEX_ARQUIVOS_ZIP_IMAGE_URL(key);if(url)return {url};}catch(error){}
  }
  if(typeof window.NEX_FEVEREIRO_FORM_IMAGE_URL==='function'){
-  try{const url=await window.NEX_FEVEREIRO_FORM_IMAGE_URL(key,'normal');if(url)return {url};}catch(e){}
+  try{const url=await window.NEX_FEVEREIRO_FORM_IMAGE_URL(key,'normal');if(url)return {url};}catch(error){}
  }
  if(finalIndex!==undefined&&window.NEX_FINAL_FOUR_ATLAS){
   return {atlas:window.NEX_FINAL_FOUR_ATLAS,columns:2,rows:2,index:Number(finalIndex)};
  }
- const atlas=nexArchiveAtlasPortrait(x);
  if(atlas)return {atlas:atlas.src,columns:4,rows:5,index:Number(atlas.index)};
  return {};
 }
