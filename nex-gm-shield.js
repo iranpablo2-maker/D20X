@@ -468,7 +468,7 @@ export function mountGmShield(options){
   frame.hidden=true;frame.style.display='none';frame.setAttribute('aria-hidden','true');
   frame.dataset.campaignThreatEntry=entry.id;
   threatEditLoader=frame;
-  frame.src='./ameaca-ficha.html?id='+encodeURIComponent(sourceKey)+'&embedded=1&campaignEditSource=1&v=20261120threatedit30';
+  frame.src='./ameaca-ficha.html?id='+encodeURIComponent(sourceKey)+'&embedded=1&campaignEditSource=1&v=20261120combatcomplete2';
   document.body.appendChild(frame);
   status('Carregando a ficha completa para edição…');
  }
