@@ -2922,36 +2922,50 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function openVttSheet(id){
   const sheet=roomSheets.find(item=>item.id===id);
   if(!sheet||(!gm&&sheet.isHidden))return;
-  // Fecha os menus da mesa, mas mantém a sessão e o mapa ativos.
-  $('nexVttSheetsPanel').hidden=true;
-  syncVttPanels();
-  const sameOriginParent=window.parent!==window;
+  if(window.parent===window){
+   notice('Abra a campanha dentro do NEX para usar a ficha completa no Tabletop.');
+   return;
+  }
   const editable=gm||sheet.controllerUid===uid||(!sheet.controllerUid&&sheet.ownerUid===uid);
   const full=sheet.fullSheet&&typeof sheet.fullSheet==='object'&&!Array.isArray(sheet.fullSheet)?sheet.fullSheet:null;
-  const post=(type,data={})=>window.parent.postMessage({type,sheetId:sheet.id,name:sheet.name,...data},location.origin);
-  // Ficha original do proprietário: usa a mesma ficha salva na conta NEX.
-  if(sameOriginParent&&sheet.linkedAgentId&&sheet.ownerUid===uid&&(!sheet.controllerUid||sheet.controllerUid===uid)&&!String(sheet.linkedAgentId).startsWith('shared-')){
-   post('nex-campaign-open-agent',{agentId:sheet.linkedAgentId});
+  const post=(type,data={})=>{
+   window.parent.postMessage({type,sheetId:sheet.id,name:sheet.name,...data},location.origin);
+  };
+  // Só recolhe a lista quando há uma ficha disponível para abrir.
+  const open=(type,data={})=>{
+   $('nexVttSheetsPanel').hidden=true;
+   syncVttPanels();
+   post(type,data);
+  };
+  // A ficha do próprio agente usa o editor ORIGINAL com inventário, combate,
+  // perícias, rituais, PV, PE, SAN e salvamento da conta, sem copiar o estado.
+  const ownAgent=sheet.linkedAgentId&&sheet.ownerUid===uid&&
+   (!sheet.controllerUid||sheet.controllerUid===uid)&&
+   !String(sheet.linkedAgentId).startsWith('shared-');
+  if(ownAgent){
+   open('nex-campaign-open-agent',{agentId:sheet.linkedAgentId});
    return;
   }
-  // Personagens atribuídos ou criados pelo mestre: abrir editor OPERACIONAL, não uma cópia estática.
-  if(sameOriginParent&&full){
-   if(editable)post('nex-campaign-open-editable-sheet',{sheet:full});
-   else post('nex-campaign-view-shared-sheet',{sheet:full,canEdit:false});
+  // As fichas vinculadas à campanha usam os mesmos componentes da ficha
+  // operacional, mas salvam exclusivamente no documento da campanha.
+  if(full){
+   open(editable?'nex-campaign-open-editable-sheet':'nex-campaign-view-shared-sheet',{
+    sheet:full,...(!editable?{canEdit:false}:{})
+   });
    return;
   }
-  if(sameOriginParent&&sheet.linkedAgentId&&sheet.ownerUid===uid){
-   requestNex('nex-agent-data-request',sheet.linkedAgentId).then(response=>{
-    const data=response.agent?.data;
-    if(data&&typeof data==='object'){
-     if(editable)post('nex-campaign-open-editable-sheet',{sheet:data});
-     else post('nex-campaign-view-shared-sheet',{sheet:data,canEdit:false});
-    }else notice('Ficha original indisponível. Verifique a sincronização da conta.');
-   }).catch(error=>notice('Erro ao carregar ficha: '+String(error.message||error)));
-   return;
+  // Formato legado: ainda pode ser usado, sem botões ou campos fictícios.
+  // Quando permitido, o editor do NEX normaliza os campos que faltam.
+  const legacy={
+   name:String(sheet.name||'Personagem'),nex:Number(sheet.nex)||0,
+   pvCurrent:Number(sheet.pv)||0,peCurrent:Number(sheet.pe)||0,
+   sanCurrent:Number(sheet.san)||0,notes:String(sheet.notes||'')
+  };
+  if(editable){
+   open('nex-campaign-open-editable-sheet',{sheet:legacy});
+  }else{
+   open('nex-campaign-view-shared-sheet',{sheet:legacy,canEdit:false});
   }
-  // Sem dados completos, a campanha ainda precisa receber a ficha NEX do personagem.
-  notice('A ficha completa ainda não está vinculada a este personagem. Vincule a ficha NEX na campanha.');
  }
  function campaignSheetRef(sheet){return doc(db,'campaigns',roomId,sheet.isHidden?'privateSheets':'sheets',sheet.id)}
  const pendingBridge=new Map();
