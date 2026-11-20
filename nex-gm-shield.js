@@ -31,9 +31,14 @@ export function mountGmShield(options){
    name:trim(x.name,100),element:trim(x.element,40),circle:num(x.circle,1,4)||1,
    source:trim(x.source,110),description:trim(x.description,1300)
   }));
+  // Preserva os campos da ficha Homebrew além dos campos principais.
+  const extra={};
+  for(const field of ['presencaPerturbadora','sentidos','resistencias','imunidades','vulnerabilidades','enigma','fortitude','reflexos','vontade','iniciativa','percepcao']){
+   extra[field]=trim(raw[field],field==='sentidos'?1200:1200);
+  }
   return {pv:num(raw.pv,0,99999),defense:num(raw.defense,0,99999),
    deslocamento:trim(raw.deslocamento,90),attributes,npcSkills,actions,rituals,
-   notas:trim(raw.notas,4000),habilidades:trim(raw.habilidades,4000)};
+   notas:trim(raw.notas,4000),habilidades:trim(raw.habilidades,4000),...extra};
  };
  const listKinds=['notes','sessions','npcs','threats','secrets','timeline'];
  const schema={
@@ -789,32 +794,45 @@ export function mountGmShield(options){
   if(window.parent===window||event.origin!==location.origin||event.source!==window.parent)return;
   const msg=event.data||{};
   if(msg.type!=='nex-campaign-save-npc-native'||msg.campaignId!==room||!getContext().gm)return;
-  const entry=state.npcs.find(x=>x.id===msg.entryId);
-  if(!entry||!ready)return;
+  if(!ready)return;
   const npc=msg.npc;
-  if(!npc||npc.type!=='npc'||!npc.name||typeof npc.threatSheet!=='object')return;
-  const previous={title:entry.title,body:entry.body,image:entry.image,sheet:entry.sheet,hasFullSheet:entry.hasFullSheet};
+  if(!npc||npc.type!=='npc'||!String(npc.name||'').trim()||!npc.threatSheet||typeof npc.threatSheet!=='object')return;
+  const existing=msg.entryId?state.npcs.find(x=>x.id===msg.entryId):null;
+  if(msg.entryId&&!existing)return;
+  if(!existing&&state.npcs.length>=100){
+   window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:'Limite de NPCs atingido',entryId:msg.entryId||''},location.origin);
+   return;
+  }
+  const entry=existing||{id:id(),sourceId:'',tag:'Homebrew'};
+  const previous=existing?{...existing}:null;
   entry.title=String(npc.name).slice(0,110);
   entry.body=String(npc.description||'').slice(0,4000);
   entry.image=safeImage(npc.image)||entry.image||'';
-  entry.sheet=npcSheet(npc.threatSheet);entry.hasFullSheet=true;
-  if(JSON.stringify(state).length>670000){Object.assign(entry,previous);status('Ficha muito grande para a campanha.');window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:'Ficha muito grande',entryId:entry.id},location.origin);return;}
-  // Atualiza a ficha na interface imediatamente, sem esperar a rede.
-  // A confirmação de salvamento continua dependendo do Firebase.
+  entry.sheet=npcSheet(npc.threatSheet);
+  entry.hasFullSheet=true;
+  if(!existing)state.npcs.unshift(entry);
+  if(JSON.stringify(state).length>670000){
+   if(existing)Object.assign(entry,previous);else state.npcs=state.npcs.filter(x=>x!==entry);
+   status('Ficha muito grande para a campanha.');
+   window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:'Ficha muito grande',entryId:msg.entryId||''},location.origin);
+   return;
+  }
   render();
   const done=store();
   if(!done){
-   Object.assign(entry,previous);render();
-   window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:'Não foi possível iniciar o salvamento',entryId:entry.id},location.origin);
+   if(existing)Object.assign(entry,previous);else state.npcs=state.npcs.filter(x=>x!==entry);
+   render();
+   window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:'Não foi possível iniciar o salvamento',entryId:msg.entryId||''},location.origin);
    return;
   }
   done.then(()=>{
    status('Ficha de NPC salva na campanha.');
    window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:true,entryId:entry.id},location.origin);
   }).catch(error=>{
-   Object.assign(entry,previous);render();
+   if(existing)Object.assign(entry,previous);else state.npcs=state.npcs.filter(x=>x!==entry);
+   render();
    status('Erro ao salvar a ficha: '+String(error.message||error));
-   window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:String(error.message||error),entryId:entry.id},location.origin);
+   window.parent.postMessage({type:'nex-campaign-npc-save-result',ok:false,error:String(error.message||error),entryId:msg.entryId||''},location.origin);
   });
  });
  window.addEventListener('message',event=>{
@@ -908,10 +926,15 @@ export function mountGmShield(options){
   if(btn.dataset.gmAction==='create-npc'){
    discardNpcDraft();
    if(state.npcs.length>=100){status('Limite de NPCs da campanha atingido.');return;}
-   const newId=id();draftNpcId=newId;
-   state.npcs.unshift({id:newId,title:'',body:'',tag:'',image:'',sheet:npcSheet({}),hasFullSheet:true});
-   tab='npcs';editing=null;selectedSheet={kind:'npcs',id:newId};render();
-   $('[data-gm-npc-sheet] [name="title"]')?.focus();return;
+   if(window.parent!==window){
+    window.parent.postMessage({type:'nex-campaign-create-npc-native',campaignId:room},location.origin);
+    status('Abrindo ficha de NPC igual ao Homebrew…');
+   }else{
+    const newId=id();draftNpcId=newId;
+    state.npcs.unshift({id:newId,title:'',body:'',tag:'',image:'',sheet:npcSheet({}),hasFullSheet:true});
+    tab='npcs';editing=null;selectedSheet={kind:'npcs',id:newId};render();
+   }
+   return;
   }
 
   if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;showNpcImport=false;showThreatImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
