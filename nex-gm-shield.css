@@ -320,3 +320,125 @@
  #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-sheet-tabs button{font-size:10px!important;padding:10px 4px!important}
  #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-core-stats{grid-template-columns:1fr!important}
 }
+
+
+/* Mini ficha de NPC para o Escudo do Mestre no Tabletop: proporções de celular
+   mesmo quando o viewport do PC é grande. Isolada dos layouts fora da mesa. */
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view{
+ width:100%!important;max-width:390px!important;min-width:0!important;
+ margin:0 auto 12px!important;font-size:12px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-tools{
+ position:sticky;top:0;z-index:4;background:#100d12;
+ display:flex!important;gap:6px!important;padding:6px 0!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-tools button{
+ flex:1 1 0!important;min-width:0!important;padding:8px 5px!important;
+ font-size:11px!important;white-space:normal!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-header{
+ padding:9px!important;gap:9px!important;min-height:0!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-photo{
+ flex:0 0 65px!important;width:65px!important;height:70px!important;
+ border-radius:7px!important;font-size:25px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-heading h3{
+ font-size:16px!important;line-height:1.2!important;overflow-wrap:anywhere!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-pv{margin:8px 9px 6px!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-pv strong{
+ font-size:14px!important;padding:8px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-pv span{height:4px!important;margin:4px 6px 0!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-tabs{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ padding:5px 5px 0!important;gap:0!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-tabs button{
+ width:100%!important;font-size:10px!important;padding:9px 2px!important;
+ white-space:normal!important;min-width:0!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-card [data-gm-npc-view-panel]{
+ padding:10px 9px 13px!important;min-width:0!important;overflow-wrap:anywhere!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-attrs{
+ grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:2px!important;
+ margin-bottom:11px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-attr small{font-size:9px!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-attr b{font-size:19px!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-stats{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-stats>div{
+ padding:8px!important;min-height:52px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-stats strong{font-size:15px!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-skill,
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-detail{gap:5px!important;padding:7px 0!important;min-width:0!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-action{padding:9px 5px!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-view-textblock{
+ margin-top:9px!important;padding:9px!important;
+}
+/* Editor da mesma ficha: substituir as dimensões grandes do desktop por dimensões mobile. */
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look{
+ width:100%!important;max-width:390px!important;min-width:0!important;
+ margin:0 auto!important;overflow:visible!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-editor-topbar{
+ display:flex!important;flex-wrap:wrap!important;gap:5px!important;
+ position:sticky;top:0;z-index:5;background:#100b11!important;
+ padding:7px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-editor-topbar button{
+ font-size:11px!important;padding:7px 5px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-sheet-banner{
+ min-height:100px!important;gap:9px!important;padding:10px!important;
+ flex-wrap:nowrap!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-sheet-photo{
+ width:70px!important;min-width:70px!important;height:78px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-sheet-photo>img,
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-sheet-photo>div{
+ width:70px!important;height:78px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-banner-info{
+ flex:1 1 0!important;min-width:0!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-banner-info input[name="title"]{
+ font-size:17px!important;min-width:0!important;width:100%!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-sheet-tabs{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ padding:0 4px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-sheet-tabs button{
+ width:100%!important;font-size:10px!important;padding:9px 2px!important;
+ min-width:0!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-attribute{
+ padding:4px 1px!important;min-width:0!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-attribute span{font-size:10px!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-attribute input{font-size:19px!important;min-width:0!important}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-core-stats{
+ grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look .nex-gm-npc-core-stats label{
+ min-width:0!important;width:100%!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look input,
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look textarea,
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look select{
+ max-width:100%!important;box-sizing:border-box!important;
+}
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look [data-gm-npc-panel]{
+ min-width:0!important;overflow-wrap:anywhere!important;
+}
+@media(max-width:420px){
+ #roomTabletopPanel #roomMasterPanel .nex-gm-npc-view,
+ #roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-look{max-width:100%!important}
+}
