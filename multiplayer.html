@@ -3501,6 +3501,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(section==='tabletop')vttUnavailable.hidden=true;
   document.querySelectorAll('[data-room-section]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.roomSection===section)));
   nexSaveNavigation(roomId,section);
+  show('roomCharactersPanel',section==='characters');
+  show('roomTabletopPanel',section==='tabletop');
   if(section==='tabletop'){
    const last=nexReadNavigation();
    const tabName=last?.uid===uid&&last.campaignId===roomId?last.menuTab:null;
@@ -3509,8 +3511,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     if(tabButton?.getAttribute('aria-pressed')!=='true')tabButton?.click();
    }
   }
-  show('roomCharactersPanel',section==='characters');
-  show('roomTabletopPanel',section==='tabletop');
   window.dispatchEvent(new CustomEvent('nex:vtt-view',{detail:{campaignId:roomId,open:section==='tabletop'}}));
   document.documentElement.classList.toggle('nex-vtt-active',section==='tabletop');
   if(section==='tabletop'){$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';const tag=document.querySelector('.nex-vtt-room-tag');if(tag)tag.textContent='NEX · '+$('nexVttCampaignName').textContent;renderVttSheets();if(window.matchMedia('(max-width:900px) and (pointer:coarse)').matches)setVttSidebarCollapsed(true);}
