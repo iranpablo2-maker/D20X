@@ -351,6 +351,7 @@ export function mountGmShield(options){
   x.title=title;x.body=String(data.get('body')||'').slice(0,4000);x.sheet=next;x.hasFullSheet=true;x.image=safeImage(data.get('npcImage'));
   if(JSON.stringify(state).length>670000){Object.assign(x,previous);status('A ficha ultrapassou o limite de armazenamento da campanha.');return;}
   draftNpcId=null;
+  npcInlineEditing=false;
   store();render();
  }
 
@@ -445,18 +446,12 @@ export function mountGmShield(options){
    entry.hasFullSheet=true;
    store();
   }
-  if(window.parent!==window){
-   window.parent.postMessage({
-    type:'nex-campaign-edit-npc-native',campaignId:room,entryId:entry.id,
-    npc:{id:entry.sourceId||'',name:entry.title,
-     description:entry.body||source?.description||'',
-     image:safeImage(entry.image)||safeImage(source?.image)||'',
-     threatSheet:entry.sheet||source?.threatSheet||{}}
-   },location.origin);
-   status('Abrindo a ficha completa do NPC da campanha…');
-  }else{
-   selectedSheet={kind:'npcs',id:entry.id};editing=null;render();
-  }
+  // Display the NPC inside the currently mounted GM shield, including the Tabletop overlay.
+  // No parent navigation, new window or external Homebrew editor.
+  selectedSheet={kind:'npcs',id:entry.id};
+  npcInlineEditing=false;
+  editing=null;
+  render();
  }
  function npcCampaignView(x){
   const t=npcSheet(x.sheet),pic=safeImage(x.image),attrs=[['agi','AGI'],['for','FOR'],['int','INT'],['pre','PRE'],['vig','VIG']];
@@ -492,12 +487,13 @@ export function mountGmShield(options){
    '<section data-gm-npc-view-panel="combate" hidden><h4>Ataques</h4>'+(attacks||empty)+'<h4>Habilidades</h4>'+(abilities||empty)+'<h4>Rituais</h4>'+(rituals||empty)+'</section>'+
    '<section data-gm-npc-view-panel="descricao" hidden>'+(description||empty)+'</section></div></section>';
  }
+ let npcInlineEditing=false;
  function entitySheetView(){
   if(!selectedSheet)return '';
   const kind=selectedSheet.kind,x=state[kind]?.find(entry=>entry.id===selectedSheet.id);
   if(!x)return '';
   const npc=kind==='npcs',sheet=x.sheet;
-  if(npc)return npcCampaignEditor(x);
+  if(npc)return npcInlineEditing?npcCampaignEditor(x):npcCampaignView(x);
   if(kind==='threats'&&String(x.sourceId||'').startsWith('catalog:')){
    const source=String(x.sourceId).slice(8);
    const key=source.includes('::')?source:(()=>{const i=source.lastIndexOf(':');return i<0?'':source.slice(i+1).split(' · ').slice(1).join(' · ')+'::'+source.slice(0,i);})();
@@ -984,7 +980,7 @@ export function mountGmShield(options){
 
   if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;showNpcImport=false;showThreatImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
-  if(btn.hasAttribute('data-gm-close-sheet')){discardNpcDraft();selectedSheet=null;render();return;}
+  if(btn.hasAttribute('data-gm-close-sheet')){discardNpcDraft();selectedSheet=null;npcInlineEditing=false;render();return;}
   if(btn.dataset.gmOpenSheet){
    const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);
    const entry=state[kind]?.find(x=>x.id===key);
@@ -1001,9 +997,13 @@ export function mountGmShield(options){
     return;
    }
    if(kind==='npcs'){
-    // Mesmo componente nativo do Homebrew para Acessar Ficha e Editar.
     const entry=state.npcs.find(x=>x.id===key);
-    if(entry)openNpcFullEditor(entry);
+    if(entry){
+      selectedSheet={kind:'npcs',id:key};
+      npcInlineEditing=true;
+      editing=null;
+      render();
+    }
     return;
    }
    selectedSheet=null;editing={kind,id:key};render();$('[data-gm-form] [name="title"]')?.focus();return;
