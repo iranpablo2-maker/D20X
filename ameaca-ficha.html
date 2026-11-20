@@ -643,5 +643,14 @@ function nexReportSheetHeight(){
 if(window.ResizeObserver)new ResizeObserver(()=>requestAnimationFrame(nexReportSheetHeight)).observe(document.body);
 window.addEventListener("load",nexReportSheetHeight);
 if(threat){$("screen").hidden=false;render()}else{$("missing").hidden=false}
+// A edição na campanha recebe uma cópia dos dados originais da ficha exibida.
+if(threat&&new URLSearchParams(location.search).get('campaignEditSource')==='1'&&window.parent!==window){
+ const details=getData();
+ window.parent.postMessage({
+  type:'nex-campaign-threat-source-data',
+  key,threat:{name:threat.name,source:threat.source,element:threat.element,category:threat.category},
+  details
+ },location.origin);
+}
 </script>
 </body></html>
