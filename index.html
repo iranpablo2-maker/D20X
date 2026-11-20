@@ -3225,18 +3225,29 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
      console.warn('Banco local secundário indisponível; mantendo armazenamento local e backup JSON',err);
      db=null;
    }finally{
+     // Recover the exact sheet identifier before the first UI persistence write.
+     let previousNavigation=null,restoredScreen='home';
+     try{
+       previousNavigation=JSON.parse(sessionStorage.getItem('nex_navigation_screen_v1')||'null');
+       if(previousNavigation&&['home','agents','campaigns','threats','sheet','homebrew','wizard'].includes(previousNavigation.screen))
+         restoredScreen=previousNavigation.screen;
+       const savedId=String(previousNavigation?.agentId||'');
+       const savedAgent=agents.find(a=>a.id===savedId);
+       if(savedAgent&&restoredScreen==='sheet'){
+         active=savedAgent.id;
+         state=normalize(JSON.parse(JSON.stringify(savedAgent.data)));
+       }
+     }catch(error){console.warn('NEX: navegação anterior indisponível',error);}
      storageReady=true;
      persist();renderAgents();renderCampaigns();
-     // Restore the last visible area after data recovery, rather than forcing Home on F5.
-     let restoredScreen='home';
-     try{
-       const previous=JSON.parse(sessionStorage.getItem('nex_navigation_screen_v1')||'null');
-       if(previous&&['home','agents','campaigns','threats','sheet','homebrew'].includes(previous.screen))
-         restoredScreen=previous.screen;
-     }catch(error){}
+     // An incomplete creation wizard must never replace an existing saved sheet.
+     if(restoredScreen==='wizard')restoredScreen='agents';
      if(restoredScreen==='sheet'&&!active)restoredScreen='agents';
      visible(restoredScreen);
      if(restoredScreen==='sheet')try{rehydrate();}catch(error){console.warn('NEX: ficha recuperada parcialmente',error);}
+     if(previousNavigation?.screen===restoredScreen&&Number.isFinite(Number(previousNavigation.scrollY))){
+       requestAnimationFrame(()=>window.scrollTo(0,Math.max(0,Math.min(200000,Number(previousNavigation.scrollY)))));
+     }
 
      document.dispatchEvent(new Event('nex51-ready'));
      if(db){
@@ -3446,7 +3457,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  function visible(which){
   // Session-only navigation: never store private sheet contents or credentials.
   if(storageReady&&['home','agents','campaigns','threats','sheet','wizard','homebrew'].includes(which)){
-    try{sessionStorage.setItem('nex_navigation_screen_v1',JSON.stringify({screen:which}));}catch(error){}
+    try{sessionStorage.setItem('nex_navigation_screen_v1',JSON.stringify({screen:which,agentId:which==='sheet'?active:null,scrollY:0}));}catch(error){}
   }
   const tabletop=$('campaignPanel')?.classList.contains('nex-tabletop-expanded');
   const sheetOverlay=which==='sheet'&&tabletop;
@@ -4338,7 +4349,13 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  };
 
  document.addEventListener('nex-homebrew-changed',()=>{try{const lib=state.homebrew||[];localStorage.setItem(HB_KEY,JSON.stringify(lib));for(const a of agents){a.data.homebrew=structuredClone(lib);}persist();}catch(e){console.error('Falha ao salvar biblioteca Homebrew',e);}});
- window.addEventListener('pagehide',()=>{try{persist();}catch(err){console.error(err);}});
+ window.addEventListener('pagehide',()=>{
+  try{
+   const previous=JSON.parse(sessionStorage.getItem('nex_navigation_screen_v1')||'null');
+   if(previous?.screen)sessionStorage.setItem('nex_navigation_screen_v1',JSON.stringify({...previous,agentId:previous.screen==='sheet'?active:previous.agentId,scrollY:window.scrollY||0}));
+  }catch(error){}
+  try{persist();}catch(err){console.error(err);}
+ });
  // Retirar apenas o hash de navegação anterior, mantendo links de convite intactos.
  try{
   const params=new URLSearchParams(location.hash.replace(/^#/,''));
