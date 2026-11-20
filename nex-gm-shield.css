@@ -522,3 +522,26 @@
  box-sizing:border-box!important;min-width:0!important;
  max-width:min(390px,100%)!important;
 }
+
+
+/* NPC mini: o valor do atributo é o próprio botão de rolagem. */
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-view-attr .nex-gm-npc-attr-number{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ margin:0 auto!important;padding:5px 2px!important;
+ width:100%!important;min-height:40px!important;
+ background:#1b131a!important;color:#fff!important;
+ border:1px solid #6e3849!important;border-radius:7px!important;
+ cursor:pointer!important;touch-action:manipulation!important;
+ box-shadow:none!important;
+}
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-view-attr .nex-gm-npc-attr-number:hover{
+ background:#42222e!important;border-color:#e26782!important;
+}
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-view-attr .nex-gm-npc-attr-number:focus-visible{
+ outline:2px solid #f18098!important;outline-offset:2px!important;
+}
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-view-attr .nex-gm-npc-attr-number b{
+ display:block!important;margin:0!important;
+ font-size:21px!important;line-height:1.1!important;
+ font-family:Georgia,serif!important;
+}
