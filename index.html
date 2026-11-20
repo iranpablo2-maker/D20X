@@ -2841,7 +2841,7 @@ function logResult(label,expression,rolls,total){
  // A ficha da mesa reutiliza esta rolagem pronta, sem sortear dados novamente.
  const screen=document.getElementById('sheetScreen');
  if(document.body.classList.contains('nex-vtt-sheet-overlay')&&screen&&!screen.classList.contains('hide')){
-  try{window.NEX_DICE_UI?.showResult?.({title:label,expression,detail:rolls,total});}
+  try{if(window.NEX_DICE_UI?.showResult?.({title:label,expression,detail:rolls,total}))document.body.classList.add('nex-character-roll-toast-active');}
   catch(error){console.warn('NEX: falha ao mostrar rolagem no Tabletop',error);}
  }
 }
@@ -6731,8 +6731,8 @@ window.addEventListener('nex-cloud-sync-state',event=>{
 
 <style id="nex-vtt-character-roll-notification-css">
 /* A ficha na mesa utiliza a mesma pilha de notificacoes das ameacas e NPCs. */
-body.nex-vtt-sheet-overlay #nex25RollPopup,
-body.nex-vtt-sheet-overlay #nexAttributeRollPopup{display:none!important}
+body.nex-vtt-sheet-overlay.nex-character-roll-toast-active #nex25RollPopup,
+body.nex-vtt-sheet-overlay.nex-character-roll-toast-active #nexAttributeRollPopup{display:none!important}
 </style>
 
 </body></html>
