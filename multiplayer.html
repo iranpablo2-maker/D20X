@@ -2516,6 +2516,28 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-menu-sheet small{font-size:11px;color:#e5b2bd}
 #roomTabletopPanel [data-nex-main-tab="sheets"]{display:grid!important;place-items:center!important}
 </style>
+<style id="nex-vtt-gm-overlay-style">
+/* Escudo do Mestre sobre o Tabletop: mantém mapa, tokens e sessão montados. */
+#roomTabletopPanel #nexVttGmOverlay[hidden]{display:none!important}
+#roomTabletopPanel #nexVttGmOverlay{
+ position:absolute!important;inset:0!important;z-index:1900!important;
+ background:#09090c!important;overflow:auto!important;overscroll-behavior:contain;
+ padding:12px!important;box-sizing:border-box!important;
+}
+#roomTabletopPanel #nexVttGmOverlay .nex-vtt-gm-topbar{
+ position:sticky;top:0;z-index:2;display:flex;align-items:center;
+ justify-content:space-between;gap:12px;padding:8px 10px;margin-bottom:12px;
+ background:#111014;border:1px solid #582a34;border-radius:7px;
+}
+#roomTabletopPanel #nexVttGmOverlay .nex-vtt-gm-topbar button{
+ background:#1b1519;color:#fff;border:1px solid #a23a4b;
+ border-radius:6px;padding:8px 12px;cursor:pointer;
+}
+#roomTabletopPanel #nexVttGmOverlay #roomMasterPanel{
+ display:block!important;position:relative!important;margin:0!important;
+ width:100%!important;max-width:none!important;min-height:0!important;
+}
+</style>
 </head>
 <body>
 <script>
@@ -3340,7 +3362,50 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   updateTabletopAccess();
   if(!vttHostActive&&!$('roomTabletopPanel').classList.contains('hide'))roomSection('characters');
  });
+ // Escudo em sobreposição: nunca chamar roomSection('master') a partir do Tabletop.
+ // Mover a seção existente (não duplicar) preserva o estado dos editores e a sincronização.
+ let vttGmOverlay=null,vttGmReturnMarker=null;
+ function closeVttGmOverlay(){
+  if(!vttGmOverlay||vttGmOverlay.hidden)return;
+  vttGmOverlay.hidden=true;
+  const panel=$('roomMasterPanel');
+  if(vttGmReturnMarker?.parentNode&&panel){
+   vttGmReturnMarker.parentNode.insertBefore(panel,vttGmReturnMarker);
+   vttGmReturnMarker.remove();
+  }
+  vttGmReturnMarker=null;
+  if(panel)panel.classList.add('hide');
+ }
+ function openVttGmOverlay(){
+  if(!gm||!roomId){notice('Somente o mestre pode abrir o Escudo do Mestre.');return;}
+  const tabletop=$('roomTabletopPanel'),panel=$('roomMasterPanel');
+  if(!tabletop||!panel)return;
+  if(!vttGmOverlay){
+   vttGmOverlay=document.createElement('div');
+   vttGmOverlay.id='nexVttGmOverlay';
+   vttGmOverlay.hidden=true;
+   vttGmOverlay.setAttribute('role','dialog');
+   vttGmOverlay.setAttribute('aria-label','Escudo do Mestre no Tabletop');
+   vttGmOverlay.innerHTML='<div class="nex-vtt-gm-topbar"><strong>Escudo do Mestre</strong><button type="button" data-vtt-close-gm>← Voltar ao Tabletop</button></div>';
+   vttGmOverlay.querySelector('[data-vtt-close-gm]').addEventListener('click',closeVttGmOverlay);
+   tabletop.appendChild(vttGmOverlay);
+  }
+  if(!vttGmOverlay.hidden)return;
+  vttGmReturnMarker=document.createComment('NEX: posição original do Escudo do Mestre');
+  panel.parentNode.insertBefore(vttGmReturnMarker,panel);
+  vttGmOverlay.appendChild(panel);
+  panel.classList.remove('hide');
+  vttGmOverlay.hidden=false;
+  gmShield?.open();
+  vttGmOverlay.querySelector('[data-vtt-close-gm]')?.focus();
+ }
+ document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&vttGmOverlay&&!vttGmOverlay.hidden){
+   event.preventDefault();closeVttGmOverlay();
+  }
+ });
  function roomSection(section){
+  if(section!=='tabletop')closeVttGmOverlay();
   if(section==='manage')section='players'; // Compatibilidade com navegação anterior.
   const allowed=['characters','master','players','invites','tabletop'];
   if(!allowed.includes(section)||(['master','invites'].includes(section)&&!gm))section='characters';
@@ -3891,7 +3956,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('nexVttMenuMaster').addEventListener('click',()=>{
    if(!gm){notice('Somente o mestre pode acessar o Escudo do Mestre.');return;}
    updateMenu(false);
-   roomSection('master');
+   openVttGmOverlay();
   });
   $('nexVttMenuSettings').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Grade e névoa"]')?.click();});
   $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
