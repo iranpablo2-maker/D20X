@@ -528,7 +528,12 @@ function render(){
   portrait.appendChild(last);
   if(thumbnail)thumbnail.hidden=true;
  }
- const rollRows=items=>Array.isArray(items)?items.filter(v=>Array.isArray(v)&&hasValue(v[0])&&hasValue(v[1])).map(v=>'<div class="skill"><span>'+esc(v[0])+'</span><strong>'+esc(v[1])+'</strong>'+threatRollButton(v[1],v[0])+'</div>').join(""):"";
+ // Testes com a indicação "(menor)" rolam dados de desvantagem, mantendo o menor.
+ const rollRows=items=>Array.isArray(items)?items.filter(v=>Array.isArray(v)&&hasValue(v[0])&&hasValue(v[1])).map(v=>{
+  const expression=String(v[1]);
+  const low=/\bmenor\b/i.test(expression);
+  return '<div class="skill"><span>'+esc(v[0])+'</span><strong>'+esc(expression)+'</strong>'+threatRollButton(expression,v[0],low)+'</div>';
+ }).join(""):"";
 
  const actionRows=Array.isArray(d.actions)&&d.actions.length?d.actions.map(a=>{
  const name=a.name||"Ação",test=String(a.test||""),dmg=String(a.damage||"");
