@@ -2,7 +2,7 @@
    diferenciação explícita entre testes de d20 e dano, sem eval. */
 (function(){
  'use strict';
- const icon='<img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=20261120blackd20v2" alt="" aria-hidden="true">';
+ const icon='<img class="nex-dice20-icon" src="./nex-d20-icon.svg?v=20261120usericon1" alt="" aria-hidden="true">';
  const style=document.createElement('style');
  style.textContent=[
  '.nex-roll20-btn{display:inline-flex;gap:5px;align-items:center;justify-content:center;vertical-align:middle;border:1px solid #63414b;border-radius:6px;background:#1b151a;color:#f5e9ee;padding:3px 5px;min-height:27px;cursor:pointer;font-size:11px}',
