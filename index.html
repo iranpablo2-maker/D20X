@@ -2138,6 +2138,31 @@ body.nex-vtt-sheet-overlay #sheetScreen #notes #appearance{
  min-height:125px!important;
 }
 </style>
+<style id="nexCampaignHomebrewOverlayStyle">
+/* Reuse the real Homebrew sheet editor without ever leaving the campaign. */
+body.nex-campaign-hb-open{overflow:hidden!important}
+#homebrewScreen.nex-campaign-hb-overlay{
+  display:block!important;position:fixed!important;inset:0!important;
+  width:100%!important;height:100dvh!important;overflow-y:auto!important;
+  z-index:1000200!important;background:#0a090d!important;
+  padding:14px max(12px,calc((100vw - 1180px)/2)) 40px!important;
+  box-sizing:border-box!important;
+}
+#homebrewScreen.nex-campaign-hb-overlay .homebrew-alone,
+#homebrewScreen.nex-campaign-hb-overlay #nex51AdvancedMount{
+  display:block!important;width:100%!important;max-width:none!important;
+  margin:0!important;padding:0!important;
+}
+#homebrewScreen.nex-campaign-hb-overlay .home-toolbar,
+#homebrewScreen.nex-campaign-hb-overlay #nex51AdvancedMount > :not(#nex52Editor){
+  display:none!important;
+}
+#homebrewScreen.nex-campaign-hb-overlay #nex52Editor{
+  display:block!important;max-width:100%!important;width:100%!important;
+  margin:0 auto!important;
+}
+#homebrewScreen.nex-campaign-hb-overlay #nex52Editor[hidden]{display:none!important}
+</style>
 </head><body>
 <script src="nex-sobrevivendo-ao-horror.js?v=2072"></script>
 <script src="nex-arquivos-secretos.js?v=20261114desc29"></script>
@@ -3680,11 +3705,34 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  function showHomebrew(){persist();state.homebrew=globalHomebrew();nex12Ensure();nex12RenderHomebrew();visible('homebrew');}
  window.addEventListener('nex:open-homebrew-npc',()=>showHomebrew());
  window.addEventListener('nex:open-homebrew-npc-sheet',()=>showHomebrew());
- window.addEventListener('nex:edit-campaign-npc-native',()=>showHomebrew());
- window.addEventListener('nex:create-campaign-threat-native',()=>showHomebrew());
- window.addEventListener('nex:edit-campaign-threat-native',()=>showHomebrew());
- window.addEventListener('nex:campaign-threat-save-result',event=>{if(event.detail?.ok)visible('campaigns');});
- window.addEventListener('nex:campaign-npc-save-result',event=>{if(event.detail?.ok)visible('campaigns');});
+ // O editor da ficha pertence à campanha: não navega para a biblioteca Homebrew
+ // nem recarrega o iframe da sala. A campanha fica aberta por baixo do editor.
+ function openCampaignSheetOverlay(){
+  const screen=$('homebrewScreen');
+  if(!screen||!$('campaignPanel'))return;
+  screen.classList.remove('hide');
+  screen.classList.add('nex-campaign-hb-overlay');
+  screen.setAttribute('role','dialog');
+  screen.setAttribute('aria-modal','true');
+  screen.setAttribute('aria-label','Editar ficha da campanha');
+  document.body.classList.add('nex-campaign-hb-open');
+ }
+ function closeCampaignSheetOverlay(){
+  const screen=$('homebrewScreen');
+  if(!screen?.classList.contains('nex-campaign-hb-overlay'))return;
+  screen.classList.remove('nex-campaign-hb-overlay');
+  screen.classList.add('hide');
+  screen.removeAttribute('role');
+  screen.removeAttribute('aria-modal');
+  screen.setAttribute('aria-label','Biblioteca Homebrew');
+  document.body.classList.remove('nex-campaign-hb-open');
+ }
+ for(const type of ['nex:edit-campaign-npc-native','nex:create-campaign-threat-native','nex:edit-campaign-threat-native']){
+  window.addEventListener(type,openCampaignSheetOverlay);
+ }
+ window.addEventListener('nex:campaign-homebrew-editor-closed',closeCampaignSheetOverlay);
+ window.addEventListener('nex:campaign-threat-save-result',event=>{if(event.detail?.ok)closeCampaignSheetOverlay();});
+ window.addEventListener('nex:campaign-npc-save-result',event=>{if(event.detail?.ok)closeCampaignSheetOverlay();});
  const hbSection=$('homebrew');hbSection.classList.add('active');$('homebrewMount').appendChild(hbSection);
  $('homebrewBack').onclick=showHome;
  $('agentsBack').onclick=showHome;
