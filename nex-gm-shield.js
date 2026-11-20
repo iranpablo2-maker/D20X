@@ -507,10 +507,11 @@ export function mountGmShield(options){
   if(!Number.isInteger(count)||count<1||count>30||!Number.isFinite(bonus)||Math.abs(bonus)>999)return null;
   return {count,sides,bonus};
  }
- function gmNpcRollButton(expression,label){
+ function gmNpcRollButton(expression,label,critical=''){
   if(!gmNpcDiceExpression(expression))return '';
   const pool=label==='Teste'?' data-gm-npc-pool="high"':'';
-  return '<button type="button" class="nex-gm-npc-roll"'+pool+' data-gm-npc-dice="'+escape(expression)+'" data-gm-npc-dice-label="'+escape(label)+'" aria-label="Rolar '+escape(label)+'" title="Rolar '+escape(expression)+'">'+gmNpcD20Icon+'<span>'+escape(label)+'</span></button>';
+  const crit=label==='Teste'&&critical?' data-gm-npc-critical="'+escape(String(critical).slice(0,20))+'"':'';
+  return '<button type="button" class="nex-gm-npc-roll"'+pool+crit+' data-gm-npc-dice="'+escape(expression)+'" data-gm-npc-dice-label="'+escape(label)+'" aria-label="Rolar '+escape(label)+'" title="Rolar '+escape(expression)+'">'+gmNpcD20Icon+'<span>'+escape(label)+'</span></button>';
  }
  function gmNpcRollResult(btn){
   const ui=window.NEX_DICE_UI;
@@ -529,7 +530,7 @@ export function mountGmShield(options){
    ui.roll({title:label,count:attr||2,sides:20,bonus,pool:true,low:attr===0,detail:'Atributo '+key.toUpperCase()+' '+attr});
   }else if(ui.parse(expression)){
    // Não converter expressões compostas em uma única fórmula: preserva os dados adicionais.
-   ui.roll({title:label,expression,pool:isPool});
+   ui.roll({title:label,expression,pool:isPool,critical:btn.dataset.gmNpcCritical||''});
   }
  }
  function npcCampaignView(x){
@@ -546,7 +547,7 @@ export function mountGmShield(options){
   }).join('');
   const action=(a)=>{
    const heading=escape(a.name||'Habilidade');
-   const dice=gmNpcRollButton(a.test,'Teste')+gmNpcRollButton(a.damage,'Dano')+gmNpcRollButton(a.secondaryDamage,'Dano secundário');
+   const dice=gmNpcRollButton(a.test,'Teste',a.critical)+gmNpcRollButton(a.damage,'Dano')+gmNpcRollButton(a.secondaryDamage,'Dano secundário');
    const content=details([['Tipo',a.subtitle],['Perícia do teste',a.testSkill],['Teste',a.test],['Dano',a.damage],['Tipo de dano',a.damageType&&a.damage?a.damageType:''],['Dano secundário',a.secondaryDamage],['Tipo secundário',a.secondaryDamage?a.secondaryType:''],['Crítico',a.kind==='attack'?a.critical:''],['Alcance',a.range]])+
     (filled(a.effect)?'<p>'+escape(a.effect)+'</p>':'');
    return '<article class="nex-gm-npc-view-action"><div class="nex-gm-npc-action-head"><div><strong>'+heading+'</strong><small>'+escape(a.kind==='attack'?'ATAQUE':'HABILIDADE')+' · '+escape(a.action||'Padrão')+'</small></div>'+
