@@ -2169,6 +2169,18 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 }
 #homebrewScreen.nex-campaign-hb-overlay #nex52Editor[hidden]{display:none!important}
 </style>
+<style id="nex-homebrew-ritual-chevron-style">
+#homebrewScreen .nex-hb-ritual-collapse{min-width:0;flex:1 1 auto}
+#homebrewScreen .nex-hb-ritual-collapse>summary{display:flex;align-items:center;gap:9px;cursor:pointer;list-style:none;min-width:0}
+#homebrewScreen .nex-hb-ritual-collapse>summary::-webkit-details-marker{display:none}
+#homebrewScreen .nex-hb-ritual-chevron{display:inline-block;flex:0 0 auto;color:#ed6987;font-size:18px;transition:transform .15s ease}
+#homebrewScreen .nex-hb-ritual-collapse[open]>summary .nex-hb-ritual-chevron{transform:rotate(90deg)}
+#homebrewScreen .nex-hb-ritual-collapse .nex-hb-threat-ritual-name{min-width:0}
+#homebrewScreen .nex-hb-ritual-collapse>summary small{display:block;color:#d7aebc;font-size:11px;margin-top:3px}
+#homebrewScreen .nex-hb-ritual-collapse>p{white-space:pre-wrap;overflow-wrap:anywhere;margin:10px 4px 6px}
+#homebrewScreen .nex-hb-threat-ritual-row .nex-hb-threat-action-summary{align-items:flex-start}
+#homebrewScreen .nex-hb-threat-ritual-row .nex-hb-threat-action-summary>button{flex-shrink:0}
+</style>
 </head><body>
 <script src="nex-sobrevivendo-ao-horror.js?v=2072"></script>
 <script src="nex-arquivos-secretos.js?v=20261114desc29"></script>
@@ -6030,7 +6042,7 @@ const PARANORMAL=[
 })();
 </script>
 <script src="nex-duplicate-review.js?v=2055"></script>
-<script src="nex-homebrew-advanced.js?v=20261120npcritual42"></script>
+<script src="nex-homebrew-advanced.js?v=20261120ritualfold43"></script>
 <script src="nex-rituais-metadados.js?v=1"></script>
 <script src="nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script src="nex-rituais-ficha.js?v=20261114arquivosfilter1"></script>
