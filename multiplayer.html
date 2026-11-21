@@ -1403,11 +1403,6 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttBar button[title="Desenhar: abrir ferramentas"],
 #roomTabletopPanel #nexVttBar button[title="Texto"],
 #roomTabletopPanel #nexVttBar button[title="Medir distância"],
-#roomTabletopPanel #nexVttBar button[title="Grade e névoa"],
-#roomTabletopPanel #nexVttBar button[title="Revelar névoa"],
-#roomTabletopPanel #nexVttBar button[title="Iluminação e lanternas"],
-#roomTabletopPanel #nexVttBar button[title="Documentos e pistas"],
-#roomTabletopPanel #nexVttBar button[title="Áreas de efeito"],
 #roomTabletopPanel #nexVttBar button[title="Iniciativa"]{
  display:grid!important;place-items:center!important;
  box-sizing:border-box!important;flex:0 0 30px!important;
@@ -2861,7 +2856,17 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  background:#240c12!important;border:1px solid #a53b51!important;color:#fff!important;
  border-radius:5px!important;font-size:23px!important;line-height:1!important;cursor:pointer!important;z-index:4!important
 }
-</style></head>
+</style><style id="nex-vtt-five-tools-only">
+/* Apenas cinco ferramentas na barra lateral, sem remover seus recursos internos. */
+#room #roomTabletopPanel #nexVttBar > button:not([title="Move"]):not([title="Desenhar: abrir ferramentas"]):not([title="Texto"]):not([title="Medir distância"]):not([title="Iniciativa"]){display:none!important}
+#room #roomTabletopPanel #nexVttBar > button[title="Move"],
+#room #roomTabletopPanel #nexVttBar > button[title="Desenhar: abrir ferramentas"],
+#room #roomTabletopPanel #nexVttBar > button[title="Texto"],
+#room #roomTabletopPanel #nexVttBar > button[title="Medir distância"],
+#room #roomTabletopPanel #nexVttBar > button[title="Iniciativa"]{display:grid!important;place-items:center!important}
+#room #roomTabletopPanel #nexVttBar > button[title="Iniciativa"]{font-family:"Segoe UI Symbol","Noto Sans Symbols 2",system-ui,sans-serif!important;font-size:26px!important}
+</style>
+</head>
 <body>
 <script>
 if(new URLSearchParams(location.search).get('integrado')==='1'){
@@ -3096,7 +3101,7 @@ document.addEventListener('click',function(event){
 <script src="./nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261121fogInitCluesLightsArea2';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261121swordsCompact5';
 import {mountGmShield} from './nex-gm-shield.js?v=20261121hideThreatSuccess4';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
