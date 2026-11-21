@@ -2766,6 +2766,81 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  display:grid!important;place-items:center!important;
 }
 </style>
+<style id="nex-vtt-measure-refined-20261121">
+/* Painel Medir: layout compacto, dedicado à régua e sem afetar outras ferramentas. */
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]{
+ display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+ align-items:stretch!important;justify-content:flex-start!important;gap:0!important;
+ box-sizing:border-box!important;width:min(320px,calc(100vw - 32px))!important;
+ max-width:calc(100vw - 32px)!important;min-width:0!important;
+ padding:0!important;overflow-x:hidden!important;overflow-y:auto!important;
+ max-height:calc(100dvh - 100px)!important;
+ background:#171016!important;color:#f6eaf0!important;
+ border:1px solid #6d3347!important;border-radius:11px!important;
+ box-shadow:0 14px 36px #000b!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>.nex-vtt-measure-header{
+ display:flex!important;flex-direction:column!important;gap:4px!important;
+ padding:15px 15px 12px!important;margin:0!important;
+ border-bottom:1px solid #482736!important;background:#21131c!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>.nex-vtt-measure-header strong{
+ display:block!important;margin:0!important;font-size:16px!important;font-weight:800!important;color:white!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>.nex-vtt-measure-header small{
+ color:#c7aeb8!important;font-size:11px!important;line-height:1.35!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>label.nex-vtt-measure-row{
+ display:grid!important;grid-template-columns:minmax(0,1fr) 124px!important;gap:10px!important;
+ align-items:center!important;box-sizing:border-box!important;width:100%!important;
+ min-height:57px!important;margin:0!important;padding:9px 14px!important;
+ border-bottom:1px solid #30202b!important;background:transparent!important;
+ font-size:12px!important;line-height:1.4!important;color:#f0dbe4!important;
+ white-space:normal!important;cursor:pointer!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>label.nex-vtt-measure-toggle{
+ grid-template-columns:minmax(0,1fr) 24px!important;min-height:46px!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>label.nex-vtt-measure-row select{
+ box-sizing:border-box!important;width:100%!important;max-width:none!important;
+ min-width:0!important;height:36px!important;padding:5px 8px!important;
+ border-radius:6px!important;border:1px solid #754051!important;
+ background:#25151f!important;color:white!important;font-size:12px!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>label.nex-vtt-measure-row input[type="checkbox"]{
+ appearance:none!important;-webkit-appearance:none!important;position:relative!important;
+ box-sizing:border-box!important;justify-self:end!important;display:grid!important;place-items:center!important;
+ width:20px!important;height:20px!important;min-width:20px!important;
+ margin:0!important;padding:0!important;border:1px solid #885467!important;
+ border-radius:5px!important;background:#261b23!important;cursor:pointer!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>label.nex-vtt-measure-row input[type="checkbox"]:checked{
+ background:#bf2850!important;border-color:#e64b72!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>label.nex-vtt-measure-row input[type="checkbox"]:checked::after{
+ content:""!important;width:9px!important;height:5px!important;
+ transform:translateY(-1px) rotate(-45deg)!important;
+ border-left:2px solid white!important;border-bottom:2px solid white!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"] input:disabled{
+ opacity:.42!important;cursor:not-allowed!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>.nex-vtt-measure-unit{
+ display:block!important;box-sizing:border-box!important;
+ padding:11px 14px!important;background:#221521!important;color:#d8b9c6!important;
+ font-size:11px!important;line-height:1.35!important;text-align:center!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>button.nex-vtt-measure-clear{
+ display:block!important;box-sizing:border-box!important;
+ width:calc(100% - 28px)!important;min-height:36px!important;margin:11px 14px 14px!important;
+ padding:8px!important;background:#25121c!important;color:#f7e9ef!important;
+ border:1px solid #9e3555!important;border-radius:7px!important;
+ font-size:12px!important;font-weight:750!important;
+}
+#room #roomTabletopPanel #nexVttOptions[data-section="measure"]>button.nex-vtt-measure-clear:hover{
+ background:#482035!important;
+}
+</style>
 </head>
 <body>
 <script>
