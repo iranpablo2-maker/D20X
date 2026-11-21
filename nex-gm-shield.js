@@ -344,12 +344,52 @@ export function mountGmShield(options){
    '<button type="button" class="alt" data-gm-npc-remove>Remover</button></div>';
  }
  function npcActionRow(value={}){
-  const fields=[['name','Nome'],['action','Ação'],['test','Teste / dados'],['testSkill','Perícia do teste'],['damage','Dano'],['secondaryDamage','Dano secundário'],['secondaryType','Tipo secundário'],['subtitle','Subtítulo'],['critical','Crítico'],['damageType','Tipo de dano'],['range','Alcance']];
-  return '<fieldset class="nex-gm-npc-repeat-row nex-gm-npc-action" data-gm-npc-row="actions"><legend>Habilidade / Combate</legend>'+
-   '<label>Tipo<select data-gm-npc-field="kind"><option value="ability"'+(value.kind!=='attack'?' selected':'')+'>Habilidade</option><option value="attack"'+(value.kind==='attack'?' selected':'')+'>Ataque</option></select></label>'+
-   fields.map(([key,label])=>'<label>'+label+'<input data-gm-npc-field="'+key+'" maxlength="1300" value="'+escape(value[key]||'')+'"></label>').join('')+
-   '<label class="nex-gm-npc-wide">Descrição / efeito<textarea data-gm-npc-field="effect" rows="3" maxlength="1300">'+escape(value.effect||'')+'</textarea></label>'+
-   '<button type="button" class="alt" data-gm-npc-remove>Remover</button></fieldset>';
+  const attack=value.kind==='attack';
+  const name=String(value.name|| (attack?'Agredir':'Nova habilidade'));
+  const action=String(value.action||'Padrão');
+  const range=String(value.range|| (attack?'Corpo a corpo':''));
+  const skill=String(value.testSkill|| (attack?'Luta':''));
+  const crit=String(value.critical||'20');
+  const dmgType=String(value.damageType||'Corte');
+  const secondaryType=String(value.secondaryType||'Normal');
+  const label=(title,field,control,extra='')=>'<label class="nex-gm-npc-action-field'+extra+'"><span>'+title+'</span>'+control+'</label>';
+  const input=(key,val='',placeholder='')=>'<input data-gm-npc-field="'+key+'" value="'+escape(val)+'"'+(placeholder?' placeholder="'+escape(placeholder)+'"':'')+'>';
+  const select=(key,values,current,placeholder='')=>'<select data-gm-npc-field="'+key+'">'+
+   (placeholder?'<option value="">'+escape(placeholder)+'</option>':'')+
+   (current&&!values.includes(current)?'<option value="'+escape(current)+'" selected>'+escape(current)+'</option>':'')+
+   values.map(v=>'<option value="'+escape(v)+'"'+(v===current?' selected':'')+'>'+escape(v)+'</option>').join('')+'</select>';
+  const skillOptions=select('testSkill',npcSkillNames,skill,'Selecionar');
+  const hidden=(key,val='')=>'<input type="hidden" data-gm-npc-field="'+key+'" value="'+escape(val)+'">';
+  const header='<button type="button" class="nex-gm-npc-action-card-head" data-gm-npc-card-toggle aria-expanded="false">'+
+   '<span class="nex-gm-npc-action-head-text"><strong>'+escape((attack?action:'Habilidade')+' ◆ '+name).toUpperCase()+'</strong>'+
+   (attack?'<small>'+escape(range)+'</small><small>'+escape((skill||'Teste')+' '+(value.test||'—')+' · Crítico '+crit+' | Dano '+(value.damage||'—')+' '+dmgType.toLowerCase())+'</small>':'')+
+   '</span><span class="nex-gm-npc-action-arrow" aria-hidden="true">⌄</span></button>';
+  let content='';
+  if(attack){
+   content=label('Nome do ataque','name',input('name',name))+
+    label('Tipo de ação','action',select('action',['Padrão','Movimento','Livre','Completa','Reação'],action))+
+    label('Arma / subtítulo','subtitle',input('subtitle',value.subtitle||''))+
+    label('Alcance','range',select('range',['Corpo a corpo','Curto','Médio','Longo','Extremo','Toque','Pessoal'],range))+
+    label('Teste (perícia)','testSkill',skillOptions)+
+    label('Crítico','critical',input('critical',crit))+
+    label('Teste / dados','test',input('test',value.test||'','Ex.: 1d20+0'))+
+    label('Dano','damage',input('damage',value.damage||'','Ex.: 1d6+2'))+
+    label('Tipo do dano','damageType',select('damageType',['Corte','Impacto','Perfuração','Balístico','Conhecimento','Energia','Morte','Sangue','Medo'],dmgType))+
+    label('Dano secundário','secondaryDamage',input('secondaryDamage',value.secondaryDamage||''))+
+    label('Tipo do dano secundário','secondaryType',select('secondaryType',['Normal','Corte','Impacto','Perfuração','Balístico','Conhecimento','Energia','Morte','Sangue','Medo'],secondaryType))+
+    label('Descrição','effect','<textarea data-gm-npc-field="effect" rows="4" maxlength="1300">'+escape(value.effect||'')+'</textarea>',' nex-gm-npc-action-wide');
+  }else{
+   content=label('Nome da habilidade','name',input('name',name))+
+    label('Teste (perícia)','testSkill',skillOptions)+
+    label('Descrição','effect','<textarea data-gm-npc-field="effect" rows="4" maxlength="1300">'+escape(value.effect||'')+'</textarea>',' nex-gm-npc-action-wide')+
+    ['action','test','damage','secondaryDamage','secondaryType','subtitle','critical','damageType','range'].map(k=>hidden(k,value[k]||'')).join('');
+  }
+  return '<article class="nex-gm-npc-action-card" data-gm-npc-row="actions">'+
+   hidden('kind',attack?'attack':'ability')+header+
+   '<div class="nex-gm-npc-action-card-body" hidden>'+
+   '<div class="nex-gm-npc-action-grid">'+content+'</div>'+
+   '<div class="nex-gm-npc-action-footer"><button type="button" class="nex-gm-npc-inline-save" data-gm-npc-inline-save>Salvar '+(attack?'ataque':'habilidade')+'</button>'+
+   '<button type="button" class="alt" data-gm-npc-remove>Excluir</button></div></div></article>';
  }
  function npcRitualRow(value={}){
   const fields=['name','element','circle','source','execution','range','target','duration','resistance','test','damage','healing','peCost','supportType','supportValue','supportTarget','description'];
@@ -1276,6 +1316,20 @@ export function mountGmShield(options){
    npcRitualPickerRows(form);
    return;
   }
+  if(btn.hasAttribute('data-gm-npc-card-toggle')){
+   const card=btn.closest('.nex-gm-npc-action-card');
+   const body=card?.querySelector('.nex-gm-npc-action-card-body');
+   if(!body)return;
+   const open=body.hidden;
+   body.hidden=!open;btn.setAttribute('aria-expanded',String(open));
+   card.classList.toggle('is-open',open);
+   return;
+  }
+  if(btn.hasAttribute('data-gm-npc-inline-save')){
+   const form=btn.closest('[data-gm-npc-sheet]');
+   if(form?.requestSubmit)form.requestSubmit();
+   return;
+  }
   if(btn.dataset.gmNpcAdd){
    const requested=btn.dataset.gmNpcAdd,kind=(requested==='ability'||requested==='attack')?'actions':requested,list=root.querySelector('[data-gm-npc-list="'+kind+'"]');
    if(!list)return;
@@ -1293,6 +1347,10 @@ export function mountGmShield(options){
    if(list.children.length>=limit){status('Limite desta seção atingido.');return;}
    const row=kind==='skills'?npcSkillRow():kind==='actions'?npcActionRow({kind:requested==='attack'?'attack':'ability'}):npcRitualRow();
    list.insertAdjacentHTML('beforeend',row);
+   if(kind==='actions'){
+    const card=list.lastElementChild,head=card?.querySelector('[data-gm-npc-card-toggle]');
+    head?.click();
+   }
    const empty=list.parentElement?.querySelector('.nex-gm-npc-empty');if(empty)empty.remove();
    if(kind==='skills'&&!list.parentElement.querySelector('.nex-gm-npc-skills-head'))list.insertAdjacentHTML('beforebegin','<div class="nex-gm-npc-skills-head"><span>Perícia (Atributo)</span><span>Dados</span><span>Bônus</span><span></span></div>');
    return;
