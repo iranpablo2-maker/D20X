@@ -499,6 +499,12 @@ export function mountGmShield(options){
   npcInlineEditing=false;
   editing=null;
   render();
+  // O Menu Principal mantém seu scroll ao mudar de painel. Ao abrir NPC,
+  // reposicionar a rolagem para exibir VIDA antes de STATUS.
+  const host=document.getElementById('nexVttInlineGmHost');
+  if(host&&host.contains(root)){host.scrollTop=0;}
+  const gmScroll=root.closest('#nexVttGmOverlay');
+  if(gmScroll)gmScroll.scrollTop=0;
  }
 
  // Dados exclusivos da visualização mini do NPC no Escudo do Mestre.
@@ -888,6 +894,12 @@ export function mountGmShield(options){
   root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '';
+  // Corrigir scroll persistente do Menu Principal: a mini ficha nova
+  // precisa começar na barra de VIDA, não nas abas ou atributos.
+  if(tab==='npcs'&&selectedSheet?.kind==='npcs'&&!npcInlineEditing){
+   const host=document.getElementById('nexVttInlineGmHost');
+   if(host&&host.contains(root)&&host.scrollTop>0)host.scrollTop=0;
+  }
   refreshMasterStatus();
   if(tab==='threats'&&showThreatImport){const frame=$('[data-gm-threat-picker]');if(frame)frame.addEventListener('load',syncThreatPicker,{once:true});}
   if(tab==='threats'&&!showThreatImport)requestThreatPortraits();
