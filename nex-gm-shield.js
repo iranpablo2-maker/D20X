@@ -100,8 +100,14 @@ export function mountGmShield(options){
  }
  function status(message){saveStatus=message;refreshMasterStatus();}
  function readHomebrews(){
-  try{const data=JSON.parse(localStorage.getItem('nex_homebrew_advanced_v2051')||'[]');homebrew=Array.isArray(data)?data.filter(x=>x&&x.type==='npc'&&x.name).slice(0,150):[];}
-  catch(error){homebrew=[];}
+  // Mesmo tombstone usado pelo editor Homebrew: fichas apagadas nunca são importáveis.
+  try{
+   const key='nex_homebrew_advanced_v2051';
+   const stored=JSON.parse(localStorage.getItem(key)||'[]');
+   const removed=JSON.parse(localStorage.getItem(key+'_deleted_ids_v1')||'[]');
+   const deleted=new Set(Array.isArray(removed)?removed.filter(id=>typeof id==='string'):[]);
+   homebrew=Array.isArray(stored)?stored.filter(x=>x&&x.type==='npc'&&x.id&&x.name&&!deleted.has(String(x.id))).slice(0,150):[];
+  }catch(error){homebrew=[];console.warn('NEX: falha ao atualizar lista de NPCs Homebrew',error);}
  }
  async function readThreats(){
   if(threatCatalog.length)return;
@@ -742,6 +748,7 @@ export function mountGmShield(options){
   }).join('')+'</div>':'<p class="room-note">Nenhum registro nesta área.</p>';
  }
  function homebrewOptions(){
+  readHomebrews();
   const records=homebrew.filter(x=>x&&x.id&&x.name);
   return '<section class="nex-gm-npc-picker" aria-label="Adicionar NPCs dos Homebrews" style="min-height:380px;padding:8px 2px 30px">'+
    '<button type="button" class="alt" data-gm-action="close-import-npc">← Voltar aos NPCs</button>'+
