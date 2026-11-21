@@ -581,11 +581,11 @@ export function mountGmShield(options){
   const secondary='';
   const tests='';
   const description=blocks([['História e descrição',x.body],['Habilidades e características',t.habilidades],['Observações',t.notas]]);
-  const tabletopMini=creatingInTabletop();
+  const tabletopMini=true; // A visualização de NPC no Escudo usa sempre a mini ficha de referência.
   return '<section class="nex-gm-npc-view nex-gm-npc-homebrew-mini'+(tabletopMini?' nex-gm-npc-tabletop-status':'')+'" aria-label="Ficha de NPC Homebrew">'+
    '<div class="nex-gm-npc-view-tools"><button type="button" class="alt" data-gm-close-sheet>← Voltar aos NPCs</button><button type="button" class="alt" data-gm-edit="npcs:'+escape(x.id)+'">Editar ficha</button></div>'+
    '<div class="nex-gm-npc-view-card"><div class="nex-gm-npc-roll-result" data-gm-npc-dice-result hidden aria-live="polite"></div>'+
-   (tabletopMini?'':'<header class="nex-gm-npc-view-header"><div class="nex-gm-npc-view-photo">'+(pic?'<img src="'+escape(pic)+'" alt="Foto de '+escape(x.title)+'">':escape((x.title||'?').charAt(0).toUpperCase()))+'</div><div class="nex-gm-npc-view-heading"><small>NPC HOMEBREW · CAMPANHA</small><h3>'+escape(x.title||'Sem nome')+'</h3></div></header>')+
+
    '<div class="nex-gm-npc-view-pv" data-gm-npc-hp-widget="'+escape(x.id)+'"><div class="nex-gm-npc-hp-title">VIDA</div><div class="nex-gm-npc-hp-track" role="progressbar" aria-label="PV atuais do NPC" aria-valuemin="0" aria-valuemax="'+maximum+'" aria-valuenow="'+current+'">'+
    '<span class="nex-gm-npc-hp-fill" style="width:'+fill+'%"></span>'+
    '<button type="button" data-gm-npc-hp-delta="-10" aria-label="Diminuir 10 PV">«</button><button type="button" data-gm-npc-hp-delta="-1" aria-label="Diminuir 1 PV">‹</button>'+
