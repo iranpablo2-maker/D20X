@@ -16,7 +16,7 @@
  '.nex-roll20-expression{color:#d6c4cd;font-size:11px;line-height:1.25;overflow-wrap:anywhere}',
  '.nex-roll20-breakdown{margin-top:6px;color:#c9b7c1;font-size:10px;overflow-wrap:anywhere}',
  '.nex-roll20-number{font-size:27px;font-weight:850;text-align:center;font-variant-numeric:tabular-nums}',
- '.nex-roll20-close{position:absolute;top:-6px;right:5px;z-index:2;color:#eee;border:0;background:#251c20;border-radius:4px;cursor:pointer;font-size:19px;line-height:1;padding:2px 4px}',
+ '.nex-roll20-close{position:absolute;top:4px;right:7px;z-index:2;color:#eee;border:0;background:transparent;border-radius:4px;cursor:pointer;font-size:18px;line-height:1;padding:1px 3px}',
  '.nex-roll20-close:focus-visible,.nex-roll20-btn:focus-visible{outline:2px solid #ff879c;outline-offset:2px}'
  ].join('\n');
  document.head.append(style);
