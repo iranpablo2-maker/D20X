@@ -1280,3 +1280,27 @@
  border:1px solid #8f3950!important;border-radius:5px!important;
  padding:4px 7px!important;color:#f6dae4!important;font-size:11px!important;background:#25131b!important;
 }
+
+/* Configuração de dano/cura/suporte dentro da mini ficha, sem sair do Tabletop. */
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-ritual-config[hidden]{display:none!important}
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-ritual-config{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:7px!important;margin:9px 0!important;padding:9px!important;
+ background:#140d12!important;border:1px solid #693344!important;border-radius:6px!important;
+}
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-ritual-config label{
+ display:flex!important;flex-direction:column!important;gap:4px!important;
+ min-width:0!important;font-size:10px!important;color:#ecd8df!important;
+}
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-ritual-config input,
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-ritual-config select{
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ background:#21131b!important;border:1px solid #83405a!important;
+ border-radius:4px!important;color:#fff!important;padding:6px!important;
+}
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-ritual-config button[data-gm-npc-ritual-save]{
+ grid-column:1/-1!important;
+}
+@media(max-width:390px){
+ #room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-ritual-config{grid-template-columns:1fr!important}
+}
