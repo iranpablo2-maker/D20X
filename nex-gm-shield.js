@@ -352,10 +352,38 @@ export function mountGmShield(options){
    '<button type="button" class="alt" data-gm-npc-remove>Remover</button></fieldset>';
  }
  function npcRitualRow(value={}){
-  return '<fieldset class="nex-gm-npc-repeat-row nex-gm-npc-ritual" data-gm-npc-row="rituals"><legend>Ritual</legend>'+
-   [['name','Nome'],['element','Elemento'],['circle','Círculo'],['source','Fonte'],['execution','Execução'],['range','Alcance'],['target','Alvo'],['duration','Duração'],['resistance','Resistência'],['test','Teste / dados'],['damage','Dano / dados'],['healing','Cura / dados'],['peCost','Custo em PE'],['supportType','Bônus de suporte (tipo)'],['supportValue','Bônus de suporte (valor)'],['supportTarget','Perícia ou alvo do bônus']].map(([key,label])=>'<label>'+label+(key==='supportType'?'<select data-gm-npc-field="supportType">'+[['','Sem bônus'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Resistência'],['pericia','Perícia'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['capacidade','Capacidade'],['margem','Margem'],['multiplicador','Multiplicador']].map(([v,text])=>'<option value="'+v+'"'+(v===(value.supportType||'')?' selected':'')+'>'+text+'</option>').join('')+'</select>':'<input data-gm-npc-field="'+key+'" '+(key==='circle'?'type="number" min="1" max="4"':key==='peCost'?'type="number" min="0" max="999"':key==='supportValue'?'type="number" min="-999" max="999"':'')+' value="'+escape(value[key]??(key==='circle'?1:''))+'">')+'</label>').join('')+
-   '<label class="nex-gm-npc-wide">Descrição<textarea data-gm-npc-field="description" rows="3" maxlength="1300">'+escape(value.description||'')+'</textarea></label>'+
-   '<button type="button" class="alt" data-gm-npc-remove>Remover</button></fieldset>';
+  const fields=['name','element','circle','source','execution','range','target','duration','resistance','test','damage','healing','peCost','supportType','supportValue','supportTarget','description'];
+  return '<div class="nex-gm-npc-picked-ritual" data-gm-npc-row="rituals">'+
+   '<div><strong>'+escape(value.name||'Ritual')+'</strong><small>'+escape([value.element,value.circle?value.circle+'º círculo':'',value.source].filter(Boolean).join(' · '))+'</small></div>'+
+   fields.map(key=>'<input type="hidden" data-gm-npc-field="'+key+'" value="'+escape(value[key]??'')+'">').join('')+
+   '<button type="button" class="alt" data-gm-npc-remove aria-label="Remover '+escape(value.name||'ritual')+'">Remover</button></div>';
+ }
+ const npcRitualCatalog=()=>Array.isArray(window.NEX_RITUAL_META)?window.NEX_RITUAL_META.filter(x=>x&&x.name):[];
+ const npcRitualIdentity=r=>[String(r.name||''),String(r.element||''),String(r.circle||1)].map(t=>t.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim()).join('|');
+ function npcRitualPickerRows(form){
+  const list=form?.querySelector('[data-gm-npc-ritual-picker-list]');
+  if(!list)return;
+  const search=form.querySelector('[data-gm-npc-ritual-search]')?.value||'';
+  const term=search.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim();
+  const existing=new Set([...form.querySelectorAll('[data-gm-npc-row="rituals"]')].map(row=>npcRitualIdentity({
+   name:row.querySelector('[data-gm-npc-field="name"]')?.value,
+   element:row.querySelector('[data-gm-npc-field="element"]')?.value,
+   circle:row.querySelector('[data-gm-npc-field="circle"]')?.value
+  })));
+  const catalog=npcRitualCatalog();
+  list.innerHTML=catalog.map((ritual,i)=>{
+   const text=[ritual.name,ritual.element,ritual.circle,ritual.source||'Livro básico'].join(' ').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();
+   if(term&&!text.includes(term))return '';
+   const added=existing.has(npcRitualIdentity(ritual));
+   return '<button type="button" class="nex-gm-npc-ritual-picker-option" data-gm-npc-pick-ritual="'+i+'" '+(added?'disabled':'')+'>'+
+    '<strong>'+escape(ritual.name)+'</strong><small>'+escape([ritual.element,ritual.circle+'º círculo',ritual.source||'Livro básico'].join(' · '))+(added?' · Adicionado':'')+'</small></button>';
+  }).join('')||'<p class="room-note">Nenhum ritual encontrado.</p>';
+ }
+ function npcRitualPicker(){
+  return '<div class="nex-gm-npc-ritual-picker" data-gm-npc-ritual-picker hidden>'+
+   '<div class="nex-gm-npc-ritual-picker-heading"><strong>Pesquisar rituais</strong><button type="button" class="alt" data-gm-npc-close-ritual-picker>Fechar</button></div>'+
+   '<input type="search" data-gm-npc-ritual-search aria-label="Pesquisar rituais" placeholder="Nome, elemento, círculo ou fonte" autocomplete="off">'+
+   '<div class="nex-gm-npc-ritual-picker-list" data-gm-npc-ritual-picker-list></div></div>';
  }
  function npcCampaignEditor(x){
   const t=npcSheet(x.sheet);
@@ -383,7 +411,7 @@ export function mountGmShield(options){
    '<div data-gm-npc-list="skills">'+t.npcSkills.map(npcSkillRow).join('')+'</div></div></div>'+
    '<div data-gm-npc-panel="combate" class="nex-gm-npc-tab-panel" hidden>'+
    '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Habilidades e ações</h4><div class="nex-gm-npc-add-buttons"><button type="button" data-gm-npc-add="ability">+ Adicionar habilidade</button><button type="button" data-gm-npc-add="attack">+ Adicionar ataque</button></div></div><div data-gm-npc-list="actions">'+t.actions.map(npcActionRow).join('')+'</div></div>'+
-   '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Rituais</h4><button type="button" data-gm-npc-add="rituals">+ Adicionar ritual</button></div><div data-gm-npc-list="rituals">'+t.rituals.map(npcRitualRow).join('')+'</div></div></div>'+
+   '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Rituais</h4><button type="button" data-gm-npc-add="rituals">+ Adicionar ritual</button></div><div data-gm-npc-list="rituals">'+t.rituals.map(npcRitualRow).join('')+'</div>'+npcRitualPicker()+'</div></div>'+
    '<div data-gm-npc-panel="descricao" class="nex-gm-npc-tab-panel" hidden>'+
    '<div class="nex-gm-npc-fields"><h4>Descrição do NPC</h4>'+npcField('body','Descrição',x.body,'textarea')+npcField('habilidades','Características adicionais',t.habilidades,'textarea')+npcField('notas','Observações',t.notas,'textarea')+'</div></div>'+
    '<div class="nex-gm-npc-form-footer"><button type="submit" class="nex-gm-npc-save">Salvar na campanha</button></div></form>';
@@ -1152,6 +1180,9 @@ export function mountGmShield(options){
    }else submitRecord(kind,form);
   }
  });
+ root.addEventListener('input',event=>{
+  if(event.target.matches('[data-gm-npc-ritual-search]'))npcRitualPickerRows(event.target.closest('[data-gm-npc-sheet]'));
+ });
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
   if(btn.dataset.gmRetrySave){void store();return;}
@@ -1216,9 +1247,48 @@ export function mountGmShield(options){
    form.querySelectorAll('[data-gm-npc-panel]').forEach(panel=>{panel.hidden=panel.dataset.gmNpcPanel!==btn.dataset.gmNpcTab;});
    return;
   }
+  if(btn.hasAttribute('data-gm-npc-close-ritual-picker')){
+   const form=btn.closest('[data-gm-npc-sheet]');
+   const picker=form?.querySelector('[data-gm-npc-ritual-picker]');
+   if(picker)picker.hidden=true;
+   return;
+  }
+  if(btn.hasAttribute('data-gm-npc-pick-ritual')){
+   const form=btn.closest('[data-gm-npc-sheet]');
+   const list=form?.querySelector('[data-gm-npc-list="rituals"]');
+   const catalog=npcRitualCatalog(),picked=catalog[Number(btn.dataset.gmNpcPickRitual)];
+   if(!form||!list||!picked||list.children.length>=40)return;
+   const exists=[...list.querySelectorAll('[data-gm-npc-row="rituals"]')].some(row=>npcRitualIdentity({
+    name:row.querySelector('[data-gm-npc-field="name"]')?.value,
+    element:row.querySelector('[data-gm-npc-field="element"]')?.value,
+    circle:row.querySelector('[data-gm-npc-field="circle"]')?.value
+   })===npcRitualIdentity(picked));
+   if(exists)return;
+   const normalize=v=>String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim();
+   const effect=window.NEX_RITUAL_EFFECTS?.[[normalize(picked.name),normalize(picked.element),picked.circle].join('|')]||{};
+   const guide=window.NEX_RITUAL_GUIDES?.[[normalize(picked.name),normalize(picked.element),picked.circle].join('|')]||{};
+   list.insertAdjacentHTML('beforeend',npcRitualRow({
+    name:picked.name,element:picked.element,circle:picked.circle,source:picked.source||'Livro básico',
+    execution:picked.execution,range:picked.range,target:picked.target,duration:picked.duration,
+    resistance:picked.resistance,damage:effect.damageDice||effect.versions?.Normal||'',
+    healing:effect.healDice||effect.healVersions?.Normal||'',description:guide.description||''
+   }));
+   npcRitualPickerRows(form);
+   return;
+  }
   if(btn.dataset.gmNpcAdd){
    const requested=btn.dataset.gmNpcAdd,kind=(requested==='ability'||requested==='attack')?'actions':requested,list=root.querySelector('[data-gm-npc-list="'+kind+'"]');
    if(!list)return;
+   if(kind==='rituals'){
+    const picker=list.parentElement.querySelector('[data-gm-npc-ritual-picker]');
+    if(!picker)return;
+    picker.hidden=!picker.hidden;
+    if(!picker.hidden){
+     npcRitualPickerRows(btn.closest('[data-gm-npc-sheet]'));
+     picker.querySelector('[data-gm-npc-ritual-search]')?.focus();
+    }
+    return;
+   }
    const limit=kind==='skills'?28:kind==='actions'?30:40;
    if(list.children.length>=limit){status('Limite desta seção atingido.');return;}
    const row=kind==='skills'?npcSkillRow():kind==='actions'?npcActionRow({kind:requested==='attack'?'attack':'ability'}):npcRitualRow();
