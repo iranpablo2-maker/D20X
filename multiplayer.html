@@ -2700,6 +2700,28 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  background:transparent!important;padding:0!important;border:0!important;
 }
 </style>
+<style id="nex-vtt-menu-toolbar-overlap-fix-20261121">
+/* A barra superior já possui o botão X para fechar: não sobrepor o botão ☰
+   sobre a última aba enquanto o menu está aberto. Ao fechar, ☰ reaparece. */
+#roomTabletopPanel:has(#nexVttMainMenu:not([hidden])) #nexVttSheetsCornerToggle{
+ visibility:hidden!important;opacity:0!important;pointer-events:none!important;
+}
+#roomTabletopPanel:has(#nexVttMainMenu[hidden]) #nexVttSheetsCornerToggle{
+ visibility:visible!important;opacity:1!important;pointer-events:auto!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs{
+ display:grid!important;grid-template-columns:repeat(6,minmax(0,1fr))!important;
+ align-items:center!important;gap:3px!important;min-width:0!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs>button{
+ box-sizing:border-box!important;min-width:0!important;width:100%!important;
+ max-width:100%!important;margin:0!important;
+}
+#roomTabletopPanel #nexVttMainMenu #nexVttMainClose{
+ display:grid!important;place-items:center!important;
+ font-size:21px!important;min-width:0!important;
+}
+</style>
 </head>
 <body>
 <script>
