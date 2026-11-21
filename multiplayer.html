@@ -2586,6 +2586,120 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttInlineGmHost .nex-gm-editor{min-width:0!important;max-width:100%!important}
 #roomTabletopPanel #nexVttInlineGmHost .nex-gm-entity-card{max-width:100%!important}
 </style>
+
+<style id="nex-npc-reference-final-20261121">
+/* Corrige a largura da mini ficha no menu real do Tabletop e sobrescreve
+   os estilos gerais dos botões, que transformavam a barra VIDA em caixas pretas. */
+@media (min-width:601px) and (pointer:fine){
+ #roomTabletopPanel #nexVttMainMenu:has([data-nex-main-page="master"]:not([hidden])){
+   width:min(max(348px,var(--nex-vtt-menu-width,348px)),calc(100vw - 32px))!important;
+   min-width:min(348px,calc(100vw - 32px))!important;
+ }
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini.nex-gm-npc-tabletop-status{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ font-size:12px!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-card{
+ border:0!important;border-radius:0!important;background:#171219!important;
+ overflow:hidden!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-pv{
+ display:grid!important;gap:9px!important;margin:11px 12px 16px!important;
+ visibility:visible!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-title{
+ font-size:12px!important;color:white!important;font-weight:800!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-track{
+ display:flex!important;align-items:stretch!important;position:relative!important;
+ isolation:isolate!important;overflow:hidden!important;
+ width:100%!important;min-width:0!important;height:40px!important;
+ border:0!important;border-radius:3px!important;background:#711c2e!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-track > span.nex-gm-npc-hp-fill{
+ display:block!important;position:absolute!important;left:0!important;top:0!important;bottom:0!important;
+ height:100%!important;border:0!important;margin:0!important;border-radius:0!important;
+ background:#ba203c!important;z-index:0!important;pointer-events:none!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-track button,
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-track button:hover{
+ display:grid!important;place-items:center!important;position:relative!important;z-index:1!important;
+ flex:0 0 27px!important;min-width:0!important;height:40px!important;min-height:0!important;
+ padding:0!important;margin:0!important;box-shadow:none!important;
+ background:transparent!important;border:0!important;border-radius:0!important;
+ color:#fff!important;font-size:19px!important;font-weight:800!important;line-height:1!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-track button.nex-gm-npc-hp-value{
+ flex:1 1 auto!important;min-width:0!important;font-size:15px!important;white-space:nowrap!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-tabs{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:0!important;margin:0!important;padding:0 12px!important;
+ border-bottom:1px solid #42303b!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-tabs button{
+ min-height:0!important;min-width:0!important;width:100%!important;
+ padding:13px 2px 12px!important;margin:0!important;
+ border:0!important;border-bottom:2px solid transparent!important;
+ border-radius:0!important;background:transparent!important;
+ color:#bea9b5!important;font-size:12px!important;font-weight:400!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-tabs button[aria-selected="true"]{
+ color:#fff!important;border-bottom-color:#e3385c!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini [data-gm-npc-view-panel]{
+ padding:16px 12px!important;overflow-x:hidden!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-attrs{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ gap:8px!important;margin:0 0 20px!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-attr small{
+ display:block!important;margin:0 0 6px!important;
+ font-size:10px!important;font-weight:400!important;text-align:center!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-attr button.nex-gm-npc-attr-number{
+ display:grid!important;place-items:center!important;min-width:0!important;width:100%!important;
+ height:43px!important;min-height:43px!important;margin:0!important;padding:0!important;
+ border:1px solid #624253!important;border-radius:8px!important;background:#21151e!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-attr button.nex-gm-npc-attr-number b{
+ font:800 23px/1 system-ui,sans-serif!important;color:white!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-stats{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:10px!important;margin:0 0 17px!important;min-width:0!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-stats>div{
+ min-width:0!important;min-height:68px!important;
+ padding:12px 11px!important;border-radius:8px!important;
+ border:1px solid #5b3948!important;background:#281b24!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-stats>div:nth-child(3){
+ grid-column:1!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-stats small{
+ font-size:11px!important;margin:0 0 8px!important;display:block!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-stats strong{
+ font-size:16px!important;font-weight:800!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-skill{
+ display:grid!important;grid-template-columns:minmax(0,1fr) auto 28px!important;gap:5px!important;
+ padding:10px 0!important;align-items:center!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-skill>span{
+ font-size:11px!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-skill>strong{
+ font-size:11px!important;
+}
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-skill button.nex-gm-npc-roll{
+ width:28px!important;min-width:28px!important;min-height:28px!important;
+ background:transparent!important;padding:0!important;border:0!important;
+}
+</style>
 </head>
 <body>
 <script>
