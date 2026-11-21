@@ -359,12 +359,12 @@ export function mountGmShield(options){
    '<button type="button" class="alt" data-gm-npc-remove aria-label="Remover '+escape(value.name||'ritual')+'">Remover</button></div>';
  }
  const npcRitualCatalog=()=>Array.isArray(window.NEX_RITUAL_META)?window.NEX_RITUAL_META.filter(x=>x&&x.name):[];
- const npcRitualIdentity=r=>[String(r.name||''),String(r.element||''),String(r.circle||1)].map(t=>t.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim()).join('|');
+ const npcRitualIdentity=r=>[String(r.name||''),String(r.element||''),String(r.circle||1)].map(t=>t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim()).join('|');
  function npcRitualPickerRows(form){
   const list=form?.querySelector('[data-gm-npc-ritual-picker-list]');
   if(!list)return;
   const search=form.querySelector('[data-gm-npc-ritual-search]')?.value||'';
-  const term=search.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim();
+  const term=search.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
   const existing=new Set([...form.querySelectorAll('[data-gm-npc-row="rituals"]')].map(row=>npcRitualIdentity({
    name:row.querySelector('[data-gm-npc-field="name"]')?.value,
    element:row.querySelector('[data-gm-npc-field="element"]')?.value,
@@ -372,7 +372,7 @@ export function mountGmShield(options){
   })));
   const catalog=npcRitualCatalog();
   list.innerHTML=catalog.map((ritual,i)=>{
-   const text=[ritual.name,ritual.element,ritual.circle,ritual.source||'Livro básico'].join(' ').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();
+   const text=[ritual.name,ritual.element,ritual.circle,ritual.source||'Livro básico'].join(' ').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
    if(term&&!text.includes(term))return '';
    const added=existing.has(npcRitualIdentity(ritual));
    return '<button type="button" class="nex-gm-npc-ritual-picker-option" data-gm-npc-pick-ritual="'+i+'" '+(added?'disabled':'')+'>'+
@@ -1264,7 +1264,7 @@ export function mountGmShield(options){
     circle:row.querySelector('[data-gm-npc-field="circle"]')?.value
    })===npcRitualIdentity(picked));
    if(exists)return;
-   const normalize=v=>String(v||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().trim();
+   const normalize=v=>String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
    const effect=window.NEX_RITUAL_EFFECTS?.[[normalize(picked.name),normalize(picked.element),picked.circle].join('|')]||{};
    const guide=window.NEX_RITUAL_GUIDES?.[[normalize(picked.name),normalize(picked.element),picked.circle].join('|')]||{};
    list.insertAdjacentHTML('beforeend',npcRitualRow({
