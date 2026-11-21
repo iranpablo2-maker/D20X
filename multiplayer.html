@@ -2743,6 +2743,17 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  display:none!important;visibility:hidden!important;pointer-events:none!important;
 }
 </style>
+<style id="nex-vtt-menu-hidden-master-fix-20261121">
+/* O modo Escudo usa display:flex!important. hidden sempre deve vencer,
+   independentemente de qual aba estava ativa quando X foi clicado. */
+#roomTabletopPanel #nexVttMainMenu[hidden],
+#roomTabletopPanel #nexVttMainMenu[hidden]:has([data-nex-main-page="master"]:not([hidden])){
+ display:none!important;visibility:hidden!important;pointer-events:none!important;
+}
+#roomTabletopPanel #nexVttMainMenu:not([hidden]){
+ visibility:visible!important;
+}
+</style>
 </head>
 <body>
 <script>
@@ -3877,8 +3888,15 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    // A função é chamada após a entrada na campanha, quando gm já foi definido.
    // Não deixar o botão do Escudo oculto até que outra aba seja pressionada.
    mainMenu.querySelector('[data-nex-main-tab="master"]')?.classList.toggle('hide',!gm);
-   if(show)mainMenu.style.removeProperty('display');
-   mainMenu.hidden=!show;
+   // A aba do mestre usa display:flex!important no CSS. Ao fechar, aplicar
+   // display:none!important no proprio painel para nao ficar visualmente aberto.
+   if(show){
+    mainMenu.style.removeProperty('display');
+    mainMenu.hidden=false;
+   }else{
+    mainMenu.hidden=true;
+    mainMenu.style.setProperty('display','none','important');
+   }
    mainMenuToggle.setAttribute('aria-expanded',String(show));
    // Rebuild the active Art Library tab after the campaign's GM role loads.
    // The first UI render happens before openCampaign sets gm=true.
