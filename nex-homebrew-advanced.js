@@ -2031,7 +2031,7 @@
    if(btn.dataset.nex52Edit){if(item.type==='maldicao'){tab='paranormal';paranormalSection='maldicoes';}else if(item.type==='item'&&item.category==='Itens Amaldiçoados'){tab='paranormal';paranormalSection='itens';cursedKind=item.cursedKind||'Itens Paranormais';}else if(item.type==='item')itemTab=canonicalCategory(item.category);openEditor(item);return;}
    if(btn.dataset.nex52Delete){
      if(!confirm('Excluir "'+item.name+'" da biblioteca? As fichas que já receberam este conteúdo não serão alteradas.'))return;
-     try{markDeletedId(id);write(read().filter(x=>x.id!==id));if(read().some(x=>x.id===id))throw Error('Ameaça ainda presente após a exclusão');renderLibrary();if(item.type==='origem')document.dispatchEvent(new Event('nex-advanced-homebrew-library-changed'));message('Homebrew excluído da biblioteca.');}
+     try{markDeletedId(id);write(read().filter(x=>x.id!==id));if(read().some(x=>x.id===id))throw Error('Ameaça ainda presente após a exclusão');renderLibrary();document.dispatchEvent(new Event('nex-advanced-homebrew-library-changed'));window.dispatchEvent(new Event('nex-auto-local-change'));message('Homebrew excluído da biblioteca.');}
      catch(error){console.error(error);message('Falha ao salvar a exclusão.');}
      return;
    }
