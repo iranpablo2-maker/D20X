@@ -41,11 +41,27 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const localMediaPattern=/^local:(?:atmo|map|asset)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp|webm)$/;
  const isLocalMedia=src=>typeof src==='string'&&localMediaPattern.test(src);
  const isWebmMap=src=>typeof src==='string'&&(/:webm$/.test(src)||src.startsWith('data:video/webm;'));
- // Grade independente do pseudo-elemento CSS, para continuar visível sobre mapas WEBM e GIF.
- const gridOverlay=document.createElement('div');
+ // Grid vetorial real: fica acima da imagem/vídeo e abaixo dos tokens.
+ // Evita falhas de background CSS e mantém as linhas nítidas com zoom.
+ const gridOverlay=document.createElementNS('http://www.w3.org/2000/svg','svg');
  gridOverlay.id='nexVttGridOverlay';
  gridOverlay.setAttribute('aria-hidden','true');
- gridOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;background-image:linear-gradient(to right,rgba(255,255,255,.55) 1px,transparent 1px),linear-gradient(to bottom,rgba(255,255,255,.55) 1px,transparent 1px);background-repeat:repeat;background-position:0 0';
+ gridOverlay.setAttribute('preserveAspectRatio','none');
+ gridOverlay.setAttribute('viewBox','0 0 '+W+' '+H);
+ gridOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;overflow:visible';
+ const gridLines=document.createElementNS('http://www.w3.org/2000/svg','path');
+ let gridPath='';
+ for(let i=1;i<W;i++)gridPath+='M'+i+' 0V'+H+' ';
+ for(let j=1;j<H;j++)gridPath+='M0 '+j+'H'+W+' ';
+ gridLines.setAttribute('d',gridPath.trim());
+ gridLines.setAttribute('fill','none');
+ gridLines.setAttribute('stroke','#ffffff');
+ gridLines.setAttribute('stroke-opacity','0.78');
+ gridLines.setAttribute('stroke-width','0.035');
+ gridLines.setAttribute('vector-effect','non-scaling-stroke');
+ gridLines.style.strokeWidth='1.2px';
+ gridLines.style.filter='drop-shadow(0 0 1px rgba(0,0,0,.95))';
+ gridOverlay.append(gridLines);
  board.append(gridOverlay);
  const mapVideo=document.createElement('video');mapVideo.className='nex-vtt-map-video';mapVideo.muted=true;mapVideo.loop=true;mapVideo.autoplay=true;mapVideo.playsInline=true;mapVideo.preload='metadata';mapVideo.controls=false;mapVideo.setAttribute('aria-hidden','true');mapVideo.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:fill;pointer-events:none;z-index:0;display:none';board.prepend(mapVideo);
  let mapWidth=GRID*W,mapHeight=GRID*H,lastMapSource=null,renderedMapSource=null,mapLoadId=0;
@@ -54,7 +70,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
    board.style.setProperty('--nex-board-height',mapHeight+'px');
    board.style.setProperty('--nex-grid-width',(100/W)+'%');
    board.style.setProperty('--nex-grid-height',(100/H)+'%');
-   gridOverlay.style.backgroundSize=(mapWidth/W)+'px '+(mapHeight/H)+'px';
+   // O SVG se adapta à dimensão do mapa sem recalcular o espaçamento.
    board.style.width=mapWidth+'px';board.style.height=mapHeight+'px';
  }
  mapGeometry();
