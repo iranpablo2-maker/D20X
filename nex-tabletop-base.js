@@ -1369,6 +1369,16 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  function vttPaint(d,layer){
    const attrs={stroke:d.color||'#3157f5','stroke-width':d.width||3,fill:(d.filled&&['rectangle','circle'].includes(d.type))?(d.color||'#3157f5'):'none','fill-opacity':d.filled?'.3':'1','stroke-linecap':'round'};
    if(d.type==='line'||d.type==='measure')vttEl('line',{...attrs,x1:d.x,y1:d.y,x2:d.x2,y2:d.y2},layer);
+   if(d.type==='measure'){
+     // Identificação da distância acompanha a linha, inclusive quando persistente.
+     const metres=(Math.hypot(d.x2-d.x,d.y2-d.y)/GRID*1.5).toFixed(1).replace('.',',')+' m';
+     const cx=Math.max(34,Math.min(GRID*W-34,(d.x+d.x2)/2));
+     const cy=Math.max(20,Math.min(GRID*H-8,(d.y+d.y2)/2-15));
+     const label=vttEl('g',{'pointer-events':'none'},layer);
+     vttEl('rect',{x:cx-33,y:cy-14,width:66,height:25,rx:5,fill:'#101014',stroke:'#bb348c','stroke-width':1.5},label);
+     const caption=vttEl('text',{x:cx,y:cy+3,'text-anchor':'middle',fill:'#ffffff','font-size':16,'font-family':'Arial, sans-serif','font-weight':'700'},label);
+     caption.textContent=metres;
+   }
    if(d.type==='rectangle')vttEl('rect',{...attrs,x:Math.min(d.x,d.x2),y:Math.min(d.y,d.y2),width:Math.abs(d.x2-d.x),height:Math.abs(d.y2-d.y)},layer);
    if(d.type==='circle')vttEl('circle',{...attrs,cx:d.x,cy:d.y,r:Math.hypot(d.x2-d.x,d.y2-d.y)},layer);
    if(d.type==='draw')vttEl('polyline',{...attrs,points:(d.points||[]).map(p=>p.join(',')).join(' ')},layer);
@@ -1607,7 +1617,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      vttDraft.x2=Math.round(p.x/snapValue)*snapValue;vttDraft.y2=Math.round(p.y/snapValue)*snapValue;
      vttMeasure.replaceChildren();
      vttPaint({...vttDraft,type:vttMeasureShape==='line'?'measure':vttMeasureShape,color:'#bb348c',width:2},vttMeasure);
-     vttLog.hidden=false;vttLog.textContent=(Math.hypot(vttDraft.x2-vttDraft.x,vttDraft.y2-vttDraft.y)/GRID*1.5).toFixed(1).replace('.',',')+' m (distância em linha reta)';
+     // O valor agora aparece sobre a própria linha, não no painel de status.
+     vttLog.hidden=true;
    }
    else renderAdvanced();
  });
