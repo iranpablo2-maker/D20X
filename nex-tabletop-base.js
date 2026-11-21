@@ -1536,15 +1536,25 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      const hint=document.createElement('small');hint.textContent='Clique no mapa para inserir texto.';vttOptions.append(hint);
    }
    if(section==='measure'){
-     const heading=document.createElement('strong');heading.textContent='Medir';vttOptions.append(heading);
+     vttOptions.classList.add('nex-vtt-measure-options');
+     const heading=document.createElement('div');heading.className='nex-vtt-measure-header';
+     const title=document.createElement('strong');title.textContent='Medir distâncias';
+     const subtitle=document.createElement('small');subtitle.textContent='Escolha como usar a régua no mapa.';
+     heading.append(title,subtitle);vttOptions.append(heading);
+     const measureRow=(label,el,kind='select')=>{
+       const row=control(label,el);
+       el.parentElement.classList.add('nex-vtt-measure-row','nex-vtt-measure-'+kind);
+       return row;
+     };
      const shape=document.createElement('select');for(const [value,label] of [['line','Linha'],['circle','Círculo'],['rectangle','Retângulo']]){const option=document.createElement('option');option.value=value;option.textContent=label;shape.append(option);}
-     shape.value=vttMeasureShape;shape.onchange=()=>{vttMeasureShape=shape.value;};control('Forma ',shape);
-     const snap=document.createElement('input');snap.type='checkbox';snap.checked=vttMeasureSnap;snap.onchange=()=>{vttMeasureSnap=snap.checked;};control('Ajuste no grid ',snap);
-     const duration=document.createElement('select');for(const [value,label] of [['instant','Instantâneo'],['persistent','Permanente']]){const op=document.createElement('option');op.value=value;op.textContent=label;duration.append(op);}duration.value=vttMeasurePersistent?'persistent':'instant';duration.onchange=()=>{vttMeasurePersistent=duration.value==='persistent';};control('Tempo de exibição ',duration);
-     const move=document.createElement('input');move.type='checkbox';move.checked=vttMeasureMovement;move.onchange=()=>{vttMeasureMovement=move.checked;};control('Medir movimento dos tokens ',move);
-     const show=document.createElement('input');show.type='checkbox';show.checked=vttMeasurePublic;show.disabled=!gm;show.onchange=()=>{vttMeasurePublic=show.checked;};control('Mostrar para outros ',show);
-     const unit=document.createElement('small');unit.textContent='1 quadrado = 1 unidade de deslocamento';vttOptions.append(unit);
-     btn('Limpar medições',()=>{scene.drawings=scene.drawings.filter(x=>x.type!=='measure');render();save();});
+     shape.value=vttMeasureShape;shape.onchange=()=>{vttMeasureShape=shape.value;};measureRow('Forma',shape);
+     const snap=document.createElement('input');snap.type='checkbox';snap.checked=vttMeasureSnap;snap.onchange=()=>{vttMeasureSnap=snap.checked;};measureRow('Ajustar à grade',snap,'toggle');
+     const duration=document.createElement('select');for(const [value,label] of [['instant','Instantâneo'],['persistent','Permanente']]){const op=document.createElement('option');op.value=value;op.textContent=label;duration.append(op);}duration.value=vttMeasurePersistent?'persistent':'instant';duration.onchange=()=>{vttMeasurePersistent=duration.value==='persistent';};measureRow('Duração',duration);
+     const move=document.createElement('input');move.type='checkbox';move.checked=vttMeasureMovement;move.onchange=()=>{vttMeasureMovement=move.checked;};measureRow('Medir movimento dos tokens',move,'toggle');
+     const show=document.createElement('input');show.type='checkbox';show.checked=vttMeasurePublic;show.disabled=!gm;show.onchange=()=>{vttMeasurePublic=show.checked;};measureRow('Mostrar para jogadores',show,'toggle');
+     const unit=document.createElement('small');unit.className='nex-vtt-measure-unit';unit.textContent='1 quadrado = 1 unidade de deslocamento';vttOptions.append(unit);
+     const clear=btn('Limpar medições',()=>{scene.drawings=scene.drawings.filter(x=>x.type!=='measure');render();save();});
+     clear.classList.add('nex-vtt-measure-clear');
    }
    if(section==='grid'){
      
