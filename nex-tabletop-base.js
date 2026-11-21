@@ -297,6 +297,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const shared=JSON.parse(JSON.stringify(validScene(data)));
   // Transmitir apenas a cena e o mapa exibido, não os mapas guardados.
   shared.library.maps=(shared.library.maps||[]).filter(map=>map.src===shared.map);
+  shared.clues=(shared.clues||[]).filter(c=>c.revealed);
   return shared;
  }
  const reader=async(file,max,done)=>{
@@ -1269,6 +1270,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  vttButton('▧','Enviar imagem do mapa',()=>document.getElementById('nexTabletopMapFile')?.click(),!gm);
  vttButton('▦','Grade e névoa',()=>vttOpen('grid'),!gm);
  vttButton('☼','Iluminação e lanternas',()=>vttOpen('light'),!gm);
+ vttButton('▤','Documentos e pistas',()=>vttOpen('clues'));
+
  vttButton('◎','Áreas de efeito',()=>{vttSetMode('area');vttOpen('area');},!gm);
  vttButton('♟','Token',()=>vttOpen('token'),!gm);
  vttButton('⚄','Dados',()=>vttOpen('dice'));
@@ -1668,6 +1671,60 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      const fog=document.createElement('input');fog.type='checkbox';fog.checked=scene.fogEnabled;control('Névoa de guerra ',fog);fog.onchange=()=>{scene.fogEnabled=fog.checked;render();save();};
      btn('Reiniciar névoa',()=>{scene.revealed=[];render();save();});
      const color=document.createElement('input');color.type='color';color.value=vttColor;control('Cor ',color);color.oninput=()=>{vttColor=color.value;};
+   }
+   if(section==='clues'){
+     const title=document.createElement('strong');title.textContent='Documentos e pistas';vttOptions.append(title);
+     const note=document.createElement('small');note.textContent=gm?'As pistas só aparecem aos jogadores depois de reveladas.':'Documentos revelados pelo mestre.';vttOptions.append(note);
+     if(gm){
+       const name=document.createElement('input');name.placeholder='Título da pista';name.maxLength=100;control('Título ',name);
+       const body=document.createElement('textarea');body.placeholder='Texto da carta, documento ou pista';body.maxLength=3500;body.rows=4;control('Texto ',body);
+       const upload=document.createElement('input');upload.type='file';upload.accept='image/png,image/jpeg,image/webp';control('Imagem (opcional) ',upload);
+       btn('Adicionar pista à biblioteca',async()=>{
+        if(scene.clues.length>=30)return message('Limite de 30 pistas por sessão.');
+        if(!name.value.trim())return message('Informe o título da pista.');
+        let picture='';
+        if(upload.files?.[0]){
+         const file=upload.files[0];
+         if(file.size>10*1024*1024)return message('A imagem deve ter até 10 MB.');
+         try{
+          picture=await new Promise((resolve,reject)=>{
+           const url=URL.createObjectURL(file),img=new Image();
+           img.onload=()=>{
+            try{
+             const c=document.createElement('canvas'),ratio=Math.min(1,560/Math.max(img.width,img.height));
+             c.width=Math.max(1,Math.round(img.width*ratio));c.height=Math.max(1,Math.round(img.height*ratio));
+             c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+             const data=c.toDataURL('image/jpeg',.55);
+             URL.revokeObjectURL(url);
+             if(data.length>85000)reject(Error('Imagem muito grande após compressão'));
+             else resolve(data);
+            }catch(error){URL.revokeObjectURL(url);reject(error);}
+           };
+           img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('Imagem inválida'));};img.src=url;
+          });
+         }catch(error){return message('Não foi possível preparar a imagem: '+String(error.message||error));}
+        }
+        scene.clues.push({id:crypto.randomUUID(),title:name.value.trim().slice(0,100),text:body.value.trim().slice(0,3500),image:picture,revealed:false});
+        render();void save();vttOptions.hidden=true;vttOpen('clues');
+       });
+     }
+     for(const clue of scene.clues){
+      if(!gm&&!clue.revealed)continue;
+      const card=document.createElement('article');card.className='nex-vtt-clue-card';
+      const heading=document.createElement('strong');heading.textContent=clue.title;card.append(heading);
+      if(clue.image){
+       const img=document.createElement('img');img.src=clue.image;img.alt=clue.title;img.loading='lazy';card.append(img);
+      }
+      if(clue.text){const text=document.createElement('p');text.textContent=clue.text;card.append(text);}
+      if(gm){
+       const toggle=document.createElement('button');toggle.type='button';toggle.textContent=clue.revealed?'Ocultar dos jogadores':'Revelar aos jogadores';
+       toggle.addEventListener('click',()=>{clue.revealed=!clue.revealed;void save();vttOptions.hidden=true;vttOpen('clues');});card.append(toggle);
+       const del=document.createElement('button');del.type='button';del.textContent='Excluir pista';
+       del.addEventListener('click',()=>{if(!confirm('Excluir este documento?'))return;scene.clues=scene.clues.filter(c=>c.id!==clue.id);void save();vttOptions.hidden=true;vttOpen('clues');});card.append(del);
+      }
+      vttOptions.append(card);
+     }
+     if(!scene.clues.some(c=>gm||c.revealed)){const empty=document.createElement('p');empty.textContent='Nenhuma pista revelada.';vttOptions.append(empty);}
    }
    if(section==='light'){
      const title=document.createElement('strong');title.textContent='Iluminação e lanternas';vttOptions.append(title);
