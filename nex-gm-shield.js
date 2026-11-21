@@ -877,7 +877,7 @@ export function mountGmShield(options){
   status('Adicionando '+name+' à campanha…');
   const done=store();
   if(!done){state.threats=state.threats.filter(x=>x!==record);status('Não foi possível adicionar a ameaça.');syncThreatPicker();return;}
-  done.then(()=>{status('Ameaça adicionada à campanha.');syncThreatPicker();}).catch(error=>{
+  done.then(()=>{status('');syncThreatPicker();}).catch(error=>{
    state.threats=state.threats.filter(x=>x!==record);
    status('Erro ao adicionar ameaça: '+String(error?.message||error));syncThreatPicker();
   });
