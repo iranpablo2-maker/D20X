@@ -588,18 +588,18 @@ export function mountGmShield(options){
   const tests='';
   const description=blocks([['História e descrição',x.body],['Habilidades e características',t.habilidades],['Observações',t.notas]]);
   const tabletopMini=true; // A visualização de NPC no Escudo usa sempre a mini ficha de referência.
-  return '<section class="nex-gm-npc-view nex-gm-npc-homebrew-mini'+(tabletopMini?' nex-gm-npc-tabletop-status':'')+'" aria-label="Ficha de NPC Homebrew">'+
+  return '<section class="nex-gm-npc-view nex-gm-npc-homebrew-mini'+(tabletopMini?' nex-gm-npc-tabletop-status':'')+'" data-nex-npc-version="20261121mini6" aria-label="Ficha de NPC Homebrew">'+
    '<div class="nex-gm-npc-view-tools"><button type="button" class="alt" data-gm-close-sheet>← Voltar aos NPCs</button><button type="button" class="alt" data-gm-edit="npcs:'+escape(x.id)+'">Editar ficha</button></div>'+
    '<div class="nex-gm-npc-view-card"><div class="nex-gm-npc-roll-result" data-gm-npc-dice-result hidden aria-live="polite"></div>'+
 
-   '<div class="nex-gm-npc-view-pv" data-gm-npc-hp-widget="'+escape(x.id)+'"><div class="nex-gm-npc-hp-title">VIDA</div><div class="nex-gm-npc-hp-track" role="progressbar" aria-label="PV atuais do NPC" aria-valuemin="0" aria-valuemax="'+maximum+'" aria-valuenow="'+current+'">'+
-   '<span class="nex-gm-npc-hp-fill" style="width:'+fill+'%"></span>'+
+   '<div class="nex-gm-npc-view-pv" style="display:grid!important;visibility:visible!important;gap:5px!important;margin:8px 9px!important" data-gm-npc-hp-widget="'+escape(x.id)+'"><div class="nex-gm-npc-hp-title">VIDA</div><div class="nex-gm-npc-hp-track" role="progressbar" aria-label="PV atuais do NPC" aria-valuemin="0" aria-valuemax="'+maximum+'" aria-valuenow="'+current+'">'+
+   '<span class="nex-gm-npc-hp-fill" style="width:'+fill+'%;z-index:0!important"></span>'+
    '<button type="button" data-gm-npc-hp-delta="-10" aria-label="Diminuir 10 PV">«</button><button type="button" data-gm-npc-hp-delta="-1" aria-label="Diminuir 1 PV">‹</button>'+
    '<button type="button" class="nex-gm-npc-hp-value" data-gm-npc-hp-edit aria-label="Editar PV atuais">'+current+' / '+maximum+'</button>'+
    '<input type="number" class="nex-gm-npc-hp-input" data-gm-npc-hp-input min="0" max="'+maximum+'" step="1" inputmode="numeric" aria-label="PV atuais" hidden>'+
    '<button type="button" data-gm-npc-hp-delta="1" aria-label="Aumentar 1 PV">›</button><button type="button" data-gm-npc-hp-delta="10" aria-label="Aumentar 10 PV">»</button></div></div>'+
    '<nav class="nex-gm-npc-view-tabs" aria-label="Seções da ficha do NPC"><button type="button" data-gm-npc-view-tab="status" aria-selected="true">STATUS</button><button type="button" data-gm-npc-view-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-gm-npc-view-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
-   '<section data-gm-npc-view-panel="status"><div class="nex-gm-npc-view-attrs">'+attrHtml+'</div><div class="nex-gm-npc-view-stats"><div><small>Defesa</small><strong>'+escape(t.defense)+'</strong></div><div><small>Deslocamento</small><strong>'+escape(t.deslocamento||'—')+'</strong></div><div><small>PV máximos</small><strong>'+escape(t.pv)+'</strong></div></div>'+
+   '<section data-gm-npc-view-panel="status"><div class="nex-gm-npc-view-attrs" style="display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important">'+attrHtml+'</div><div class="nex-gm-npc-view-stats" style="display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important"><div style="min-width:0!important"><small>Defesa</small><strong>'+escape(t.defense)+'</strong></div><div style="min-width:0!important"><small>Deslocamento</small><strong>'+escape(t.deslocamento||'—')+'</strong></div><div style="min-width:0!important"><small>PV máximos</small><strong>'+escape(t.pv)+'</strong></div></div>'+
    (skills?'<h4>Perícias</h4>'+skills:'')+(tests?'<h4>Testes e sentidos</h4>'+tests:'')+secondary+'</section>'+
    '<section data-gm-npc-view-panel="combate" hidden><h4>Habilidades</h4>'+(abilities||empty)+'<h4>Ataques</h4>'+(attacks||empty)+'<h4>Rituais</h4>'+(rituals||empty)+'</section>'+
    '<section data-gm-npc-view-panel="descricao" hidden>'+(description||empty)+'</section></div></section>';
