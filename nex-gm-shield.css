@@ -1219,3 +1219,20 @@
  color:#fff;background:#211820;border:1px solid #624051;border-radius:6px;
  padding:6px 8px;font-size:12px;
 }
+
+
+/* D20 branco sem placa preta: somente o ícone, rolagens preservadas. */
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-roll:has(.nex-dice20-icon),
+#roomMasterPanel .nex-gm-npc-view .nex-gm-npc-roll:has(.nex-dice20-icon):hover,
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-view button.nex-gm-npc-roll:has(.nex-dice20-icon),
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-view button.nex-gm-npc-roll:has(.nex-dice20-icon):hover{
+ background:transparent!important;border:0!important;box-shadow:none!important;
+ padding:0!important;border-radius:0!important;min-width:26px!important;
+ min-height:26px!important;
+}
+#roomMasterPanel .nex-gm-npc-view .nex-dice20-icon,
+#roomTabletopPanel #nexVttMainMenu #roomMasterPanel .nex-gm-npc-view .nex-dice20-icon{
+ display:block!important;width:26px!important;height:26px!important;
+ background:transparent!important;border:0!important;border-radius:0!important;
+ padding:0!important;box-shadow:none!important;object-fit:contain!important;
+}
