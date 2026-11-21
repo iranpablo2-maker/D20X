@@ -7,7 +7,7 @@
  style.textContent=[
  '.nex-roll20-btn{display:inline-flex;gap:5px;align-items:center;justify-content:center;vertical-align:middle;border:1px solid #63414b;border-radius:6px;background:#1b151a;color:#f5e9ee;padding:3px 5px;min-height:27px;cursor:pointer;font-size:11px}',
  '.nex-roll20-btn:hover{border-color:#e36579;background:#3d1b29}',
- '.nex-dice20-icon{width:29px;height:29px;object-fit:contain;display:inline-block;vertical-align:middle;pointer-events:none;background:#000;border-radius:3px;padding:1px}',
+ '.nex-dice20-icon{width:29px;height:29px;object-fit:contain;display:inline-block;vertical-align:middle;pointer-events:none;background:transparent!important;border:0!important;border-radius:0!important;padding:0!important;box-shadow:none!important}',
  '#nex-roll20-stack{position:fixed;left:56px;right:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));top:auto;z-index:2147483000;display:flex;flex-direction:column-reverse;gap:7px;width:min(320px,calc(100vw - 28px));max-height:55dvh;pointer-events:none}',
  '@media(max-width:600px){#nex-roll20-stack{left:50%;right:auto;transform:translateX(-50%);bottom:calc(12px + env(safe-area-inset-bottom,0px));width:min(320px,calc(100vw - 24px))}}',
  '.nex-roll20-toast{pointer-events:auto;display:grid;grid-template-columns:34px minmax(0,1fr) 45px;align-items:center;gap:8px;min-height:77px;padding:10px;background:#251c20;color:#f8f4f6;border-left:2px solid #c93650;border-radius:5px;box-shadow:0 10px 30px #0009;font:12px/1.35 system-ui,Arial,sans-serif;position:relative}',
