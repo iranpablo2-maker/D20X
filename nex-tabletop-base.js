@@ -7,7 +7,9 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
- const GRID=48,W=25,H=25;
+ const GRID=48,W=25,H=25,GRID_COLUMNS=15,GRID_ROWS=15;
+ // Mantemos as coordenadas internas anteriores para preservar mapas, desenhos e tokens salvos.
+ // Cada célula VISUAL da nova grade equivale a 1,5 m.
  // Os limites são alinhados com a UI para evitar corte silencioso ao serializar.
  const MAX_MAPS=60,MAX_ASSETS=120,MAX_TOKENS=180,MAX_ATMOSPHERES=30,MAX_GROUPS=50;
  const r2Pattern=/^r2:((?:atmo|map|asset)_[A-Za-z0-9_-]+):(gif|png|jpeg|webp)$/;
@@ -47,12 +49,12 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  gridOverlay.id='nexVttGridOverlay';
  gridOverlay.setAttribute('aria-hidden','true');
  gridOverlay.setAttribute('preserveAspectRatio','none');
- gridOverlay.setAttribute('viewBox','0 0 '+W+' '+H);
+ gridOverlay.setAttribute('viewBox','0 0 '+GRID_COLUMNS+' '+GRID_ROWS);
  gridOverlay.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:2;overflow:visible';
  const gridLines=document.createElementNS('http://www.w3.org/2000/svg','path');
  let gridPath='';
- for(let i=1;i<W;i++)gridPath+='M'+i+' 0V'+H+' ';
- for(let j=1;j<H;j++)gridPath+='M0 '+j+'H'+W+' ';
+ for(let i=1;i<GRID_COLUMNS;i++)gridPath+='M'+i+' 0V'+GRID_ROWS+' ';
+ for(let j=1;j<GRID_ROWS;j++)gridPath+='M0 '+j+'H'+GRID_COLUMNS+' ';
  gridLines.setAttribute('d',gridPath.trim());
  gridLines.setAttribute('fill','none');
  gridLines.setAttribute('stroke','#ffffff');
@@ -68,8 +70,8 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  function mapGeometry(){
    board.style.setProperty('--nex-board-width',mapWidth+'px');
    board.style.setProperty('--nex-board-height',mapHeight+'px');
-   board.style.setProperty('--nex-grid-width',(100/W)+'%');
-   board.style.setProperty('--nex-grid-height',(100/H)+'%');
+   board.style.setProperty('--nex-grid-width',(100/GRID_COLUMNS)+'%');
+   board.style.setProperty('--nex-grid-height',(100/GRID_ROWS)+'%');
    // O SVG se adapta à dimensão do mapa sem recalcular o espaçamento.
    board.style.width=mapWidth+'px';board.style.height=mapHeight+'px';
  }
@@ -768,7 +770,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  });
  listen(document,'pointerup',e=>{if(!drag||drag.pointer!==e.pointerId)return;
   const token=scene.tokens.find(t=>t.id===drag.id);
-  if(token&&vttMeasureMovement){const dx=Math.abs(token.x-drag.startX),dy=Math.abs(token.y-drag.startY);const metres=1.5*(dx+dy);vttLog.hidden=false;vttLog.textContent=token.name+': '+metres.toFixed(1).replace('.',',')+' m de deslocamento (diagonais custam o dobro)';}
+  if(token&&vttMeasureMovement){const dx=Math.abs(token.x-drag.startX),dy=Math.abs(token.y-drag.startY);const metres=(1.5*GRID_COLUMNS/W)*(dx+dy);vttLog.hidden=false;vttLog.textContent=token.name+': '+metres.toFixed(1).replace('.',',')+' m de deslocamento (diagonais custam o dobro)';}
   drag=null;
   try{if(board.hasPointerCapture(e.pointerId))board.releasePointerCapture(e.pointerId);}catch(_){}
   render();if(gm){if(token)peerMedia?.broadcastTokenMove(token.id,token.x,token.y);save();}
@@ -1405,7 +1407,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    if(d.type==='line'||d.type==='measure')vttEl('line',{...attrs,x1:d.x,y1:d.y,x2:d.x2,y2:d.y2},layer);
    if(d.type==='measure'){
      // Identificação da distância acompanha a linha, inclusive quando persistente.
-     const metres=(Math.hypot(d.x2-d.x,d.y2-d.y)/GRID*1.5).toFixed(1).replace('.',',')+' m';
+     const metres=(Math.hypot(d.x2-d.x,d.y2-d.y)/(GRID*W/GRID_COLUMNS)*1.5).toFixed(1).replace('.',',')+' m';
      const cx=Math.max(34,Math.min(GRID*W-34,(d.x+d.x2)/2));
      const cy=Math.max(20,Math.min(GRID*H-8,(d.y+d.y2)/2-15));
      const label=vttEl('g',{'pointer-events':'none'},layer);
@@ -1647,7 +1649,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    if(!vttDraft)return;const p=vttPoint(e);vttDraft.x2=p.x;vttDraft.y2=p.y;
    if(vttMode==='draw'&&vttDraft.points.length<250)vttDraft.points.push([p.x,p.y]);
    if(vttMode==='measure'){
-     const snapValue=vttMeasureSnap?GRID/2:1;
+     const snapValue=vttMeasureSnap?(GRID*W/GRID_COLUMNS)/2:1;
      vttDraft.x2=Math.round(p.x/snapValue)*snapValue;vttDraft.y2=Math.round(p.y/snapValue)*snapValue;
      vttMeasure.replaceChildren();
      vttPaint({...vttDraft,type:vttMeasureShape==='line'?'measure':vttMeasureShape,color:'#bb348c',width:2},vttMeasure);
