@@ -32,7 +32,9 @@ export function mountGmShield(options){
    source:trim(x.source,110),description:trim(x.description,1300),
    execution:trim(x.execution,100),range:trim(x.range,100),target:trim(x.target,100),
    duration:trim(x.duration,100),resistance:trim(x.resistance,100),
-   test:trim(x.test,90),damage:trim(x.damage,90),healing:trim(x.healing,90),peCost:trim(x.peCost,12)
+   test:trim(x.test,90),damage:trim(x.damage,90),healing:trim(x.healing,90),peCost:trim(x.peCost,12),
+   supportType:['ataque','dano','defesa','resistencia','pericia','bloqueio','esquiva','capacidade','margem','multiplicador'].includes(x.supportType)?x.supportType:'',
+   supportValue:num(x.supportValue,-999,999),supportTarget:trim(x.supportTarget,80)
   }));
   // Preserva os campos da ficha Homebrew além dos campos principais.
   const extra={};
@@ -81,7 +83,7 @@ export function mountGmShield(options){
    id:String(x.id||id()).slice(0,70),title:String(x.title||'').slice(0,110),
    tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,key==='notes'?18000:4000),richHtml:key==='notes'?String(x.richHtml||'').slice(0,590000):'',
    date:String(x.date||'').slice(0,80),status:String(x.status||'').slice(0,50),
-   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),hpCurrent:Number.isSafeInteger(Number(x.hpCurrent))&&x.hpCurrent!==null&&x.hpCurrent!==undefined&&x.hpCurrent!==''?Math.max(0,Math.min(npcSheet(x.sheet).pv,Number(x.hpCurrent))):null,hasFullSheet:!!x.hasFullSheet,revealed:!!x.revealed,
+   image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),ritualSupports:Array.isArray(x.ritualSupports)?x.ritualSupports.slice(0,30).filter(e=>e&&typeof e==='object').map(e=>({key:String(e.key||'').slice(0,140),type:String(e.type||'').slice(0,30),value:Math.max(-999,Math.min(999,Number(e.value)||0)),target:String(e.target||'').slice(0,80)})):[],hpCurrent:Number.isSafeInteger(Number(x.hpCurrent))&&x.hpCurrent!==null&&x.hpCurrent!==undefined&&x.hpCurrent!==''?Math.max(0,Math.min(npcSheet(x.sheet).pv,Number(x.hpCurrent))):null,hasFullSheet:!!x.hasFullSheet,revealed:!!x.revealed,
    threatHomebrew:key==='threats'&&x.threatHomebrew&&typeof x.threatHomebrew==='object'?JSON.parse(JSON.stringify(x.threatHomebrew)):null
   })):[]; 
   result.favorites=Array.isArray(raw.favorites)?raw.favorites.slice(0,120).map(x=>String(x).slice(0,130)):[];
@@ -345,7 +347,7 @@ export function mountGmShield(options){
  }
  function npcRitualRow(value={}){
   return '<fieldset class="nex-gm-npc-repeat-row nex-gm-npc-ritual" data-gm-npc-row="rituals"><legend>Ritual</legend>'+
-   [['name','Nome'],['element','Elemento'],['circle','Círculo'],['source','Fonte'],['execution','Execução'],['range','Alcance'],['target','Alvo'],['duration','Duração'],['resistance','Resistência'],['test','Teste / dados'],['damage','Dano / dados'],['healing','Cura / dados'],['peCost','Custo em PE']].map(([key,label])=>'<label>'+label+'<input data-gm-npc-field="'+key+'" '+(key==='circle'?'type="number" min="1" max="4"':key==='peCost'?'type="number" min="0" max="999"':'')+' value="'+escape(value[key]??(key==='circle'?1:''))+'"></label>').join('')+
+   [['name','Nome'],['element','Elemento'],['circle','Círculo'],['source','Fonte'],['execution','Execução'],['range','Alcance'],['target','Alvo'],['duration','Duração'],['resistance','Resistência'],['test','Teste / dados'],['damage','Dano / dados'],['healing','Cura / dados'],['peCost','Custo em PE'],['supportType','Bônus de suporte (tipo)'],['supportValue','Bônus de suporte (valor)'],['supportTarget','Perícia ou alvo do bônus']].map(([key,label])=>'<label>'+label+'<input data-gm-npc-field="'+key+'" '+(key==='circle'?'type="number" min="1" max="4"':key==='peCost'?'type="number" min="0" max="999"':'')+' value="'+escape(value[key]??(key==='circle'?1:''))+'"></label>').join('')+
    '<label class="nex-gm-npc-wide">Descrição<textarea data-gm-npc-field="description" rows="3" maxlength="1300">'+escape(value.description||'')+'</textarea></label>'+
    '<button type="button" class="alt" data-gm-npc-remove>Remover</button></fieldset>';
  }
@@ -584,11 +586,16 @@ export function mountGmShield(options){
    const occultismBonus=occultism?.bonus||0;
    const testButton='<button type="button" class="nex-gm-npc-roll nex-gm-npc-homebrew-test" data-gm-npc-skill-attr="int" data-gm-npc-skill-bonus="'+escape(occultismBonus)+'" data-gm-npc-dice-label="Ocultismo · '+name+'" aria-label="Rolar Ocultismo para '+name+'">Ocultismo '+escape(t.attributes.int===0?'2d20 (menor)':t.attributes.int+'d20')+(Number(occultismBonus)>=0?'+':'')+escape(occultismBonus)+gmNpcD20Icon+'</button>';
    const rolls=testButton+gmNpcRollButton(a.test,'Teste do ritual')+gmNpcRollButton(a.damage,'Dano')+gmNpcRollButton(a.healing,'Cura');
+   const supportKey=a.name+'::'+(a.supportType||'')+'::'+(a.supportTarget||'');
+   const active=(x.ritualSupports||[]).some(e=>e.key===supportKey);
+   const changes=(gmNpcDiceExpression(a.damage)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="damage" data-expression="'+escape(a.damage)+'">Aplicar dano aos PV</button>':'')+
+    (gmNpcDiceExpression(a.healing)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="healing" data-expression="'+escape(a.healing)+'">Aplicar cura aos PV</button>':'')+
+    (a.supportType&&Number(a.supportValue)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-support="'+escape(supportKey)+'" data-support-type="'+escape(a.supportType)+'" data-support-value="'+escape(a.supportValue)+'" data-support-target="'+escape(a.supportTarget)+'" aria-pressed="'+active+'">'+(active?'Desativar suporte':'Ativar suporte')+' · '+escape(a.supportType)+' '+(a.supportValue>0?'+':'')+escape(a.supportValue)+'</button>':'');
    return '<article class="nex-gm-npc-view-action nex-gm-npc-ritual-action"><div class="nex-gm-npc-action-head"><div><strong>'+name+'</strong><small>'+escape([a.element,a.circle?'Círculo '+a.circle:'',a.peCost?'PE '+a.peCost:''].filter(Boolean).join(' · '))+'</small></div>'+
     '<button type="button" class="nex-gm-npc-description-toggle" data-gm-npc-description-toggle aria-expanded="false" aria-label="Mostrar descrição de '+name+'">⌄</button></div>'+
-    '<div class="nex-gm-npc-action-rolls">'+rolls+'</div>'+
+    '<div class="nex-gm-npc-action-rolls">'+rolls+'</div>'+ (changes?'<div class="nex-gm-npc-ritual-effects">'+changes+'</div>':'')+
     '<div class="nex-gm-npc-action-description" data-gm-npc-description hidden>'+
-    details([['Elemento',a.element],['Círculo',a.circle],['Fonte',a.source],['Execução',a.execution],['Alcance',a.range],['Alvo',a.target],['Duração',a.duration],['Resistência',a.resistance],['Custo em PE',a.peCost],['Teste',a.test],['Dano',a.damage],['Cura',a.healing]])+
+    details([['Elemento',a.element],['Círculo',a.circle],['Fonte',a.source],['Execução',a.execution],['Alcance',a.range],['Alvo',a.target],['Duração',a.duration],['Resistência',a.resistance],['Custo em PE',a.peCost],['Teste',a.test],['Dano',a.damage],['Cura',a.healing],['Suporte',a.supportType],['Valor do suporte',a.supportValue||''],['Alvo do suporte',a.supportTarget]])+
     (filled(a.description)?'<p>'+escape(a.description)+'</p>':'')+'</div></article>';
   }).join('');
   // A ficha de NPC Homebrew usa atributos, defesa, deslocamento e pericias;
