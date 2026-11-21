@@ -750,7 +750,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  });
  listen(document,'pointerup',e=>{if(!drag||drag.pointer!==e.pointerId)return;
   const token=scene.tokens.find(t=>t.id===drag.id);
-  if(token&&vttMeasureMovement){const squares=Math.hypot(token.x-drag.startX,token.y-drag.startY);vttLog.hidden=false;vttLog.textContent=token.name+': '+squares.toFixed(1)+' quadrados';}
+  if(token&&vttMeasureMovement){const dx=Math.abs(token.x-drag.startX),dy=Math.abs(token.y-drag.startY);const metres=1.5*(dx+dy);vttLog.hidden=false;vttLog.textContent=token.name+': '+metres.toFixed(1).replace('.',',')+' m de deslocamento (diagonais custam o dobro)';}
   drag=null;
   try{if(board.hasPointerCapture(e.pointerId))board.releasePointerCapture(e.pointerId);}catch(_){}
   render();if(gm){if(token)peerMedia?.broadcastTokenMove(token.id,token.x,token.y);save();}
@@ -1552,7 +1552,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      const duration=document.createElement('select');for(const [value,label] of [['instant','Instantâneo'],['persistent','Permanente']]){const op=document.createElement('option');op.value=value;op.textContent=label;duration.append(op);}duration.value=vttMeasurePersistent?'persistent':'instant';duration.onchange=()=>{vttMeasurePersistent=duration.value==='persistent';};measureRow('Duração',duration);
      const move=document.createElement('input');move.type='checkbox';move.checked=vttMeasureMovement;move.onchange=()=>{vttMeasureMovement=move.checked;};measureRow('Medir movimento dos tokens',move,'toggle');
      const show=document.createElement('input');show.type='checkbox';show.checked=vttMeasurePublic;show.disabled=!gm;show.onchange=()=>{vttMeasurePublic=show.checked;};measureRow('Mostrar para jogadores',show,'toggle');
-     const unit=document.createElement('small');unit.className='nex-vtt-measure-unit';unit.textContent='1 quadrado = 1 unidade de deslocamento';vttOptions.append(unit);
+     const unit=document.createElement('small');unit.className='nex-vtt-measure-unit';unit.textContent='Ordem Paranormal: 1 quadrado = 1,5 m. No movimento, cada diagonal custa 3 m.';vttOptions.append(unit);
      const clear=btn('Limpar medições',()=>{scene.drawings=scene.drawings.filter(x=>x.type!=='measure');render();save();});
      clear.classList.add('nex-vtt-measure-clear');
    }
@@ -1600,7 +1600,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      vttDraft.x2=Math.round(p.x/snapValue)*snapValue;vttDraft.y2=Math.round(p.y/snapValue)*snapValue;
      vttMeasure.replaceChildren();
      vttPaint({...vttDraft,type:vttMeasureShape==='line'?'measure':vttMeasureShape,color:'#bb348c',width:2},vttMeasure);
-     vttLog.hidden=false;vttLog.textContent=(Math.hypot(vttDraft.x2-vttDraft.x,vttDraft.y2-vttDraft.y)/GRID).toFixed(1)+' quadrados';
+     vttLog.hidden=false;vttLog.textContent=(Math.hypot(vttDraft.x2-vttDraft.x,vttDraft.y2-vttDraft.y)/GRID*1.5).toFixed(1).replace('.',',')+' m (distância em linha reta)';
    }
    else renderAdvanced();
  });
