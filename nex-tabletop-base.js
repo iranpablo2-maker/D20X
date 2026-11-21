@@ -821,6 +821,15 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  '#nexVttAtmosphereLayer[data-animated="true"][data-effect="snow"]::before{animation:nexAtmoRain 18s linear infinite}'+
  '#nexVttAtmosphereLayer[data-animated="true"][data-effect="embers"]::before{animation:nexAtmoDrift 12s linear infinite alternate-reverse}'+
  '@media(prefers-reduced-motion:reduce){#nexVttAtmosphereLayer::before{animation:none!important}}';
+ vttStyle.textContent+=
+ '#nexVttOptions .nex-vtt-clue-card{display:flex;flex-direction:column;gap:8px;border:1px solid #713145;border-radius:7px;background:#21161d;padding:10px;margin:8px 0;max-width:100%;overflow-wrap:anywhere}'+
+ '#nexVttOptions .nex-vtt-clue-card img{max-width:100%;max-height:240px;object-fit:contain;border-radius:5px}'+
+ '#nexVttOptions .nex-vtt-clue-card p{white-space:pre-wrap;max-height:210px;overflow:auto;font-size:12px;margin:0}'+
+ '#nexVttOptions .nex-vtt-clue-card button{white-space:normal}'+
+ '#nexVttOptions .nex-vtt-light-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:5px 0;padding:6px;border:1px solid #643344;border-radius:6px}'+
+ '#nexVttOptions .nex-vtt-light-row span{flex:1;font-size:12px}'+
+ '#nexVttOptions textarea{box-sizing:border-box;width:100%;max-width:100%;background:#171118;color:#fff;border:1px solid #7b4055;border-radius:5px}'+
+ '#nexVttOptions[hidden]{display:none!important}';
  document.head.append(vttStyle);
  const vttSidebar=tools.closest('.nex-vtt-sidebar');
  vttSidebar?.prepend(vttBar);
@@ -1770,21 +1779,21 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
       const old=scene.lights.find(l=>l.tokenId===token.id);
       if(old){old.radius=metres/1.5*(GRID*W/GRID_COLUMNS);old.enabled=true;}
       else if(scene.lights.length<25)scene.lights.push({id:crypto.randomUUID(),tokenId:token.id,radius:metres/1.5*(GRID*W/GRID_COLUMNS),enabled:true});
-      scene.lightingEnabled=true;render();void save();vttOpen('light');
+      scene.lightingEnabled=true;render();void save();vttOptions.hidden=true;vttOpen('light');
      });
      btn('Colocar ponto de luz no centro do mapa',()=>{
       if(scene.lights.length>=25)return message('Limite de 25 luzes.');
       scene.lights.push({id:crypto.randomUUID(),x:GRID*W/2,y:GRID*H/2,radius:240,enabled:true});
-      scene.lightingEnabled=true;render();void save();vttOpen('light');
+      scene.lightingEnabled=true;render();void save();vttOptions.hidden=true;vttOpen('light');
      });
      for(const light of scene.lights){
       const row=document.createElement('div');row.className='nex-vtt-light-row';
       const token=scene.tokens.find(t=>t.id===light.tokenId);
       const text=document.createElement('span');text.textContent=token?'Lanterna: '+token.name:'Luz fixa';row.append(text);
       const toggle=document.createElement('button');toggle.type='button';toggle.textContent=light.enabled?'Desligar':'Ligar';
-      toggle.onclick=()=>{light.enabled=!light.enabled;render();void save();vttOpen('light');};row.append(toggle);
+      toggle.onclick=()=>{light.enabled=!light.enabled;render();void save();vttOptions.hidden=true;vttOpen('light');};row.append(toggle);
       const del=document.createElement('button');del.type='button';del.textContent='Remover';
-      del.onclick=()=>{scene.lights=scene.lights.filter(l=>l.id!==light.id);render();void save();vttOpen('light');};row.append(del);vttOptions.append(row);
+      del.onclick=()=>{scene.lights=scene.lights.filter(l=>l.id!==light.id);render();void save();vttOptions.hidden=true;vttOpen('light');};row.append(del);vttOptions.append(row);
      }
    }
    if(section==='area'){
@@ -1908,7 +1917,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   },
   onScene:data=>{
    if(gm||disposed||!data||!Array.isArray(data.tokens))return;
-   scene=validScene(data);remoteReady=true;mediaFailed.clear();render();emitMapState();
+   scene=validScene(data);remoteReady=true;mediaFailed.clear();render();emitMapState();if(vttOptions.dataset.section==='clues'&&!vttOptions.hidden){vttOptions.hidden=true;vttOpen('clues');}
    message('Mesa sincronizada com o mestre por conexão direta.');
   },
   getPreview:async src=>{
@@ -1975,5 +1984,5 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   remoteReady=true;render();message('Aguardando o mestre transmitir a mesa.');
  }
  render();
- return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();atmosphereLayer.remove();vttLog.remove();gridOverlay.remove();mapVideo.pause();mapVideo.remove();for(const url of webmObjectUrls.values())URL.revokeObjectURL(url);webmObjectUrls.clear();};
+ return ()=>{disposed=true;unsubscribe();peerMedia?.destroy();liveRoot.remove();handlers.forEach(fn=>fn());localAudioCleanup();saveNotice.remove();control.remove();css.remove();tokenResizeCss.remove();tokenMenu.remove();menuStyle.remove();vttResizeObserver?.disconnect();combatDock.remove();drawMenu.remove();vttTabs.remove();vttRoomTag.remove();vttBar.remove();vttZoomRail.remove();vttOptions.remove();vttSide.remove();vttStyle.remove();vttLayer.remove();vttMeasure.remove();vttFog.remove();vttLighting.remove();atmosphereLayer.remove();vttLog.remove();gridOverlay.remove();mapVideo.pause();mapVideo.remove();for(const url of webmObjectUrls.values())URL.revokeObjectURL(url);webmObjectUrls.clear();};
 }
