@@ -1180,6 +1180,37 @@ export function mountGmShield(options){
    if(input&&entry){input.value=entry.hpCurrent==null?String(entry.sheet.pv):String(entry.hpCurrent);btn.hidden=true;input.hidden=false;input.focus();input.select();}
    return;
   }
+  if(btn.hasAttribute('data-gm-npc-ritual-config')){
+   const card=btn.closest('[data-gm-npc-ritual-index]');
+   const panel=card?.querySelector('[data-gm-npc-ritual-config-panel]');
+   if(panel){panel.hidden=!panel.hidden;btn.setAttribute('aria-expanded',String(!panel.hidden));}
+   return;
+  }
+  if(btn.hasAttribute('data-gm-npc-ritual-save')){
+   const npc=selectedSheet?.kind==='npcs'?state.npcs.find(n=>n.id===selectedSheet.id):null;
+   const card=btn.closest('[data-gm-npc-ritual-index]');
+   const index=Number(card?.dataset.gmNpcRitualIndex);
+   if(!npc||!Number.isSafeInteger(index)||index<0||index>=npc.sheet?.rituals?.length)return;
+   const field=name=>card.querySelector('[name="'+name+'"]')?.value?.trim()||'';
+   const damage=field('npcRitualDamage'),healing=field('npcRitualHealing');
+   if((damage&&!gmNpcDiceExpression(damage))||(healing&&!gmNpcDiceExpression(healing))){
+    status('Use dados simples, como 2d6 ou 3d8+3.');return;
+   }
+   const previous=npc.sheet.rituals[index];
+   const oldKey=previous.name+'::'+(previous.supportType||'')+'::'+(previous.supportTarget||'');
+   const newRitual={...previous,damage,healing,supportType:field('npcRitualSupportType'),
+    supportValue:Math.max(-999,Math.min(999,Number(field('npcRitualSupportValue'))||0)),
+    supportTarget:field('npcRitualSupportTarget').slice(0,80)};
+   const nextKey=newRitual.name+'::'+(newRitual.supportType||'')+'::'+(newRitual.supportTarget||'');
+   if(oldKey!==nextKey)npc.ritualSupports=(npc.ritualSupports||[]).filter(e=>e.key!==oldKey);
+   npc.sheet.rituals[index]=newRitual;
+   npc.sheet=npcSheet(npc.sheet);
+   store();render();
+   const tab=root.querySelector('.nex-gm-npc-view [data-gm-npc-view-tab="combate"]');
+   tab?.click();
+   status('Dano, cura e suporte salvos neste ritual.');
+   return;
+  }
   if(btn.hasAttribute('data-gm-npc-ritual-apply')){
    const npc=selectedSheet?.kind==='npcs'?state.npcs.find(n=>n.id===selectedSheet.id):null;
    const widget=root.querySelector('[data-gm-npc-hp-widget="'+(npc?.id||'')+'"]');
