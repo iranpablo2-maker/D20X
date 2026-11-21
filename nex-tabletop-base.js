@@ -1284,7 +1284,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  vttButton('◎','Áreas de efeito',()=>{vttSetMode('area');vttOpen('area');},!gm);
  vttButton('♟','Token',()=>vttOpen('token'),!gm);
  vttButton('⚄','Dados',()=>vttOpen('dice'));
- vttButton('≡','Iniciativa',()=>{combatDock.hidden=false;renderCombatDock();});
+ vttButton('⚔','Iniciativa',()=>{combatDock.hidden=false;renderCombatDock();});
  vttButton('↶','Desfazer desenho',()=>{if(!gm)return;scene.drawings.pop();render();save();},!gm);
  vttButton('✕','Limpar desenhos',()=>{if(!gm||!confirm('Apagar todos os desenhos?'))return;scene.drawings=[];render();save();},!gm);
  vttButton('↩','Voltar à campanha',()=>document.getElementById('nexVttExit')?.click());
