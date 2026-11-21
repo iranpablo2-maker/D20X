@@ -544,6 +544,27 @@ export function mountGmShield(options){
   for(let i=0;i<dice.count;i++)total+=1+Math.floor(Math.random()*dice.sides);
   return total;
  }
+ // O catálogo já usado pelas fichas de personagens alimenta também a mini ficha NPC.
+ const gmNpcRitualKey=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/\s+/g,' ');
+ function gmNpcRitualEffect(ritual){
+  const all=window.NEX_RITUAL_EFFECTS||{};
+  const name=gmNpcRitualKey(ritual.name),element=gmNpcRitualKey(ritual.element);
+  const circle=Number(ritual.circle)||1;
+  const direct=all[name+'|'+element+'|'+circle];
+  if(direct)return direct;
+  // Se o elemento estiver ausente, só reutilizar resultados não ambíguos.
+  const variants=Object.entries(all).filter(([key])=>key.startsWith(name+'|')&&key.endsWith('|'+circle));
+  if(variants.length===1)return variants[0][1];
+  if(variants.length>1&&variants.every(([,v])=>JSON.stringify(v)===JSON.stringify(variants[0][1])))return variants[0][1];
+  return null;
+ }
+ function gmNpcRitualRolls(ritual){
+  const meta=gmNpcRitualEffect(ritual)||{};
+  return {meta,damage:String(ritual.damage||meta.damageDice||meta.versions?.Normal||'').trim(),
+   healing:String(ritual.healing||meta.healDice||meta.healVersions?.Normal||'').trim(),
+   categories:[...new Set([...(Array.isArray(meta.categories)?meta.categories:[]),
+    ...(ritual.damage?['Dano']:[]),...(ritual.healing?['Cura']:[]),...(ritual.supportType?['Suporte']:[])])]};
+ }
  function gmNpcRollResult(btn){
   const ui=window.NEX_DICE_UI;
   if(!ui){console.warn('NEX: sistema de rolagem ainda não carregado');return;}
@@ -599,22 +620,39 @@ export function mountGmShield(options){
   };
   const attacks=t.actions.filter(a=>a.kind==='attack').map(action).join('');
   const abilities=t.actions.filter(a=>a.kind!=='attack').map(action).join('');
-  const rituals=t.rituals.map(a=>{
-   const name=escape(a.name||'Ritual');
-   const occultism=t.npcSkills.find(s=>s.name==='Ocultismo');
-   const occultismBonus=occultism?.bonus||0;
+  const rituals=t.rituals.map((a,ritualIndex)=>{
+   const name=escape(a.name||'Ritual'),computed=gmNpcRitualRolls(a);
+   const occultism=t.npcSkills.find(s=>s.name==='Ocultismo'),occultismBonus=occultism?.bonus||0;
    const testButton='<button type="button" class="nex-gm-npc-roll nex-gm-npc-homebrew-test" data-gm-npc-skill-attr="int" data-gm-npc-skill-bonus="'+escape(occultismBonus)+'" data-gm-npc-skill-name="Ocultismo" data-gm-npc-dice-label="Ocultismo · '+name+'" aria-label="Rolar Ocultismo para '+name+'">Ocultismo '+escape(t.attributes.int===0?'2d20 (menor)':t.attributes.int+'d20')+(Number(occultismBonus)>=0?'+':'')+escape(occultismBonus)+gmNpcD20Icon+'</button>';
-   const rolls=testButton+gmNpcRollButton(a.test,'Teste do ritual')+gmNpcRollButton(a.damage,'Dano')+gmNpcRollButton(a.healing,'Cura');
+   const isDamage=computed.categories.includes('Dano')||!!computed.damage;
+   const isHealing=computed.categories.includes('Cura')||!!computed.healing;
+   const isSupport=computed.categories.includes('Suporte')||!!a.supportType;
+   const roll=(expr,label)=>gmNpcDiceExpression(expr)?gmNpcRollButton(expr,label):'';
+   const diceRolls=testButton+roll(a.test,'Teste do ritual')+
+    (isDamage?roll(computed.damage,'Dano'):'')+(isHealing?roll(computed.healing,'Cura'):'');
    const supportKey=a.name+'::'+(a.supportType||'')+'::'+(a.supportTarget||'');
    const active=(x.ritualSupports||[]).some(e=>e.key===supportKey);
-   const changes=(gmNpcDiceExpression(a.damage)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="damage" data-expression="'+escape(a.damage)+'">Aplicar dano aos PV</button>':'')+
-    (gmNpcDiceExpression(a.healing)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="healing" data-expression="'+escape(a.healing)+'">Aplicar cura aos PV</button>':'')+
-    (a.supportType&&Number(a.supportValue)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-support="'+escape(supportKey)+'" data-support-type="'+escape(a.supportType)+'" data-support-value="'+escape(a.supportValue)+'" data-support-target="'+escape(a.supportTarget)+'" aria-pressed="'+active+'">'+(active?'Desativar suporte':'Ativar suporte')+' · '+escape(a.supportType)+' '+(a.supportValue>0?'+':'')+escape(a.supportValue)+'</button>':'');
-   return '<article class="nex-gm-npc-view-action nex-gm-npc-ritual-action"><div class="nex-gm-npc-action-head"><div><strong>'+name+'</strong><small>'+escape([a.element,a.circle?'Círculo '+a.circle:'',a.peCost?'PE '+a.peCost:''].filter(Boolean).join(' · '))+'</small></div>'+
+   const applyDamage=isDamage&&gmNpcDiceExpression(computed.damage)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="damage" data-expression="'+escape(computed.damage)+'">Aplicar dano aos PV ('+escape(computed.damage)+')</button>':'';
+   const applyHealing=isHealing&&gmNpcDiceExpression(computed.healing)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="healing" data-expression="'+escape(computed.healing)+'">Aplicar cura aos PV ('+escape(computed.healing)+')</button>':'';
+   const supportButton=isSupport&&a.supportType&&Number(a.supportValue)?
+    '<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-support="'+escape(supportKey)+'" data-support-type="'+escape(a.supportType)+'" data-support-value="'+escape(a.supportValue)+'" data-support-target="'+escape(a.supportTarget)+'" aria-pressed="'+active+'">'+(active?'Desativar suporte':'Ativar suporte')+' · '+escape(a.supportType)+' '+(a.supportValue>0?'+':'')+escape(a.supportValue)+'</button>':'';
+   // Configurar está sempre visível: fichas importadas podem ter apenas nome e descrição.
+   const configure='<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-config aria-expanded="false">⚙ Dano · Cura · Suporte</button>';
+   const selectType='<select name="npcRitualSupportType" aria-label="Tipo de bônus">'+
+    [['','Sem bônus'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Resistência'],['pericia','Perícia'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['capacidade','Capacidade'],['margem','Margem'],['multiplicador','Multiplicador']].map(([v,label])=>'<option value="'+v+'"'+(a.supportType===v?' selected':'')+'>'+label+'</option>').join('')+'</select>';
+   const form='<div class="nex-gm-npc-ritual-config" data-gm-npc-ritual-config-panel hidden>'+
+    '<label>Dano (ex.: 3d6)<input name="npcRitualDamage" value="'+escape(computed.damage)+'" placeholder="3d6"></label>'+
+    '<label>Cura (ex.: 3d8+3)<input name="npcRitualHealing" value="'+escape(computed.healing)+'" placeholder="3d8+3"></label>'+
+    '<label>Suporte'+selectType+'</label>'+
+    '<label>Valor do bônus<input name="npcRitualSupportValue" type="number" min="-999" max="999" value="'+escape(a.supportValue||0)+'"></label>'+
+    '<label>Perícia ou alvo<input name="npcRitualSupportTarget" value="'+escape(a.supportTarget||'')+'"></label>'+
+    '<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-save>Salvar efeitos</button></div>';
+   return '<article class="nex-gm-npc-view-action nex-gm-npc-ritual-action" data-gm-npc-ritual-index="'+ritualIndex+'"><div class="nex-gm-npc-action-head"><div><strong>'+name+'</strong><small>'+escape([a.element,a.circle?'Círculo '+a.circle:'',a.peCost?'PE '+a.peCost:''].filter(Boolean).join(' · '))+'</small></div>'+
     '<button type="button" class="nex-gm-npc-description-toggle" data-gm-npc-description-toggle aria-expanded="false" aria-label="Mostrar descrição de '+name+'">⌄</button></div>'+
-    '<div class="nex-gm-npc-action-rolls">'+rolls+'</div>'+ (changes?'<div class="nex-gm-npc-ritual-effects">'+changes+'</div>':'')+
+    '<div class="nex-gm-npc-action-rolls">'+diceRolls+'</div>'+
+    '<div class="nex-gm-npc-ritual-effects">'+applyDamage+applyHealing+supportButton+configure+'</div>'+form+
     '<div class="nex-gm-npc-action-description" data-gm-npc-description hidden>'+
-    details([['Elemento',a.element],['Círculo',a.circle],['Fonte',a.source],['Execução',a.execution],['Alcance',a.range],['Alvo',a.target],['Duração',a.duration],['Resistência',a.resistance],['Custo em PE',a.peCost],['Teste',a.test],['Dano',a.damage],['Cura',a.healing],['Suporte',a.supportType],['Valor do suporte',a.supportValue||''],['Alvo do suporte',a.supportTarget]])+
+    details([['Elemento',a.element],['Círculo',a.circle],['Fonte',a.source],['Execução',a.execution],['Alcance',a.range],['Alvo',a.target],['Duração',a.duration],['Resistência',a.resistance],['Custo em PE',a.peCost],['Teste',a.test],['Dano',computed.damage],['Cura',computed.healing],['Suporte',a.supportType],['Valor do suporte',a.supportValue||''],['Alvo do suporte',a.supportTarget]])+
     (filled(a.description)?'<p>'+escape(a.description)+'</p>':'')+'</div></article>';
   }).join('');
   // A ficha de NPC Homebrew usa atributos, defesa, deslocamento e pericias;
