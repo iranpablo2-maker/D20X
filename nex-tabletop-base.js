@@ -1198,7 +1198,12 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  const vttZoomMinus=vttButton('−','Diminuir zoom',()=>{vttManualZoom=true;vttChangeZoom(-.05);});
  const vttZoomSlider=document.createElement('input');vttZoomSlider.type='range';vttZoomSlider.id='nexVttZoomSlider';vttZoomSlider.min='25';vttZoomSlider.max='200';vttZoomSlider.step='1';vttZoomSlider.setAttribute('aria-label','Escala de zoom do mapa');
  vttZoomSlider.addEventListener('input',()=>{vttManualZoom=true;vttChangeZoom(Number(vttZoomSlider.value)/100-vttZoom);});
- const vttZoomFit=vttButton('⊡','Ajustar todo o mapa à tela',()=>{vttManualZoom=false;vttFitZoom();});
+ const vttZoomFit=vttButton('','Ajustar todo o mapa à tela',()=>{vttManualZoom=false;vttFitZoom();});
+ vttZoomFit.id='nexVttZoomFit';
+ // Ícone de enquadramento: quatro cantos abertos para indicar ajustar o mapa à tela.
+ // Apenas o desenho muda; o evento original de ajustar o zoom permanece intacto.
+ vttZoomFit.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 3H4a1 1 0 0 0-1 1v4M16 3h4a1 1 0 0 1 1 1v4M3 16v4a1 1 0 0 0 1 1h4M21 16v4a1 1 0 0 1-1 1h-4"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>';
+ vttZoomFit.style.display='grid';vttZoomFit.style.placeItems='center';vttZoomFit.style.padding='0';
  vttZoomRail.append(vttZoomMinus,vttZoomSlider,vttZoomText,vttZoomPlus,vttZoomFit);
  vttWrap.parentElement?.append(vttZoomRail);
  vttButton('＋','Adicionar token',()=>{
