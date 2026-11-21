@@ -1357,3 +1357,49 @@
 #room #roomMasterPanel .nex-gm-npc-ritual-action button.nex-gm-npc-ritual-dice .nex-dice20-icon{
  width:19px!important;height:19px!important;flex:0 0 19px!important;
 }
+
+/* NPC: seletor de rituais no lugar do antigo formulário extenso. */
+#room #roomMasterPanel .nex-gm-npc-ritual-picker[hidden]{display:none!important}
+#room #roomMasterPanel .nex-gm-npc-ritual-picker{
+ display:flex!important;flex-direction:column!important;gap:10px!important;
+ width:100%!important;min-width:0!important;box-sizing:border-box!important;
+ padding:12px!important;margin-top:10px!important;
+ border:1px solid #613344!important;border-radius:8px!important;background:#21171e!important;
+}
+#room #roomMasterPanel .nex-gm-npc-ritual-picker-heading{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;
+ color:#fbe5eb!important;font-size:13px!important;
+}
+#room #roomMasterPanel .nex-gm-npc-ritual-picker [data-gm-npc-ritual-search]{
+ width:100%!important;max-width:none!important;min-width:0!important;
+ box-sizing:border-box!important;color:#fff!important;background:#110e13!important;
+ border:1px solid #754456!important;border-radius:5px!important;padding:10px!important;
+ font-size:12px!important;
+}
+#room #roomMasterPanel .nex-gm-npc-ritual-picker-list{
+ display:flex!important;flex-direction:column!important;gap:4px!important;
+ max-height:320px!important;overflow:auto!important;overscroll-behavior:contain!important;
+}
+#room #roomMasterPanel .nex-gm-npc-ritual-picker-list button.nex-gm-npc-ritual-picker-option{
+ display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ gap:5px!important;min-height:52px!important;width:100%!important;
+ padding:9px!important;text-align:left!important;
+ border:1px solid #63404d!important;border-radius:5px!important;
+ background:#241820!important;color:#fff!important;cursor:pointer!important;
+}
+#room #roomMasterPanel .nex-gm-npc-ritual-picker-list button.nex-gm-npc-ritual-picker-option:hover{
+ background:#45232f!important;border-color:#ab526a!important;
+}
+#room #roomMasterPanel .nex-gm-npc-ritual-picker-list button.nex-gm-npc-ritual-picker-option:disabled{
+ opacity:.56!important;cursor:default!important;background:#221920!important;
+}
+#room #roomMasterPanel .nex-gm-npc-ritual-picker-option strong{font-size:12px!important}
+#room #roomMasterPanel .nex-gm-npc-ritual-picker-option small{font-size:10px!important;color:#d5b7c0!important}
+#room #roomMasterPanel .nex-gm-npc-picked-ritual{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:8px!important;min-width:0!important;margin:6px 0!important;padding:10px!important;
+ border:1px solid #593641!important;border-radius:6px!important;background:#1a1319!important;
+}
+#room #roomMasterPanel .nex-gm-npc-picked-ritual>div{min-width:0!important;display:flex!important;flex-direction:column!important;gap:4px!important}
+#room #roomMasterPanel .nex-gm-npc-picked-ritual strong{font-size:12px!important;color:#fff!important}
+#room #roomMasterPanel .nex-gm-npc-picked-ritual small{font-size:10px!important;color:#cfb8c0!important}
