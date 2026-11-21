@@ -29,7 +29,10 @@ export function mountGmShield(options){
   }));
   const rituals=(Array.isArray(raw.rituals)?raw.rituals:[]).slice(0,40).filter(x=>x&&typeof x==='object').map(x=>({
    name:trim(x.name,100),element:trim(x.element,40),circle:num(x.circle,1,4)||1,
-   source:trim(x.source,110),description:trim(x.description,1300)
+   source:trim(x.source,110),description:trim(x.description,1300),
+   execution:trim(x.execution,100),range:trim(x.range,100),target:trim(x.target,100),
+   duration:trim(x.duration,100),resistance:trim(x.resistance,100),
+   test:trim(x.test,90),damage:trim(x.damage,90),healing:trim(x.healing,90),peCost:trim(x.peCost,12)
   }));
   // Preserva os campos da ficha Homebrew além dos campos principais.
   const extra={};
@@ -342,7 +345,7 @@ export function mountGmShield(options){
  }
  function npcRitualRow(value={}){
   return '<fieldset class="nex-gm-npc-repeat-row nex-gm-npc-ritual" data-gm-npc-row="rituals"><legend>Ritual</legend>'+
-   [['name','Nome'],['element','Elemento'],['circle','Círculo'],['source','Fonte']].map(([key,label])=>'<label>'+label+'<input data-gm-npc-field="'+key+'" '+(key==='circle'?'type="number" min="1" max="4"':'')+' value="'+escape(value[key]??(key==='circle'?1:''))+'"></label>').join('')+
+   [['name','Nome'],['element','Elemento'],['circle','Círculo'],['source','Fonte'],['execution','Execução'],['range','Alcance'],['target','Alvo'],['duration','Duração'],['resistance','Resistência'],['test','Teste / dados'],['damage','Dano / dados'],['healing','Cura / dados'],['peCost','Custo em PE']].map(([key,label])=>'<label>'+label+'<input data-gm-npc-field="'+key+'" '+(key==='circle'?'type="number" min="1" max="4"':key==='peCost'?'type="number" min="0" max="999"':'')+' value="'+escape(value[key]??(key==='circle'?1:''))+'"></label>').join('')+
    '<label class="nex-gm-npc-wide">Descrição<textarea data-gm-npc-field="description" rows="3" maxlength="1300">'+escape(value.description||'')+'</textarea></label>'+
    '<button type="button" class="alt" data-gm-npc-remove>Remover</button></fieldset>';
  }
@@ -577,9 +580,15 @@ export function mountGmShield(options){
   const abilities=t.actions.filter(a=>a.kind!=='attack').map(action).join('');
   const rituals=t.rituals.map(a=>{
    const name=escape(a.name||'Ritual');
-   return '<article class="nex-gm-npc-view-action"><div class="nex-gm-npc-action-head"><strong>'+name+'</strong>'+
+   const occultism=t.npcSkills.find(s=>s.name==='Ocultismo');
+   const occultismBonus=occultism?.bonus||0;
+   const testButton='<button type="button" class="nex-gm-npc-roll nex-gm-npc-homebrew-test" data-gm-npc-skill-attr="int" data-gm-npc-skill-bonus="'+escape(occultismBonus)+'" data-gm-npc-dice-label="Ocultismo · '+name+'" aria-label="Rolar Ocultismo para '+name+'">Ocultismo '+escape(t.attributes.int===0?'2d20 (menor)':t.attributes.int+'d20')+(Number(occultismBonus)>=0?'+':'')+escape(occultismBonus)+gmNpcD20Icon+'</button>';
+   const rolls=testButton+gmNpcRollButton(a.test,'Teste do ritual')+gmNpcRollButton(a.damage,'Dano')+gmNpcRollButton(a.healing,'Cura');
+   return '<article class="nex-gm-npc-view-action nex-gm-npc-ritual-action"><div class="nex-gm-npc-action-head"><div><strong>'+name+'</strong><small>'+escape([a.element,a.circle?'Círculo '+a.circle:'',a.peCost?'PE '+a.peCost:''].filter(Boolean).join(' · '))+'</small></div>'+
     '<button type="button" class="nex-gm-npc-description-toggle" data-gm-npc-description-toggle aria-expanded="false" aria-label="Mostrar descrição de '+name+'">⌄</button></div>'+
-    '<div class="nex-gm-npc-action-description" data-gm-npc-description hidden>'+details([['Elemento',a.element],['Círculo',a.circle],['Fonte',a.source]])+
+    '<div class="nex-gm-npc-action-rolls">'+rolls+'</div>'+
+    '<div class="nex-gm-npc-action-description" data-gm-npc-description hidden>'+
+    details([['Elemento',a.element],['Círculo',a.circle],['Fonte',a.source],['Execução',a.execution],['Alcance',a.range],['Alvo',a.target],['Duração',a.duration],['Resistência',a.resistance],['Custo em PE',a.peCost],['Teste',a.test],['Dano',a.damage],['Cura',a.healing]])+
     (filled(a.description)?'<p>'+escape(a.description)+'</p>':'')+'</div></article>';
   }).join('');
   // A ficha de NPC Homebrew usa atributos, defesa, deslocamento e pericias;
