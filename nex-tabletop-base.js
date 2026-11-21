@@ -689,6 +689,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  listen(board,'pointerdown',e=>{
   const el=e.target.closest('[data-token]');
   if(e.button!==0)return;
+  // A régua deve atravessar os tokens sem selecioná-los nem arrastá-los.
+  if(vttMode==='measure')return;
   const resizing=!!e.target.closest('[data-resize]');
   if(!resizing&&resizeSelectedId!==null){resizeSelectedId=null;if(!el)render();}
   if(!el)return;
@@ -1354,7 +1356,8 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  // In ruler mode the board must receive the whole gesture even if the finger
  // leaves the first grid square. Keep the desktop pointer behavior unchanged.
  listen(board,'pointerdown',e=>{
-  if(!vttMobile()||e.pointerType!=='touch'||e.button!==0||e.target.closest('[data-token]'))return;
+  if(!vttMobile()||e.pointerType!=='touch'||e.button!==0)return;
+  if(e.target.closest('[data-token]')&&vttMode!=='measure')return;
   if(vttMode==='measure'||vttMode==='pan'){
    try{board.setPointerCapture(e.pointerId);}catch(_){}
    if(e.cancelable)e.preventDefault();
@@ -1581,7 +1584,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  }
  const vttPoint=e=>{const a=board.getBoundingClientRect();return {x:Math.max(0,Math.min(GRID*W,Math.round((e.clientX-a.left)*GRID*W/Math.max(1,a.width)))),y:Math.max(0,Math.min(GRID*H,Math.round((e.clientY-a.top)*GRID*H/Math.max(1,a.height)))) };};
  listen(board,'pointerdown',e=>{
-   if(e.target.closest('[data-token]')||vttMode==='select')return;
+   if(vttMode==='select'||(e.target.closest('[data-token]')&&vttMode!=='measure'))return;
+   if(vttMode==='measure'){
+     // Captura o gesto inteiro, inclusive quando o ponteiro cruza outros tokens.
+     try{board.setPointerCapture(e.pointerId);}catch(_){}
+   }
    if(vttMode==='pan'){vttPan={pointer:e.pointerId,x:e.clientX,y:e.clientY,left:vttWrap.scrollLeft,top:vttWrap.scrollTop};return;}
    if(!gm&&vttMode!=='measure')return;
    const p=vttPoint(e);
@@ -1607,6 +1614,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  listen(document,'pointerup',e=>{
    if(vttPan?.pointer===e.pointerId){vttPan=null;return;}
    if(!vttDraft)return;const item=vttDraft;vttDraft=null;vttMeasure.replaceChildren();
+   try{if(board.hasPointerCapture(e.pointerId))board.releasePointerCapture(e.pointerId);}catch(_){}
    if(vttMode==='measure'){
      if(vttMeasurePersistent&&gm){scene.drawings.push({...item,type:vttMeasureShape==='line'?'measure':vttMeasureShape,color:'#bb348c',width:2});scene.drawings=scene.drawings.slice(-160);render();save();}
      else renderAdvanced();
