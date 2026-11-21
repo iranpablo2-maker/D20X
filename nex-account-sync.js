@@ -115,10 +115,26 @@ else{
   return [...m.values()];
  };
  const normalizeItems=v=>Array.isArray(v)?v:[];
- const advanced=()=>{try{const a=JSON.parse(localStorage.getItem('nex_homebrew_advanced_v2051')||'[]');return normalizeItems(a);}catch{return [];}};
- const mergeAdvanced=remote=>{
-  const output=merge(advanced(),remote,x=>x.id||[x.type,x.name,x.className||''].join(':'));
-  localStorage.setItem('nex_homebrew_advanced_v2051',JSON.stringify(output));
+ const ADVANCED_KEY='nex_homebrew_advanced_v2051';
+ const DELETED_ADVANCED_KEY=ADVANCED_KEY+'_deleted_ids_v1';
+ const advancedDeleted=()=>{try{
+  const stored=JSON.parse(localStorage.getItem(DELETED_ADVANCED_KEY)||'[]');
+  return new Set(Array.isArray(stored)?stored.filter(id=>typeof id==='string'&&id.length<=100).slice(-2000):[]);
+ }catch{return new Set();}};
+ const advanced=()=>{try{
+  const a=JSON.parse(localStorage.getItem(ADVANCED_KEY)||'[]'),deleted=advancedDeleted();
+  return normalizeItems(a).filter(item=>item&&(!item.id||!deleted.has(String(item.id))));
+ }catch{return [];}};
+ const mergeAdvanced=(remote,remoteDeleted=[])=>{
+  // Exclusões têm prioridade sobre registros antigos presentes em outro dispositivo.
+  const deleted=advancedDeleted();
+  for(const id of normalizeItems(remoteDeleted))if(typeof id==='string'&&id.length<=100)deleted.add(id);
+  const removed=[...deleted].slice(-2000);
+  localStorage.setItem(DELETED_ADVANCED_KEY,JSON.stringify(removed));
+  const output=merge(advanced(),remote,x=>x.id||[x.type,x.name,x.className||''].join(':'))
+    .filter(item=>item&&(!item.id||!deleted.has(String(item.id))));
+  localStorage.setItem(ADVANCED_KEY,JSON.stringify(output));
+  return output;
  };
  async function sync(){
   if(busy||!current)return;
@@ -212,11 +228,16 @@ else{
         if(profile.open)updateProfileDisplay();
       }
     }
+    const cloudRemoved=name==='homebrew'?normalizeItems(r?.payload?.advancedDeletedIds):[];
+    const removedSet=name==='homebrew'?new Set([...advancedDeleted(),...cloudRemoved.filter(id=>typeof id==='string')]):new Set();
+    const mergedAdvanced=name==='homebrew'?merge(advanced(),r?.payload?.advanced,x=>x.id||[x.type,x.name].join(':'))
+      .filter(item=>item&&(!item.id||!removedSet.has(String(item.id)))):[];
+    const removedIds=[...removedSet].slice(-2000);
     const full=merge(normalizeItems(items),normalizeItems(r?.payload?.items),idFn);
     // Never delete cloud-only entries or local entries during first sign-in.
     if(JSON.stringify(full)!==JSON.stringify(items))patches.push({id:name,entry:{type:name,deleted:false,payload:{items:full}}});
-    if(!r||JSON.stringify(r.payload?.items)!==JSON.stringify(full)||name==='homebrew'&&(JSON.stringify(r.payload?.advanced||[])!==JSON.stringify(advanced())||JSON.stringify(r.payload?.profile||{})!==JSON.stringify(syncedProfile))){
-      uploads.push({key:name,type:name,payload:{items:full,...(name==='homebrew'?{advanced:merge(advanced(),r?.payload?.advanced,x=>x.id||[x.type,x.name].join(':')),profile:syncedProfile}:{})}});
+    if(!r||JSON.stringify(r.payload?.items)!==JSON.stringify(full)||name==='homebrew'&&(JSON.stringify(r.payload?.advanced||[])!==JSON.stringify(mergedAdvanced)||JSON.stringify(r.payload?.advancedDeletedIds||[])!==JSON.stringify(removedIds)||JSON.stringify(r.payload?.profile||{})!==JSON.stringify(syncedProfile))){
+      uploads.push({key:name,type:name,payload:{items:full,...(name==='homebrew'?{advanced:mergedAdvanced,advancedDeletedIds:removedIds,profile:syncedProfile}:{})}});
     }
    }
    // Save the local pre-merge collection as a recovery point.
@@ -224,7 +245,7 @@ else{
      try{localStorage.setItem('nex_account_recovery_'+current.uid,JSON.stringify({savedAt:new Date().toISOString(),...local,advanced:advanced()}));}catch(e){console.warn('Backup local de recuperação indisponível',e);}
      bridge.apply(patches);
    }
-   if(records.get('homebrew')?.payload?.advanced)mergeAdvanced(records.get('homebrew').payload.advanced);
+   if(records.get('homebrew')?.payload)mergeAdvanced(records.get('homebrew').payload.advanced,records.get('homebrew').payload.advancedDeletedIds);
    for(const u of uploads){
     if(current?.uid!==account)return;
     await setDoc(doc(db,'users',account,'nex_v3',u.key),{type:u.type,payload:safeClone(u.payload),deleted:!!u.deleted,updatedAt:serverTimestamp()});
