@@ -1256,3 +1256,27 @@
 #room #roomMasterPanel .nex-gm-npc-ritual-action .nex-gm-npc-action-head small{
  display:block;margin-top:4px;color:#c7adb5;font-size:10px;
 }
+
+/* Controles dos rituais da mini ficha de NPC — dano, cura e suporte. */
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-ritual-effects{
+ display:flex!important;flex-wrap:wrap!important;gap:6px!important;margin:8px 0 2px!important;
+}
+#room #roomMasterPanel .nex-gm-npc-view button.nex-gm-npc-apply-effect{
+ width:auto!important;max-width:100%!important;min-height:28px!important;
+ padding:5px 8px!important;border-radius:5px!important;
+ background:#25141b!important;color:#f9e6ec!important;border:1px solid #9a3852!important;
+ font-size:11px!important;cursor:pointer!important;white-space:normal!important;text-align:left!important;
+}
+#room #roomMasterPanel .nex-gm-npc-view button.nex-gm-npc-apply-effect[aria-pressed="true"]{
+ background:#4e192b!important;border-color:#f37695!important;
+}
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-support-summary{
+ display:flex!important;flex-wrap:wrap!important;gap:5px!important;margin:8px 0 12px!important;
+}
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-support-summary h4{
+ flex-basis:100%!important;margin:0 0 3px!important;
+}
+#room #roomMasterPanel .nex-gm-npc-view .nex-gm-npc-support-badge{
+ border:1px solid #8f3950!important;border-radius:5px!important;
+ padding:4px 7px!important;color:#f6dae4!important;font-size:11px!important;background:#25131b!important;
+}
