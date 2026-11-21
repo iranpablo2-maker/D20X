@@ -812,3 +812,65 @@
  display:block!important;color:white!important;font-size:16px!important;
  line-height:1.15!important;margin:0!important;
 }
+
+
+/* Mini ficha montada no Menu Principal do Tabletop.
+   A classe e aplicada pelo JavaScript somente quando a ficha esta na mesa;
+   nao depende da hierarquia do painel depois de ser movido. */
+#roomMasterPanel .nex-gm-npc-tabletop-status{
+ display:block!important;width:100%!important;max-width:100%!important;
+ min-width:0!important;margin:0 auto 10px!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-card{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ background:#171219!important;border:1px solid #32212c!important;
+ overflow:hidden!important;border-radius:3px!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-header{
+ display:none!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-pv{
+ margin:8px 10px 12px!important;text-align:left!important;display:grid!important;gap:9px!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-hp-track{
+ min-width:0!important;width:100%!important;height:40px!important;
+ border-radius:2px!important;background:#5b1b2c!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-hp-track .nex-gm-npc-hp-fill{
+ background:#b11b35!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-tabs{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ padding:2px 8px 0!important;gap:0!important;border-bottom:1px solid #4c2b36!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-tabs button{
+ min-width:0!important;width:100%!important;padding:12px 2px 10px!important;
+ font-size:11px!important;white-space:nowrap!important;background:transparent!important;
+ border:0!important;border-bottom:2px solid transparent!important;color:#d2b5bf!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-tabs button[aria-selected="true"]{
+ color:white!important;border-bottom-color:#e63c61!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status [data-gm-npc-view-panel]{
+ padding:16px 10px!important;min-width:0!important;max-width:100%!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-attrs{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ gap:6px!important;margin:0 0 22px!important;min-width:0!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-attr{min-width:0!important}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-attr .nex-gm-npc-attr-number{
+ width:100%!important;min-width:0!important;height:43px!important;
+ min-height:43px!important;border:1px solid #644052!important;
+ border-radius:8px!important;background:#20151f!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-stats{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-stats>div{
+ min-width:0!important;min-height:68px!important;background:#271923!important;
+ border:1px solid #5d3747!important;border-radius:9px!important;padding:12px 10px!important;
+}
+#roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-stats strong{
+ color:white!important;font-size:16px!important;
+}
