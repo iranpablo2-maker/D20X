@@ -1232,6 +1232,24 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    vttZoomText.textContent=Math.round(vttZoom*100)+'%';
    vttZoomSlider.value=String(Math.round(vttZoom*100));
  }
+ // Zoom pela rodinha do mouse, mantendo o ponto sob o cursor parado.
+ // Os controles +, -, ajuste à tela e o gesto de pinça continuam disponíveis.
+ listen(vttWrap,'wheel',event=>{
+   if(disposed||event.ctrlKey||event.metaKey)return;
+   if(!event.deltaY)return;
+   if(event.cancelable)event.preventDefault();
+   const rect=vttWrap.getBoundingClientRect();
+   const x=event.clientX-rect.left,y=event.clientY-rect.top;
+   const oldZoom=vttZoom,oldLeft=vttWrap.scrollLeft,oldTop=vttWrap.scrollTop;
+   const contentX=(oldLeft+x)/oldZoom,contentY=(oldTop+y)/oldZoom;
+   vttManualZoom=true;
+   const delta=event.deltaMode===1?event.deltaY*16:event.deltaMode===2?event.deltaY*rect.height:event.deltaY;
+   vttChangeZoom((delta<0?1:-1)*Math.min(.15,Math.max(.03,Math.abs(delta)*.0005)));
+   if(vttZoom!==oldZoom){
+     vttWrap.scrollLeft=contentX*vttZoom-x;
+     vttWrap.scrollTop=contentY*vttZoom-y;
+   }
+ },{passive:false});
  function vttFitZoom(){
    if(vttManualZoom||!vttWrap.getClientRects().length)return;
    // Mobile-only: fill the available viewport, avoiding large empty areas.
