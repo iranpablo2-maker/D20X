@@ -4189,6 +4189,18 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
      const upload=addLibraryButton('＋ Adicionar mapas',()=>{$('nexTabletopMapFile')?.click();});
      actions.append(upload);
     }
+    // Controle visível na aba Mapa, sincronizado com a grade real do Tabletop.
+    const gridRow=document.createElement('label');
+    gridRow.className='nex-vtt-map-grid-toggle';
+    gridRow.style.cssText='display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;margin:9px 0;border:1px solid #62242e;border-radius:6px;background:#111113;color:#f3edef;font-weight:600;cursor:'+(gm?'pointer':'default');
+    const gridName=document.createElement('span');gridName.textContent='Exibir Grid';
+    const gridSwitch=document.createElement('input');gridSwitch.type='checkbox';
+    gridSwitch.checked=mapLibraryState.gridVisible!==false;
+    gridSwitch.disabled=!gm;
+    gridSwitch.style.cssText='width:20px;height:20px;accent-color:#c61f35;cursor:'+(gm?'pointer':'default');
+    gridSwitch.setAttribute('aria-label','Exibir Grid no mapa');
+    gridSwitch.addEventListener('change',()=>mapAction('grid',{visible:gridSwitch.checked}));
+    gridRow.append(gridName,gridSwitch);libraryBody.append(gridRow);
     const title=document.createElement('strong');title.className='nex-vtt-art-list-title';
     title.textContent='Mapas da campanha';libraryBody.append(title);
     if(!mapLibraryState.maps?.length){
