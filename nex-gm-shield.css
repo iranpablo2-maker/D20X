@@ -874,3 +874,91 @@
 #roomMasterPanel .nex-gm-npc-tabletop-status .nex-gm-npc-view-stats strong{
  color:white!important;font-size:16px!important;
 }
+
+
+/* NEX NPC mini final — referência enviada, só a ficha do Escudo do Mestre. */
+#roomMasterPanel .nex-gm-npc-homebrew-mini,
+#roomTabletopPanel #roomMasterPanel .nex-gm-npc-homebrew-mini{
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ margin:0 auto!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-header{
+ display:none!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-card{
+ background:#171218!important;border:1px solid #352632!important;
+ border-radius:2px!important;overflow:hidden!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-pv{
+ display:grid!important;gap:10px!important;text-align:left!important;
+ margin:8px 11px 12px!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-title{
+ font-size:11px!important;font-weight:800!important;color:#fff!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-track{
+ height:40px!important;border-radius:2px!important;background:#562030!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-fill{
+ background:#b51f38!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-track button{
+ flex:0 0 27px!important;min-width:0!important;padding:0!important;
+ background:transparent!important;color:white!important;font-size:19px!important;
+ border:0!important;border-radius:0!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-hp-track button.nex-gm-npc-hp-value{
+ flex:1 1 auto!important;font-size:15px!important;white-space:nowrap!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-tabs{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ gap:0!important;padding:1px 10px 0!important;margin:0!important;
+ border-bottom:1px solid #47303b!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-tabs button{
+ font-size:11px!important;font-weight:500!important;white-space:nowrap!important;
+ padding:13px 1px 10px!important;min-width:0!important;
+ background:transparent!important;border:0!important;
+ border-bottom:2px solid transparent!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-tabs button[aria-selected="true"]{
+ border-bottom-color:#e63f63!important;color:#fff!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini [data-gm-npc-view-panel]{
+ padding:16px 11px!important;min-width:0!important;overflow-x:hidden!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-attrs{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ gap:7px!important;margin:0 0 22px!important;min-width:0!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-attr{
+ min-width:0!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-attr small{
+ display:block!important;font-size:10px!important;margin-bottom:4px!important;
+ color:#f0cbd7!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-attr .nex-gm-npc-attr-number{
+ display:grid!important;place-items:center!important;width:100%!important;
+ height:43px!important;min-height:43px!important;min-width:0!important;
+ border-radius:8px!important;border:1px solid #604154!important;
+ background:#211721!important;padding:0!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-attr b{
+ font:700 25px/1 Georgia,serif!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-stats{
+ display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;
+ gap:10px!important;min-width:0!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-stats>div{
+ min-width:0!important;min-height:68px!important;padding:12px 10px!important;
+ border-radius:9px!important;border:1px solid #5e3b4a!important;
+ background:#281b24!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-stats small{
+ font-size:11px!important;color:#e7c6d1!important;margin:0 0 7px!important;
+}
+#roomMasterPanel .nex-gm-npc-homebrew-mini .nex-gm-npc-view-stats strong{
+ font-size:16px!important;color:#fff!important;
+}
