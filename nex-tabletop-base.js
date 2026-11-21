@@ -1589,7 +1589,15 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      const heading=document.createElement('div');heading.className='nex-vtt-measure-header';
      const title=document.createElement('strong');title.textContent='Medir distâncias';
      const subtitle=document.createElement('small');subtitle.textContent='Escolha como usar a régua no mapa.';
-     heading.append(title,subtitle);vttOptions.append(heading);
+     const closeMeasure=document.createElement('button');
+     closeMeasure.type='button';closeMeasure.className='nex-vtt-measure-close';
+     closeMeasure.textContent='×';closeMeasure.title='Fechar Medir distâncias';
+     closeMeasure.setAttribute('aria-label','Fechar Medir distâncias');
+     closeMeasure.addEventListener('click',event=>{
+       event.preventDefault();event.stopPropagation();
+       vttSetMode('select');
+     });
+     heading.append(title,subtitle,closeMeasure);vttOptions.append(heading);
      const measureRow=(label,el,kind='select')=>{
        const row=control(label,el);
        el.parentElement.classList.add('nex-vtt-measure-row','nex-vtt-measure-'+kind);
