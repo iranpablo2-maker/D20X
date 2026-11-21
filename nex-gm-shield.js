@@ -632,12 +632,12 @@ export function mountGmShield(options){
     (isDamage?roll(computed.damage,'Dano'):'')+(isHealing?roll(computed.healing,'Cura'):'');
    const supportKey=a.name+'::'+(a.supportType||'')+'::'+(a.supportTarget||'');
    const active=(x.ritualSupports||[]).some(e=>e.key===supportKey);
-   const applyDamage=isDamage&&gmNpcDiceExpression(computed.damage)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="damage" data-expression="'+escape(computed.damage)+'">Aplicar dano aos PV ('+escape(computed.damage)+')</button>':'';
-   const applyHealing=isHealing&&gmNpcDiceExpression(computed.healing)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="healing" data-expression="'+escape(computed.healing)+'">Aplicar cura aos PV ('+escape(computed.healing)+')</button>':'';
+   const applyDamage=isDamage&&gmNpcDiceExpression(computed.damage)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="damage" data-expression="'+escape(computed.damage)+'">Dano · '+escape(computed.damage)+')</button>':'';
+   const applyHealing=isHealing&&gmNpcDiceExpression(computed.healing)?'<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-apply="healing" data-expression="'+escape(computed.healing)+'">Cura · '+escape(computed.healing)+')</button>':'';
    const supportButton=isSupport&&a.supportType&&Number(a.supportValue)?
     '<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-support="'+escape(supportKey)+'" data-support-type="'+escape(a.supportType)+'" data-support-value="'+escape(a.supportValue)+'" data-support-target="'+escape(a.supportTarget)+'" aria-pressed="'+active+'">'+(active?'Desativar suporte':'Ativar suporte')+' · '+escape(a.supportType)+' '+(a.supportValue>0?'+':'')+escape(a.supportValue)+'</button>':'';
    // Configurar está sempre visível: fichas importadas podem ter apenas nome e descrição.
-   const configure='<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-config aria-expanded="false">⚙ Dano · Cura · Suporte</button>';
+   const configure='<button type="button" class="nex-gm-npc-apply-effect" data-gm-npc-ritual-config aria-expanded="false">⚙ Configurar efeitos</button>';
    const selectType='<select name="npcRitualSupportType" aria-label="Tipo de bônus">'+
     [['','Sem bônus'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Resistência'],['pericia','Perícia'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['capacidade','Capacidade'],['margem','Margem'],['multiplicador','Multiplicador']].map(([v,label])=>'<option value="'+v+'"'+(a.supportType===v?' selected':'')+'>'+label+'</option>').join('')+'</select>';
    const form='<div class="nex-gm-npc-ritual-config" data-gm-npc-ritual-config-panel hidden>'+
