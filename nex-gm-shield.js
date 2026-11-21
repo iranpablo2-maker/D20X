@@ -92,7 +92,9 @@ export function mountGmShield(options){
  }
  function refreshMasterStatus(){
   const node=$('[data-gm-status]');if(!node)return;
-  node.textContent=saveStatus;
+  // Confirmações breves não ocupam espaço no topo; falhas e avisos continuam visíveis.
+  node.textContent=saveStatus==='Salvo na campanha.'?'':saveStatus;
+  node.hidden=!node.textContent&&!pendingNeedsRetry;
   if(pendingNeedsRetry){
    const retry=document.createElement('button');retry.type='button';retry.className='alt';retry.dataset.gmRetrySave='true';retry.textContent='Salvar novamente';retry.style.marginLeft='8px';node.append(retry);
    const discard=document.createElement('button');discard.type='button';discard.className='alt';discard.dataset.gmDiscardSave='true';discard.textContent='Descartar cópia local';discard.style.marginLeft='5px';node.append(discard);
@@ -992,14 +994,15 @@ export function mountGmShield(options){
   if(value.length>570000){status('Limite de imagens da anotação atingido. Exclua ou reduza uma imagem.');return;}
   generalSaveTimer=setTimeout(()=>{if(room===currentRoom&&ready)updateGeneralNote({richHtml:value,body:'' ,image:''});},950);
  }
+ function gmSectionHeader(kind){
+  return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div>'+
+   (kind==='npcs'?'<div class="nex-gm-row">'+(!creatingInTabletop()?'<button type="button" data-gm-action="create-npc">Criar NPC</button>':'')+'<button type="button" data-gm-action="show-import-npc">Adicionar NPC existente</button></div>':kind==='threats'?'<div class="nex-gm-row">'+(!creatingInTabletop()?'<button type="button" data-gm-action="create-threat">Criar Ameaça</button>':'')+'<button type="button" data-gm-action="show-import-threat">Adicionar Ameaça existente</button></div>':'<button type="button" data-gm-add="'+kind+'">+ Adicionar</button>')+'</div>';
+ }
  function renderList(kind){
   const entry=editing?.kind===kind?state[kind].find(x=>x.id===editing.id)||null:null;
-  return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div>'+
-   (kind==='npcs'?'<div class="nex-gm-row">'+(!creatingInTabletop()?'<button type="button" data-gm-action="create-npc">Criar NPC</button>':'')+'<button type="button" data-gm-action="show-import-npc">Adicionar NPC existente</button></div>':kind==='threats'?'<div class="nex-gm-row">'+(!creatingInTabletop()?'<button type="button" data-gm-action="create-threat">Criar Ameaça</button>':'')+'<button type="button" data-gm-action="show-import-threat">Adicionar Ameaça existente</button></div>':'<button type="button" data-gm-add="'+kind+'">+ Adicionar</button>')+'</div>'+
-    
-    (editing?.kind===kind?editor(kind,entry):'')+
-    
-    cards(kind);
+  // Ameaças: o cabeçalho fica logo após as abas do Escudo, onde antes ficava o status.
+  return (kind==='threats'?'':gmSectionHeader(kind))+
+    (editing?.kind===kind?editor(kind,entry):'')+cards(kind);
  }
  function renderSessions(){
   const current=editing?.kind==='timeline'?state.timeline.find(x=>x.id===editing.id)||null:null;
@@ -1034,7 +1037,8 @@ export function mountGmShield(options){
    if(userId)sessionStorage.setItem('nex_gm_navigation_v1:'+userId+':'+room,JSON.stringify({tab,sheet:selectedSheet?{kind:selectedSheet.kind,id:selectedSheet.id}:null}));
   }catch(error){}
   const current=tab==='npcs'&&showNpcImport?homebrewOptions():tab==='threats'&&showThreatImport?threatPicker():(selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes')));
-  root.innerHTML=menu()+'<div class="nex-gm-status" data-gm-status role="status">'+escape(saveStatus)+'</div>'+
+  const topThreatHeader=tab==='threats'&&!showThreatImport&&!selectedSheet?gmSectionHeader('threats'):'';
+  root.innerHTML=menu()+topThreatHeader+'<div class="nex-gm-status" data-gm-status role="status"></div>'+
    renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
    '';
   // Corrigir scroll persistente do Menu Principal: a mini ficha nova
