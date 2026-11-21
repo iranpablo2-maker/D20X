@@ -529,6 +529,21 @@ export function mountGmShield(options){
   const crit=label==='Teste'&&critical?' data-gm-npc-critical="'+escape(String(critical).slice(0,20))+'"':'';
   return '<button type="button" class="nex-gm-npc-roll"'+pool+crit+' data-gm-npc-dice="'+escape(expression)+'" data-gm-npc-dice-label="'+escape(label)+'" aria-label="Rolar '+escape(label)+'" title="Rolar '+escape(expression)+'">'+gmNpcD20Icon+'<span>'+escape(label)+'</span></button>';
  }
+ function gmNpcSupportBonus(npc,type,target=''){
+  return (npc?.ritualSupports||[]).reduce((sum,e)=>{
+   if(e.type!==type)return sum;
+   if(type==='pericia'&&e.target&&e.target.toLowerCase()!==String(target).toLowerCase())return sum;
+   return sum+(Number(e.value)||0);
+  },0);
+ }
+ function gmNpcRitualRollAmount(expression){
+  // Dados simples do NPC, como 2d8+3. Fórmulas compostas continuam no rolador.
+  const dice=gmNpcDiceExpression(expression);
+  if(!dice)return null;
+  let total=dice.bonus;
+  for(let i=0;i<dice.count;i++)total+=1+Math.floor(Math.random()*dice.sides);
+  return total;
+ }
  function gmNpcRollResult(btn){
   const ui=window.NEX_DICE_UI;
   if(!ui){console.warn('NEX: sistema de rolagem ainda não carregado');return;}
@@ -538,15 +553,18 @@ export function mountGmShield(options){
   const key=btn.dataset.gmNpcSkillAttr;
   const attrs=npcSheet(npc.sheet).attributes;
   const attr=skill?Math.max(0,Math.min(6,Math.trunc(Number(attrs[key])||0))):0;
-  const bonus=skill?Math.trunc(Number(btn.dataset.gmNpcSkillBonus)||0):0;
+  const bonus=skill?Math.trunc(Number(btn.dataset.gmNpcSkillBonus)||0)+gmNpcSupportBonus(npc,'pericia',btn.dataset.gmNpcSkillName||btn.dataset.gmNpcDiceLabel?.split(' · ')[0]||''):0;
   const expression=skill?null:btn.dataset.gmNpcDice;
   const label=btn.dataset.gmNpcDiceLabel||btn.getAttribute('aria-label')||'Rolagem';
   const isPool=skill||btn.dataset.gmNpcPool==='high';
   if(skill){
    ui.roll({title:label,count:attr||2,sides:20,bonus,pool:true,low:attr===0,detail:'Atributo '+key.toUpperCase()+' '+attr});
   }else if(ui.parse(expression)){
-   // Não converter expressões compostas em uma única fórmula: preserva os dados adicionais.
-   ui.roll({title:label,expression,pool:isPool,critical:btn.dataset.gmNpcCritical||''});
+   // Suporte ativo altera dano e testes, mantendo a fórmula original intacta na ficha.
+   const kind=label==='Dano'||label==='Dano secundário'?'dano':label.includes('Teste')?'ataque':'';
+   const modifier=kind?gmNpcSupportBonus(npc,kind):0;
+   const adjusted=modifier?'('+expression+')'+(modifier>=0?'+':'')+modifier:expression;
+   ui.roll({title:label,expression:modifier&&ui.parse(adjusted)?adjusted:expression,pool:isPool,critical:btn.dataset.gmNpcCritical||''});
   }
  }
  function npcCampaignView(x){
@@ -623,7 +641,7 @@ export function mountGmShield(options){
    '<input type="number" class="nex-gm-npc-hp-input" data-gm-npc-hp-input min="0" max="'+maximum+'" step="1" inputmode="numeric" aria-label="PV atuais" hidden>'+
    '<button type="button" data-gm-npc-hp-delta="1" aria-label="Aumentar 1 PV">›</button><button type="button" data-gm-npc-hp-delta="10" aria-label="Aumentar 10 PV">»</button></div></div>'+
    '<nav class="nex-gm-npc-view-tabs" aria-label="Seções da ficha do NPC"><button type="button" data-gm-npc-view-tab="status" aria-selected="true">STATUS</button><button type="button" data-gm-npc-view-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-gm-npc-view-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
-   '<section data-gm-npc-view-panel="status"><div class="nex-gm-npc-view-attrs">'+attrHtml+'</div><div class="nex-gm-npc-view-stats"><div><small>Defesa</small><strong>'+escape(t.defense)+'</strong></div><div><small>Deslocamento</small><strong>'+escape(t.deslocamento||'—')+'</strong></div><div><small>PV máximos</small><strong>'+escape(t.pv)+'</strong></div></div>'+
+   '<section data-gm-npc-view-panel="status"><div class="nex-gm-npc-view-attrs">'+attrHtml+'</div><div class="nex-gm-npc-view-stats"><div><small>Defesa</small><strong data-gm-npc-supported-defense>'+escape(Math.max(0,Number(t.defense)+gmNpcSupportBonus(x,'defesa')))+'</strong></div><div><small>Deslocamento</small><strong>'+escape(t.deslocamento||'—')+'</strong></div><div><small>PV máximos</small><strong>'+escape(t.pv)+'</strong></div></div>'+
    (skills?'<h4>Perícias</h4>'+skills:'')+(tests?'<h4>Testes e sentidos</h4>'+tests:'')+secondary+'</section>'+
    '<section data-gm-npc-view-panel="combate" hidden><h4>Habilidades</h4>'+(abilities||empty)+'<h4>Ataques</h4>'+(attacks||empty)+'<h4>Rituais</h4>'+(rituals||empty)+'</section>'+
    '<section data-gm-npc-view-panel="descricao" hidden>'+(description||empty)+'</section></div></section>';
@@ -1121,6 +1139,40 @@ export function mountGmShield(options){
    const input=hpWidget.querySelector('[data-gm-npc-hp-input]');
    const entry=state.npcs.find(n=>n.id===hpWidget.dataset.gmNpcHpWidget);
    if(input&&entry){input.value=entry.hpCurrent==null?String(entry.sheet.pv):String(entry.hpCurrent);btn.hidden=true;input.hidden=false;input.focus();input.select();}
+   return;
+  }
+  if(btn.hasAttribute('data-gm-npc-ritual-apply')){
+   const npc=selectedSheet?.kind==='npcs'?state.npcs.find(n=>n.id===selectedSheet.id):null;
+   const widget=root.querySelector('[data-gm-npc-hp-widget="'+(npc?.id||'')+'"]');
+   if(!npc||!widget)return;
+   const amount=gmNpcRitualRollAmount(btn.dataset.expression);
+   if(amount===null){status('Expressão inválida. Confira os dados do ritual.');return;}
+   const kind=btn.dataset.gmNpcRitualApply;
+   const modifier=kind==='damage'?gmNpcSupportBonus(npc,'dano'):0;
+   const applied=Math.max(0,Math.trunc(amount+modifier));
+   const max=Math.max(0,Math.trunc(Number(npc.sheet?.pv)||0));
+   const current=npc.hpCurrent==null?max:Number(npc.hpCurrent)||0;
+   setNpcHp(widget,current+(kind==='healing'?applied:-applied));
+   status((kind==='healing'?'Cura':'Dano')+' aplicado ao NPC: '+applied+' PV.');
+   return;
+  }
+  if(btn.hasAttribute('data-gm-npc-ritual-support')){
+   const npc=selectedSheet?.kind==='npcs'?state.npcs.find(n=>n.id===selectedSheet.id):null;
+   if(!npc)return;
+   const key=btn.dataset.gmNpcRitualSupport;
+   npc.ritualSupports??=[];
+   const existing=npc.ritualSupports.findIndex(e=>e.key===key);
+   const type=btn.dataset.supportType;
+   const value=Number(btn.dataset.supportValue)||0;
+   if(existing>=0)npc.ritualSupports.splice(existing,1);
+   else if(npc.ritualSupports.length<30)npc.ritualSupports.push({key,type,value,target:btn.dataset.supportTarget||''});
+   store();
+   const active=existing<0;
+   btn.setAttribute('aria-pressed',String(active));
+   btn.textContent=(active?'Desativar suporte':'Ativar suporte')+' · '+type+' '+(value>0?'+':'')+value;
+   const defense=root.querySelector('[data-gm-npc-supported-defense]');
+   if(defense)defense.textContent=String(Math.max(0,(Number(npc.sheet?.defense)||0)+gmNpcSupportBonus(npc,'defesa')));
+   status(active?'Suporte ativado na ficha do NPC.':'Suporte desativado na ficha do NPC.');
    return;
   }
   if(btn.hasAttribute('data-gm-npc-description-toggle')){
