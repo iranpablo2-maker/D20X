@@ -37,7 +37,7 @@ export function mountGmShield(options){
    extra[field]=trim(raw[field],field==='sentidos'?1200:1200);
   }
   return {pv:num(raw.pv,0,99999),defense:num(raw.defense,0,99999),
-   deslocamento:trim(raw.deslocamento,90),attributes,npcSkills,actions,rituals,
+   deslocamento:trim(raw.deslocamento,90),size:['Minúsculo','Pequeno','Médio','Grande','Enorme','Colossal'].includes(raw.size)?raw.size:'Médio',attributes,npcSkills,actions,rituals,
    notas:trim(raw.notas,4000),habilidades:trim(raw.habilidades,4000),...extra};
  };
  const listKinds=['notes','sessions','npcs','threats','secrets','timeline'];
@@ -365,7 +365,7 @@ export function mountGmShield(options){
    '<button type="button" data-gm-npc-tab="combate" aria-selected="false">HABILIDADES/COMBATE</button>'+
    '<button type="button" data-gm-npc-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
    '<div data-gm-npc-panel="status" class="nex-gm-npc-tab-panel">'+
-   '<div class="nex-gm-npc-attributes">'+attrBoxes+'</div>'+
+   '<div class="nex-gm-npc-attributes">'+attrBoxes+'</div>'+ '<label class="nex-gm-npc-size-field">Tamanho<select name="size">'+['Minúsculo','Pequeno','Médio','Grande','Enorme','Colossal'].map(size=>'<option value="'+size+'"'+(t.size===size?' selected':'')+'>'+size+'</option>').join('')+'</select></label>'+ 
    '<div class="nex-gm-npc-core-stats">'+npcField('defense','Defesa',t.defense,'number','min="0" max="99999"')+npcField('deslocamento','Deslocamento',t.deslocamento)+npcField('pvDisplay','PV máximos',t.pv,'number','readonly tabindex="-1"')+'</div>'+
    '<div class="nex-gm-npc-editor-section nex-gm-npc-clean-section"><div class="nex-gm-npc-section-head"><h4>Perícias</h4><button type="button" data-gm-npc-add="skills">+ Adicionar perícia</button></div>'+
    (t.npcSkills.length?'<div class="nex-gm-npc-skills-head"><span>Perícia (Atributo)</span><span>Dados</span><span>Bônus</span><span></span></div>':'<p class="nex-gm-npc-empty">Nenhuma perícia selecionada.</p>')+
@@ -381,7 +381,7 @@ export function mountGmShield(options){
   const x=state.npcs.find(n=>n.id===form.dataset.gmNpcSheet);if(!x)return;
   const data=new FormData(form);
   // Preservar campos adicionais importados do Homebrew ao salvar o NPC na campanha.
-  const fields={...x.sheet,pv:data.get('pv'),defense:data.get('defense'),deslocamento:data.get('deslocamento'),
+  const fields={...x.sheet,pv:data.get('pv'),defense:data.get('defense'),deslocamento:data.get('deslocamento'),size:data.get('size'),
    habilidades:data.get('habilidades'),notas:data.get('notas'),attributes:{}};
   npcAttrNames.forEach(([key])=>{fields.attributes[key]=data.get('attr_'+key);});
   for(const kind of ['skills','actions','rituals']){
@@ -595,8 +595,8 @@ export function mountGmShield(options){
      '<div class="nex-gm-npc-reference-photo">'+(pic?'<img src="'+escape(pic)+'" alt="Retrato de '+escape(x.title||'NPC')+'">':'<span>'+escape((x.title||'NPC').trim().charAt(0).toUpperCase())+'</span>')+'</div>'+
      '<div class="nex-gm-npc-reference-info"><span class="nex-gm-npc-reference-overline">NPC DA CAMPANHA</span>'+
      '<strong class="nex-gm-npc-reference-name">'+escape(x.title||'NPC sem nome')+'</strong>'+
-     '<span class="nex-gm-npc-reference-description">Personagem não jogável</span>'+
-     '<div class="nex-gm-npc-reference-tags"><span>NPC</span><span>Defesa '+escape(t.defense)+'</span></div>'+
+     
+     '<div class="nex-gm-npc-reference-tags"><span>Tamanho '+escape(t.size)+'</span></div>'+
      '</div></div>'+
    '<div class="nex-gm-npc-view-card"><div class="nex-gm-npc-roll-result" data-gm-npc-dice-result hidden aria-live="polite"></div>'+
 
