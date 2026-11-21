@@ -347,7 +347,7 @@ export function mountGmShield(options){
  }
  function npcRitualRow(value={}){
   return '<fieldset class="nex-gm-npc-repeat-row nex-gm-npc-ritual" data-gm-npc-row="rituals"><legend>Ritual</legend>'+
-   [['name','Nome'],['element','Elemento'],['circle','Círculo'],['source','Fonte'],['execution','Execução'],['range','Alcance'],['target','Alvo'],['duration','Duração'],['resistance','Resistência'],['test','Teste / dados'],['damage','Dano / dados'],['healing','Cura / dados'],['peCost','Custo em PE'],['supportType','Bônus de suporte (tipo)'],['supportValue','Bônus de suporte (valor)'],['supportTarget','Perícia ou alvo do bônus']].map(([key,label])=>'<label>'+label+'<input data-gm-npc-field="'+key+'" '+(key==='circle'?'type="number" min="1" max="4"':key==='peCost'?'type="number" min="0" max="999"':'')+' value="'+escape(value[key]??(key==='circle'?1:''))+'"></label>').join('')+
+   [['name','Nome'],['element','Elemento'],['circle','Círculo'],['source','Fonte'],['execution','Execução'],['range','Alcance'],['target','Alvo'],['duration','Duração'],['resistance','Resistência'],['test','Teste / dados'],['damage','Dano / dados'],['healing','Cura / dados'],['peCost','Custo em PE'],['supportType','Bônus de suporte (tipo)'],['supportValue','Bônus de suporte (valor)'],['supportTarget','Perícia ou alvo do bônus']].map(([key,label])=>'<label>'+label+(key==='supportType'?'<select data-gm-npc-field="supportType">'+[['','Sem bônus'],['ataque','Ataque'],['dano','Dano'],['defesa','Defesa'],['resistencia','Resistência'],['pericia','Perícia'],['bloqueio','Bloqueio'],['esquiva','Esquiva'],['capacidade','Capacidade'],['margem','Margem'],['multiplicador','Multiplicador']].map(([v,text])=>'<option value="'+v+'"'+(v===(value.supportType||'')?' selected':'')+'>'+text+'</option>').join('')+'</select>':'<input data-gm-npc-field="'+key+'" '+(key==='circle'?'type="number" min="1" max="4"':key==='peCost'?'type="number" min="0" max="999"':key==='supportValue'?'type="number" min="-999" max="999"':'')+' value="'+escape(value[key]??(key==='circle'?1:''))+'">')+'</label>').join('')+
    '<label class="nex-gm-npc-wide">Descrição<textarea data-gm-npc-field="description" rows="3" maxlength="1300">'+escape(value.description||'')+'</textarea></label>'+
    '<button type="button" class="alt" data-gm-npc-remove>Remover</button></fieldset>';
  }
@@ -553,7 +553,7 @@ export function mountGmShield(options){
   const key=btn.dataset.gmNpcSkillAttr;
   const attrs=npcSheet(npc.sheet).attributes;
   const attr=skill?Math.max(0,Math.min(6,Math.trunc(Number(attrs[key])||0))):0;
-  const bonus=skill?Math.trunc(Number(btn.dataset.gmNpcSkillBonus)||0)+gmNpcSupportBonus(npc,'pericia',btn.dataset.gmNpcSkillName||btn.dataset.gmNpcDiceLabel?.split(' · ')[0]||''):0;
+  const bonus=skill?Math.trunc(Number(btn.dataset.gmNpcSkillBonus)||0)+gmNpcSupportBonus(npc,'pericia',btn.dataset.gmNpcSkillName||''):0;
   const expression=skill?null:btn.dataset.gmNpcDice;
   const label=btn.dataset.gmNpcDiceLabel||btn.getAttribute('aria-label')||'Rolagem';
   const isPool=skill||btn.dataset.gmNpcPool==='high';
@@ -572,6 +572,7 @@ export function mountGmShield(options){
   const maximum=Math.max(0,Math.trunc(t.pv));
   const current=x.hpCurrent===null||x.hpCurrent===undefined?maximum:Math.max(0,Math.min(maximum,Math.trunc(Number(x.hpCurrent)||0)));
   const fill=maximum?Math.round(current/maximum*100):0;
+  const supportSummary=(x.ritualSupports||[]).map(e=>'<span class="nex-gm-npc-support-badge">'+escape(e.type)+(e.target?' ('+escape(e.target)+')':'')+' '+(e.value>0?'+':'')+escape(e.value)+'</span>').join('');
   const skillAttrs={'Acrobacia':'agi','Adestramento':'pre','Artes':'pre','Atletismo':'for','Atualidades':'int','Ciências':'int','Crime':'agi','Diplomacia':'pre','Enganação':'pre','Fortitude':'vig','Furtividade':'agi','Iniciativa':'agi','Intimidação':'pre','Intuição':'pre','Investigação':'int','Luta':'for','Medicina':'int','Ocultismo':'int','Percepção':'pre','Pilotagem':'agi','Pontaria':'agi','Profissão':'int','Reflexos':'agi','Religião':'pre','Sobrevivência':'int','Tática':'int','Tecnologia':'int','Vontade':'pre'};
   const attrHtml=attrs.map(([key,label])=>'<div class="nex-gm-npc-view-attr"><small>'+label+'</small><button type="button" class="nex-gm-npc-attr-number" data-gm-npc-skill-attr="'+key+'" data-gm-npc-skill-bonus="0" data-gm-npc-dice-label="Atributo '+label+'" aria-label="Rolar atributo '+label+'" title="Rolar atributo '+label+'"><b>'+escape(t.attributes[key])+'</b></button></div>').join('');
   const empty='<p class="nex-gm-npc-view-empty">Nenhuma informação cadastrada.</p>';
@@ -580,14 +581,14 @@ export function mountGmShield(options){
   const blocks=(items)=>items.filter(([,value])=>filled(value)).map(([label,value])=>'<section class="nex-gm-npc-view-textblock"><h4>'+escape(label)+'</h4><p>'+escape(value)+'</p></section>').join('');
   const skills=t.npcSkills.map(s=>{
    const attr=skillAttrs[s.name]||'int',dice=t.attributes[attr],roll=dice===0?'2d20 (menor)':dice+'d20';
-   return '<div class="nex-gm-npc-view-skill"><span>'+escape(s.name)+' <small>('+attr.toUpperCase()+')</small></span><strong>'+escape(roll)+(s.bonus>=0?'+':'')+escape(s.bonus)+'</strong><button type="button" class="nex-gm-npc-roll" data-gm-npc-skill-attr="'+attr+'" data-gm-npc-skill-bonus="'+escape(s.bonus)+'" aria-label="Rolar '+escape(s.name)+'" title="Rolar '+escape(s.name)+'">' + gmNpcD20Icon + '</button></div>';
+   return '<div class="nex-gm-npc-view-skill"><span>'+escape(s.name)+' <small>('+attr.toUpperCase()+')</small></span><strong>'+escape(roll)+(s.bonus>=0?'+':'')+escape(s.bonus)+'</strong><button type="button" class="nex-gm-npc-roll" data-gm-npc-skill-attr="'+attr+'" data-gm-npc-skill-bonus="'+escape(s.bonus)+'" data-gm-npc-skill-name="'+escape(s.name)+'" aria-label="Rolar '+escape(s.name)+'" title="Rolar '+escape(s.name)+'">' + gmNpcD20Icon + '</button></div>';
   }).join('');
   const action=(a)=>{
    const heading=escape(a.name||'Habilidade');
    const name=a.kind==='attack'?escape((a.action||'Padrão').toUpperCase())+' ◆ '+heading.toUpperCase():'HABILIDADE ◆ '+heading.toUpperCase();
    const skill=a.testSkill?t.npcSkills.find(s=>s.name===a.testSkill):null;
    const skillAttr=skillAttrs[a.testSkill];
-   const skillRoll=skillAttr?'<button type="button" class="nex-gm-npc-roll nex-gm-npc-homebrew-test" data-gm-npc-skill-attr="'+skillAttr+'" data-gm-npc-skill-bonus="'+escape(skill?.bonus||0)+'" aria-label="Rolar '+escape(a.testSkill)+'">'+escape(a.testSkill)+' '+escape(t.attributes[skillAttr]===0?'2d20 (menor)':t.attributes[skillAttr]+'d20')+(Number(skill?.bonus||0)>=0?'+':'')+escape(skill?.bonus||0)+gmNpcD20Icon+'</button>':'';
+   const skillRoll=skillAttr?'<button type="button" class="nex-gm-npc-roll nex-gm-npc-homebrew-test" data-gm-npc-skill-attr="'+skillAttr+'" data-gm-npc-skill-bonus="'+escape(skill?.bonus||0)+'" data-gm-npc-skill-name="'+escape(a.testSkill)+'" aria-label="Rolar '+escape(a.testSkill)+'">'+escape(a.testSkill)+' '+escape(t.attributes[skillAttr]===0?'2d20 (menor)':t.attributes[skillAttr]+'d20')+(Number(skill?.bonus||0)>=0?'+':'')+escape(skill?.bonus||0)+gmNpcD20Icon+'</button>':'';
    const dice=(skillRoll||gmNpcRollButton(a.test,'Teste',a.critical))+gmNpcRollButton(a.damage,'Dano')+gmNpcRollButton(a.secondaryDamage,'Dano secundário');
    const content=details([['Tipo',a.subtitle],['Perícia do teste',a.testSkill],['Teste',a.test],['Dano',a.damage],['Tipo de dano',a.damageType&&a.damage?a.damageType:''],['Dano secundário',a.secondaryDamage],['Tipo secundário',a.secondaryDamage?a.secondaryType:''],['Crítico',a.kind==='attack'?a.critical:''],['Alcance',a.range]])+
     (filled(a.effect)?'<p>'+escape(a.effect)+'</p>':'');
@@ -602,7 +603,7 @@ export function mountGmShield(options){
    const name=escape(a.name||'Ritual');
    const occultism=t.npcSkills.find(s=>s.name==='Ocultismo');
    const occultismBonus=occultism?.bonus||0;
-   const testButton='<button type="button" class="nex-gm-npc-roll nex-gm-npc-homebrew-test" data-gm-npc-skill-attr="int" data-gm-npc-skill-bonus="'+escape(occultismBonus)+'" data-gm-npc-dice-label="Ocultismo · '+name+'" aria-label="Rolar Ocultismo para '+name+'">Ocultismo '+escape(t.attributes.int===0?'2d20 (menor)':t.attributes.int+'d20')+(Number(occultismBonus)>=0?'+':'')+escape(occultismBonus)+gmNpcD20Icon+'</button>';
+   const testButton='<button type="button" class="nex-gm-npc-roll nex-gm-npc-homebrew-test" data-gm-npc-skill-attr="int" data-gm-npc-skill-bonus="'+escape(occultismBonus)+'" data-gm-npc-skill-name="Ocultismo" data-gm-npc-dice-label="Ocultismo · '+name+'" aria-label="Rolar Ocultismo para '+name+'">Ocultismo '+escape(t.attributes.int===0?'2d20 (menor)':t.attributes.int+'d20')+(Number(occultismBonus)>=0?'+':'')+escape(occultismBonus)+gmNpcD20Icon+'</button>';
    const rolls=testButton+gmNpcRollButton(a.test,'Teste do ritual')+gmNpcRollButton(a.damage,'Dano')+gmNpcRollButton(a.healing,'Cura');
    const supportKey=a.name+'::'+(a.supportType||'')+'::'+(a.supportTarget||'');
    const active=(x.ritualSupports||[]).some(e=>e.key===supportKey);
@@ -642,7 +643,7 @@ export function mountGmShield(options){
    '<button type="button" data-gm-npc-hp-delta="1" aria-label="Aumentar 1 PV">›</button><button type="button" data-gm-npc-hp-delta="10" aria-label="Aumentar 10 PV">»</button></div></div>'+
    '<nav class="nex-gm-npc-view-tabs" aria-label="Seções da ficha do NPC"><button type="button" data-gm-npc-view-tab="status" aria-selected="true">STATUS</button><button type="button" data-gm-npc-view-tab="combate" aria-selected="false">COMBATE</button><button type="button" data-gm-npc-view-tab="descricao" aria-selected="false">DESCRIÇÃO</button></nav>'+
    '<section data-gm-npc-view-panel="status"><div class="nex-gm-npc-view-attrs">'+attrHtml+'</div><div class="nex-gm-npc-view-stats"><div><small>Defesa</small><strong data-gm-npc-supported-defense>'+escape(Math.max(0,Number(t.defense)+gmNpcSupportBonus(x,'defesa')))+'</strong></div><div><small>Deslocamento</small><strong>'+escape(t.deslocamento||'—')+'</strong></div><div><small>PV máximos</small><strong>'+escape(t.pv)+'</strong></div></div>'+
-   (skills?'<h4>Perícias</h4>'+skills:'')+(tests?'<h4>Testes e sentidos</h4>'+tests:'')+secondary+'</section>'+
+   (supportSummary?'<div class="nex-gm-npc-support-summary"><h4>Suportes ativos</h4>'+supportSummary+'</div>':'')+(skills?'<h4>Perícias</h4>'+skills:'')+(tests?'<h4>Testes e sentidos</h4>'+tests:'')+secondary+'</section>'+
    '<section data-gm-npc-view-panel="combate" hidden><h4>Habilidades</h4>'+(abilities||empty)+'<h4>Ataques</h4>'+(attacks||empty)+'<h4>Rituais</h4>'+(rituals||empty)+'</section>'+
    '<section data-gm-npc-view-panel="descricao" hidden>'+(description||empty)+'</section></div></section>';
  }
