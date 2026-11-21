@@ -1601,16 +1601,47 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      });
      rolls.append(bonus,roll);
      const next=make('div','nex-vtt-combat-initiative');body.append(next);
-     next.append(make('strong','','Iniciativa'));
-     next.append(make('p','',scene.turns.join(' → ')||'Nenhuma ordem definida'));
+     next.append(make('strong','','Iniciativa automática'));
+     next.append(make('p','','Rodada '+(scene.initiativeRound||1)+' · '+(scene.turns.join(' → ')||'Nenhuma ordem definida')));
+     if((scene.initiativeRolls||[]).length){
+      const scores=make('div','nex-vtt-initiative-scores');next.append(scores);
+      for(const entry of scene.initiativeRolls){
+       scores.append(make('p','',entry.name+': '+entry.roll+(entry.bonus>=0?' + ':' - ')+Math.abs(entry.bonus)+' = '+entry.total));
+      }
+     }
+     const auto=make('button','nex-vtt-action-primary','Rolar iniciativa de todos');
+     auto.addEventListener('click',()=>{
+      const participants=scene.tokens.filter(t=>!t.hidden);
+      if(!participants.length)return message('Adicione tokens à mesa para rolar a iniciativa.');
+      const dice=new Uint32Array(participants.length);crypto.getRandomValues(dice);
+      scene.initiativeRolls=participants.map((t,i)=>{
+       const sheet=linkedSheet(t);
+       const attrs=sheet?.fullSheet?.attributes||sheet?.attributes||{};
+       const agi=Number(attrs.agi??attrs.AGI??0);
+       const bonus=Math.max(-50,Math.min(50,Math.trunc(Number.isFinite(agi)?agi:0)));
+       const roll=1+(dice[i]%20);
+       return {id:t.id,name:t.name,roll,bonus,total:roll+bonus};
+      }).sort((a,b)=>b.total-a.total||b.bonus-a.bonus||a.name.localeCompare(b.name,'pt-BR'));
+      scene.turns=scene.initiativeRolls.map(x=>x.name);
+      scene.initiativeRound=1;combatEntry('Iniciativa rolada: '+scene.turns.join(' → '));render();
+     });next.append(auto);
      const add=make('button','nex-vtt-action-alt','Adicionar token selecionado');
      add.addEventListener('click',()=>{const t=selected();if(!t||scene.turns.includes(t.name))return;scene.turns.push(t.name);combatEntry(t.name+' entrou na iniciativa');render();});
      const forward=make('button','nex-vtt-action-alt','Próximo turno');
-     forward.addEventListener('click',()=>{if(!scene.turns.length)return;scene.turns.push(scene.turns.shift());combatEntry('Próximo turno: '+scene.turns[0]);render();});
+     forward.addEventListener('click',()=>{
+      if(!scene.turns.length)return;
+      const first=scene.turns.shift();scene.turns.push(first);
+      if(scene.initiativeRolls.length&&first===scene.initiativeRolls[scene.initiativeRolls.length-1]?.name)scene.initiativeRound++;
+      combatEntry('Rodada '+scene.initiativeRound+' · Próximo turno: '+scene.turns[0]);render();
+     });
      const clearTurns=make('button','nex-vtt-action-alt','Encerrar combate');
-     clearTurns.addEventListener('click',()=>{if(!confirm('Encerrar a iniciativa atual?'))return;scene.turns=[];combatEntry('Iniciativa encerrada');render();});
+     clearTurns.addEventListener('click',()=>{if(!confirm('Encerrar a iniciativa atual?'))return;scene.turns=[];scene.initiativeRolls=[];scene.initiativeRound=1;combatEntry('Iniciativa encerrada');render();});
      next.append(add,forward,clearTurns);
    }else{
+     const order=make('div','nex-vtt-combat-initiative');
+     order.append(make('strong','','Iniciativa · Rodada '+(scene.initiativeRound||1)));
+     order.append(make('p','',scene.turns.join(' → ')||'Aguardando iniciativa do mestre.'));
+     body.append(order);
      const info=make('p','nex-vtt-combat-stat','Os jogadores acompanham os resultados; somente o mestre pode aplicar efeitos aos tokens por aqui.');
      body.append(info);
    }
