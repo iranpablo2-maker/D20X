@@ -2898,6 +2898,17 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  flex:none!important;text-align:center!important;
 }
 </style>
+<style id="nex-vtt-player-chat-sheet-only">
+/* Restringir apenas o menu do jogador; o mestre conserva todas as categorias. */
+#roomTabletopPanel #nexVttMainMenu[data-nex-player-only="true"] .nex-vtt-main-tabs > button[data-nex-main-tab]:not([data-nex-main-tab="chat"]):not([data-nex-main-tab="sheets"]){
+ display:none!important;
+}
+#roomTabletopPanel #nexVttMainMenu[data-nex-player-only="true"] [data-nex-main-page="art"],
+#roomTabletopPanel #nexVttMainMenu[data-nex-player-only="true"] [data-nex-main-page="master"],
+#roomTabletopPanel #nexVttMainMenu[data-nex-player-only="true"] [data-nex-main-page="settings"]{
+ display:none!important;
+}
+</style>
 </head>
 <body>
 <script>
@@ -3186,11 +3197,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function renderVttMenuSheets(){
   const list=$('nexVttMenuSheetsList');if(!list)return;
   list.replaceChildren();
-  const allowed=roomSheets.filter(sheet=>gm||!sheet.isHidden);
+  const allowed=roomSheets.filter(sheet=>gm||(!sheet.isHidden&&assignedTo(sheet,uid)));
   if(!allowed.length){
    const empty=document.createElement('p');
    empty.className='nex-vtt-sheet-note';
-   empty.textContent='Nenhuma ficha pública adicionada nesta campanha.';
+   empty.textContent=gm?'Nenhuma ficha adicionada nesta campanha.':'Nenhuma ficha atribuída a você nesta campanha.';
    list.append(empty);
    return;
   }
@@ -3216,7 +3227,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function renderVttSheets(){
   renderVttMenuSheets();
   const list=$('nexVttSheetsList');if(!list)return;
-  const allowed=roomSheets.filter(sheet=>gm||!sheet.isHidden);
+  const allowed=roomSheets.filter(sheet=>gm||(!sheet.isHidden&&assignedTo(sheet,uid)));
   if(activeVttMiniSheetId&&!allowed.some(s=>s.id===activeVttMiniSheetId))activeVttMiniSheetId=null;
   list.replaceChildren();
   $('nexVttSheetsHint').textContent='Selecione um personagem para abrir a ficha original do NEX sobre o mapa.';
@@ -3230,12 +3241,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    name.textContent=sheet.name||'Personagem';meta.textContent='NEX '+(Number(sheet.nex)||0)+'%'+(sheet.isHidden?' · Oculta':'');
    info.append(name,meta);button.append(info);list.append(button);
   }
-  if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent='Nenhuma ficha disponível nesta campanha.';list.append(note);}
+  if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent=gm?'Nenhuma ficha disponível nesta campanha.':'Nenhuma ficha atribuída a você.';list.append(note);}
   renderVttMiniSheet();
  }
  function openVttSheet(id){
   const sheet=roomSheets.find(item=>item.id===id);
-  if(!sheet||(!gm&&sheet.isHidden))return;
+  if(!sheet||(!gm&&(sheet.isHidden||!assignedTo(sheet,uid))))return;
   if(window.parent===window){
    notice('Abra a campanha dentro do NEX para usar a ficha completa no Tabletop.');
    return;
@@ -4034,7 +4045,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const updateMenu=show=>{
    // A função é chamada após a entrada na campanha, quando gm já foi definido.
    // Não deixar o botão do Escudo oculto até que outra aba seja pressionada.
-   mainMenu.querySelector('[data-nex-main-tab="master"]')?.classList.toggle('hide',!gm);
+   mainMenu.dataset.nexPlayerOnly=String(!gm);
+   for(const tab of mainMenu.querySelectorAll('[data-nex-main-tab]')){
+    const restricted=!gm&&!['chat','sheets'].includes(tab.dataset.nexMainTab);
+    tab.hidden=restricted;tab.style.setProperty('display',restricted?'none':'','important');
+   }
+   if(!gm&&mainMenu.querySelector('[data-nex-main-page="chat"]')?.hidden&&mainMenu.querySelector('[data-nex-main-page="sheets"]')?.hidden)showMainTab('chat');
    // A aba do mestre usa display:flex!important no CSS. Ao fechar, aplicar
    // display:none!important no proprio painel para nao ficar visualmente aberto.
    if(show){
@@ -4466,8 +4482,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const menuTabs=[...mainMenu.querySelectorAll('[data-nex-main-tab]')];
   const menuPages=[...mainMenu.querySelectorAll('[data-nex-main-page]')];
   function showMainTab(name){
+   if(!gm&&!['chat','sheets'].includes(name))name='chat';
+   mainMenu.dataset.nexPlayerOnly=String(!gm);
    // Exibir a página antes de montar o Escudo evita renderização em um painel oculto.
-   menuTabs.find(btn=>btn.dataset.nexMainTab==='master')?.classList.toggle('hide',!gm);
+   menuTabs.forEach(btn=>{const restricted=!gm&&!['chat','sheets'].includes(btn.dataset.nexMainTab);btn.hidden=restricted;btn.style.setProperty('display',restricted?'none':'','important');});
    menuTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexMainTab===name)));
    menuPages.forEach(page=>{page.hidden=page.dataset.nexMainPage!==name;});
    if(roomId&&uid&&!nexNavRestoring){
@@ -4480,7 +4498,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    else detachInlineGm();
   }
   menuTabs.forEach(btn=>btn.addEventListener('click',()=>{
-   if(btn.dataset.nexMainTab==='master'&&!gm){notice('Somente o mestre pode acessar o Escudo do Mestre.');return;}
+   if(!gm&&!['chat','sheets'].includes(btn.dataset.nexMainTab))return;
    if(btn.dataset.nexMainTab==='sheets')renderVttMenuSheets();
    showMainTab(btn.dataset.nexMainTab);
    if(btn.dataset.nexMainTab==='art'){
@@ -4504,7 +4522,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
   // Delegação estável: as abas funcionam mesmo após a reconstrução da biblioteca.
   const switchLibraryLayer=layer=>{
-   if(!['mapa','tokens','imersao'].includes(layer))return;
+   if(!gm||!['mapa','tokens','imersao'].includes(layer))return;
    try{
     openLibraryLayer(layer);
     if(layer==='tokens')window.dispatchEvent(new Event('nex:vtt-token-library-request'));
@@ -4522,6 +4540,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   // Um único controlador de abas, acessível também pelo handler de captura.
   const libraryTabsPanel=mainMenu.querySelector('.nex-vtt-library-tabs');
   window.NEX_VTT_OPEN_LIBRARY_LAYER=layer=>{
+   if(!gm)return;
    if(mainMenu.hidden){
     mainMenu.hidden=false;
     mainMenuToggle.setAttribute('aria-expanded','true');
