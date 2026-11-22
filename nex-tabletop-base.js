@@ -104,7 +104,6 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
   }
  }
  const empty=()=>({map:'',tokens:[],drawings:[],atmosphere:{type:'none',intensity:45,animated:true,image:''},atmosphereLayers:[],atmosphereGroups:[],cinematics:[],cinematicActive:'',fogEnabled:false,revealed:[],lightingEnabled:false,lights:[],clues:[],initiativeRolls:[],initiativeRound:1,gridVisible:true,turns:[],combatLog:[],library:{tokenImages:[],maps:[]}});
- let vttFogRadius=120;
  let vttAreaShape='circle';
  let scene=empty(),selectedId=null,resizeSelectedId=null,drag=null,remoteReady=false,pending=false,queued=false,disposed=false,saveFailed=false,uploading=0,localDirty=false;
  const backupKey='nex-vtt-pending:'+uid+':'+campaignId;
@@ -984,7 +983,6 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  });
  quickClick('nexVttQuickCombat',()=>primaryNav.combat?.click());
  quickClick('nexVttQuickDice',()=>vttOpen('dice'));
- quickClick('nexVttQuickGrid',()=>vttOpen('grid'));
  quickClick('nexVttQuickToken',()=>{
    if(!gm)return;
    const name=prompt('Nome do token:','Token');
@@ -1017,7 +1015,6 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  };
  vttTab('☷','Mostrar fichas',()=>document.getElementById('nexVttSheetsToggle')?.click());
  vttTab('⚄','Rolagem de dados',()=>vttOpen('dice'));
- vttTab('⚙','Configurações do mapa',()=>vttOpen('grid'));
  vttTab('↩','Voltar à campanha',()=>document.getElementById('nexVttExit')?.click());
  const primaryNav={
    map:document.getElementById('nexVttNavMap'),
@@ -1315,7 +1312,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  function vttButton(label,title,callback,disabled=false){const b=document.createElement('button');b.type='button';b.textContent=label;b.title=title;b.setAttribute('aria-label',title);b.disabled=disabled;b.addEventListener('click',callback);vttBar.append(b);return b;}
  function vttSetMode(mode){vttMode=mode;for(const [key,button] of vttButtons)button.setAttribute('aria-pressed',String(key===mode));if(drawToggle)drawToggle.setAttribute('aria-pressed',String(drawingModes.has(mode)));vttOptions.hidden=true;board.style.cursor=mode==='select'?'default':mode==='pan'?'grab':'crosshair';}
  vttButton('☰','Abrir ou recolher o painel de fichas',()=>document.getElementById('nexVttSheetsToggle')?.click());
- for(const [mode,symbol,title] of [['select','✋','Move'],['pan','✋','Mover mapa'],['text','T','Texto'],['measure','📏','Medir distância'],['marker','⌖','Marcador'],['fog','◐','Revelar névoa']]){
+ for(const [mode,symbol,title] of [['select','✋','Move'],['pan','✋','Mover mapa'],['text','T','Texto'],['measure','📏','Medir distância'],['marker','⌖','Marcador']]){
    vttButtons.set(mode,vttButton(symbol,title,()=>{
      // Clicar na ferramenta ativa novamente fecha suas opções e volta ao Move.
      if(vttMode===mode){
