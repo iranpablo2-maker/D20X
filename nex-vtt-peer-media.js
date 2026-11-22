@@ -3,8 +3,8 @@
  * Sem TURN, algumas redes moveis/NATs podem bloquear conexoes diretas.
  */
 const ICE_SERVERS=[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}];
-const LOCAL_REF=/^local:(?:map|asset|atmo)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp|webm)$/;
-const MAX_IMAGE=100*1024*1024,CHUNK=32*1024,BUFFER_LIMIT=512*1024;
+const LOCAL_REF=/^local:(?:map|asset|atmo)_[A-Za-z0-9_-]+:(?:gif|png|jpeg|webp|webm|mp4)$/;
+const MAX_IMAGE=200*1024*1024,CHUNK=32*1024,BUFFER_LIMIT=512*1024;
 function waitIce(pc){
  if(pc.iceGatheringState==='complete')return Promise.resolve();
  return new Promise(resolve=>{
@@ -261,7 +261,7 @@ export function mountNexPeerMedia({
     peer.receiving=null;
     const req=pending.get(transfer.ref);
     if(!req)return;
-    const expected=transfer.ref.endsWith(':webm')?'video/webm':null;
+    const expected=transfer.ref.endsWith(':webm')?'video/webm':transfer.ref.endsWith(':mp4')?'video/mp4':null;
      if(expected&&transfer.mime!==expected){clearTimeout(req.timer);pending.delete(transfer.ref);req.reject(Error('Formato WEBM invalido'));return;}
      const blob=new Blob(transfer.parts,{type:transfer.mime});
     // WEBM permanece binário: evita converter megabytes para Base64 e de volta.
