@@ -29,7 +29,7 @@ export function createVttMediaCache(uid,campaignId){
  }
  async function put(src,data,persistent=false){
   if(!(data instanceof Blob)&&typeof data!=='string')return false;
-  if(data instanceof Blob&&data.size>100*1024*1024||typeof data==='string'&&data.length>16*1024*1024)return false;
+  if(data instanceof Blob&&data.size>200*1024*1024||typeof data==='string'&&data.length>16*1024*1024)return false;
   const database=await db();if(!database)return false;
   const value={key:key(src),data,size:data instanceof Blob?data.size:data.length*2,timestamp:Date.now(),persistent:!!persistent};
   const success=await new Promise(resolve=>{
