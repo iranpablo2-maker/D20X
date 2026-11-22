@@ -370,7 +370,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     if(!ok)throw Error('Armazenamento local indisponível');
     mediaMemory.set(src,blob);
     scene.cinematics.push({id:crypto.randomUUID(),name:String(file.name||'Cinematic').slice(0,90),src});
-    await save();render();window.dispatchEvent(new Event('nex:vtt-cinematic-request'));
+    await save();render();window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-request',{detail:{campaignId}}));
    }catch(error){message('Não foi possível salvar Cinematic: '+String(error.message||error).slice(0,100));}
   }else if(action==='play'){
    if(!scene.cinematics.some(c=>c.id===id))return;
@@ -382,7 +382,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    if(scene.cinematicActive===id)scene.cinematicActive='';
    scene.cinematics=scene.cinematics.filter(c=>c.id!==id);
    renderCinematic();await save();await deleteMediaParts(item.src);
-   window.dispatchEvent(new Event('nex:vtt-cinematic-request'));
+   window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-request',{detail:{campaignId}}));
   }
  });
  const reader=async(file,max,done)=>{
