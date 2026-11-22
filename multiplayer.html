@@ -5509,4 +5509,50 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  },true);
 })();
 </script>
+
+<!-- NEX: retorno à campanha dentro da barra de ferramentas -->
+<style id="nex-vtt-back-to-campaign-toolbar-style">
+#roomTabletopPanel #nexVttBar #nexVttToolbarBackCampaign {
+ display:grid!important;place-items:center!important;
+ flex:0 0 30px!important;width:30px!important;min-width:30px!important;
+ height:30px!important;min-height:30px!important;padding:0!important;
+ color:#f5e9eb!important;background:transparent!important;
+ border:0!important;border-radius:6px!important;cursor:pointer!important;
+ font:24px/1 system-ui,sans-serif!important;
+}
+#roomTabletopPanel #nexVttBar #nexVttToolbarBackCampaign:hover,
+#roomTabletopPanel #nexVttBar #nexVttToolbarBackCampaign:focus-visible {
+ background:#64202b!important;color:white!important;
+}
+</style>
+<script id="nex-vtt-back-to-campaign-toolbar-script">
+(function(){
+ 'use strict';
+ function addBackButton(){
+  const bar=document.getElementById('nexVttBar');
+  if(!bar||bar.querySelector('#nexVttToolbarBackCampaign'))return;
+  const button=document.createElement('button');
+  button.type='button';
+  button.id='nexVttToolbarBackCampaign';
+  button.title='Voltar à campanha';
+  button.setAttribute('aria-label','Voltar à campanha');
+  button.textContent='←';
+  button.addEventListener('click',function(event){
+   event.preventDefault();
+   event.stopPropagation();
+   document.getElementById('nexVttExit')?.click();
+  });
+  bar.prepend(button);
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addBackButton,{once:true});
+ else addBackButton();
+ const panel=document.getElementById('roomTabletopPanel');
+ if(panel){
+  const observer=new MutationObserver(function(mutations){
+   if(mutations.some(m=>m.type==='childList'))addBackButton();
+  });
+  observer.observe(panel,{subtree:true,childList:true});
+ }
+})();
+</script>
 </body></html>
