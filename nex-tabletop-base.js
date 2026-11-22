@@ -308,13 +308,15 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  cinematicVideo.preload='auto';cinematicVideo.style.cssText='width:100%;height:100%;object-fit:contain;background:#000';
  const cinematicOverlay=document.createElement('div');cinematicOverlay.id='nexVttCinematicOverlay';cinematicOverlay.hidden=true;
  cinematicOverlay.setAttribute('role','dialog');cinematicOverlay.setAttribute('aria-label','Cinematic da sessão');
- cinematicOverlay.style.cssText='position:fixed;inset:0;z-index:2147483000;background:#000;display:flex;align-items:center;justify-content:center';
- cinematicOverlay.append(cinematicVideo);document.body.append(cinematicOverlay);
+ cinematicOverlay.style.cssText='position:absolute;inset:0;z-index:900;background:#000;display:flex;align-items:center;justify-content:center;overflow:hidden';
+ cinematicOverlay.append(cinematicVideo);
+ const cinematicPanel=document.getElementById('roomTabletopPanel');
+ if(cinematicPanel){cinematicPanel.style.position='relative';cinematicPanel.append(cinematicOverlay);}
  const cinematicUnlock=document.createElement('button');cinematicUnlock.type='button';
  cinematicUnlock.textContent='▶ Reproduzir vídeo com som';
  cinematicUnlock.style.cssText='position:absolute;left:50%;bottom:8%;transform:translateX(-50%);border:1px solid #bb334d;background:#200d16;color:#fff;padding:12px 20px;border-radius:8px;cursor:pointer;font-weight:700';
  cinematicUnlock.hidden=true;cinematicOverlay.append(cinematicUnlock);
- cinematicUnlock.addEventListener('click',()=>{cinematicVideo.muted=false;void cinematicVideo.play().then(()=>{cinematicUnlock.hidden=true;}).catch(()=>{cinematicUnlock.hidden=false;});});
+ cinematicUnlock.addEventListener('click',()=>{cinematicVideo.muted=false;cinematicVideo.volume=1;void cinematicVideo.play().then(()=>{cinematicUnlock.hidden=true;}).catch(()=>{cinematicUnlock.hidden=false;});});
  const cinematicStop=document.createElement('button');cinematicStop.type='button';cinematicStop.textContent='✕ Encerrar Cinematic';
  cinematicStop.style.cssText='position:absolute;right:16px;top:16px;background:#240d16;color:white;border:1px solid #ab3d55;border-radius:7px;padding:9px;cursor:pointer';
  cinematicStop.hidden=!gm;cinematicOverlay.append(cinematicStop);
@@ -334,12 +336,18 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const setSource=src=>{
    if(currentRequest!==cinematicRequest||scene.cinematicActive!==item.id||!src)return;
    cinematicVideo.src=src;
-   cinematicVideo.muted=true;cinematicUnlock.hidden=false;
+   cinematicVideo.muted=false;cinematicVideo.volume=1;
+   cinematicUnlock.textContent='▶ Ativar som do Cinematic';cinematicUnlock.hidden=true;
+   // Try sound immediately, falling back to muted autoplay only if the browser blocks it.
    void cinematicVideo.play().then(()=>{
     if(currentRequest!==cinematicRequest)return;
-    // Autoplay with sound is not guaranteed by browsers: show a manual sound action.
+    cinematicUnlock.hidden=cinematicVideo.muted===false;
+   }).catch(()=>{
+    if(currentRequest!==cinematicRequest)return;
+    cinematicVideo.muted=true;
     cinematicUnlock.hidden=false;
-   }).catch(()=>{cinematicUnlock.hidden=false;});
+    void cinematicVideo.play().catch(()=>{cinematicUnlock.hidden=false;});
+   });
   };
   const existing=mediaMemory.get(item.src);
   if(existing){setSource(existing instanceof Blob?playableWebm(existing,item.src):playableWebm(existing,item.src));return;}
