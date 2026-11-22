@@ -3111,7 +3111,7 @@ document.addEventListener('click',function(event){
 <script src="./nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261122cinematic1';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261122cinematic2';
 import {mountGmShield} from './nex-gm-shield.js?v=20261121hideThreatSuccess4';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -5417,7 +5417,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
 <!-- NEX VTT: fallback independente das abas da biblioteca -->
 <style id="nex-vtt-library-controls-final">
 #roomTabletopPanel #nexVttMainMenu:not([hidden]){z-index:600!important;pointer-events:auto!important}
-#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;position:relative!important;z-index:10!important}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;position:relative!important;z-index:10!important}
 #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs>[data-nex-library-layer]{display:flex!important;align-items:center!important;justify-content:center!important;pointer-events:auto!important;position:relative!important;z-index:11!important;touch-action:manipulation!important}
 </style>
 <script id="nex-vtt-library-controls-final-script">
