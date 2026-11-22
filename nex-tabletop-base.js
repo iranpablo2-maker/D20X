@@ -361,7 +361,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   if(disposed||!gm||event.detail?.campaignId!==campaignId)return;
   const {action,id,file}=event.detail;
   if(action==='upload'){
-   if(!file||!((file.type==='video/webm')||/\\.webm$/i.test(file.name||''))||!file.size||file.size>100*1024*1024)return message('Use um vídeo WEBM de até 100 MB.');
+   if(!file||!((file.type==='video/webm')||/\.webm$/i.test(file.name||''))||!file.size||file.size>100*1024*1024)return message('Use um vídeo WEBM de até 100 MB.');
    if(scene.cinematics.length>=25)return message('Limite de 25 Cinematics.');
    const src='local:map_'+crypto.randomUUID()+':webm';
    const blob=file.slice(0,file.size,'video/webm');
@@ -374,9 +374,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    }catch(error){message('Não foi possível salvar Cinematic: '+String(error.message||error).slice(0,100));}
   }else if(action==='play'){
    if(!scene.cinematics.some(c=>c.id===id))return;
-   scene.cinematicActive=id;renderCinematic();void save();
+   scene.cinematicActive=id;renderCinematic();void save();window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-request',{detail:{campaignId}}));
   }else if(action==='stop'){
-   scene.cinematicActive='';renderCinematic();void save();
+   scene.cinematicActive='';renderCinematic();void save();window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-request',{detail:{campaignId}}));
   }else if(action==='delete'){
    const item=scene.cinematics.find(c=>c.id===id);if(!item)return;
    if(scene.cinematicActive===id)scene.cinematicActive='';
