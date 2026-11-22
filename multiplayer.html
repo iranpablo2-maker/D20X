@@ -3110,7 +3110,7 @@ document.addEventListener('click',function(event){
 <script src="./nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261122cinematicMp4a1';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261122cinematicMp4b2';
 import {mountGmShield} from './nex-gm-shield.js?v=20261121hideThreatSuccess4';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -4276,7 +4276,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     const note=document.createElement('p');note.textContent='Ao reproduzir, o vídeo cobre toda a tela do mestre e dos jogadores conectados. Formatos MP4 e WEBM, até 200 MB; o vídeo fica salvo no dispositivo do mestre.';libraryBody.append(note);
     const renderCinematics=detail=>{
      if(libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer!=='imersao'||immersionSection!=='cinematic')return;
-     libraryBody.replaceChildren(header,note);
+     libraryBody.replaceChildren(switcher,header,note);
      if(gm){
       const file=document.createElement('input');file.type='file';file.accept='video/mp4,video/webm,.mp4,.webm';file.hidden=true;
       const add=addLibraryButton('＋ Adicionar Cinematic',()=>file.click());
