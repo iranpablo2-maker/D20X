@@ -1585,8 +1585,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const lights=activeLights();
    vttFog.hidden=true;
    vttFog.replaceChildren();
-   vttLighting.hidden=!scene.lightingEnabled;
-   if(scene.lightingEnabled)layerSvg(vttLighting,lights,gm?.30:.76);
+   // A iluminação não pode cobrir o mapa dos jogadores quando uma sessão antiga
+   // deixou o modo escuro ativado. Preservar as luzes configuradas pelo mestre.
+   vttLighting.hidden=!gm||!scene.lightingEnabled;
+   if(gm&&scene.lightingEnabled)layerSvg(vttLighting,lights,.30);
+   else vttLighting.replaceChildren();
    if(vttSide.dataset.token!==selectedId){vttSide.dataset.token=selectedId||'';vttRenderTokenSettings();}
  }
  function vttRenderTokenSettings(){
