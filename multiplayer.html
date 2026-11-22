@@ -2868,7 +2868,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 </style>
 
 <style id="nex-vtt-cinematic-library-style">
-#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:3px!important}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important}
 #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs button{min-width:0!important;padding:8px 2px!important;font-size:11px!important;white-space:normal!important}
 #roomTabletopPanel .nex-vtt-cinematic-entry{display:flex;gap:8px;flex-wrap:wrap;align-items:center;border:1px solid #6c3043;border-radius:8px;background:#1f151b;padding:10px;margin:9px 0}
 #roomTabletopPanel .nex-vtt-cinematic-entry strong{flex:1 1 100%;overflow-wrap:anywhere;font-size:12px}
@@ -3015,7 +3015,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-nex-library-layer="mapa" aria-pressed="true">Mapa</button>
     <button type="button" data-nex-library-layer="tokens" aria-pressed="false">Tokens</button>
      <button type="button" data-nex-library-layer="imersao" aria-pressed="false">Imersão</button>
-    <button type="button" data-nex-library-layer="cinematic" aria-pressed="false">Cinematic</button>
    </div>
    <div id="nexVttLibraryBody" class="nex-vtt-library-body"></div>
     <div id="nexVttImmersionMusicHost" hidden></div>
@@ -3111,7 +3110,7 @@ document.addEventListener('click',function(event){
 <script src="./nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261122cinematic3';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261122cinematicMp4a1';
 import {mountGmShield} from './nex-gm-shield.js?v=20261121hideThreatSuccess4';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -4222,42 +4221,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    immersionMusicHost.hidden=layer!=='imersao'||immersionSection!=='efeitos';
    libraryTabs.forEach(btn=>btn.setAttribute('aria-pressed',String(btn.dataset.nexLibraryLayer===layer)));
    libraryBody.replaceChildren();
-   if(layer==='cinematic'){
-    const header=document.createElement('strong');header.textContent='Cinematic · Vídeos da sessão';libraryBody.append(header);
-    const note=document.createElement('p');note.textContent='Ao reproduzir, o vídeo cobre toda a tela do mestre e dos jogadores conectados. Formato WEBM, até 100 MB; o vídeo fica salvo no dispositivo do mestre.';libraryBody.append(note);
-    const renderCinematics=detail=>{
-     if(libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer!=='cinematic')return;
-     libraryBody.replaceChildren(header,note);
-     if(gm){
-      const file=document.createElement('input');file.type='file';file.accept='video/webm,.webm';file.hidden=true;
-      const add=addLibraryButton('＋ Adicionar Cinematic',()=>file.click());
-      file.addEventListener('change',()=>{
-       const chosen=file.files?.[0];file.value='';
-       if(chosen)window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-action',{detail:{campaignId:roomId,action:'upload',file:chosen}}));
-      });
-      libraryBody.append(file);
-     }
-     for(const item of detail.items||[]){
-      const row=document.createElement('div');row.className='nex-vtt-cinematic-entry';
-      const name=document.createElement('strong');name.textContent='▶ '+item.name;row.append(name);
-      if(gm){
-       const play=document.createElement('button');play.type='button';play.textContent=item.id===detail.activeId?'Reproduzindo':'Reproduzir para todos';
-       play.disabled=item.id===detail.activeId;
-       play.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-action',{detail:{campaignId:roomId,action:'play',id:item.id}})));
-       row.append(play);
-       const del=document.createElement('button');del.type='button';del.textContent='Excluir';
-       del.addEventListener('click',()=>{if(confirm('Excluir este Cinematic do dispositivo do mestre?'))window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-action',{detail:{campaignId:roomId,action:'delete',id:item.id}}));});row.append(del);
-      }
-      libraryBody.append(row);
-     }
-     if(gm&&detail.activeId){
-      addLibraryButton('■ Encerrar vídeo para todos',()=>window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-action',{detail:{campaignId:roomId,action:'stop'}})));
-     }
-    };
-    window.NEX_VTT_RENDER_CINEMATICS=renderCinematics;
-    window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-request',{detail:{campaignId:roomId}}));
-    return;
-   }
    if(layer==='mapa'){
     if(gm){
      const actions=document.createElement('div');actions.className='nex-vtt-art-actions';libraryBody.append(actions);
@@ -4302,12 +4265,48 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     }
    }else if(layer==='imersao'){
     const switcher=document.createElement('div');switcher.className='nex-vtt-immersion-switch';libraryBody.append(switcher);
-    for(const [value,label] of [['atmosferas','Atmosferas'],['efeitos','Efeitos sonoros']]){
+    for(const [value,label] of [['atmosferas','Atmosferas'],['efeitos','Efeitos sonoros'],['cinematic','Cinematic']]){
      const button=document.createElement('button');button.type='button';button.textContent=label;
      button.setAttribute('aria-pressed',String(immersionSection===value));
      button.addEventListener('click',()=>{immersionSection=value;openLibraryLayer('imersao');});
      switcher.append(button);
     }
+   if(immersionSection==='cinematic'){
+    const header=document.createElement('strong');header.textContent='Cinematic · Vídeos da sessão';libraryBody.append(header);
+    const note=document.createElement('p');note.textContent='Ao reproduzir, o vídeo cobre toda a tela do mestre e dos jogadores conectados. Formatos MP4 e WEBM, até 200 MB; o vídeo fica salvo no dispositivo do mestre.';libraryBody.append(note);
+    const renderCinematics=detail=>{
+     if(libraryTabs.find(tab=>tab.getAttribute('aria-pressed')==='true')?.dataset.nexLibraryLayer!=='imersao'||immersionSection!=='cinematic')return;
+     libraryBody.replaceChildren(header,note);
+     if(gm){
+      const file=document.createElement('input');file.type='file';file.accept='video/mp4,video/webm,.mp4,.webm';file.hidden=true;
+      const add=addLibraryButton('＋ Adicionar Cinematic',()=>file.click());
+      file.addEventListener('change',()=>{
+       const chosen=file.files?.[0];file.value='';
+       if(chosen)window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-action',{detail:{campaignId:roomId,action:'upload',file:chosen}}));
+      });
+      libraryBody.append(file);
+     }
+     for(const item of detail.items||[]){
+      const row=document.createElement('div');row.className='nex-vtt-cinematic-entry';
+      const name=document.createElement('strong');name.textContent='▶ '+item.name;row.append(name);
+      if(gm){
+       const play=document.createElement('button');play.type='button';play.textContent=item.id===detail.activeId?'Reproduzindo':'Reproduzir para todos';
+       play.disabled=item.id===detail.activeId;
+       play.addEventListener('click',()=>window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-action',{detail:{campaignId:roomId,action:'play',id:item.id}})));
+       row.append(play);
+       const del=document.createElement('button');del.type='button';del.textContent='Excluir';
+       del.addEventListener('click',()=>{if(confirm('Excluir este Cinematic do dispositivo do mestre?'))window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-action',{detail:{campaignId:roomId,action:'delete',id:item.id}}));});row.append(del);
+      }
+      libraryBody.append(row);
+     }
+     if(gm&&detail.activeId){
+      addLibraryButton('■ Encerrar vídeo para todos',()=>window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-action',{detail:{campaignId:roomId,action:'stop'}})));
+     }
+    };
+    window.NEX_VTT_RENDER_CINEMATICS=renderCinematics;
+    window.dispatchEvent(new CustomEvent('nex:vtt-cinematic-request',{detail:{campaignId:roomId}}));
+    return;
+   }
     if(immersionSection==='efeitos'){
      immersionMusicHost.querySelector('details.nex-vtt-local-music')?.setAttribute('open','');
      const musicHeading=document.createElement('strong');musicHeading.className='nex-vtt-art-list-title';musicHeading.textContent='Efeitos sonoros e músicas';libraryBody.append(musicHeading);
@@ -4484,7 +4483,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
   // Delegação estável: as abas funcionam mesmo após a reconstrução da biblioteca.
   const switchLibraryLayer=layer=>{
-   if(!['mapa','tokens','imersao','cinematic'].includes(layer))return;
+   if(!['mapa','tokens','imersao'].includes(layer))return;
    try{
     openLibraryLayer(layer);
     if(layer==='tokens')window.dispatchEvent(new Event('nex:vtt-token-library-request'));
@@ -5417,13 +5416,13 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
 <!-- NEX VTT: fallback independente das abas da biblioteca -->
 <style id="nex-vtt-library-controls-final">
 #roomTabletopPanel #nexVttMainMenu:not([hidden]){z-index:600!important;pointer-events:auto!important}
-#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;position:relative!important;z-index:10!important}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;position:relative!important;z-index:10!important}
 #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs>[data-nex-library-layer]{display:flex!important;align-items:center!important;justify-content:center!important;pointer-events:auto!important;position:relative!important;z-index:11!important;touch-action:manipulation!important}
 </style>
 <script id="nex-vtt-library-controls-final-script">
 (function(){
  'use strict';
- const layers=['mapa','tokens','imersao','cinematic'];
+ const layers=['mapa','tokens','imersao'];
  let handledAt=0, handledLayer='';
  function findTab(event){
   const target=event.target;
