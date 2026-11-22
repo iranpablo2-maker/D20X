@@ -3029,7 +3029,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
   </section>
   <section data-nex-main-page="settings" hidden>
    <h3>Configurações da mesa</h3>
-   <button type="button" id="nexVttMenuSettings">Grade e névoa</button>
    <button type="button" id="nexVttMenuExit">Voltar à campanha</button>
   </section>
  </div>
@@ -3110,7 +3109,7 @@ document.addEventListener('click',function(event){
 <script src="./nex-ritual-guides.js?v=20261112detalhes101"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261122cinematicSound3';
+import {mountNexTabletop} from './nex-tabletop-base.js?v=20261122noFog2';
 import {mountGmShield} from './nex-gm-shield.js?v=20261121hideThreatSuccess4';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -4413,7 +4412,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    }else{
     const note=document.createElement('p');note.textContent=gm?'Controles exclusivos do mestre.':'Esta área é exclusiva do mestre.';libraryBody.append(note);
     if(gm){
-     addLibraryButton('Configurar grade e névoa',()=>{mainMenu.querySelector('[data-nex-library-layer="mestre"]').setAttribute('aria-pressed','true');document.querySelector('#nexVttBar button[title="Grade e névoa"]')?.click();updateMenu(false);});
+
     }
    }
   }
@@ -4479,7 +4478,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
 
   // O atalho de convites foi removido da interface; não interromper o módulo.
   $('nexVttMenuInvites')?.addEventListener('click',()=>{updateMenu(false);roomSection('invites');});
-  $('nexVttMenuSettings').addEventListener('click',()=>{document.querySelector('#nexVttBar button[title="Grade e névoa"]')?.click();});
   $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
   // Delegação estável: as abas funcionam mesmo após a reconstrução da biblioteca.
   const switchLibraryLayer=layer=>{
