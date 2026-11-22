@@ -2859,7 +2859,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 }
 </style><style id="nex-vtt-five-tools-only">
 /* Apenas cinco ferramentas na barra lateral, sem remover seus recursos internos. */
-#room #roomTabletopPanel #nexVttBar > button:not([title="Move"]):not([title="Desenhar: abrir ferramentas"]):not([title="Texto"]):not([title="Medir distância"]):not([title="Iniciativa"]){display:none!important}
+#room #roomTabletopPanel #nexVttBar > button:not([title="Move"]):not([title="Desenhar: abrir ferramentas"]):not([title="Texto"]):not([title="Medir distância"]):not([title="Iniciativa"]):not(#nexVttToolbarBackCampaign){display:none!important}
 #room #roomTabletopPanel #nexVttBar > button[title="Move"],
 #room #roomTabletopPanel #nexVttBar > button[title="Desenhar: abrir ferramentas"],
 #room #roomTabletopPanel #nexVttBar > button[title="Texto"],
@@ -5512,7 +5512,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
 
 <!-- NEX: retorno à campanha dentro da barra de ferramentas -->
 <style id="nex-vtt-back-to-campaign-toolbar-style">
-#roomTabletopPanel #nexVttBar #nexVttToolbarBackCampaign {
+#room #roomTabletopPanel #nexVttBar > button#nexVttToolbarBackCampaign {
  display:grid!important;place-items:center!important;
  flex:0 0 30px!important;width:30px!important;min-width:30px!important;
  height:30px!important;min-height:30px!important;padding:0!important;
