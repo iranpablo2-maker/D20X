@@ -2876,6 +2876,28 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel .nex-vtt-cinematic-entry button{padding:7px 10px;border:1px solid #a43e58;background:#301721;color:white;border-radius:6px;cursor:pointer}
 #nexVttCinematicOverlay[hidden],#nexVttCinematicOverlay button[hidden]{display:none!important}
 </style>
+<style id="nex-vtt-immersion-fixed-tabs-v2">
+/* Três abas estáveis: mesma largura e altura em todos os estados e após re-render. */
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-immersion-switch{
+ display:grid!important;
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ gap:6px!important;padding:0!important;margin:0!important;
+ box-sizing:border-box!important;align-items:stretch!important;
+}
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-immersion-switch > button,
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-immersion-switch > button[aria-pressed="true"],
+#roomTabletopPanel #nexVttMainMenu .nex-vtt-immersion-switch > button[aria-pressed="false"]{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-width:0!important;max-width:100%!important;
+ height:36px!important;min-height:36px!important;max-height:36px!important;
+ margin:0!important;padding:0 2px!important;box-sizing:border-box!important;
+ white-space:nowrap!important;overflow:hidden!important;text-overflow:clip!important;
+ word-break:normal!important;overflow-wrap:normal!important;
+ font-size:10px!important;line-height:1!important;font-weight:600!important;
+ flex:none!important;text-align:center!important;
+}
+</style>
 </head>
 <body>
 <script>
