@@ -4046,6 +4046,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    // A função é chamada após a entrada na campanha, quando gm já foi definido.
    // Não deixar o botão do Escudo oculto até que outra aba seja pressionada.
    mainMenu.dataset.nexPlayerOnly=String(!gm);
+   const playerSheetTab=mainMenu.querySelector('[data-nex-main-tab="sheets"]');
+   if(playerSheetTab){playerSheetTab.title=gm?'Fichas':'Ficha';playerSheetTab.setAttribute('aria-label',gm?'Fichas':'Ficha');}
    for(const tab of mainMenu.querySelectorAll('[data-nex-main-tab]')){
     const restricted=!gm&&!['chat','sheets'].includes(tab.dataset.nexMainTab);
     tab.hidden=restricted;tab.style.setProperty('display',restricted?'none':'','important');
