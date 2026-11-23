@@ -31,3 +31,30 @@
  body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded .nex-campaign-integrated,
  body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded #nexCampaignRoomFrame{width:calc(100vw - min(54vw,480px))!important;max-width:calc(100vw - min(54vw,480px))!important}
 }
+
+
+/* Mobile campaign screen: fill available viewport instead of old fixed 460px iframe. */
+@media(max-width:739px){
+ body:not(.nex-vtt-sheet-overlay) #campaignPanel:not(.hide){
+   box-sizing:border-box!important;
+   width:100%!important;max-width:100vw!important;
+   min-height:calc(100dvh - 80px)!important;
+   padding-bottom:0!important;
+ }
+ body:not(.nex-vtt-sheet-overlay) #campaignPanel:not(.hide) .nex-campaign-integrated{
+   box-sizing:border-box!important;
+   width:100%!important;max-width:100%!important;
+   min-height:calc(100dvh - 105px)!important;
+   margin-bottom:0!important;
+   overflow:hidden!important;
+ }
+ body:not(.nex-vtt-sheet-overlay) #campaignPanel:not(.hide) #nexCampaignRoomFrame{
+   display:block!important;
+   box-sizing:border-box!important;
+   width:100%!important;max-width:100%!important;
+   height:calc(100dvh - 105px)!important;
+   min-height:calc(100dvh - 105px)!important;
+   max-height:none!important;
+   border:0!important;
+ }
+}
