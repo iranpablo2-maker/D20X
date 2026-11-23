@@ -2198,7 +2198,7 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 #homebrewScreen .nex-hb-threat-ritual-row .nex-hb-threat-action-summary{align-items:flex-start}
 #homebrewScreen .nex-hb-threat-ritual-row .nex-hb-threat-action-summary>button{flex-shrink:0}
 </style>
-</head><body>
+<link rel="stylesheet" href="./nex-ritual-art-symbols.css?v=20261123a">\n</head><body>
 <script src="nex-sobrevivendo-ao-horror.js?v=2072"></script>
 <script src="nex-arquivos-secretos.js?v=20261114desc29"></script>
 <header class="topbar"><div class="topinner"><button type="button" id="n17MenuToggle" class="n17-menu-button" aria-expanded="false" aria-controls="n17Drawer" aria-label="Abrir menu">☰</button><button type="button" class="brand" id="nexBrandHome" aria-label="Voltar ao menu principal" title="Voltar ao menu principal"><span class="brand-mark" aria-hidden="true">◈</span><span><h1>NEX</h1><span class="subtitle">SISTEMA DE FICHAS · ORDEM PARANORMAL</span></span></button><div class="actions"><button type="button" id="nexAccountOpen" class="btn sm" style="display:inline-flex!important;align-items:center;justify-content:center;background:#8c2534;color:white;border:1px solid #c64657;border-radius:7px;min-height:36px;padding:6px 12px;font-weight:750;white-space:nowrap">Conta NEX</button><button class="btn sm" id="menuHeaderButton" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">⌂ Menu principal</button><button class="btn sm" id="newChar" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">＋ Nova ficha</button><button class="btn sm" id="importBtn" style="display:none!important" aria-hidden="true" tabindex="-1">Importar</button><button class="btn sm" id="exportBtn" style="display:none!important" aria-hidden="true" tabindex="-1">↓ Exportar</button><input type="file" id="fileInput" accept="application/json,.json" hidden><span id="n17SaveIndicator" hidden aria-hidden="true"></span></div></div></header>
@@ -6735,4 +6735,45 @@ body.nex-vtt-sheet-overlay.nex-character-roll-toast-active #nex25RollPopup,
 body.nex-vtt-sheet-overlay.nex-character-roll-toast-active #nexAttributeRollPopup{display:none!important}
 </style>
 
+
+<script id="nex-ritual-art-symbols-script">
+(function(){
+ 'use strict';
+ const names=["Alterar Memória","Amaldiçoar Arma com Morte","Amaldiçoar Arma com Sangue","Amaldiçoar Tecnologia","Aprimoramento Mental","Armadura de Sangue","Chamas do Caos","Cicatrização","Cinerária","Coincidência Forçada","Compreensão Paranormal","Consumir Manacial","Contato Paranormal","Controle Mental (Absorção)","Controle Mental (Emissão)","Controle mental absorção","Controle Mental emissão","Convocação Instantânea","Corpo Adaptado","Decadência","Definhar","Desacelerar Impacto","Descarnar","Distorcer Aparência","Distorção Temporal","Eco Espiral","Eletrocussão","Enfeitiçar","Esconder dos Olhos","Espirais da Perdição","Forma Monstruosa","Fortalecimento Sensorial","Físico Aprimorado","Hemofagia","Inexistir","Invólucro de Carne","Ligação Telepática (Absorção)","Ligação Telepática (Emissão)","Localização","Luz","Mergulho Mental","Miasma Entrópico","Nuvem de Cinzas","Ouvir os Surrurros","Paradoxo","Polarização Caótica","Possessão","Rejeitar Névoa","Salto Fantasma","Sopro do Caos","Tela de Ruído","Teletransporte","Terceiro Olho","Transfigurar Água","Transfusão Vital","Velocidade Mortal","Vomitar Pestes","Vínculo de Sangue 1","Vínculo de Sangue 2","Zerar Entropia","Âncora Temporal","Ódio Incontrolável"];
+ const normalize=text=>String(text||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+ const lookup=new Map(names.map((name,index)=>[normalize(name),index]));
+ lookup.set(normalize('Amaldiçoar Arma'),2);
+ lookup.set(normalize('Controle Mental'),13);
+ lookup.set(normalize('Ligação Telepática'),36);
+ lookup.set(normalize('Vínculo de Sangue'),57);
+ const list=document.getElementById('ritualList');
+ if(!list)return;
+ function decorate(){
+  for(const summary of list.querySelectorAll('.nex-ritual-card summary')){
+   if(summary.querySelector('.nex-ritual-art-symbol'))continue;
+   const title=summary.querySelector('strong');
+   if(!title)continue;
+   const name=normalize(title.textContent);
+   let index=lookup.get(name);
+   if(index===undefined && name.startsWith('amaldicoar arma'))index=2;
+   if(index===undefined)continue;
+   const icon=document.createElement('span');
+   icon.className='nex-ritual-art-symbol';
+   icon.setAttribute('role','img');
+   icon.setAttribute('aria-label','Símbolo de '+title.textContent.trim());
+   const x=index%8,y=Math.floor(index/8);
+   icon.style.backgroundPosition=(x*100/7)+'% '+(y*100/7)+'%';
+   title.before(icon);
+  }
+ }
+ let scheduled=false;
+ const observer=new MutationObserver(()=>{
+  if(scheduled)return;
+  scheduled=true;
+  requestAnimationFrame(()=>{scheduled=false;decorate();});
+ });
+ observer.observe(list,{childList:true,subtree:true});
+ decorate();
+})();
+</script>
 </body></html>
