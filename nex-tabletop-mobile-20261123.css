@@ -26,3 +26,18 @@
    max-height:calc(100dvh - 12px)!important;
  }
 }
+
+
+/* Allow the embedded campaign room to scroll inside its full-height mobile iframe. */
+@media(max-width:739px){
+ html.nex-embedded,html.nex-embedded body{
+   height:100%!important;min-height:100%!important;
+   overflow-x:hidden!important;overflow-y:auto!important;
+   -webkit-overflow-scrolling:touch;
+ }
+ html.nex-embedded main{width:100%!important;max-width:100%!important;min-width:0!important;padding-bottom:28px!important}
+ html.nex-embedded #room:not(.hide){overflow:visible!important;min-width:0!important}
+ html.nex-embedded #room .room-content{min-width:0!important;max-width:100%!important}
+ html.nex-embedded #room .room-navigation{max-width:100%!important;overflow-x:auto!important}
+ html.nex-embedded #room :is(input,select,textarea){min-width:0!important;max-width:100%!important}
+}
