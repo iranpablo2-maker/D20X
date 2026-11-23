@@ -3030,7 +3030,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
   <button type="button" data-nex-main-tab="art" aria-pressed="false" title="Biblioteca de arte" aria-label="Biblioteca de arte"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m3.8 17 5.2-5.2 3.6 3.6 2.3-2.3 5.3 5.3"/></svg></button>
   <button type="button" data-nex-main-tab="sheets" aria-pressed="false" title="Fichas" aria-label="Fichas"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><circle cx="10" cy="12" r="2"/><path d="M6.8 18c.4-1.7 1.5-2.5 3.2-2.5s2.8.8 3.2 2.5M15.5 12h2.2M15.5 15h2.2"/></svg></button>
   <button type="button" data-nex-main-tab="master" aria-pressed="false" title="Escudo do Mestre" aria-label="Escudo do Mestre"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></button>
-  <button type="button" data-nex-main-tab="settings" aria-pressed="false" title="Configurações" aria-label="Configurações">⚙</button>
   <button type="button" id="nexVttMainClose" title="Fechar menu" aria-label="Fechar menu">×</button>
  </nav>
  <div class="nex-vtt-main-scroll">
@@ -3060,10 +3059,6 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
   </section>
   <section data-nex-main-page="master" hidden aria-label="Escudo do Mestre">
    <div id="nexVttInlineGmHost"></div>
-  </section>
-  <section data-nex-main-page="settings" hidden>
-   <h3>Configurações da mesa</h3>
-   <button type="button" id="nexVttMenuExit">Voltar à campanha</button>
   </section>
  </div>
  </div><aside class="nex-vtt-sidebar"><div id="nexTabletopTools" class="nex-tabletop-tools" hidden>
@@ -4521,7 +4516,6 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
 
   // O atalho de convites foi removido da interface; não interromper o módulo.
   $('nexVttMenuInvites')?.addEventListener('click',()=>{updateMenu(false);roomSection('invites');});
-  $('nexVttMenuExit').addEventListener('click',()=>{$('nexVttExit')?.click();});
   // Delegação estável: as abas funcionam mesmo após a reconstrução da biblioteca.
   const switchLibraryLayer=layer=>{
    if(!gm||!['mapa','tokens','imersao'].includes(layer))return;
@@ -5519,6 +5513,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  color:#f5e9eb!important;background:transparent!important;
  border:0!important;border-radius:6px!important;cursor:pointer!important;
  font:24px/1 system-ui,sans-serif!important;
+ order:9999!important;
 }
 #roomTabletopPanel #nexVttBar #nexVttToolbarBackCampaign:hover,
 #roomTabletopPanel #nexVttBar #nexVttToolbarBackCampaign:focus-visible {
@@ -5530,8 +5525,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  'use strict';
  function addBackButton(){
   const bar=document.getElementById('nexVttBar');
-  if(!bar||bar.querySelector('#nexVttToolbarBackCampaign'))return;
-  const button=document.createElement('button');
+  if(!bar)return;
+  let button=bar.querySelector('#nexVttToolbarBackCampaign');
+  if(!button){
+   button=document.createElement('button');
   button.type='button';
   button.id='nexVttToolbarBackCampaign';
   button.title='Voltar à campanha';
@@ -5542,7 +5539,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    event.stopPropagation();
    document.getElementById('nexVttExit')?.click();
   });
-  bar.prepend(button);
+  }
+  // Deixar a seta depois de todas as demais ferramentas, inclusive quando forem reconstruídas.
+  if(bar.lastElementChild!==button)bar.append(button);
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',addBackButton,{once:true});
  else addBackButton();
