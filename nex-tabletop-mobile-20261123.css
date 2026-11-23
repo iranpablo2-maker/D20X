@@ -1,0 +1,28 @@
+/* NEX Tabletop touch layout: final responsive overrides, 2026-11-23 */
+@media(max-width:739px){
+ html:has(#roomTabletopPanel:not(.hide)),body:has(#roomTabletopPanel:not(.hide)){overflow:hidden!important;overscroll-behavior:none!important}
+ #room #roomTabletopPanel:not(.hide){max-width:100vw!important;height:100dvh!important;overflow:hidden!important}
+ #roomTabletopPanel #nexVttMainMenu:not([hidden]){
+  box-sizing:border-box!important;
+  width:min(380px,calc(100vw - 44px))!important;
+  max-width:calc(100vw - 44px)!important;
+  max-height:calc(100dvh - 24px)!important;
+  overflow-x:hidden!important;overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+ }
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs{position:sticky!important;top:0!important;z-index:3!important;background:#110e10!important}
+ #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs>button:not([hidden]){
+  min-height:44px!important;height:44px!important;touch-action:manipulation!important;
+ }
+ #roomTabletopPanel #nexVttMainMenu :is(input,select,textarea){max-width:100%!important;min-width:0!important}
+ #roomTabletopPanel #nexVttMainMenu :is(button,[role="button"]){touch-action:manipulation}
+ #roomTabletopPanel #nexVttMainMenu [data-nex-main-page]{min-width:0!important;max-width:100%!important;overflow-x:hidden!important}
+ #roomTabletopPanel .nex-tabletop-wrap,#roomTabletopPanel #nexTabletopBoard{touch-action:none!important}
+ #roomTabletopPanel :is(.nex-tabletop-token,.nex-token-resize-handle){touch-action:none!important}
+}
+@media(max-width:739px) and (orientation:landscape){
+ #roomTabletopPanel #nexVttMainMenu:not([hidden]){
+   width:min(420px,calc(100vw - 48px))!important;
+   max-height:calc(100dvh - 12px)!important;
+ }
+}
