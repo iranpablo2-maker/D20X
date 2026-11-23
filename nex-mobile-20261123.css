@@ -1,0 +1,33 @@
+/* NEX mobile improvements 2026-11-23. Restrict layout changes to phones. */
+@media (max-width:739px) {
+ html,body{max-width:100%;overflow-x:hidden}
+ .shell,.topinner,#mainMenu,#agentsPanel,#campaignPanel,#homebrewScreen,#wizardScreen{max-width:100%;min-width:0}
+ :is(#agentsPanel,#campaignPanel,#homebrewScreen,#wizardScreen) :is(input,select,textarea){max-width:100%;min-width:0}
+ :is(#agentsPanel,#campaignPanel,#homebrewScreen,#wizardScreen) :is(button,[role="button"]){touch-action:manipulation}
+ body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded .nex-campaign-integrated,
+ body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded #nexCampaignRoomFrame{
+  width:100vw!important;max-width:100vw!important;height:36dvh!important;max-height:36dvh!important;
+ }
+ body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){
+  position:fixed!important;inset:36dvh 0 0 0!important;top:36dvh!important;left:0!important;right:0!important;bottom:0!important;
+  width:100vw!important;max-width:100vw!important;min-width:0!important;
+  height:64dvh!important;max-height:64dvh!important;overflow-x:hidden!important;overflow-y:auto!important;
+  padding-top:57px!important;border-radius:0!important;
+  padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;
+ }
+ body.nex-vtt-sheet-overlay > #nexVttSheetClose:not([hidden]){
+  position:fixed!important;inset:36dvh 0 auto 0!important;top:36dvh!important;left:0!important;right:0!important;
+  width:100vw!important;max-width:100vw!important;min-width:0!important;
+  height:51px!important;z-index:1000010!important;transform:none!important;
+ }
+ body.nex-vtt-sheet-overlay #sheetScreen :is(input,select,textarea){max-width:100%!important;min-width:0!important}
+ body.nex-vtt-sheet-overlay #sheetScreen .tabs{max-width:100%!important;overflow-x:auto!important}
+}
+@media(max-width:739px) and (orientation:landscape){
+ body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded .nex-campaign-integrated,
+ body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded #nexCampaignRoomFrame{height:100dvh!important;max-height:100dvh!important}
+ body.nex-vtt-sheet-overlay #sheetScreen:not(.hide){inset:0 0 0 auto!important;top:0!important;width:min(54vw,480px)!important;max-width:min(54vw,480px)!important;height:100dvh!important;max-height:100dvh!important}
+ body.nex-vtt-sheet-overlay > #nexVttSheetClose:not([hidden]){inset:0 0 auto auto!important;top:0!important;width:min(54vw,480px)!important;max-width:min(54vw,480px)!important}
+ body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded .nex-campaign-integrated,
+ body.nex-vtt-sheet-overlay #campaignPanel.nex-tabletop-expanded #nexCampaignRoomFrame{width:calc(100vw - min(54vw,480px))!important;max-width:calc(100vw - min(54vw,480px))!important}
+}
