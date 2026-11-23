@@ -2909,6 +2909,47 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  display:none!important;
 }
 </style>
+<style id="nex-vtt-main-tabs-fill-width-20261123">
+/* Cinco botões existentes, sem a coluna vazia da antiga engrenagem. */
+#room #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs{
+ display:grid!important;
+ grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ align-items:stretch!important;
+ justify-content:stretch!important;
+ width:100%!important;max-width:100%!important;
+ box-sizing:border-box!important;
+ column-gap:4px!important;row-gap:0!important;
+ margin:0!important;padding:3px 5px!important;
+ flex:0 0 48px!important;
+ min-height:48px!important;
+}
+#room #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs>button:not([hidden]){
+ display:grid!important;place-items:center!important;
+ box-sizing:border-box!important;
+ flex:initial!important;
+ width:100%!important;max-width:100%!important;min-width:0!important;
+ height:42px!important;min-height:42px!important;
+ margin:0!important;padding:0!important;
+ border-radius:7px!important;
+ font-size:24px!important;
+}
+#room #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs>button[hidden]{
+ display:none!important;
+}
+#room #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs>button svg{
+ width:26px!important;height:26px!important;
+ max-width:100%!important;
+}
+#room #roomTabletopPanel #nexVttMainMenu .nex-vtt-main-tabs>#nexVttMainClose{
+ flex:initial!important;
+ width:100%!important;min-width:0!important;
+ font-size:29px!important;
+}
+/* Jogadores têm apenas Chat, Ficha e Fechar: também sem espaços vazios. */
+#room #roomTabletopPanel #nexVttMainMenu[data-nex-player-only="true"] .nex-vtt-main-tabs{
+ grid-template-columns:repeat(3,minmax(0,1fr))!important;
+}
+</style>
 </head>
 <body>
 <script>
