@@ -56,6 +56,63 @@
  html[data-nex-custom-theme="custom"] #roomTabletopPanel #nexVttBar button[aria-pressed="true"]{
   box-shadow:inset 0 0 0 1px var(--nex-theme-choice)!important
  }
+
+ /* Controles de conta e perfil usam o mesmo tom escolhido no NEX.
+    Os fundos continuam escuros e os retratos não recebem filtros. */
+ html[data-nex-custom-theme="custom"] #nexProfileDialog,
+ html[data-nex-custom-theme="custom"] #nexAccountDialog,
+ html[data-nex-custom-theme="custom"] #nexPhotoCropDialog,
+ html[data-nex-custom-theme="custom"] #nexAccountMenu {
+  border-color:var(--nex-theme-choice)!important;
+ }
+ html[data-nex-custom-theme="custom"] #nexProfileDialog .nex-profile-avatar,
+ html[data-nex-custom-theme="custom"] #nexAccountOpen.nex-header-avatar {
+  border-color:var(--nex-theme-choice)!important;
+  background-color:var(--nex-theme-dark)!important;
+ }
+ html[data-nex-custom-theme="custom"] #nexProfileDialog input,
+ html[data-nex-custom-theme="custom"] #nexAccountDialog input {
+  border-color:var(--nex-theme-dark)!important;
+ }
+ html[data-nex-custom-theme="custom"] #nexProfileDialog input:focus-visible,
+ html[data-nex-custom-theme="custom"] #nexAccountDialog input:focus-visible,
+ html[data-nex-custom-theme="custom"] #nexProfileDialog .nex-profile-avatar:focus-visible,
+ html[data-nex-custom-theme="custom"] #nexAccountOpen.nex-header-avatar:focus-visible {
+  outline-color:var(--nex-theme-light)!important;
+ }
+ html[data-nex-custom-theme="custom"] #nexProfileDialog .nex-profile-actions button,
+ html[data-nex-custom-theme="custom"] #nexPhotoCropDialog .nex-crop-actions button,
+ html[data-nex-custom-theme="custom"] #nexAccountDialog button.nex-account-google,
+ html[data-nex-custom-theme="custom"] #nexAccountMenu .nex-account-menu-icon{
+  background:var(--nex-theme-dark)!important;
+  border-color:var(--nex-theme-choice)!important;
+  color:#fff!important;
+ }
+ html[data-nex-custom-theme="custom"] #nexProfileDialog .nex-profile-actions button+button,
+ html[data-nex-custom-theme="custom"] #nexPhotoCropDialog .nex-crop-actions button:first-child{
+  background:#241f24!important;
+  border-color:var(--nex-theme-choice)!important;
+ }
+ html[data-nex-custom-theme="custom"] #nexPhotoCropZoom{accent-color:var(--nex-theme-choice)!important}
+ html[data-nex-custom-theme="custom"] :is(#nexProfileStatus,#nexPhotoCropStatus){color:var(--nex-theme-light)!important}
+ html[data-nex-custom-theme="custom"] :is(#nexProfileDialog,#nexAccountDialog) button:hover{border-color:var(--nex-theme-light)!important}
+ html[data-nex-custom-theme="custom"] :is(#nexAccountMenu,#nexThemeDialog) button:focus-visible{outline:2px solid var(--nex-theme-choice)!important}
+ html[data-nex-custom-theme="custom"] :is(.n17-drawer,.home-hero,.campaign-entry,#campaignPanel,.home-agent){
+  border-color:var(--nex-theme-dark)!important;
+ }
+ html[data-nex-custom-theme="custom"] :is(.home-hero,.home-tile,.n17-drawer) button:focus-visible{
+  outline-color:var(--nex-theme-light)!important;
+ }
+ html[data-nex-custom-theme="custom"] #nexBrandHome:focus-visible{outline-color:var(--nex-theme-choice)!important}
+ html[data-nex-custom-theme="custom"] .home-hero{
+  background:radial-gradient(ellipse at 80% 5%,color-mix(in srgb,var(--nex-theme-choice) 23%,transparent),transparent 52%),linear-gradient(120deg,#111013,#19181b)!important
+ }
+ html[data-nex-custom-theme="custom"] :is(.n17-drawer button[aria-current="page"],.nex-ref-nav button[aria-selected="true"]){
+  border-color:var(--nex-theme-choice)!important;
+  background:var(--nex-theme-dark)!important
+ }
+ html[data-nex-custom-theme="custom"] #nexThemeOpen,
+ html[data-nex-custom-theme="custom"] #nexThemeDialog{border-color:var(--nex-theme-choice)!important}
  #nexThemeOpen{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
   min-height:36px;padding:6px 11px;border:1px solid #6f4048;border-radius:7px;
@@ -119,7 +176,30 @@
   const reset=document.createElement('button');reset.type='button';reset.className='nex-theme-reset';reset.textContent='Restaurar vermelho original';reset.onclick=()=>apply(options.vermelho,true);
   dialog.append(header,description,swatches,custom,reset);
   document.body.append(dialog);
-  open.onclick=()=>{apply(selected,false);if(!dialog.open)dialog.showModal();};
+  const showTheme=()=>{apply(selected,false);if(!dialog.open)dialog.showModal();};
+  open.onclick=showTheme;
+  function addProfileAppearanceButton(){
+    const actions=document.querySelector('#nexProfileDialog .nex-profile-actions');
+    if(!actions||actions.querySelector('#nexProfileThemeOpen'))return;
+    const btn=document.createElement('button');
+    btn.id='nexProfileThemeOpen';
+    btn.type='button';
+    btn.textContent='🎨 Cores do site';
+    btn.title='Personalizar a cor do NEX';
+    btn.addEventListener('click',()=>{
+      const profile=document.getElementById('nexProfileDialog');
+      if(profile?.open)profile.close();
+      showTheme();
+    });
+    actions.append(btn);
+  }
+  addProfileAppearanceButton();
+  // A tela de perfil é criada pelo módulo de contas, que pode carregar depois.
+  document.addEventListener('click',event=>{
+    if(event.target?.closest?.('#nexAccountMenuProfile,#nexAccountOpen'))addProfileAppearanceButton();
+  });
+  const accountObserver=new MutationObserver(()=>{if(document.getElementById('nexProfileDialog')){addProfileAppearanceButton();accountObserver.disconnect();}});
+  if(!document.getElementById('nexProfileDialog'))accountObserver.observe(document.body,{childList:true,subtree:true});
   close.onclick=()=>dialog.close();
   apply(selected,false);
  }
