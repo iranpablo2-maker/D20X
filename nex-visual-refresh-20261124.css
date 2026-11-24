@@ -1,0 +1,173 @@
+/* NEX — refinamento visual da interface principal (preto/vermelho).
+   Somente apresentação: não altera fichas, dados, mapas ou eventos. */
+:root{
+ --nex-ui-bg:#0a0a0d;
+ --nex-ui-surface:#141216;
+ --nex-ui-surface2:#1c181e;
+ --nex-ui-line:#3a2930;
+ --nex-ui-red:#c63849;
+ --nex-ui-red-bright:#e65b6a;
+ --nex-ui-text:#f4eef1;
+}
+body{background-color:var(--nex-ui-bg)}
+.topbar{
+ background:rgba(13,12,15,.97)!important;
+ border-bottom:1px solid #552731!important;
+ box-shadow:0 4px 24px #0008!important;
+}
+.topbar .topinner{gap:14px}
+.topbar .brand-mark{
+ border-color:#93414b!important;
+ box-shadow:0 0 0 3px #8d202318!important;
+}
+#n17Drawer.n17-drawer{
+ background:linear-gradient(180deg,#191317,#0d0d10)!important;
+ border-right:1px solid #5e2a36!important;
+ box-shadow:12px 0 45px #000a!important;
+}
+#n17Drawer.n17-drawer h2{letter-spacing:.14em}
+#n17Drawer.n17-drawer button[data-n17-action]{
+ border-radius:9px!important;
+ min-height:46px!important;
+ padding:9px 13px!important;
+ transition:background .14s ease,border-color .14s ease!important;
+}
+#n17Drawer.n17-drawer button[data-n17-action]:hover,
+#n17Drawer.n17-drawer button[data-n17-action]:focus-visible{
+ background:#301a22!important;
+ border-color:#ad4858!important;
+}
+#mainMenu{
+ max-width:1360px!important;
+ padding:clamp(20px,3.5vw,48px) clamp(15px,3vw,34px) 75px!important;
+}
+#mainMenu .home-hero{
+ padding:clamp(25px,4.1vw,51px)!important;
+ border:1px solid #66303b!important;
+ border-radius:16px!important;
+ background:
+ radial-gradient(ellipse at 88% 5%,#95283833,transparent 51%),
+ linear-gradient(120deg,#211417 0%,#141216 49%,#101115 100%)!important;
+ box-shadow:0 18px 45px #0005,inset 0 1px #ffffff0c!important;
+}
+#mainMenu .home-eyebrow{
+ color:#f19ba8!important;
+ font-size:11px!important;
+ font-weight:800!important;
+ letter-spacing:.19em!important;
+}
+#mainMenu .home-hero h2{
+ color:#fff6f7!important;
+ font-family:'Segoe UI',system-ui,sans-serif!important;
+ font-size:clamp(41px,5.2vw,69px)!important;
+ font-weight:850!important;
+ letter-spacing:.055em!important;
+ line-height:1.07!important;
+ margin:12px 0 12px!important;
+}
+#mainMenu .home-hero p{
+ max-width:620px!important;
+ font-size:clamp(13px,1.12vw,15px)!important;
+ line-height:1.75!important;
+ color:#c7bdc5!important;
+}
+#mainMenu .home-action{
+ min-height:43px!important;
+ padding:11px 20px!important;
+ border-radius:9px!important;
+ background:linear-gradient(180deg,#bb3444,#8e2232)!important;
+ border:1px solid #dc5869!important;
+ box-shadow:0 5px 15px #0004!important;
+ font-weight:750!important;
+ transition:filter .16s ease,transform .16s ease!important;
+}
+#mainMenu .home-action:hover{filter:brightness(1.13);transform:translateY(-1px)}
+#mainMenu .home-action.secondary{background:#242025!important;border-color:#634651!important}
+#mainMenu .home-section-heading{margin:35px 0 17px!important}
+#mainMenu .home-section-heading h2{
+ margin:0!important;
+ font:750 clamp(17px,2vw,22px)/1.3 'Segoe UI',system-ui,sans-serif!important;
+ color:var(--nex-ui-text)!important;
+ letter-spacing:.01em!important;
+}
+#mainMenu .home-grid{
+ gap:clamp(10px,1.1vw,17px)!important;
+}
+#mainMenu .home-tile{
+ position:relative;
+ overflow:hidden;
+ min-height:168px;
+ padding:23px!important;
+ border-radius:13px!important;
+ border:1px solid #3c3039!important;
+ background:linear-gradient(150deg,#231c23,#151419 75%)!important;
+ box-shadow:0 7px 22px #0003,inset 0 1px #ffffff09!important;
+ transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease!important;
+}
+#mainMenu .home-tile:before{
+ content:'';position:absolute;top:0;left:0;right:0;height:2px;
+ background:linear-gradient(90deg,transparent,#af384b,transparent);opacity:.52;
+ pointer-events:none;
+}
+#mainMenu .home-tile:hover,
+#mainMenu .home-tile:focus-visible{
+ transform:translateY(-3px)!important;
+ border-color:#ae4b5b!important;
+ box-shadow:0 13px 29px #0006!important;
+}
+#mainMenu .home-tile .symbol{
+ width:43px!important;height:43px!important;
+ border:1px solid #75333e!important;
+ border-radius:10px!important;
+ background:linear-gradient(145deg,#602732,#3a1e27)!important;
+ color:#ffdce1!important;
+ font-size:23px!important;
+}
+#mainMenu .home-tile strong{font-size:16px!important;letter-spacing:.005em;color:#f7f2f4!important}
+#mainMenu .home-tile small{font-size:12px!important;line-height:1.6!important;color:#bcb4bd!important}
+#mainMenu .home-agent,
+#agentsPanel .agent-card,
+#campaignPanel .campaign-entry{
+ border:1px solid #3e3138!important;
+ border-radius:12px!important;
+ background:linear-gradient(145deg,#201b21,#141319)!important;
+ box-shadow:0 8px 24px #0003!important;
+}
+#mainMenu .home-agent{padding:20px!important}
+#mainMenu .home-agent:hover,
+#agentsPanel .agent-card:hover,
+#campaignPanel .campaign-entry:hover{border-color:#87414c!important}
+#campaignPanel .campaign-form{
+ border-color:#48333c!important;
+ background:#19161b!important;
+ border-radius:12px!important;
+}
+#mainMenu .btn,
+#agentsPanel .btn,
+#campaignPanel .btn{
+ border-radius:8px!important;
+ transition:background .15s ease,border-color .15s ease!important;
+}
+#mainMenu .btn.primary,
+#agentsPanel .btn.primary,
+#campaignPanel .btn.primary{
+ background:#9b2939!important;
+ border-color:#cb4d5e!important;
+ color:white!important;
+}
+#mainMenu .btn.primary:hover,
+#agentsPanel .btn.primary:hover,
+#campaignPanel .btn.primary:hover{background:#bd3547!important}
+#nexProfileDialog{border-radius:14px!important;box-shadow:0 22px 60px #000b!important}
+#nexProfileDialog .nex-profile-actions button{border-radius:8px!important}
+#nexAccountDialog{border-radius:14px!important}
+@media(max-width:700px){
+ #mainMenu{padding:19px 13px 50px!important}
+ #mainMenu .home-hero{padding:25px 20px!important;border-radius:13px!important}
+ #mainMenu .home-hero h2{font-size:43px!important}
+ #mainMenu .home-tile{padding:17px!important;min-height:134px!important}
+ #mainMenu .home-section-heading{margin:25px 0 14px!important}
+}
+@media(prefers-reduced-motion:reduce){
+ #mainMenu .home-tile,#mainMenu .home-action{transition:none!important;transform:none!important}
+}
