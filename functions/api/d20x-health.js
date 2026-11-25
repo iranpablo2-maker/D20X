@@ -1,4 +1,4 @@
-// NEX Pages Functions diagnostic. Never reveal binding values or credentials.
+// D20X Pages Functions diagnostic. Never reveal binding values or credentials.
 export function onRequestGet({env}) {
  const binding=env?.D20X_D1;
  const bindingPresent=Object.prototype.hasOwnProperty.call(env||{},'D20X_D1');
@@ -6,7 +6,7 @@ export function onRequestGet({env}) {
  const bindingPrepareType=binding==null?'missing':typeof binding.prepare;
  const hasD1=bindingPresent&&bindingPrepareType==='function';
  const response={
-  service:'NEX database diagnostics',
+  service:'D20X database diagnostics',
   bindingD1:hasD1,
   bindingPresent,
   bindingValueType,
