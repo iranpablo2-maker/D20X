@@ -225,131 +225,131 @@ window.NEX_SAH={
     "Combatente": [
       [
         "Apego Angustiado",
-        "Permanece consciente mesmo sob a condição morrendo, mas perde 2 pontos de Sanidade ao final de cada rodada em que continuar nessa situação."
+        "No RPG, a condição morrendo não deixa o personagem inconsciente. Cada rodada encerrada nessa condição enquanto consciente custa 2 SAN."
       ],
       [
         "Caminho para Forca",
-        "Ao se sacrificar por aliados numa perseguição, pode gastar 1 PE para ampliar o auxílio oferecido. Em cenas furtivas, também pode desviar a atenção dos inimigos para favorecer o grupo."
+        "Regra de perseguição: ao escolher sacrifício, 1 PE aumenta o auxílio dos companheiros de +1d20 para +2d20. Na furtividade, 1 PE ao chamar atenção reduz a visibilidade dos aliados próximos em 2, em vez de 1."
       ],
       [
         "Ciente das Cicatrizes",
-        "Investiga rastros ligados a armas e ferimentos com Luta ou Pontaria no lugar de outra perícia. Requer treinamento em pelo menos uma dessas duas perícias."
+        "Para encontrar pistas sobre armas ou ferimentos, pode substituir a perícia original por Luta ou Pontaria. Exige treinamento em uma delas."
       ],
       [
         "Correria Desesperada",
-        "Aumenta o deslocamento em 3 metros e concede dado adicional em testes usados para fugir durante uma perseguição."
+        "+3m de deslocamento e +1d20 nos testes de fuga em cenas de perseguição."
       ],
       [
         "Engolir o Choro",
-        "Ignora penalidades causadas por condições ao tentar escapar ou agir furtivamente, mesmo quando está debilitado."
+        "Condições negativas não impõem penalidades nos testes de fuga ou Furtividade."
       ],
       [
         "Instinto de Fuga",
-        "Recebe +2 nos testes de perícia ao longo de uma perseguição ou situação equivalente. Requer treinamento em Intuição."
+        "Durante uma perseguição ou cena equivalente, todos os testes de perícia recebem +2. Exige Intuição treinada."
       ],
       [
         "Mochileiro",
-        "Amplia a capacidade de carga em cinco espaços e permite aproveitar uma vestimenta adicional. Requer Vigor 2."
+        "Limite de carga aumentado em 5 espaços; permite usar os benefícios de uma vestimenta extra. Requisito: Vig 2."
       ],
       [
         "Paranoia Defensiva",
-        "Uma vez por cena, pode gastar uma rodada e 3 PE para conceder ao grupo proteção contra o próximo ataque ou +5 em um teste de perícia, à escolha de cada integrante."
+        "Uma vez na cena, invista uma rodada e 3 PE. Cada integrante presente, inclusive você, escolhe +5 na Defesa contra o próximo ataque da cena ou +5 em um único teste de perícia antes do fim dela."
       ],
       [
         "Sacrificar os Joelhos",
-        "Uma vez por cena de perseguição, ao realizar esforço extra, pode gastar 2 PE para obter sucesso automático no teste. Requer treinamento em Atletismo."
+        "Mecânica de perseguição do RPG: uma vez na cena, 2 PE garantem sucesso no teste da ação esforço extra. Exige Atletismo treinado."
       ],
       [
         "Sem Tempo, Irmão",
-        "Uma vez por investigação, facilita o trabalho do grupo automaticamente, mas desencadeia uma rolagem adicional de evento investigativo."
+        "Uma vez por investigação, a ação facilitar investigação tem sucesso automático, mas exige uma rolagem adicional de evento na tabela do suplemento."
       ],
       [
         "Valentão",
-        "Pode usar Força em testes de Intimidação e, uma vez por cena, gastar 1 PE para tentar assustar alguém com uma ação livre."
+        "No RPG, Força pode ser o atributo-base de Intimidação. Uma vez por cena, 1 PE permite testar a ação assustar como ação livre."
       ]
     ],
     "Especialista": [
       [
         "Acolher o Terror",
-        "Permite utilizar uma vez adicional por sessão a opção de se entregar ao medo, conforme as regras específicas de terror do suplemento."
+        "Aumenta em uma utilização por sessão o limite da opção de jogo Entregar-se ao Medo."
       ],
       [
         "Contatos Oportunos",
-        "Durante um interlúdio, convoca um contato que atua como aliado até o fim da missão, sujeito à disponibilidade definida pelo mestre. Requer Crime treinado."
+        "Use uma ação de interlúdio para receber um aliado de tipo escolhido, sujeito à disponibilidade determinada pelo mestre. Ele permanece até ser dispensado ou a missão terminar. Limite de um aliado dessa habilidade. Exige Crime treinado."
       ],
       [
         "Disfarce Sutil",
-        "Pode montar um disfarce como ação completa gastando 1 PE, sem kit; com um kit recebe +5 no teste. Requer Presença 2 e Enganação treinada."
+        "No jogo, 1 PE permite realizar o teste de Enganação para disfarçar a si mesmo em uma ação completa. Dispensa kit, mas, se utilizado, concede +5. Requisitos: Pre 2 e Enganação treinada."
       ],
       [
         "Esconderijo Desesperado",
-        "Move-se furtivamente na velocidade normal sem penalidade e reduz ainda mais sua visibilidade ao se esconder com sucesso numa cena de furtividade."
+        "Na mecânica de furtividade, deslocamento normal não impõe −1d20 em Furtividade; a ação esconder-se bem-sucedida reduz a visibilidade em 2, em vez de 1."
       ],
       [
         "Especialista Diletante",
-        "Adquire um poder de outra classe ou um poder geral que cumpra seus requisitos; não vale para trilhas ou poderes paranormais. Requer NEX 30%."
+        "Escolhe um poder de fora da própria classe, incluindo gerais, desde que cumpra os requisitos. Exclui poderes de trilha e paranormais. Exige NEX 30%."
       ],
       [
         "Flashback",
-        "Escolhe uma origem diferente da própria e passa a ter o poder característico dessa segunda origem."
+        "Escolha uma origem que não seja a original e receba sua habilidade característica."
       ],
       [
         "Leitura Fria",
-        "No interlúdio, pode formular perguntas sobre um NPC após observá-lo; cada pergunta não respondida concede PE temporários. Requer Intuição treinada."
+        "Uma vez por interlúdio, depois de observar ou conversar com um NPC, faça três perguntas pessoais ao mestre. Cada pergunta que ele optar por não responder concede 2 PE temporários até o fim da missão. Uma utilização por NPC; exige Intuição treinada."
       ],
       [
         "Mãos Firmes",
-        "Pode gastar 2 PE para obter um dado extra em Furtividade ao se esconder ou manipular discretamente objetos. Requer Furtividade treinada."
+        "Em testes de Furtividade para esconder-se ou executar uma ação discreta envolvendo um objeto, 2 PE concedem +1d20. Exige Furtividade treinada."
       ],
       [
         "Plano de Fuga",
-        "Pode usar Intelecto para criar obstáculos numa perseguição e, uma vez por cena, gastar 2 PE para ter sucesso sem testar."
+        "Na regra de perseguição, pode usar Int em vez de For no teste da ação criar obstáculos. Uma vez por cena, 2 PE garantem sucesso nessa ação sem rolagem."
       ],
       [
         "Remoer Memórias",
-        "Uma vez por cena, troca um teste de perícia baseada em Intelecto ou Presença por um teste de Intelecto com DT 15, gastando 2 PE. Requer Intelecto 1."
+        "Uma vez na cena, 2 PE substituem um teste de perícia baseada em Int ou Pre por um teste simples de Int contra DT 15. Requisito: Int 1."
       ],
       [
         "Resistir à Pressão",
-        "Numa investigação, gasta 5 PE para estender a urgência em uma rodada e dar +2 nos testes do grupo durante esse intervalo. Requer Investigação treinada."
+        "Uma vez por investigação, pague 5 PE para acrescentar uma rodada à urgência. Durante a rodada adicional, todos os personagens recebem +2 nas perícias. Exige Investigação treinada."
       ]
     ],
     "Ocultista": [
       [
         "Deixe os Sussurros Guiarem",
-        "Uma vez por cena, gasta 2 PE e uma rodada para obter +2 em testes investigativos até o fim da cena. Enquanto mantém o benefício, falhas em testes também custam Sanidade."
+        "Uma vez por cena, uma rodada e 2 PE concedem +2 nos testes de investigação até o fim da cena. Enquanto ativo, cada teste de perícia fracassado custa 1 SAN."
       ],
       [
         "Domínio Esotérico",
-        "Pode reunir os benefícios de dois catalisadores ritualísticos diferentes ao conjurar um ritual. Requer Intelecto 3."
+        "Uma conjuração pode combinar até dois catalisadores diferentes. Exige Int 3."
       ],
       [
         "Estalos Macabros",
-        "Gasta 1 PE para usar Ocultismo ao distrair ou enganar a atenção de outro ser; contra pessoas e animais ganha +5 no teste."
+        "Por 1 PE, use Ocultismo em vez da perícia de uma ação de distração ou finta do RPG. Contra pessoas ou animais, receba +5."
       ],
       [
         "Minha Dor me Impulsiona",
-        "Se estiver ferido, pode gastar 1 PE para receber +1d6 em Acrobacia, Atletismo ou Furtividade. Requer Vigor 2."
+        "Regra exclusivamente da ficha: se o personagem tiver pelo menos 5 PV de dano, 1 PE acrescenta 1d6 ao teste de Acrobacia, Atletismo ou Furtividade. Requisito: Vig 2."
       ],
       [
         "Nos Olhos do Monstro",
-        "Ao observar diretamente uma criatura durante uma rodada e gastar 3 PE, recebe +5 em testes contra ela, exceto ataques, até o fim da cena."
+        "Durante cena com criatura paranormal, uma rodada e 3 PE para observá-la diretamente concedem +5 nos testes contra ela, exceto ataques, até o fim da cena. O mestre determina se há um rosto ou equivalente visível."
       ],
       [
         "Olhar Sinistro",
-        "Usa Presença em vez de Intelecto para Ocultismo e pode empregar Ocultismo para coagir. Requer Presença 1."
+        "Usa Pre como atributo-base de Ocultismo e permite empregar Ocultismo na ação coagir do RPG. Exige Pre 1."
       ],
       [
         "Sentido Premonitório",
-        "Gasta 3 PE para antecipar acontecimentos próximos de perseguições, investigações e furtividade. A manutenção custa 1 PE por rodada; não funciona em combate."
+        "Por 3 PE, antecipa uma rodada de acontecimentos da investigação, perseguição ou furtividade, incluindo fim da urgência e eventos. Nestas últimas cenas, pode escolher ações depois dos resultados dos demais. O mestre pode admitir outras aplicações; não funciona em combate. Manutenção: 1 PE no começo de cada rodada."
       ],
       [
         "Sincronia Paranormal",
-        "Conecta mentalmente aliados que já enfrentaram o paranormal juntos e distribui dados extras para perícias mentais. A ativação e a manutenção consomem PE. Requer Presença 2."
+        "Ação padrão e 2 PE vinculam personagens em alcance médio que já tenham sobrevivido juntos a encontro paranormal. No começo de cada rodada, distribua entre os demais participantes uma quantidade de d20 adicionais igual à sua Pre, válidos para testes de perícias de Int ou Pre até acabar a rodada. Não transmite mensagens precisas; manutenção de 1 PE por rodada. Requisito: Pre 2."
       ],
       [
         "Traçado Conjuratório",
-        "Desenha um símbolo protetor gastando uma ação completa e 1 PE. Dentro dele, recebe +2 em Ocultismo e resistências e aumenta em +2 a dificuldade para resistir aos seus rituais."
+        "Ação completa e 1 PE criam símbolo ficcional em um quadrado de 1,5m, válido até o fim da cena. Dentro dele, o conjurador ganha +2 em Ocultismo e resistências, além de +2 na DT de seus rituais."
       ]
     ]
   },
@@ -359,238 +359,238 @@ window.NEX_SAH={
       "attr": "agi",
       "threshold": 2,
       "minNex": 0,
-      "description": "Obtém treinamento em Acrobacia ou +2 caso já a conheça. Ignora limitações de terreno difícil em deslocamentos e investidas. Pré-requisito: Agilidade 2."
+      "description": "Recebe treinamento em Acrobacia; se já treinado, recebe +2 nessa perícia. Terreno difícil não reduz o deslocamento nem impede investidas. Requisito: Agi 2."
     },
     {
       "name": "Ás do Volante",
       "attr": "agi",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Pilotagem ou +2 adicional; uma vez por rodada pode evitar dano sofrido pelo veículo com teste de Pilotagem. Pré-requisito: Agilidade 2."
+      "description": "Recebe treinamento em Pilotagem; se já treinado, recebe +2 nessa perícia. Regra de RPG: uma vez por rodada, quando o veículo pilotado sofre dano, teste Pilotagem contra o resultado do ataque ou DT do efeito; sucesso evita esse dano. Requisito: Agi 2."
     },
     {
       "name": "Atlético",
       "attr": "for",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Atletismo ou +2 adicional e aumenta o deslocamento em 3 metros. Pré-requisito: Força 2."
+      "description": "Recebe treinamento em Atletismo; se já treinado, recebe +2 nessa perícia. +3m de deslocamento. Requisito: For 2."
     },
     {
       "name": "Atraente",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Recebe +5 em testes de interação apropriados contra pessoas que possam sentir atração pela sua aparência ou atitude. Pré-requisito: Presença 2."
+      "description": "Na ficha de RPG, +5 em Artes, Diplomacia, Enganação e Intimidação contra NPCs cuja reação à presença do personagem seja favorável nos termos da habilidade. Requisito: Pre 2."
     },
     {
       "name": "Dedos Ágeis",
       "attr": "agi",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Crime ou +2 e executa arrombamentos, furtos e sabotagens com ações mais rápidas. Pré-requisito: Agilidade 2."
+      "description": "Recebe treinamento em Crime; se já treinado, recebe +2 nessa perícia. Ações ficcionais de Crime: arrombar usa ação padrão; furtar, ação livre uma vez por rodada; sabotar, ação completa. Requisito: Agi 2."
     },
     {
       "name": "Detector de Mentiras",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Intuição ou +2; mentir para você impõe uma grande penalidade nos testes de Enganação. Pré-requisito: Presença 2."
+      "description": "Recebe treinamento em Intuição; se já treinado, recebe +2 nessa perícia. Outros personagens sofrem −10 em Enganação ao mentir para você. Requisito: Pre 2."
     },
     {
       "name": "Especialista em Emergências",
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Medicina ou +2 e consegue utilizar remédios e itens de tratamento com ações mais rápidas. Pré-requisito: Intelecto 2."
+      "description": "Recebe treinamento em Medicina; se já treinado, recebe +2 nessa perícia. Na economia de ações do jogo, usar medicamentos ou cicatrizantes custa movimento; sacar um deles é ação livre uma vez por rodada. Requisito: Int 2."
     },
     {
       "name": "Estigmado",
       "attr": "",
       "threshold": 0,
       "minNex": 0,
-      "description": "Ao receber dano mental provocado por medo, pode optar por convertê-lo em perda de PV, preservando a Sanidade à custa do próprio corpo."
+      "description": "Mecânica fictícia: dano mental decorrente de medo pode ser convertido em perda equivalente de PV."
     },
     {
       "name": "Foco em Perícia",
       "attr": "trained",
       "threshold": 0,
       "minNex": 0,
-      "description": "Escolha uma perícia treinada que não seja Luta nem Pontaria: seus testes com ela recebem um dado extra. Pode adquirir o poder novamente para outras perícias."
+      "description": "Escolha uma perícia treinada que não seja Luta nem Pontaria. Seus testes nela ganham +1d20. Pode repetir a aquisição para outra perícia. Requisito: Treinamento na perícia escolhida."
     },
     {
       "name": "Inventário Organizado",
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Acrescenta Intelecto à capacidade de carga e reduz pela metade o espaço consumido por objetos originalmente muito pequenos. Pré-requisito: Intelecto 2."
+      "description": "Some Int ao limite de carga. Itens de 0,5 espaço passam a ocupar 0,25. Requisito: Int 2."
     },
     {
       "name": "Informado",
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Atualidades ou +2 e pode substituir outras perícias por Atualidades em testes de conhecimento, com autorização do mestre. Pré-requisito: Intelecto 2."
+      "description": "Recebe treinamento em Atualidades; se já treinado, recebe +2 nessa perícia. Com aprovação do mestre, use Atualidades no lugar de outras perícias para testes que envolvem informações. Requisito: Int 2."
     },
     {
       "name": "Interrogador",
       "attr": "for",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Intimidação ou +2 e pode coagir alguém com uma ação padrão, respeitando o limite de uso contra um mesmo alvo. Pré-requisito: Força 2."
+      "description": "Recebe treinamento em Intimidação; se já treinado, recebe +2 nessa perícia. A ação coagir do RPG pode ser realizada como ação padrão, uma vez por cena contra cada NPC. Requisito: For 2."
     },
     {
       "name": "Mentiroso Nato",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Enganação ou +2 e sofre uma penalidade menor ao contar mentiras especialmente improváveis. Pré-requisito: Presença 2."
+      "description": "Recebe treinamento em Enganação; se já treinado, recebe +2 nessa perícia. Penalidade em testes de mentiras muito implausíveis reduzida a −1d20. Requisito: Pre 2."
     },
     {
       "name": "Observador",
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Investigação ou +2 e acrescenta seu Intelecto aos testes de Intuição. Pré-requisito: Intelecto 2."
+      "description": "Recebe treinamento em Investigação; se já treinado, recebe +2 nessa perícia. Acrescenta Int ao bônus de Intuição. Requisito: Int 2."
     },
     {
       "name": "Pai de Pet",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Adestramento ou +2 e recebe um animal aliado que concede +2 em duas perícias aprovadas pelo mestre. Pré-requisito: Presença 2."
+      "description": "Recebe treinamento em Adestramento; se já treinado, recebe +2 nessa perícia. Possui um animal aliado que concede +2 em duas perícias aprovadas pelo mestre, exceto Luta e Pontaria. Requisito: Pre 2."
     },
     {
       "name": "Palavras de Devoção",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Religião ou +2; uma oração coletiva pode conceder resistência a dano mental 5 aos participantes até o fim da cena, consumindo 3 PE. Pré-requisito: Presença 2."
+      "description": "Recebe treinamento em Religião; se já treinado, recebe +2 nessa perícia. Uma vez por cena, ação completa e 3 PE beneficiam até o dobro da Pre em pessoas; participantes ganham RD mental 5 até o fim da cena. Requisito: Pre 2."
     },
     {
       "name": "Parceiro",
       "attr": "trained:Diplomacia",
       "threshold": 30,
       "minNex": 30,
-      "description": "Recebe um aliado que acompanha suas missões. A escolha do tipo de aliado depende das regras e do mestre. Pré-requisitos: Diplomacia treinada e NEX 30%."
+      "description": "Escolha um aliado de um tipo previsto no livro. Ele acompanha as missões, mas pode deixar o grupo se maltratado. Para substituir aliado perdido, use uma folga da Ordem. Requisito: Diplomacia treinada, NEX 30%."
     },
     {
       "name": "Pensamento Tático",
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Tática ou +2. Ao analisar com sucesso um terreno, permite que o grupo tenha movimento adicional no início do combate posterior nesse local. Pré-requisito: Intelecto 2."
+      "description": "Recebe treinamento em Tática; se já treinado, recebe +2 nessa perícia. Após sucesso em analisar terreno, você e aliados em alcance médio ganham uma ação de movimento extra na primeira rodada do próximo combate naquele lugar, se ocorrer no mesmo dia. Requisito: Int 2."
     },
     {
       "name": "Personalidade Esotérica",
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Acrescenta 3 PE à reserva e ganha treino em Ocultismo ou +2 se já for treinado. Pré-requisito: Intelecto 2."
+      "description": "Recebe treinamento em Ocultismo; se já treinado, recebe +2 nessa perícia. +3 PE máximos. Requisito: Int 2."
     },
     {
       "name": "Persuasivo",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Diplomacia ou +2 e reduz a dificuldade de convencer pessoas a aceitar pedidos arriscados ou custosos. Pré-requisito: Presença 2."
+      "description": "Recebe treinamento em Diplomacia; se já treinado, recebe +2 nessa perícia. Reduz em 5 a penalidade de persuasão relativa a pedidos custosos ou perigosos. Requisito: Pre 2."
     },
     {
       "name": "Pesquisador Científico",
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Ciências ou +2 e pode identificar certas criaturas e animais usando Ciências em vez das perícias habituais. Pré-requisito: Intelecto 2."
+      "description": "Recebe treinamento em Ciências; se já treinado, recebe +2 nessa perícia. Pode identificar criaturas paranormais com Ciências em vez de Ocultismo e animais com Ciências em vez de Sobrevivência. Requisito: Int 2."
     },
     {
       "name": "Proativo",
       "attr": "agi",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Iniciativa ou +2. Um resultado elevado nos dados de Iniciativa pode conceder uma ação padrão adicional no primeiro turno. Pré-requisito: Agilidade 2."
+      "description": "Recebe treinamento em Iniciativa; se já treinado, recebe +2 nessa perícia. Se pelo menos um dos d20 da Iniciativa mostrar 19 ou 20, recebe uma ação padrão extra no primeiro turno. Requisito: Agi 2."
     },
     {
       "name": "Provisões de Emergência",
       "attr": "",
       "threshold": 0,
       "minNex": 0,
-      "description": "Mantém uma reserva de equipamentos para situações críticas. Uma vez por missão, pode recuperar suprimentos adicionais durante um interlúdio, conforme sua patente."
+      "description": "Uma vez por missão, uma ação de interlúdio recupera a reserva de equipamentos, pessoalmente ou por contato. Recebe nova seleção de equipamentos correspondente à patente no começo da missão."
     },
     {
       "name": "Racionalidade Inflexível",
       "attr": "int",
       "threshold": 3,
       "minNex": 0,
-      "description": "Usa Intelecto em vez de Presença para Vontade e para determinar seus pontos de esforço. Pré-requisito: Intelecto 3."
+      "description": "Pode utilizar Int em vez de Pre no cálculo de PE e como atributo-chave de Vontade. Requisito: Int 3."
     },
     {
       "name": "Rato de Computador",
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Tecnologia ou +2 e executa operações digitais rapidamente; uma vez por investigação pode buscar pistas digitais sem gastar uma rodada. Pré-requisito: Intelecto 2."
+      "description": "Recebe treinamento em Tecnologia; se já treinado, recebe +2 nessa perícia. Na economia de ações do RPG, as opções digitais de Tecnologia usam ação completa. Uma vez por investigação, com computador disponível, pode buscar pistas por Tecnologia sem consumir rodada. Requisito: Int 2."
     },
     {
       "name": "Resposta Rápida",
       "attr": "agi",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Reflexos ou +2 e pode trocar um teste falho de Percepção por um novo teste usando Reflexos, gastando 2 PE. Pré-requisito: Agilidade 2."
+      "description": "Recebe treinamento em Reflexos; se já treinado, recebe +2 nessa perícia. Ao falhar no teste de Percepção que evitaria desprevenido, pague 2 PE para repetir usando Reflexos. Requisito: Agi 2."
     },
     {
       "name": "Talentoso",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Artes ou +2. Em apresentações bem-sucedidas, amplia o bônus concedido a outras perícias conforme a margem de sucesso. Pré-requisito: Presença 2."
+      "description": "Recebe treinamento em Artes; se já treinado, recebe +2 nessa perícia. Na ação impressionar, o bônus de perícias aumenta em 1 para cada 5 pontos pelos quais o resultado excede a DT. Requisito: Pre 2."
     },
     {
       "name": "Teimosia Obstinada",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Vontade ou +2 e pode gastar 2 PE para receber +5 em resistências contra condições mentais e efeitos que alterem atitudes. Pré-requisito: Presença 2."
+      "description": "Recebe treinamento em Vontade; se já treinado, recebe +2 nessa perícia. Por 2 PE, +5 em Vontade contra condições mentais ou efeitos que alterem categorias de atitude. Requisito: Pre 2."
     },
     {
       "name": "Tenacidade",
       "attr": "vig",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Fortitude ou +2 e pode tentar encerrar a condição morrendo com um teste adicional enquanto ainda estiver consciente. Pré-requisito: Vigor 2."
+      "description": "Recebe treinamento em Fortitude; se já treinado, recebe +2 nessa perícia. Na ficha, se estiver morrendo mas consciente, com 1 PV ou mais, pode usar ação livre para testar Fortitude, DT 20 + 10 por teste anterior na cena. Sucesso encerra a condição. Requisito: Vig 2."
     },
     {
       "name": "Sentidos Aguçados",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Percepção ou +2, reduz a vulnerabilidade contra oponentes ocultos e oferece uma segunda chance contra falhas por camuflagem. Pré-requisito: Presença 2."
+      "description": "Recebe treinamento em Percepção; se já treinado, recebe +2 nessa perícia. Não fica desprevenido contra inimigos invisíveis ao personagem. Se errar ataque pela chance de falha da camuflagem, pode repetir o dado dessa chance. Requisito: Pre 2."
     },
     {
       "name": "Sobrevivencialista",
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Sobrevivência ou +2, resiste melhor às condições climáticas e não sofre redução de movimento por terreno difícil natural. Pré-requisito: Intelecto 2."
+      "description": "Recebe treinamento em Sobrevivência; se já treinado, recebe +2 nessa perícia. +2 nas resistências a efeitos climáticos. Terreno difícil natural não reduz deslocamento nem impede investidas. Requisito: Int 2."
     },
     {
       "name": "Sorrateiro",
       "attr": "agi",
       "threshold": 2,
       "minNex": 0,
-      "description": "Ganha treino em Furtividade ou +2 e reduz penalidades ao agir furtivamente sem cobertura ideal ou enquanto se movimenta. Pré-requisito: Agilidade 2."
+      "description": "Recebe treinamento em Furtividade; se já treinado, recebe +2 nessa perícia. Na mecânica de jogo, ignora penalidades de deslocamento normal enquanto furtivo e penalidades por seguir NPCs em ambientes sem cobertura ou movimento. Requisito: Agi 2."
     },
     {
       "name": "Vitalidade Reforçada",
       "attr": "vig",
       "threshold": 2,
       "minNex": 0,
-      "description": "Acrescenta 1 PV para cada incremento de 5% de NEX e concede +2 em Fortitude. Pré-requisito: Vigor 2."
+      "description": "+1 PV a cada 5% de NEX (ou nível de experiência) e +2 em Fortitude. Requisito: Vig 2."
     },
     {
       "name": "Vontade Inabalável",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Acrescenta 1 PE para cada incremento de 10% de NEX e concede +2 em Vontade. Pré-requisito: Presença 2."
+      "description": "+1 PE a cada 10% de NEX (ou dois níveis de experiência) e +2 em Vontade. Requisito: Pre 2."
     }
   ],
   "paranormal": [
