@@ -42,11 +42,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "eletrocussao|energia|1": {
-    "description": "Atinge uma criatura ou objeto com uma descarga de Energia que causa dano elétrico. A versão e o teste de resistência podem mudar o resultado aplicado. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser ou objeto; Duração: Instantânea; Resistência: Fortitude parcial.",
+    "description": "Causa 3d6 de eletricidade e vulnerável por uma rodada. Fortitude reduz o dano pela metade e evita a condição; contra eletrônicos, dobra dano e ignora RD.\n\nDiscente: +2 PE: linha de 30m, 6d6 de Energia. Exige 2º círculo.\n\nVerdadeiro: +5 PE: alvos escolhidos, 8d6 de Energia por alvo. Exige 3º círculo.",
     "kind": "Dano"
   },
   "embaralhar|energia|1": {
-    "description": "Produz imagens sobrepostas do conjurador, confundindo quem tenta atacá-lo. Essas duplicatas dificultam acertar o alvo, mas não funcionam como combatentes independentes. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena.",
+    "description": "Três duplicatas conferem +6 de Defesa; cada ataque errado elimina uma cópia e reduz o bônus em 2. Só funciona contra quem enxerga as imagens.\n\nDiscente: +2 PE: cinco cópias, Defesa +10. Exige 2º círculo.\n\nVerdadeiro: +5 PE: oito cópias, Defesa +16; ao destruir uma cópia, o atacante fica ofuscado por uma rodada. Exige 3º círculo.",
     "kind": "Suporte"
   },
   "luz|energia|1": {
@@ -82,7 +82,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "nuvem de cinzas|morte|1": {
-    "description": "Enche uma região com cinzas que obscurecem a visão e tornam o ambiente difícil de observar. Pode ser usada para encobrir movimentos ou atrapalhar ataques que dependam de enxergar. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: Efeito: nuvem com 6m de raio e 6m de altura; Duração: Cena.",
+    "description": "Névoa de raio e altura de 6m: camuflagem leve a 1,5m e total a partir de 3m. Vento forte dispersa em quatro rodadas, vendaval em uma; não funciona submersa.\n\nDiscente: +2 PE: seres escolhidos enxergam através da nuvem. Exige 2º círculo.\n\nVerdadeiro: +5 PE: deslocamento dentro da área passa a 3m e ataques recebem −2. Exige 3º círculo.",
     "kind": "Suporte"
   },
   "amaldicoar arma|sangue|1": {
@@ -90,11 +90,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "arma atroz|sangue|1": {
-    "description": "Reforça uma arma de combate corpo a corpo com o poder agressivo do Sangue. Seus ataques se tornam mais perigosos durante a cena, de acordo com a versão ativada. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 arma corpo a corpo; Duração: Sustentada.",
+    "description": "Enquanto sustentado, a arma corpo a corpo recebe ataque +2 e margem de ameaça +1.\n\nDiscente: +2 PE: ataque +5. Exige 2º círculo.\n\nVerdadeiro: +5 PE: ataque +5, margem e multiplicador de crítico +2. Exige 3º círculo e afinidade.",
     "kind": "Suporte"
   },
   "armadura de sangue|sangue|1": {
-    "description": "Forma uma camada paranormal protetora sobre o corpo do alvo. Ela melhora a capacidade de resistir a ataques enquanto o ritual durar, sem ser uma proteção comum do inventário. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena.",
+    "description": "Proteção sobrenatural concede +5 de Defesa pela cena; acumula com outros rituais, mas não com equipamento.\n\nDiscente: +5 PE: Defesa +10 e RD 5 contra balístico, corte, impacto e perfuração. Exige 3º círculo.\n\nVerdadeiro: +9 PE: Defesa +15 e RD 10 contra os mesmos tipos. Exige 4º círculo e afinidade.",
     "kind": "Suporte"
   },
   "corpo adaptado|sangue|1": {
@@ -106,7 +106,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "fortalecimento sensorial|sangue|1": {
-    "description": "Aguça temporariamente a percepção e os sentidos do alvo. Pode auxiliar na identificação de pistas, ameaças e estímulos que passariam despercebidos. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena.",
+    "description": "Concede +1d20 em Investigação, Luta, Percepção e Pontaria pela cena.\n\nDiscente: +2 PE: também impõe −1d20 aos ataques contra o conjurador. Exige 2º círculo.\n\nVerdadeiro: +5 PE: imunidade a surpreendido e desprevenido, Defesa e Reflexos +10, além do efeito normal. Exige 4º círculo e afinidade.",
     "kind": "Suporte"
   },
   "odio incontrolavel|sangue|1": {
@@ -118,11 +118,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "aprimorar mente|conhecimento|2": {
-    "description": "Amplia capacidades mentais do alvo, favorecendo tarefas ligadas a raciocínio e influência. Os bônus exatos seguem a versão escolhida e a duração indicada. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Cena.",
+    "description": "Até o final da cena, o alvo escolhe Intelecto ou Presença para receber +1.\n\nDiscente: +3 PE: bônus +2. Exige 3º círculo.\n\nVerdadeiro: +7 PE: bônus +3. Exige 4º círculo e afinidade.",
     "kind": "Suporte"
   },
   "deteccao de ameacas|conhecimento|2": {
-    "description": "Aguça a percepção de riscos próximos e de comportamentos hostis. Ajuda a antecipar perigos, mas não revela automaticamente todas as intenções ou ameaças ocultas. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: Área: esfera com 18m de raio; Duração: Cena.",
+    "description": "Percebe perigos em um raio de 18m; ação de movimento e Percepção DT 20 revelam distância e direção.\n\nDiscente: +3 PE: não fica desprevenido contra perigos detectados e recebe +5 para resistir a armadilhas. Exige 3º círculo.\n\nVerdadeiro: +5 PE: efeitos do Discente com duração de um dia. Exige 4º círculo.",
     "kind": "Suporte"
   },
   "esconder dos olhos|conhecimento|2": {
@@ -146,7 +146,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "dissonancia acustica|energia|2": {
-    "description": "Cria vibrações sonoras perturbadoras que prejudicam a percepção e a concentração. As criaturas afetadas podem sofrer condições negativas ligadas ao som. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: Área: esfera com 6m de raio; Duração: Sustentada.",
+    "description": "Cria área sustentada de raio 6m. Seres dentro dela ficam surdos e não conseguem conjurar.\n\nDiscente: +1 PE: um objeto passa a emitir silêncio em raio de 3m; Vontade anula se for de portador involuntário.\n\nVerdadeiro: +3 PE: duração de uma cena.",
     "kind": "Suporte"
   },
   "sopro do caos|energia|2": {
@@ -154,7 +154,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "tela de ruido|energia|2": {
-    "description": "Ergue uma barreira reativa de Energia para reduzir o impacto de ataques. Funciona como proteção momentânea; não é uma armadura permanente. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena.",
+    "description": "Concede 30 PV temporários exclusivos contra dano balístico, corte, impacto e perfuração. Alternativamente, conjuração como reação fornece RD 15 contra o dano recebido.\n\nDiscente: +3 PE: 60 PV temporários ou RD 30.\n\nVerdadeiro: +7 PE: em alcance curto, envolve um ser ou objeto Enorme ou menor em barreira imóvel impermeável a seres, objetos e dano. Reflexos evita aprisionamento. Exige 4º círculo.",
     "kind": "Suporte"
   },
   "desacelerar impacto|morte|2": {
@@ -170,15 +170,15 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "miasma entropico|morte|2": {
-    "description": "Espalha uma emanação deteriorante de Morte que afeta os seres alcançados. A exposição à área pode causar dano e condições conforme o ritual. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: Área: nuvem com 6m de raio; Duração: Instantânea; Resistência: Fortitude parcial (veja texto).",
+    "description": "Na área de raio 6m, causa 4d8 químico e enjoado por uma rodada. Fortitude reduz dano pela metade e evita a condição.\n\nDiscente: +3 PE: dano passa a 6d8 de Morte.\n\nVerdadeiro: +7 PE: como Discente, dura três rodadas, repetindo dano a quem inicia o turno na área. Exige 3º círculo.",
     "kind": "Dano"
   },
   "velocidade mortal|morte|2": {
-    "description": "Acelera a movimentação ou o ritmo de ações do alvo sob o poder da Morte. O bônus é temporário e tem os limites indicados para a versão. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Sustentada.",
+    "description": "Enquanto sustentado, concede uma ação de movimento extra por turno, que não pode servir para conjurar.\n\nDiscente: +3 PE: troca a ação extra de movimento por padrão.\n\nVerdadeiro: +7 PE: afeta alvos escolhidos. Exige 4º círculo e afinidade.",
     "kind": "Suporte"
   },
   "aprimorar fisico|sangue|2": {
-    "description": "Fortalece o corpo com Sangue, aprimorando capacidades físicas por algum tempo. Os atributos beneficiados e a intensidade variam conforme a versão. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Cena.",
+    "description": "Concede +1 em Força ou Agilidade, escolhido pelo alvo, durante a cena.\n\nDiscente: +3 PE: bônus +2. Exige 3º círculo.\n\nVerdadeiro: +7 PE: bônus +3. Exige 4º círculo e afinidade.",
     "kind": "Suporte"
   },
   "descarnar|sangue|2": {
@@ -246,11 +246,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "tentaculos de lodo|morte|3": {
-    "description": "Cria tentáculos de lodo paranormal para agarrar, restringir ou atingir alvos. A movimentação das criaturas afetadas pode ser limitada pela manifestação. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: Área: círculo com 6m de raio; Duração: Cena.",
+    "description": "Cria área de raio 6m de terreno difícil. Na conjuração e início de seus turnos, disputa agarrar usando Ocultismo contra alvos na área; alvos já agarrados sofrem 4d6, metade impacto e metade Morte. Tentáculos imunes a dano.\n\nVerdadeiro: +5 PE: raio 9m e dano 6d6.",
     "kind": "Dano"
   },
   "zerar entropia|morte|3": {
-    "description": "Usa a Morte para interferir na deterioração e no tempo de um alvo. O efeito procura suspender ou alterar processos de desgaste por duração limitada. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 pessoa; Duração: Cena; Resistência: Vontade parcial.",
+    "description": "Impõe paralisado ao alvo; sucesso em Vontade deixa lento em vez disso. No início de cada turno, uma ação completa permite novo teste para encerrar o efeito.\n\nDiscente: +4 PE: afeta qualquer ser. Exige 4º círculo.\n\nVerdadeiro: +11 PE: afeta seres escolhidos. Exige 4º círculo e afinidade.",
     "kind": "Suporte"
   },
   "ferver sangue|sangue|3": {
@@ -270,7 +270,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "dissipar ritual|medo|3": {
-    "description": "Tenta encerrar uma manifestação ritualística em andamento. O sucesso depende das condições do efeito alvo, em vez de remover automaticamente qualquer poder. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: 1 ser ou objeto; Duração: Instantânea.",
+    "description": "Teste de Ocultismo encerra rituais ativos cuja DT não exceda o resultado. Não afeta efeitos instantâneos. Pode desativar item amaldiçoado por um dia; Vontade do portador anula.",
     "kind": "Suporte"
   },
   "controle mental|conhecimento|4": {
@@ -294,7 +294,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "teletransporte|energia|4": {
-    "description": "Move um alvo instantaneamente para outra posição sem atravessar o caminho entre elas. O destino e a distância obedecem às condições do ritual. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: até 5 seres voluntários; Duração: Instantânea.",
+    "description": "Transporta até cinco seres voluntários a um destino até 1.000km. Ocultismo DT 25 para lugar familiar, 30 para local visitado ou 35 para local descrito por visitante. Falha leva a destino incorreto ou afastado em até 1d10 × 10km; falha por 5 ou mais impede viagem e causa atordoado por 1d4 rodadas.\n\nVerdadeiro: +5 PE: destino em qualquer ponto da Terra.",
     "kind": "Suporte"
   },
   "convocar o algoz|morte|4": {
@@ -322,7 +322,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "canalizar o medo|medo|4": {
-    "description": "Concentra o poder do Medo para produzir uma manifestação paranormal específica. A natureza do efeito depende das condições da versão escolhida. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 pessoa; Duração: Permanente até ser descarregada.",
+    "description": "Transfere um ritual conhecido de até 3º círculo a uma pessoa. Ela pode conjurá-lo uma vez sem pagar o custo básico, usando os próprios PE para aprimoramentos. Até a conjuração, os PE máximos do doador diminuem pelo custo básico.",
     "kind": "Suporte"
   },
   "conhecendo o medo|medo|4": {
