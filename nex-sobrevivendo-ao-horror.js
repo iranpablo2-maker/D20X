@@ -684,19 +684,19 @@ window.NEX_SAH={
       "Monstruoso": [
         [
           "Ser Amaldiçoado",
-          "NEX 10%. Treina Ocultismo e escolhe um elemento paranormal. Uma rotina ritualística concede resistências e benefícios ligados ao elemento, mas gera custos e fraquezas."
+          "NEX 10% — treinamento em Ocultismo ou +2 se já treinado. Escolha Sangue, Morte, Conhecimento ou Energia; a afinidade futura deve corresponder. Uma etapa paranormal ficcional diária ativa benefícios até o fim do dia; sem ela, aplica-se a regra de fome e sede da trilha. Sangue: RD balístico e Sangue 5, faro, Vig ao dano de contra-ataque, −1d20 em Ciências e Intuição. Morte: RD perfuração e Morte 5, imunidade a fadiga, For ao total de PV, −1d20 em Diplomacia e Enganação. Conhecimento: RD balístico e Conhecimento 5, visão no escuro, Int na Defesa, −1d20 em Atletismo e Acrobacia. Energia: RD corte, eletricidade, fogo e Energia 5, Agi na RD de bloqueio, −1d20 em Investigação e Percepção. A trilha aplica a progressão opcional de NEX; se houver experiência separada, duplica o NEX recebido por exposição."
         ],
         [
           "Ser Macabro",
-          "NEX 40%. Reforça as resistências e os poderes associados ao elemento escolhido, ampliando também as penalidades previstas pela transformação."
+          "NEX 40% — RD elemental da trilha sobe para 10; penalidades de perícias passam a −2d20. Sangue: For pode substituir Pre no cálculo de PE; ação de movimento e até For PE recuperam 1d8 PV por PE. Morte: +1d20 em Intimidação, Vig pode substituir Pre no cálculo de PE; tolera quatro inícios de turno na condição morrendo em vez de três; dispensa alimentação comum na ficção, mas não a condição paranormal. Conhecimento: Int +1, pode usar Int para Enganação e cálculo de PE. Energia: Agi pode substituir Pre no cálculo de PE; em acerto corpo a corpo, até Agi PE adicionam 1d6 de Energia por PE."
         ],
         [
           "Ser Assustador",
-          "NEX 65%. Amplia ainda mais a resistência e os efeitos da transformação elemental, com perda permanente de Presença."
+          "NEX 65% — RD da trilha sobe para 15; Pre diminui permanentemente em 1. Sangue: 50% de chance de ignorar dano adicional de crítico ou ataque furtivo; ataque natural 1d8, crítico ×2, perfuração; uma vez por rodada, 1 PE permite ataque natural extra ao agredir com outra arma. Morte: no início do turno morrendo, teste Vig DT 15 para terminar a condição com 1 PV; acerto crítico ou inimigo reduzido a 0 PV recupera 2 PE. Conhecimento: pode suspender treinamento de uma perícia para receber Int dados de bônus; gasta um para +1d20 em teste até fim da cena; recupera o treinamento no próximo interlúdio. Energia: RD também contra químico; ação de movimento permite absorção sobrenatural de fonte de energia do cenário, recuperando 1d4, 2d4 ou 4d4 PE conforme o porte ficcional da fonte, que fica inutilizável."
         ],
         [
           "Ser Aterrorizante",
-          "NEX 99%. A transformação ganha caráter permanente e concede habilidades muito fortes próprias do elemento, com consequências graves para a identidade e a vida do personagem."
+          "NEX 99% — RD da trilha 20, benefícios diários tornam-se permanentes; ainda se aplica a etapa ficcional contra fome paranormal. Conta como criatura paranormal. Sangue: Int −1, For +1, ataque natural recupera 5 PV ao causar dano (multiplicado no crítico); aprende Forma Monstruosa. Ao sofrer dano, Vontade DT 10 + dano; falha obriga conjurar o ritual na próxima ação padrão se não estiver ativo, ou perder a ação se não puder. Morte: Pre −1, Vig +1, imunidade a Morte, retorno à vida no dia seguinte, exceto se reduzido a 0 PV por fogo ou Energia; aprende Fim Inevitável. Conhecimento: For −1, Int +1, percepção às cegas, aprende ritual de Conhecimento de 4º círculo; conjurá-lo apaga lembranças da cena. Energia: For −1, Agi +1; paira a 1,5m com deslocamento 12m, ignora terreno difícil e dano por queda; atravessa espaços adequados a criatura Minúscula, imunidade a paralisia física; aprende Deflagração de Energia; não recebe benefícios de itens vestidos e manipula telecineticamente um objeto por vez, limitado ao que poderia carregar com duas mãos. Aos 75% de NEX fica perturbado permanentemente e perde suporte da Ordem, com equipamento de uma patente inferior; aos 99%, SAN 1. Enlouquecendo aplica confuso em vez do efeito usual, podendo tornar-se criatura definitivamente. Na regra sem SAN, aplica-se a equivalência por determinação indicada no suplemento."
         ]
       ]
     },
@@ -917,133 +917,133 @@ window.NEX_SAH={
       "element": "Morte",
       "category": "II",
       "spaces": 1,
-      "description": "Morte • Categoria II, 1 espaço. Gastando 5 PE, permite receber imediatamente o benefício de uma ação de interlúdio. Para usar novamente, é preciso devolver o tempo emprestado com outro interlúdio."
+      "description": "Enquanto empunhada, 5 PE concedem imediatamente o benefício de uma ação de interlúdio escolhida. Para reutilizar, é necessário gastar uma ação de interlúdio sem receber seu benefício, devolvendo o tempo emprestado."
     },
     {
       "name": "Arreio Neural",
       "element": "Energia",
       "category": "II",
       "spaces": 1,
-      "description": "Energia • Categoria II, 1 espaço. Enquanto equipado, converte parte do dano elétrico ou de Energia sofrido em recuperação de PE, com limite diário relacionado ao Vigor."
+      "description": "Na mecânica de RPG, enquanto equipado, cada ocorrência de dano elétrico ou de Energia de pelo menos 5 pontos recupera 1 PE. O total recuperado por dia não pode ultrapassar duas vezes o Vigor."
     },
     {
       "name": "Câmera Obscura",
       "element": "Conhecimento",
       "category": "III",
       "spaces": 1,
-      "description": "Conhecimento • Categoria III, 1 espaço. Câmera ritualística que pode revelar e prejudicar entidades difíceis de enxergar, elevando a dificuldade de resistir ao seu efeito."
+      "description": "Câmera de aura paranormal com Lente de Revelação. A DT de resistência à lente aumenta em 10. Uma criatura com invisibilidade, incorporeidade ou camuflagem que falhe na resistência também sofre 6d6 de frio."
     },
     {
       "name": "Centrifugador Existencial",
       "element": "Energia",
       "category": "III",
       "spaces": 1,
-      "description": "Energia • Categoria III, 1 espaço. Gastando 3 PE, concede um turno extra por uma rodada. Um teste de Ocultismo evita uma penalidade grave nos atributos após o uso."
+      "description": "Ação padrão e 3 PE: concede um turno extra no fim da ordem de iniciativa desta rodada, representado por uma segunda versão do personagem. Ao fim da rodada, sorteia-se a versão que desaparece; efeitos aplicáveis de ambas permanecem. A duplicata não conta como pessoa adicional. Cada uso exige Ocultismo DT 15 + 5 por uso adicional no dia; falha reduz os atributos pela metade, arredondando para baixo. Recupera 1 ponto de cada atributo por interlúdio."
     },
     {
       "name": "Conector de Membros",
       "element": "Sangue",
       "category": "III",
       "spaces": 1,
-      "description": "Sangue • Categoria III, 1 espaço. Dispositivo ritual que reconecta partes do corpo recentemente perdidas. O efeito não recupera automaticamente todos os PV e pode trazer efeitos colaterais."
+      "description": "Artefato sobrenatural de restauração corporal, exclusivamente ficcional. Ação padrão; janela de três rodadas após o evento. Não restaura PV normalmente; em caso de condição morrendo ou morto, deixa o personagem inconsciente com 1 PV. A remoção desfaz o efeito e impede sua repetição na mesma parte. Em 25% dos usos, aplica uma complicação conforme a parte afetada: lento, −1d20 em testes associados ou chance de 25% de confuso em cenas tensas. A resolução da complicação depende do mestre."
     },
     {
       "name": "Dose d’A Praga",
       "element": "Sangue",
       "category": "III",
       "spaces": 1,
-      "description": "Sangue • Categoria III, 1 espaço. Frasco que concede temporariamente vários poderes associados ao Sangue; o término do efeito pode provocar consequências negativas."
+      "description": "Consumível paranormal fictício: ação padrão concede Arma de Sangue, Sangue de Ferro e Sangue Vivo ao usuário ou ser adjacente até o fim da cena. Depois, Fortitude DT 20 + 5 por utilização anterior desde o interlúdio. Falha causa 2d4 de dano mental e prolonga os poderes até o fim da cena seguinte, juntamente com Ódio Incontrolável."
     },
     {
       "name": "Enxame Fantasmagórico",
       "element": "Conhecimento",
       "category": "III",
       "spaces": 1,
-      "description": "Conhecimento • Categoria III, 1 espaço. Manto que torna o usuário invisível enquanto usado, mas cobra dano mental contínuo como custo."
+      "description": "Enquanto vestido, concede invisibilidade. No início de cada turno, causa 1 de dano mental ao usuário, ignorando RD."
     },
     {
       "name": "Espelho Refletor",
       "element": "Energia",
       "category": "II",
       "spaces": 1,
-      "description": "Energia • Categoria II, 1 espaço. Permite observar pontos fora da visão normal com bônus de Percepção. Pode ser sacrificado para refletir dano de Energia à sua fonte."
+      "description": "Ação de movimento permite observação sobrenatural de um ponto ou ser em alcance médio fora do campo visual. Concede +1d20 em Percepção e pode revelar alvos com cobertura total. Pode ser consumido para anular dano de Energia recebido e devolvê-lo à origem."
     },
     {
       "name": "Fuzil Alheio",
       "element": "Energia",
       "category": "IV",
       "spaces": 2,
-      "description": "Energia • Categoria IV, 2 espaços. Arma de precisão paranormal que causa dano do elemento Energia e dispensa munição convencional."
+      "description": "Equipamento ficcional de Energia equivalente ao fuzil de precisão com mira telescópica e laser, sem consumo de munição. Dano do elemento Energia. Use as estatísticas da ficha de jogo."
     },
     {
       "name": "Injeção de Lodo",
       "element": "Morte",
       "category": "II",
       "spaces": 0.5,
-      "description": "Morte • Categoria II, 0,5 espaço. Pode impedir que uma criatura voluntária seja reduzida a zero PV uma vez na cena, mas aumenta sua vulnerabilidade a determinados danos."
+      "description": "Consumível paranormal fictício. Ação padrão; um personagem voluntário adjacente ou o próprio usuário. Pela cena, vulnerabilidade a balístico e Energia; na primeira vez em que os PV seriam reduzidos a zero, permanece com 1 PV."
     },
     {
       "name": "Instantâneo Mortal",
       "element": "Morte",
       "category": "II",
       "spaces": 0.5,
-      "description": "Morte • Categoria II, 0,5 espaço. Fotografia sobrenatural que pode auxiliar testes de busca por pistas relacionados à história representada na imagem, mediante gasto de PE."
+      "description": "Com a fotografia paranormal empunhada, pode pagar 1 PE durante busca de pistas para receber +1d20, desde que a perícia tenha relação com o acontecimento retratado. O mestre determina a relação."
     },
     {
       "name": "Mandíbula Agonizante",
       "element": "Sangue",
       "category": "II",
       "spaces": 1,
-      "description": "Sangue • Categoria II, 1 espaço. Objeto que produz uma distração sonora intensa, útil em furtividade e capaz de atrair criaturas associadas ao Sangue."
+      "description": "Artefato sobrenatural de distração: ação padrão, ponto em alcance médio; até o fim da cena, efeito sonoro em raio de 30m. Na cena de furtividade, garante sucesso na ação distrair. Criaturas de Sangue resistem com Vontade DT 35 à atração paranormal. Reutilização após uma cena de descanso."
     },
     {
       "name": "A Primeira Adaga",
       "element": "Medo",
       "category": "III",
       "spaces": 1,
-      "description": "Medo • Categoria III, 1 espaço. Relíquia ritualística que aplica vários efeitos de catalisadores a um ritual, exigindo um preço muito alto do conjurador."
+      "description": "Como componente de ritual no jogo, combina os efeitos dos catalisadores ampliador, perturbador, potencializador e prolongador. A conjuração passa a durar uma rodada. Custo ficcional: metade dos PV máximos, contado para dano massivo."
     },
     {
       "name": "Projétil de Lodo, Curto",
       "element": "Morte",
       "category": "I",
       "spaces": 1,
-      "description": "Morte • Categoria I, 1 espaço. Munição curta amaldiçoada que converte o dano da arma para Morte, mas causa a deterioração da arma após a cena."
+      "description": "Munição sobrenatural de categoria I. Converte integralmente o tipo de dano do ataque para Morte. Ao fim da cena, o equipamento utilizado é destruído pelo efeito paranormal."
     },
     {
       "name": "Projétil de Lodo, Longo",
       "element": "Morte",
       "category": "II",
       "spaces": 1,
-      "description": "Morte • Categoria II, 1 espaço. Munição longa amaldiçoada que converte o dano da arma para Morte, mas causa a deterioração da arma após a cena."
+      "description": "Munição sobrenatural de categoria II. Converte integralmente o tipo de dano do ataque para Morte. Ao fim da cena, o equipamento utilizado é destruído pelo efeito paranormal."
     },
     {
       "name": "Rádio Chiador",
       "element": "Morte",
       "category": "II",
       "spaces": 1,
-      "description": "Morte • Categoria II, 1 espaço. Rádio que detecta a proximidade aproximada de criaturas paranormais por variações no chiado; o som também pode chamar sua atenção."
+      "description": "Enquanto ligado, sinaliza criaturas paranormais em alcance extremo, com intensidade variável que permite estimar direção e categoria de alcance. A carga fictícia dura doze horas. Criaturas que ouvem o sinal podem ser atraídas; não funciona como rádio gravador comum e pode ser desligado."
     },
     {
       "name": "Repositório do Fracasso",
       "element": "Conhecimento",
       "category": "II",
       "spaces": 1,
-      "description": "Conhecimento • Categoria II, 1 espaço. Acumula cargas quando criaturas paranormais obtêm maus resultados em seus dados. As cargas restauram PE, mas geram penalidade cumulativa em Vontade."
+      "description": "Recebe uma carga para cada d20 com resultado 1 em testes de criatura paranormal em alcance médio, até seis cargas. Uma vez por rodada, consome uma para recuperar 1d4 PE. Cada consumo impõe −1 cumulativo em Vontade até o próximo interlúdio."
     },
     {
       "name": "Retalho Tenebroso",
       "element": "Sangue",
       "category": "II",
       "spaces": 1,
-      "description": "Sangue • Categoria II, 1 espaço. Máscara paranormal que aprimora sentidos e dano ao longo dos dias, mas provoca desgaste e é difícil de remover."
+      "description": "Equipamento paranormal fictício: ação padrão para vestir. Concede faro e visão no escuro; vulnerabilidade a Morte e −2d20 em interações sociais. Cada dia consecutivo equipado soma +1 cumulativo ao dano. No fim do dia, Fortitude DT 15 + 5 por teste adicional consecutivo evita perda de 1d6 PV. Remoção exige ação padrão e o mesmo teste; falha custa 1d6 PV. Esses PV só retornam após remoção; o efeito termina automaticamente com a morte do personagem."
     },
     {
       "name": "Tablet do Saber Custoso",
       "element": "Conhecimento",
       "category": "II",
       "spaces": 1,
-      "description": "Conhecimento • Categoria II, 1 espaço. Conhecido no livro como Tábula do Saber Custoso. Permite ser considerado treinado em uma perícia durante um teste, ao custo de Sanidade proporcional ao atributo-chave."
+      "description": "Também chamado Tábula do Saber Custoso. Enquanto empunhado, permite aplicar o benefício de treinamento em uma perícia a um único teste, perdendo SAN igual ao atributo-chave correspondente."
     }
   ]
 };
