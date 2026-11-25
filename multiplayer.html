@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NEX | Sistema de fichas</title>
+<title>D20X | Campanhas e Tabletop</title>
 <style>
 :root{color-scheme:dark;font-family:system-ui,'Segoe UI',sans-serif;background:#08090b;color:#f1eff1;--red:#b72e3a}
 *{box-sizing:border-box}body{margin:0;background:#09090b;color:#eee}button,input,textarea,select{font:inherit}button{cursor:pointer}
@@ -2972,14 +2972,14 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
  observer.observe(document.body,{subtree:true,childList:true,attributes:true,characterData:true});
 }
 </script>
-<header><strong>NEX</strong><span>Campanhas online</span><a href="./index.html">Voltar às fichas</a></header>
+<header><strong>D20X</strong><span>Campanhas online</span><a href="./index.html">Voltar às fichas</a></header>
 <main>
 <h1>Campanha compartilhada</h1>
 <p>Todos os participantes podem visualizar as fichas. Somente o dono do personagem e o mestre podem editar. As permissões são verificadas no banco de dados.</p>
 <div id="notice" role="status" aria-live="polite"></div>
 <section id="setup" class="panel hide"><h2>Multiplayer ainda não ativado</h2><p>É preciso conectar um projeto Firebase e publicar as regras de acesso antes de usar campanhas entre celulares. As fichas locais permanecem intactas.</p><p>Consulte <a href="./MULTIPLAYER.md">as instruções de ativação</a>.</p></section>
 <section id="authPanel" class="panel hide">
- <h2>Entrar no NEX online</h2>
+ <h2>Entrar no D20X online</h2>
  <form id="authForm"><label>E-mail<input type="email" id="email" autocomplete="email" required></label>
  <label>Senha<input type="password" id="password" autocomplete="current-password" minlength="6" required></label>
  <div class="row"><button type="submit" data-kind="login">Entrar</button><button type="button" id="register" class="alt">Criar conta</button></div></form>
@@ -3063,7 +3063,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
    <section id="roomTabletopPanel" class="room-panel hide" aria-label="Tabletop da campanha">
-    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><span class="nex-vtt-brand-symbol" aria-hidden="true">◆</span><div class="nex-vtt-brand-copy"><strong>NEX</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexVttBuildTag" title="Versão do tabletop do NEX">NEX VTT 2.0</span><button type="button" id="nexVttReload" title="Recarregar a interface da mesa">⟳ Recarregar</button><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
+    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><span class="nex-vtt-brand-symbol" aria-hidden="true">◆</span><div class="nex-vtt-brand-copy"><strong>D20X</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexVttBuildTag" title="Versão do tabletop do D20X">D20X VTT 2.0</span><button type="button" id="nexVttReload" title="Recarregar a interface da mesa">⟳ Recarregar</button><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
     <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
     <div class="nex-vtt-layout" id="nexVttWorkspace"><button id="nexVttSidebarToggle" type="button" aria-controls="nexTabletopTools" aria-expanded="false" title="Abrir ferramentas" aria-label="Abrir ferramentas">›</button><button id="nexVttSheetsCornerToggle" type="button" aria-controls="nexVttMainMenu" aria-expanded="false" title="Menu principal" aria-label="Menu principal">☰</button><div id="nexVttMainMenu" class="nex-vtt-main-menu" hidden>
@@ -3127,14 +3127,14 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
       <p class="room-note">Controle participantes, limites, vagas, permissões e personagens nesta seção exclusiva do mestre.</p>
       <div class="nex-manager-group"><h3>Jogadores e limites de fichas</h3><div id="gmSlotLimits" class="grid room-members"></div></div>
       <div class="nex-manager-group"><h3>Pedidos de vagas extras</h3><div id="gmSlotRequests" class="grid room-members"></div></div>
-      <div class="nex-manager-group"><h3>Responsáveis e permissões das fichas</h3><p class="room-note">O proprietário mantém sua ficha na conta NEX. O responsável atribuído pode editar a ficha na campanha; o mestre também pode editar.</p><div id="gmSheetAssignments" class="grid room-members"></div></div>
+      <div class="nex-manager-group"><h3>Responsáveis e permissões das fichas</h3><p class="room-note">O proprietário mantém sua ficha na conta D20X. O responsável atribuído pode editar a ficha na campanha; o mestre também pode editar.</p><div id="gmSheetAssignments" class="grid room-members"></div></div>
       <div id="gmOnly" class="nex-manager-group"><h3>Solicitações de entrada</h3><div id="joinRequests" class="grid room-members"><p>Nenhuma solicitação pendente.</p></div></div>
      </div>
     </details>
    </section>
    <section id="roomCharactersPanel" class="room-panel">
     <div class="room-panel-head"><h2>Personagens</h2><button id="newSheet">Criar ficha simples</button></div>
-    <div id="nexLinkPanel" class="row" style="margin:0 0 14px"><select id="nexAgentSelect" aria-label="Escolher personagem NEX" style="flex:1;min-width:180px"><option value="">Carregando fichas do NEX…</option></select><button type="button" id="nexLinkAgent">Vincular ficha existente</button><button type="button" id="nexRefreshAgents" class="alt">Atualizar lista</button></div>
+    <div id="nexLinkPanel" class="row" style="margin:0 0 14px"><select id="nexAgentSelect" aria-label="Escolher personagem D20X" style="flex:1;min-width:180px"><option value="">Carregando fichas do D20X…</option></select><button type="button" id="nexLinkAgent">Vincular ficha existente</button><button type="button" id="nexRefreshAgents" class="alt">Atualizar lista</button></div>
     <p class="room-note">Todos os participantes podem visualizar. Cada jogador edita as fichas que controla. O Mestre administra as permissões e as vagas.</p>
     <section id="sheetFormPanel" class="panel hide">
      <h3 id="sheetFormTitle">Editar ficha</h3>
@@ -3267,7 +3267,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const allowed=roomSheets.filter(sheet=>gm||(!sheet.isHidden&&assignedTo(sheet,uid)));
   if(activeVttMiniSheetId&&!allowed.some(s=>s.id===activeVttMiniSheetId))activeVttMiniSheetId=null;
   list.replaceChildren();
-  $('nexVttSheetsHint').textContent='Selecione um personagem para abrir a ficha original do NEX sobre o mapa.';
+  $('nexVttSheetsHint').textContent='Selecione um personagem para abrir a ficha original do D20X sobre o mapa.';
   for(const sheet of allowed){
    const button=document.createElement('button');button.type='button';button.className='nex-vtt-sheet';
    button.dataset.vttMiniSheet=sheet.id;button.title='Abrir ficha completa de '+String(sheet.name||'Personagem');
@@ -3285,7 +3285,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const sheet=roomSheets.find(item=>item.id===id);
   if(!sheet||(!gm&&(sheet.isHidden||!assignedTo(sheet,uid))))return;
   if(window.parent===window){
-   notice('Abra a campanha dentro do NEX para usar a ficha completa no Tabletop.');
+   notice('Abra a campanha dentro do D20X para usar a ficha completa no Tabletop.');
    return;
   }
   const editable=gm||sheet.controllerUid===uid||(!sheet.controllerUid&&sheet.ownerUid===uid);
@@ -3333,7 +3333,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  const pendingBridge=new Map();
  let bridgeSeq=0;
  function requestNex(type,agentId){
-  if(window.parent===window)return Promise.reject(Error('Abra as campanhas dentro do NEX para vincular uma ficha.'));
+  if(window.parent===window)return Promise.reject(Error('Abra as campanhas dentro do D20X para vincular uma ficha.'));
   return new Promise((resolve,reject)=>{
    const requestId='nex-'+(++bridgeSeq);
    const timeout=setTimeout(()=>{pendingBridge.delete(requestId);reject(Error('A ficha não respondeu. Abra novamente a aba Campanhas.'));},8000);
@@ -3477,7 +3477,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    const limitReached=!gm&&!added&&playerCount(uid)>=characterLimit(uid);
    const date=a.createdAt?new Date(a.createdAt).toLocaleDateString('pt-BR'):'Data não informada';
    return '<article class="agent-picker-card"><div class="agent-picker-info">'+(safePortrait(a.portrait)?'<img class="agent-picker-avatar" src="'+escape(a.portrait)+'" alt="">':'')+'<div><strong>'+escape(a.name)+'</strong><small>'+escape(a.className||'Classe não informada')+' · NEX '+escape(a.nex)+'%</small><small>Registrado em '+escape(date)+'</small></div></div><button type="button" data-select-agent="'+escape(a.id)+'" '+(limitReached?'disabled':'')+'>'+(added?'Atualizar':limitReached?'Sem vagas':'Adicionar')+'</button></article>';
-  }).join(''):'<p>Nenhum personagem encontrado. Crie um personagem no NEX.</p>';
+  }).join(''):'<p>Nenhum personagem encontrado. Crie um personagem no D20X.</p>';
  }catch(err){grid.textContent='Erro ao carregar personagens: '+err.message;}
 }
  $('roomAgentPickerCards').addEventListener('click',e=>{
@@ -3556,7 +3556,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }catch(error){
    if(error?.code==='permission-denied'){
     $('roomImageSummary').textContent='A imagem foi selecionada, mas o Firebase bloqueou o salvamento. Publique as regras atualizadas do Firestore para permitir a capa.';
-    throw Error('A capa não foi salva porque o Firebase recusou a alteração. Publique as regras atuais do Firestore do NEX.');
+    throw Error('A capa não foi salva porque o Firebase recusou a alteração. Publique as regras atuais do Firestore do D20X.');
    }
    throw error;
   }
@@ -3590,7 +3590,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     pv:Math.max(0,Math.trunc(Number(data.pv)||0)),
     pe:Math.max(0,Math.trunc(Number(data.pe)||0)),
     san:Math.max(0,Math.trunc(Number(data.san)||0)),
-    notes:'Ficha completa vinculada ao NEX',
+    notes:'Ficha completa vinculada ao D20X',
     fullSheet:data,linkedAgentId:agentId,sheetFormat:'nex-agent-v1',
     updatedAt:serverTimestamp()
   };
@@ -3698,7 +3698,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  $('privateOn').onclick=()=>{privateShield=true;updatePrivateButtons();};
  $('privateOff').onclick=()=>{privateShield=false;updatePrivateButtons();};
  async function deleteCampaignWithData(id){
-  if(!uid)throw Error('Entre na conta NEX.');
+  if(!uid)throw Error('Entre na conta D20X.');
   const ref=doc(db,'campaigns',id);
   const snap=await getDoc(ref);
   if(!snap.exists())throw Error('A campanha não existe mais.');
@@ -3912,7 +3912,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }
   window.dispatchEvent(new CustomEvent('nex:vtt-view',{detail:{campaignId:roomId,open:section==='tabletop'}}));
   document.documentElement.classList.toggle('nex-vtt-active',section==='tabletop');
-  if(section==='tabletop'){$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';const tag=document.querySelector('.nex-vtt-room-tag');if(tag)tag.textContent='NEX · '+$('nexVttCampaignName').textContent;renderVttSheets();if(window.matchMedia('(max-width:900px) and (pointer:coarse)').matches)setVttSidebarCollapsed(true);}
+  if(section==='tabletop'){$('nexVttCampaignName').textContent=roomData?.name||$('roomTitle').textContent||'Campanha';const tag=document.querySelector('.nex-vtt-room-tag');if(tag)tag.textContent='D20X · '+$('nexVttCampaignName').textContent;renderVttSheets();if(window.matchMedia('(max-width:900px) and (pointer:coarse)').matches)setVttSidebarCollapsed(true);}
   if(window.parent!==window){
    try{window.parent.postMessage({type:'nex-campaign-tabletop-view',open:section==='tabletop'},location.origin);}catch(error){}
   }
@@ -4774,7 +4774,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const name=$('campaignNameOnline').value.trim();
   const description=$('campaignDescriptionOnline').value.trim();
   message.textContent='';
-  if(!uid){message.textContent='Você precisa entrar na conta NEX para criar a campanha.';return;}
+  if(!uid){message.textContent='Você precisa entrar na conta D20X para criar a campanha.';return;}
   if(!name){message.textContent='Preencha o nome da campanha para continuar.';$('campaignNameOnline').focus();return;}
   if(myCampaigns.length>=10){message.textContent='Limite de 10 campanhas por conta.';return;}
   submit.disabled=true;submit.textContent='Criando…';
@@ -4782,10 +4782,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     message.textContent='O Firebase está demorando a responder. A criação ainda não foi confirmada; verifique sua conexão.';
   },7000);
   try{
-   message.textContent='Criando a campanha na conta NEX…';
+   message.textContent='Criando a campanha na conta D20X…';
    await auth.authStateReady();
    const activeUser=auth.currentUser;
-   if(!activeUser||activeUser.uid!==uid)throw Error('Sessão NEX desconectada. Entre novamente na sua conta.');
+   if(!activeUser||activeUser.uid!==uid)throw Error('Sessão D20X desconectada. Entre novamente na sua conta.');
    const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
    const bytes=new Uint8Array(8);crypto.getRandomValues(bytes);
    const code='NEX-'+Array.from(bytes,b=>alphabet[b%alphabet.length]).join('');
@@ -4805,7 +4805,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    $('campaignCode').value=ref.id;
    form.reset();
    libraryMode('list');
-   notice('Campanha criada na conta NEX! Código: '+ref.id);
+   notice('Campanha criada na conta D20X! Código: '+ref.id);
    try{await enterRoom(ref.id);}catch(openError){
     libraryMode('list');
     notice('Campanha salva, mas a sala não abriu. Código: '+ref.id+'. '+(openError?.message||'Erro de leitura.'));
@@ -4967,7 +4967,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     const editors=assigned===roomData?.gmUid?'Mestre':responsible+' e Mestre';
     const managing='<div class="nex-character-responsible"><small class="nex-character-meta-label">Jogador responsável</small><strong class="nex-character-meta-value">'+escape(responsible)+'</strong><small class="nex-character-meta-editors">Pode editar: '+escape(s.isHidden?'Somente o Mestre (oculta)':editors)+'</small></div>';
     return '<article class="nex-character-card" data-card-layout="referencia-20261113">'+pic+'<div class="nex-character-info"><strong title="'+escape(name)+'">'+escape(name)+'</strong><span>'+escape(cls)+'</span><small>NEX '+escape(s.nex)+'%'+(!mine?' · Jogador da campanha':'')+'</small>'+(s.isHidden?'<span class="nex-hidden-label">🔒 Oculta</span>':'')+'<button type="button" data-open-campaign-sheet="'+escape(s.id)+'">Acessar Ficha</button>'+managing+'</div>'+(editable?'<details class="nex-character-settings"><summary aria-label="Opções do personagem" title="Opções do personagem">⚙</summary><button type="button" data-toggle-private-sheet="'+escape(s.id)+'">'+(s.isHidden?'Mostrar ficha':'Ocultar ficha')+'</button><button type="button" data-remove-campaign-sheet="'+escape(s.id)+'">Remover da campanha</button></details>':'')+'</article>';
-  }).join(''):'<p class="room-note">Ainda não há personagens nesta campanha. Use “Adicionar Personagens” para escolher uma ficha da sua conta NEX.</p>';
+  }).join(''):'<p class="room-note">Ainda não há personagens nesta campanha. Use “Adicionar Personagens” para escolher uma ficha da sua conta D20X.</p>';
  }
  $('gmSheetAssignments').addEventListener('click',event=>{
   const button=event.target.closest('[data-toggle-assignment]');
@@ -5056,7 +5056,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     try{
      await deleteDoc(campaignSheetRef(sheet));
      if(sheet.ownerUid===uid&&sheet.linkedAgentId)localPortraits.delete(sheet.linkedAgentId);
-     notice('Personagem removido da campanha. A ficha original continua salva na conta NEX.');
+     notice('Personagem removido da campanha. A ficha original continua salva na conta D20X.');
     }catch(error){remove.disabled=false;throw error;}
    });
    return;
@@ -5090,7 +5090,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    }
    // A tela de campanhas independente exige o NEX completo para renderizar a ficha.
    $('nexCampaignSheetTitle').textContent=sheet.name||'Personagem';
-   $('nexCampaignSheetBody').textContent='Abra esta campanha dentro do NEX para ver a ficha completa.';
+   $('nexCampaignSheetBody').textContent='Abra esta campanha dentro do D20X para ver a ficha completa.';
    $('nexCampaignSheetDialog').showModal();
    return;
   }
@@ -5108,7 +5108,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    return;
   }
   $('nexCampaignSheetTitle').textContent=sheet.name||'Personagem';
-  $('nexCampaignSheetBody').innerHTML='<p class="room-note">Esta ficha foi criada no formato simples antigo e não possui os dados da ficha completa. Adicione uma ficha NEX à campanha para ver o layout operacional.</p>';
+  $('nexCampaignSheetBody').innerHTML='<p class="room-note">Esta ficha foi criada no formato simples antigo e não possui os dados da ficha completa. Adicione uma ficha D20X à campanha para ver o layout operacional.</p>';
   $('nexCampaignSheetDialog').showModal();
  });
  $('newSheet').addEventListener('click',()=>{
