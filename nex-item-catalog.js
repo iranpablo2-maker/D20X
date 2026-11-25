@@ -123,7 +123,6 @@ style.textContent=[
 '#nexItemModal .nex-item-search-wrap{flex:0 0 auto!important;min-height:58px!important;padding:8px 16px!important}',
 '#nexItemModal .nex-item-results{flex:1 1 0%!important;min-height:0!important;overflow-y:auto!important}',
 '#nexItemModal .nex-item-count{font-size:11px;color:#c9a9ac;padding:3px 18px 9px;flex:0 0 auto!important}',
-'#nexItemModal .nex-item-footer{flex:0 0 auto!important}',
 '@media(max-width:600px){#nexItemModal .nex-item-dialog{height:calc(100dvh - 8px)!important;max-height:calc(100dvh - 8px)!important}#nexItemModal .nex-item-categories{gap:5px!important;padding:5px 10px 9px!important}#nexItemModal .nex-item-category-button{padding:6px 8px!important;font-size:11px!important}}',
 '#nexItemModal[hidden]{display:none!important}',
 '#nexItemModal{position:fixed;inset:0;z-index:100030;display:grid;place-items:center;padding:12px;background:#000c;color:#fff;font-family:Arial,system-ui,sans-serif}',
@@ -142,8 +141,6 @@ style.textContent=[
 '#nexItemModal .nex-item-search-wrap{padding:14px 16px 9px}',
 '#nexItemModal #nexItemModalSearch{width:100%;border:0;border-radius:3px;background:#101010;color:#fff;height:42px;padding:8px 13px;font-size:16px}',
 '#nexItemModal .nex-item-results{overflow-y:auto;flex:1;min-height:180px;padding:6px 16px 18px;overscroll-behavior:contain}',
-'#nexItemModal .nex-item-footer{border-top:1px solid #3c3a40;padding:9px 16px;display:flex;justify-content:flex-end}',
-'#nexItemModal .nex-item-custom{padding:8px 13px;border:1px solid #b1444d;background:transparent;color:#ddd;border-radius:3px;cursor:pointer}',
 '#nexItemModal .nex-item-card{margin-bottom:8px;background:#161616;border-radius:4px;overflow:hidden}',
 '#nexItemModal .nex-item-card-header{display:grid;grid-template-columns:38px minmax(0,1fr) 45px;gap:10px;align-items:center;padding:9px 10px;min-height:67px}',
 '#nexItemModal .nex-item-expand{border:0;background:none;color:#f94251;font-size:23px;cursor:pointer}',
@@ -172,10 +169,9 @@ modal.innerHTML='<section class="nex-item-dialog" role="dialog" aria-modal="true
 '<div class="nex-item-search-wrap"><input type="search" id="nexItemModalSearch" placeholder="⌕  Buscar" aria-label="Buscar itens"></div>'+ 
 '<div class="nex-item-count" id="nexItemCatalogCount" aria-live="polite"></div>'+ 
 '<div id="nexItemModalResults" class="nex-item-results" aria-live="polite"></div>'+ 
-'<div class="nex-item-footer"><button type="button" class="nex-item-custom">+ Criar item personalizado</button></div></section>';
+'</section>';
 document.body.appendChild(modal);
 const search=by('nexItemModalSearch'),results=by('nexItemModalResults');
-const originalAddItem=by('addItem')?.onclick;
 let selectedSource='Itens',selected='Armas',lastFocus=null,renderedItems=[];
 function render(){
  modal.querySelectorAll('[data-source]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.source===selectedSource)));
@@ -235,7 +231,6 @@ modal.addEventListener('click',event=>{
  if(event.target===modal){close();return;}
  const button=event.target.closest('button');if(!button)return;
  if(button.classList.contains('nex-item-close')){close();return;}
- if(button.classList.contains('nex-item-custom')){close();if(typeof originalAddItem==='function')originalAddItem.call(by('addItem'),event);else{state.items.push({id:'manual_'+Date.now(),name:'Novo item',quantity:1,spaces:window.NEX_CARRY?.remaining?.()<=0?0:1,category:'Geral',detail:''});renderInventory();save();}return;}
  if(button.dataset.source){selectedSource=button.dataset.source;search.value='';render();return;}
  if(button.dataset.cat){selected=button.dataset.cat;search.value='';render();return;}
  if(button.dataset.add!==undefined){add(Number(button.dataset.add));return;}
