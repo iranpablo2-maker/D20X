@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>NEX | Ameaças</title>
+<title>D20X | Ameaças</title>
 <style>
 :root{color-scheme:dark;--bg:#0b0b0e;--panel:#181518;--line:#513039;--red:#bd3445;--text:#f7eff1;--muted:#b9a9b0}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "Segoe UI",system-ui,sans-serif}
@@ -254,7 +254,7 @@ function draw(){
   '<div role="img" aria-label="Retrato de '+escape(x.name)+'" style="position:absolute;inset:0;background-image:url('+window.NEX_FINAL_FOUR_ATLAS+');background-size:200% 200%;background-position:'+(lastIndex%2?'100%':'0%')+' '+(lastIndex>=2?'100%':'0%')+';background-repeat:no-repeat"></div>':'';
  const visual=fallback+img+special+uploaded+finalPortrait;
  const showPortrait=!noRealityPhoto&&!!visual;
- return groupHeading+'<article class="monster'+(showPortrait?"":" no-portrait")+'" style="--art:'+art(x.element)+'">'+(showPortrait?'<div class="emblem" style="position:relative;overflow:hidden">'+visual+'</div>':"")+'<div class="details"><strong>'+escape(x.name)+'</strong><small>'+escape(x.element)+' · '+escape(x.category||"Criatura")+'</small><span class="source">'+escape(x.source)+'</span></div><button type="button" class="threat-link" '+(nexCampaignThreatPicker?'data-add-campaign-threat="'+encodeURIComponent(threatKey(x))+'"'+(nexCampaignAddedThreatKeys.has(threatKey(x))?' disabled':'')+' title="Adicionar ameaça à campanha">'+(nexCampaignAddedThreatKeys.has(threatKey(x))?'Adicionada':'Adicionar'):'data-show-threat="'+encodeURIComponent(threatKey(x))+'" title="Abrir ficha dentro do NEX">Ficha')+'</button></article>';
+ return groupHeading+'<article class="monster'+(showPortrait?"":" no-portrait")+'" style="--art:'+art(x.element)+'">'+(showPortrait?'<div class="emblem" style="position:relative;overflow:hidden">'+visual+'</div>':"")+'<div class="details"><strong>'+escape(x.name)+'</strong><small>'+escape(x.element)+' · '+escape(x.category||"Criatura")+'</small><span class="source">'+escape(x.source)+'</span></div><button type="button" class="threat-link" '+(nexCampaignThreatPicker?'data-add-campaign-threat="'+encodeURIComponent(threatKey(x))+'"'+(nexCampaignAddedThreatKeys.has(threatKey(x))?' disabled':'')+' title="Adicionar ameaça à campanha">'+(nexCampaignAddedThreatKeys.has(threatKey(x))?'Adicionada':'Adicionar'):'data-show-threat="'+encodeURIComponent(threatKey(x))+'" title="Abrir ficha dentro do D20X">Ficha')+'</button></article>';
 
  }).join(""):'<div class="empty">Nenhuma ameaça encontrada nesta combinação. Algumas fontes ainda estão em revisão.</div>';
  // Carrega as imagens dos personagens de fevereiro sem mostrar uma miniatura ampliada.
