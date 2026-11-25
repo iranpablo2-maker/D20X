@@ -1,4 +1,4 @@
-/* NEX Tabletop — cache local por conta/campanha para mídias compartilhadas.
+/* D20X Tabletop — cache local por conta/campanha para mídias compartilhadas.
    O Firebase continua sendo a fonte de verdade; o cache apenas evita leituras repetidas. */
 export function createVttMediaCache(uid,campaignId){
  const namespace=String(uid||'anonymous')+':'+String(campaignId||'');

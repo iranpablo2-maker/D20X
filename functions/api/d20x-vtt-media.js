@@ -1,4 +1,4 @@
-// NEX Tabletop private R2 asset API.
+// D20X Tabletop private R2 asset API.
 // No public bucket URL and no R2 access tokens in the browser.
 // Firebase ID token + Cloud Firestore Security Rules authorize campaign access.
 const MAX_SIZE=10*1024*1024;
@@ -16,7 +16,7 @@ async function authenticate(request,projectId){
  const authorization=request.headers.get('Authorization')||'';
  const token=authorization.startsWith('Bearer ')?authorization.slice(7):'';
  const parts=token.split('.');
- if(parts.length!==3||!projectId)throw Object.assign(Error('Faça login na conta NEX.'),{status:401});
+ if(parts.length!==3||!projectId)throw Object.assign(Error('Faça login na conta D20X.'),{status:401});
  let header,payload;
  try{header=decodeJWT(parts[0]);payload=decodeJWT(parts[1]);}catch(_){throw Object.assign(Error('Sessão inválida.'),{status:401});}
  const now=Date.now()/1000;

@@ -1,4 +1,4 @@
-/* Música do NEX Tabletop: biblioteca privada do navegador.
+/* Música do D20X Tabletop: biblioteca privada do navegador.
    Nunca envia áudio ao Firestore, R2 ou outras APIs. */
 export function mountNexLocalMusic({uid,campaignId,root}){
  if(!root||!uid||!campaignId)return ()=>{};

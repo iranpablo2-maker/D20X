@@ -1,8 +1,8 @@
-# NEX — Como ativar o login Google
+# D20X — Como ativar o login Google
 
 O login foi adicionado ao site, mas fica **desativado até você configurar seu próprio Firebase**. O salvamento existente continua local e automático.
 
-1. Entre em https://console.firebase.google.com/ e crie ou abra o projeto NEX.
+1. Entre em https://console.firebase.google.com/ e crie ou abra o projeto D20X.
 2. Em **Configurações do projeto > Seus aplicativos**, crie um **aplicativo Web** e copie o objeto `firebaseConfig`.
 3. Em **Authentication > Sign-in method**, habilite **Google** e configure o e-mail de suporte.
 4. Em **Authentication > Settings > Authorized domains**, adicione `iranpablo2-maker.github.io`.

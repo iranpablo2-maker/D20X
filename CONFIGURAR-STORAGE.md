@@ -1,4 +1,4 @@
-# NEX Tabletop — todos os novos arquivos locais, compartilhados ao iniciar a sessão
+# D20X Tabletop — todos os novos arquivos locais, compartilhados ao iniciar a sessão
 
 ## Como funciona
 

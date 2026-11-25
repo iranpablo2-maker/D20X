@@ -12,7 +12,7 @@ export function createNexMultiStore({getIdToken,uid}){
   if(typeof getIdToken!=='function')throw Error('Login Google necessário para sincronizar.');
   const token=await getIdToken();
   if(!token)throw Error('Sessão não autenticada.');
-  const response=await fetch('/api/nex-data?store='+encodeURIComponent(store)+'&key='+encodeURIComponent(key),{
+  const response=await fetch('/api/d20x-data?store='+encodeURIComponent(store)+'&key='+encodeURIComponent(key),{
    method,headers:{Authorization:'Bearer '+token,...(method==='PUT'?{'Content-Type':'application/json'}:{})},
    ...(method==='PUT'?{body:JSON.stringify({value})}:{})
   });

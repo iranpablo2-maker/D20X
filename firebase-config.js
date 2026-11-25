@@ -1,4 +1,4 @@
-// Configuração pública do aplicativo Web NEX RPG, fornecida pelo Firebase Console.
+// Configuração pública do aplicativo Web D20X RPG, fornecida pelo Firebase Console.
 // Nunca adicione senhas, tokens, contas de serviço ou chaves privadas a este arquivo.
 // Login Google é independente do armazenamento local das fichas.
 window.NEX_FIREBASE_CONFIG = {

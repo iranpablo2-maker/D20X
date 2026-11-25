@@ -1,6 +1,6 @@
 // Cloudflare Pages Functions endpoint for authenticated, owner-scoped NEX records.
 // Env: FIREBASE_PROJECT_ID, NEX_D1 (D1 binding), TURSO_DATABASE_URL, TURSO_AUTH_TOKEN.
-// Database tables must first be provisioned using docs/NEX-MULTISTORE.md.
+// Database tables must first be provisioned using docs/D20X-MULTISTORE.md.
 const respond=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}});
 function base64url(text){const bytes=Uint8Array.from(atob(text.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-text.length%4)%4)),c=>c.charCodeAt(0));return bytes;}
 function decode(text){return JSON.parse(new TextDecoder().decode(base64url(text)));}

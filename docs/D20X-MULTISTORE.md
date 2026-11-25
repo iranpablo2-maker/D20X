@@ -3,9 +3,9 @@ Status: **infraestrutura opcional adicionada; integração de dados ainda não a
 
 ## Arquitetura
 - Conta Google continua autenticando no Firebase Authentication. O servidor verifica a assinatura do ID token.
-- IndexedDB local por UID em `nex-multistore.js` (persistência no navegador, não sincroniza sozinho).
-- Cloudflare Pages Functions: `/api/nex-data?store=d1&key=...` para registros do próprio usuário.
-- Turso: `/api/nex-data?store=turso&key=...` para registros do próprio usuário.
+- IndexedDB local por UID em `d20x-multistore.js` (persistência no navegador, não sincroniza sozinho).
+- Cloudflare Pages Functions: `/api/d20x-data?store=d1&key=...` para registros do próprio usuário.
+- Turso: `/api/d20x-data?store=turso&key=...` para registros do próprio usuário.
 - API implementa GET/PUT/DELETE para registros JSON de até 100 KB. **Não usar para armazenar GIFs ou mapas grandes.**
 - Cada registro é privado do seu UID. Permissões de campanhas compartilhadas e sincronização em tempo real **ainda não foram implementadas** nesse serviço.
 
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS nex_records (
  PRIMARY KEY (uid, record_key)
 );
 ```
-5. Fazer deploy e confirmar que a rota `/api/nex-data` aparece no Cloudflare; sem bindings ela responde 503 e não altera dados.
+5. Fazer deploy e confirmar que a rota `/api/d20x-data` aparece no Cloudflare; sem bindings ela responde 503 e não altera dados.
 6. Conectar depois chamadas do app ao `createNexMultiStore({uid,getIdToken})`. Exemplo: `getIdToken: () => auth.currentUser.getIdToken()`. Primeiramente testar só com cópias de dados, nunca com o banco original.
 
 ## Limitações e cuidados

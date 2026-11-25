@@ -1,4 +1,4 @@
-# Campanhas Online do NEX — ativação
+# Campanhas Online do D20X — ativação
 
 O NEX mantém as fichas e campanhas locais existentes. A página `multiplayer.html` é uma **primeira versão separada** para campanhas online. Ela ainda não substitui nem sincroniza automaticamente a ficha completa do site principal.
 
@@ -13,7 +13,7 @@ O NEX mantém as fichas e campanhas locais existentes. A página `multiplayer.ht
 ## O que falta para ativar
 
 1. Crie (ou use) um projeto em [Firebase Console](https://console.firebase.google.com/).
-2. Adicione um aplicativo **Web** e copie exclusivamente o objeto público `firebaseConfig` para `nex-firebase-config.js`, no campo `window.NEX_FIREBASE_CONFIG`.
+2. Adicione um aplicativo **Web** e copie exclusivamente o objeto público `firebaseConfig` para `d20x-firebase-config.js`, no campo `window.NEX_FIREBASE_CONFIG`.
 3. Em **Authentication > Sign-in method**, ative o provedor **Email/Senha**.
 4. Crie o banco **Cloud Firestore**. Em **Firestore > Rules**, copie o conteúdo de `firestore.rules` do repositório e **publique** as regras. Não habilite modo de teste com leitura e gravação pública.
 5. Em **Authentication > Settings > Authorized domains**, autorize `iranpablo2-maker.github.io`, se ainda não estiver na lista.
@@ -45,7 +45,7 @@ A primeira versão online permite compartilhar nome, NEX, PV, PE, SAN e anotaç�
 ## Arquivos
 
 - `multiplayer.html` — interface online.
-- `nex-firebase-config.js` — configuração pública do app Web, inicialmente vazia.
+- `d20x-firebase-config.js` — configuração pública do app Web, inicialmente vazia.
 - `firestore.rules` — regras do Firestore, incluindo as regras legadas para dados de usuários.
 
 O site principal continua funcionando sem Firebase.

@@ -1,4 +1,4 @@
-/* NEX Tabletop - streaming privado durante a sessao.
+/* D20X Tabletop - streaming privado durante a sessao.
  * Firestore: apenas sinalizacao de conexao; WebRTC: imagens locais e musica ao vivo.
  * Sem TURN, algumas redes moveis/NATs podem bloquear conexoes diretas.
  */

@@ -284,7 +284,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #room .nex-assign-label{display:block;margin:5px 0;font-size:11px;color:#c9b4ba;width:100%}
 #room .nex-assign-label select{display:block;margin-top:3px;width:100%;font-size:12px;background:#181317;color:#fff;border:1px solid #653541;border-radius:4px;padding:6px}
 
-/* NEX Tabletop — primeiro módulo de mapa e tokens. */
+/* D20X Tabletop — primeiro módulo de mapa e tokens. */
 .nex-tabletop-tools{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;padding:12px 0;}
 .nex-tabletop-tools label{display:flex;flex-direction:column;gap:5px;color:#e6c1c7;font-size:12px;min-width:155px;}
 .nex-tabletop-tools input{max-width:210px;padding:9px;background:#110e12;color:#fff;border:1px solid #64404a;border-radius:6px;}
@@ -1005,7 +1005,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 #roomTabletopPanel #nexVttSyncNotice button:disabled{opacity:.5}
 </style>
 <style id="nex-vtt-1-5-redesign">
-/* NEX VTT 1.5: persistent, visible in-tabletop action dock. */
+/* D20X VTT 1.5: persistent, visible in-tabletop action dock. */
 #room #roomTabletopPanel:not(.hide){background:#090b10!important;color:#f3f0f0!important}
 #roomTabletopPanel .nex-vtt-heading{display:flex!important;background:#15151c!important;border-bottom:1px solid #3c303a!important}
 #roomTabletopPanel .nex-vtt-brand-symbol{border-color:#ae4655!important;background:#381e27!important;color:#ffb4bf!important}
@@ -1055,7 +1055,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 }
 </style>
 <style id="nex-vtt-2-layout-style">
-/* NEX VTT 2.1 - one unified workspace with an adjustable sheet sidebar. */
+/* D20X VTT 2.1 - one unified workspace with an adjustable sheet sidebar. */
 /* Layout sem cabeçalho: só a seta da barra lateral fica visível.
    Os botões originais permanecem no DOM para compatibilidade com os handlers. */
 #roomTabletopPanel .nex-vtt-heading,
@@ -1651,7 +1651,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  flex:0 0 auto!important;width:auto!important;min-width:0!important;padding:5px!important;font-size:10px!important;
 }
 #roomTabletopPanel .nex-vtt-atmosphere-entry input[type="range"]{max-width:100%;min-width:0}
-</style><script src="./nex-image-crop.js?v=20261113crop1"></script>
+</style><script src="./d20x-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
 #room #roomManagePanel .nex-manager-group{padding:16px 0;border-top:1px solid #50303b}
@@ -2950,7 +2950,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  grid-template-columns:repeat(3,minmax(0,1fr))!important;
 }
 </style>
-<link rel="stylesheet" href="./nex-tabletop-mobile-20261123.css?v=20261123mobile2">
+<link rel="stylesheet" href="./d20x-tabletop-mobile-20261123.css?v=20261123mobile2">
 </head>
 <body>
 <script>
@@ -3170,18 +3170,18 @@ document.addEventListener('click',function(event){
  }
 },true);
 </script>
-<script src="./nex-roll-popup.js?v=20261121transparentd20"></script>
-<link rel="stylesheet" href="./nex-gm-shield.css?v=20261121npcActionCards2">
+<script src="./d20x-roll-popup.js?v=20261121transparentd20"></script>
+<link rel="stylesheet" href="./d20x-gm-shield.css?v=20261121npcActionCards2">
 
 
 
-<script src="./nex-ritual-effects.js?v=20261121npcRitualVisible3"></script>
-<script src="./nex-rituais-metadados.js?v=1"></script>
-<script src="./nex-ritual-guides.js?v=20261112detalhes101"></script>
+<script src="./d20x-ritual-effects.js?v=20261121npcRitualVisible3"></script>
+<script src="./d20x-rituais-metadados.js?v=1"></script>
+<script src="./d20x-ritual-guides.js?v=20261112detalhes101"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './nex-tabletop-base.js?v=20261122playerBrightness1';
-import {mountGmShield} from './nex-gm-shield.js?v=20261121hideThreatSuccess4';
+import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261122playerBrightness1';
+import {mountGmShield} from './d20x-gm-shield.js?v=20261121hideThreatSuccess4';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -5491,7 +5491,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  refresh();
 })();
 </script>
-<!-- NEX VTT: fallback independente das abas da biblioteca -->
+<!-- D20X VTT: fallback independente das abas da biblioteca -->
 <style id="nex-vtt-library-controls-final">
 #roomTabletopPanel #nexVttMainMenu:not([hidden]){z-index:600!important;pointer-events:auto!important}
 #roomTabletopPanel #nexVttMainMenu .nex-vtt-library-tabs{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;position:relative!important;z-index:10!important}

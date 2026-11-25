@@ -58,7 +58,7 @@ import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp} from 'https://
  }
  async function generate(){
   const ids=selected(),items=JSON.parse(JSON.stringify(getItems().filter(item=>ids.includes(item.id)))),user=auth.currentUser;
-  if(!user)return tell('Entre na sua conta NEX para gerar links.');
+  if(!user)return tell('Entre na sua conta D20X para gerar links.');
   if(!items.length||items.length>20)return tell('Selecione de 1 a 20 Homebrews.');
   if(new TextEncoder().encode(JSON.stringify(items)).length>850000)return tell('Pacote grande demais; compartilhe menos itens ou imagens menores.');
   const id=crypto.randomUUID().replace(/-/g,'');$('nexHbShareGenerate').disabled=true;tell('Criando link no Firebase...');
@@ -69,7 +69,7 @@ import {getFirestore,doc,getDoc,setDoc,updateDoc,serverTimestamp} from 'https://
   finally{$('nexHbShareGenerate').disabled=false;}
  }
  async function importItems(){
-  if(!auth.currentUser)return tell('Entre na sua conta NEX para importar.');
+  if(!auth.currentUser)return tell('Entre na sua conta D20X para importar.');
   if(mode!=='import'||!packet)return;
   const ids=selected(),items=packet.items.filter(item=>ids.includes(item.id));
   if(!items.length)return tell('Selecione pelo menos um Homebrew.');

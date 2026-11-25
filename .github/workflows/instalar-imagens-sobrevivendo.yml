@@ -27,11 +27,11 @@ jobs:
           count="$(unzip -Z1 "$archive" | grep -Ec '^assets/ameacas/sobrevivendo-ao-horror/[^/]+\.png$')"
           echo "Fotos encontradas: $count"
           test "$count" -eq 12
-          unzip -o -q "$archive" 'assets/ameacas/sobrevivendo-ao-horror/*.png' 'nex-ameacas-imagens-sah.js' -d .
+          unzip -o -q "$archive" 'assets/ameacas/sobrevivendo-ao-horror/*.png' 'd20x-ameacas-imagens-sah.js' -d .
           node <<'NODE'
           const fs = require('fs');
-          const currentFile='nex-ameacas-imagens-principais.js';
-          const newFile='nex-ameacas-imagens-sah.js';
+          const currentFile='d20x-ameacas-imagens-principais.js';
+          const newFile='d20x-ameacas-imagens-sah.js';
           function readMap(filename){
             const s=fs.readFileSync(filename,'utf8');
             const start=s.indexOf('{'), end=s.lastIndexOf('}');
@@ -54,7 +54,7 @@ jobs:
           for(const filename of ['ameacas.html','ameaca-ficha.html']){
             const html=fs.readFileSync(filename,'utf8');
             const replaced=html.replace(/nex-ameacas-imagens-principais\.js\?v=[^"']+/g,
-              'nex-ameacas-imagens-principais.js?v=20261114sah1');
+              'd20x-ameacas-imagens-principais.js?v=20261114sah1');
             if(html===replaced) throw new Error('Referencia de imagens nao encontrada em '+filename);
             fs.writeFileSync(filename,replaced);
           }
@@ -72,7 +72,7 @@ jobs:
           if ! compgen -G 'NEX_sobrevivendo_ao_horror_assets*.zip' >/dev/null; then exit 0; fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add assets/ameacas/sobrevivendo-ao-horror/*.png nex-ameacas-imagens-principais.js nex-ameacas-imagens-sah.js ameacas.html ameaca-ficha.html version.json
+          git add assets/ameacas/sobrevivendo-ao-horror/*.png d20x-ameacas-imagens-principais.js d20x-ameacas-imagens-sah.js ameacas.html ameaca-ficha.html version.json
           if ! git diff --cached --quiet; then
             git commit -m 'Instalar 12 retratos de Sobrevivendo ao Horror sem afetar outros livros'
             git push

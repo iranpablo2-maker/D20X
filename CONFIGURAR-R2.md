@@ -1,6 +1,6 @@
 # Cloudflare R2 — integração antiga opcional
 
-**A configuração do R2 não é necessária para o funcionamento dos novos uploads no NEX Tabletop.**
+**A configuração do R2 não é necessária para o funcionamento dos novos uploads no D20X Tabletop.**
 
 O modo ativo do Tabletop mantém todos os novos mapas, tokens, GIFs e músicas no navegador do mestre. Quando a sessão começa, o NEX tenta compartilhar as imagens diretamente com os jogadores e transmite o som ao vivo via WebRTC.
 

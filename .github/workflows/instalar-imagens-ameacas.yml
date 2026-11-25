@@ -20,7 +20,7 @@ jobs:
         run: |
           set -euo pipefail
           archive=""
-          for candidate in nex_wiki_main_images.zip "nex_wiki_main_images (1).zip"; do
+          for candidate in nex_wiki_main_images.zip "d20x_wiki_main_images (1).zip"; do
             if [ -f "$candidate" ]; then
               archive="$candidate"
               break

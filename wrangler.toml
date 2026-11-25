@@ -1,6 +1,6 @@
-# Configuração de produção do NEX no Cloudflare Pages.
+# Configuração de produção do D20X no Cloudflare Pages.
 # Esta configuração fica junto ao código para evitar divergências de bindings.
-name = "nexrpg"
+name = "d20x"
 pages_build_output_dir = "."
 compatibility_date = "2026-11-10"
 

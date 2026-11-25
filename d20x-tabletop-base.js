@@ -1,8 +1,8 @@
-/* NEX Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
-import {createVttMediaCache} from './nex-vtt-media-cache.js?v=20261122mp4cache200';
-import {mountNexLocalMusic} from './nex-vtt-local-music.js?v=20261117hideplaylist4';
-import {mountNexPeerMedia} from './nex-vtt-peer-media.js?v=20261122mp4peer200';
-import {createVttLocalScene} from './nex-vtt-local-scene.js?v=20261120commitfix49';
+/* D20X Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
+import {createVttMediaCache} from './d20x-vtt-media-cache.js?v=20261122mp4cache200';
+import {mountNexLocalMusic} from './d20x-vtt-local-music.js?v=20261117hideplaylist4';
+import {mountNexPeerMedia} from './d20x-vtt-peer-media.js?v=20261122mp4peer200';
+import {createVttLocalScene} from './d20x-vtt-local-scene.js?v=20261120commitfix49';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
@@ -33,7 +33,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
    const url=URL.createObjectURL(new Blob([bytes],{type:'video/webm'}));
    webmObjectUrls.set(cacheKey,url);
    return url;
-  }catch(error){console.warn('NEX VTT: nao foi possivel preparar WEBM',error);return data;}
+  }catch(error){console.warn('D20X VTT: nao foi possivel preparar WEBM',error);return data;}
  }
  // Todos os novos arquivos ficam neste dispositivo. Participantes conectam ao mestre via WebRTC.
  // Mídias antigas em Firestore e R2 continuam legíveis, sem migração ou exclusão.
@@ -115,13 +115,13 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
    const parsed=JSON.parse(raw);
    if(parsed?.format==='nex-tabletop-pending-v1'&&Array.isArray(parsed.scene?.tokens))recoveredBackup=parsed.scene;
   }
- }catch(error){console.warn('NEX VTT: backup local indisponível',error);}
+ }catch(error){console.warn('D20X VTT: backup local indisponível',error);}
  function saveBackup(){
   if(!gm||disposed)return;
   try{
    localStorage.setItem(backupKey,JSON.stringify({format:'nex-tabletop-pending-v1',scene:validScene(scene),savedAt:Date.now()}));
   }catch(error){
-   console.warn('NEX VTT: sem espaço para backup local',error);
+   console.warn('D20X VTT: sem espaço para backup local',error);
    console.warn('O backup de emergência no localStorage não coube; IndexedDB será a fonte principal.');
   }
  }
@@ -288,7 +288,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     localDirty=true;
     message('Não foi possível salvar a mesa no Brave.');
     warnSync('Falha no armazenamento local: '+String(error.message||error).slice(0,130));
-    console.warn('NEX VTT: salvamento local falhou',error);
+    console.warn('D20X VTT: salvamento local falhou',error);
    }
   }
   pending=false;
@@ -1091,11 +1091,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   return match?{id:match[1],count:Number(match[2]),mime:match[3]}:null;
  };
  const mediaChunkRef=(id,i)=>doc(db,'campaigns',campaignId,'tabletopMedia',id,'chunks',String(i).padStart(3,'0'));
- const r2Url=src=>'/api/nex-vtt-media?campaignId='+encodeURIComponent(campaignId)+(src?'&src='+encodeURIComponent(src):'');
+ const r2Url=src=>'/api/d20x-vtt-media?campaignId='+encodeURIComponent(campaignId)+(src?'&src='+encodeURIComponent(src):'');
  async function r2Request(method,src,body){
-  if(typeof getIdToken!=='function')throw Error('Faça login na conta NEX para acessar o R2.');
+  if(typeof getIdToken!=='function')throw Error('Faça login na conta D20X para acessar o R2.');
   const token=await getIdToken();
-  if(!token)throw Error('Sessão expirada. Entre novamente na conta NEX.');
+  if(!token)throw Error('Sessão expirada. Entre novamente na conta D20X.');
   const response=await fetch(r2Url(src),{method,
    headers:{Authorization:'Bearer '+token,...(method==='POST'?{'Content-Type':body.type}:{})},
    ...(body?{body}:{})});
@@ -1159,7 +1159,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
     mediaFailed.add(src);
     if(!disposed){
      if(gm)message('Erro ao carregar arquivo: '+String(error.code||error.message||error).slice(0,100));
-     else console.warn('NEX VTT: mídia indisponível para jogador',src,error);
+     else console.warn('D20X VTT: mídia indisponível para jogador',src,error);
     }
    }).finally(()=>mediaPending.delete(src));
    mediaPending.set(src,task);
@@ -1436,7 +1436,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
  vttResizeObserver?.observe(vttWrap.parentElement||vttWrap);
  vttChangeZoom(0);vttSetMode('select');
  requestAnimationFrame(()=>vttFitZoom());
- // NEX VTT mobile pinch gesture: zoom the board (not the browser) using two fingers.
+ // D20X VTT mobile pinch gesture: zoom the board (not the browser) using two fingers.
  // Apply zoom through the existing controller so slider, percentage and tokens stay in sync.
  let vttPinch=null;
  const vttTouchDistance=(a,b)=>Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);

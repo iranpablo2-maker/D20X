@@ -5,7 +5,7 @@
 As regras publicadas no Firebase **não** são atualizadas automaticamente quando o arquivo do GitHub muda.
 
 1. Abra [Firestore > Regras](https://console.firebase.google.com/project/nex-rpg/firestore/databases/-default-/rules).
-2. Copie todo o conteúdo de [firestore.rules](https://github.com/iranpablo2-maker/NEX/blob/main/firestore.rules).
+2. Copie todo o conteúdo de [firestore.rules](https://github.com/iranpablo2-maker/D20X/blob/main/firestore.rules).
 3. Substitua as regras atuais, clique em **Publicar** e aguarde o resultado.
 4. Não libere acesso público. As regras restringem documentos ao UID autenticado.
 

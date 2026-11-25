@@ -28,11 +28,11 @@ jobs:
           count="$(unzip -Z1 "$archive" | grep -Ec '^assets/ameacas/livro-basico/[^/]+\.webp$')"
           echo "Retratos encontrados: $count"
           test "$count" -eq 49
-          unzip -o -q "$archive" 'assets/ameacas/livro-basico/*.webp' 'nex-ameacas-imagens-cris.js' -d .
+          unzip -o -q "$archive" 'assets/ameacas/livro-basico/*.webp' 'd20x-ameacas-imagens-cris.js' -d .
           node <<'NODE'
           const fs=require('fs');
-          const current='nex-ameacas-imagens-principais.js';
-          const newer='nex-ameacas-imagens-cris.js';
+          const current='d20x-ameacas-imagens-principais.js';
+          const newer='d20x-ameacas-imagens-cris.js';
           const read=obj=>{
             const s=fs.readFileSync(obj,'utf8');
             const a=s.indexOf('{'),b=s.lastIndexOf('}');
@@ -52,7 +52,7 @@ jobs:
             'window.NEX_THREAT_PRIMARY_IMAGES='+JSON.stringify(before,null,2)+';\n');
           for(const html of ['ameacas.html','ameaca-ficha.html']){
             const s=fs.readFileSync(html,'utf8');
-            const next=s.replace(/nex-ameacas-imagens-principais\.js\?v=[^"']+/g,'nex-ameacas-imagens-principais.js?v=20261114cris1');
+            const next=s.replace(/nex-ameacas-imagens-principais\.js\?v=[^"']+/g,'d20x-ameacas-imagens-principais.js?v=20261114cris1');
             fs.writeFileSync(html,next);
           }
           const versionFile='version.json';
@@ -70,7 +70,7 @@ jobs:
           if ! compgen -G "NEX_cris_ameacas_assets*.zip" > /dev/null; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add assets/ameacas/livro-basico/*.webp nex-ameacas-imagens-principais.js nex-ameacas-imagens-cris.js ameacas.html ameaca-ficha.html version.json
+          git add assets/ameacas/livro-basico/*.webp d20x-ameacas-imagens-principais.js d20x-ameacas-imagens-cris.js ameacas.html ameaca-ficha.html version.json
           if ! git diff --cached --quiet; then
             git commit -m "Instalar 49 fotos WebP principais do CRIS no NEX"
             git push
