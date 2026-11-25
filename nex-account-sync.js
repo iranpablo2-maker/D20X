@@ -4,7 +4,7 @@ import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmai
 import {getFirestore,collection,doc,getDocs,setDoc,serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 const cfg=window.NEX_FIREBASE_CONFIG;
 const panel=document.createElement('dialog');panel.id='nexAccountDialog';
-panel.innerHTML=`<div class="nex-account-heading"><strong>Conta NEX</strong><button type="button" id="nexAccountClose" aria-label="Fechar">×</button></div><p id="nexAccountStatus">Conectando ao serviço de contas…</p><div id="nexAccountGuest"><button type="button" id="nexAccountGoogle" class="nex-account-google"><span aria-hidden="true">G</span> Continuar com Google</button><div class="nex-account-separator">ou usar e-mail</div><div class="nex-account-modes" role="group" aria-label="Acesso à conta"><button type="button" id="nexAccountModeLogin" aria-pressed="true">Entrar</button><button type="button" id="nexAccountModeCreate" aria-pressed="false">Criar conta</button></div><form id="nexAccountForm"><div id="nexAccountRegistration" hidden><label>Nome para exibição<input id="nexAccountName" autocomplete="name" type="text" maxlength="60"></label></div><label>E-mail<input id="nexAccountEmail" autocomplete="email" type="email" required></label><label>Senha<input id="nexAccountPassword" autocomplete="current-password" type="password" minlength="6" required></label><div id="nexAccountConfirmation" hidden><label>Confirmar senha<input id="nexAccountConfirm" autocomplete="new-password" type="password" minlength="6"></label><small>Use um nome de exibição e confirme sua senha para criar a conta.</small></div><div class="nex-account-actions"><button type="submit" id="nexAccountSubmit">Entrar na conta</button><button type="button" id="nexAccountReset">Recuperar senha</button></div></form></div><div id="nexAccountConnected" hidden><p id="nexAccountWho"></p><p class="nex-account-help">Suas fichas, campanhas locais e homebrews são mantidos neste navegador e podem ser sincronizados com a sua conta. Não compartilhe sua senha.</p><div class="nex-account-actions"><button id="nexAccountLogout" type="button">Sair da conta</button></div></div><small id="nexAccountMessage" role="status"></small>`;
+panel.innerHTML=`<div class="nex-account-heading"><strong>Conta D20X</strong><button type="button" id="nexAccountClose" aria-label="Fechar">×</button></div><p id="nexAccountStatus">Conectando ao serviço de contas…</p><div id="nexAccountGuest"><button type="button" id="nexAccountGoogle" class="nex-account-google"><span aria-hidden="true">G</span> Continuar com Google</button><div class="nex-account-separator">ou usar e-mail</div><div class="nex-account-modes" role="group" aria-label="Acesso à conta"><button type="button" id="nexAccountModeLogin" aria-pressed="true">Entrar</button><button type="button" id="nexAccountModeCreate" aria-pressed="false">Criar conta</button></div><form id="nexAccountForm"><div id="nexAccountRegistration" hidden><label>Nome para exibição<input id="nexAccountName" autocomplete="name" type="text" maxlength="60"></label></div><label>E-mail<input id="nexAccountEmail" autocomplete="email" type="email" required></label><label>Senha<input id="nexAccountPassword" autocomplete="current-password" type="password" minlength="6" required></label><div id="nexAccountConfirmation" hidden><label>Confirmar senha<input id="nexAccountConfirm" autocomplete="new-password" type="password" minlength="6"></label><small>Use um nome de exibição e confirme sua senha para criar a conta.</small></div><div class="nex-account-actions"><button type="submit" id="nexAccountSubmit">Entrar na conta</button><button type="button" id="nexAccountReset">Recuperar senha</button></div></form></div><div id="nexAccountConnected" hidden><p id="nexAccountWho"></p><p class="nex-account-help">Suas fichas, campanhas locais e homebrews são mantidos neste navegador e podem ser sincronizados com a sua conta. Não compartilhe sua senha.</p><div class="nex-account-actions"><button id="nexAccountLogout" type="button">Sair da conta</button></div></div><small id="nexAccountMessage" role="status"></small>`;
 const css=document.createElement('style');css.textContent=`
 #nexAccountOpen{border:1px solid #9d3543;border-radius:8px;background:#32171d;color:#fff;padding:8px 13px;font-weight:700;cursor:pointer}
 #nexAccountDialog{width:min(94vw,460px);max-height:88vh;overflow:auto;border:1px solid #a34250;border-radius:12px;padding:20px;background:#141114;color:#fff;box-shadow:0 20px 70px #000a}
@@ -27,7 +27,7 @@ const css=document.createElement('style');css.textContent=`
 #nexAccountDialog #nexAccountConfirmation small{color:#bdaeb4;font-size:11px}
 #nexAccountDialog [hidden],#nexAccountMenu[hidden]{display:none!important}`;
 document.head.append(css);document.body.append(panel);
-const open=document.getElementById('nexAccountOpen')||document.createElement('button');open.id='nexAccountOpen';open.type='button';open.textContent='Conta NEX';
+const open=document.getElementById('nexAccountOpen')||document.createElement('button');open.id='nexAccountOpen';open.type='button';open.textContent='Conta D20X';
 if(!open.isConnected)(document.querySelector('.topinner')||document.body).append(open);
 const menu=document.createElement('div');
 menu.id='nexAccountMenu';
@@ -78,7 +78,7 @@ css.textContent+=`
 `;
 const profile=document.createElement('dialog');
 profile.id='nexProfileDialog';
-profile.setAttribute('aria-label','Meu perfil NEX');
+profile.setAttribute('aria-label','Meu perfil D20X');
 profile.innerHTML='<div class="nex-profile-header"><h2>Meu perfil</h2><button type="button" class="nex-profile-close" id="nexProfileClose" aria-label="Fechar perfil">×</button></div><div class="nex-profile-content"><button class="nex-profile-avatar" id="nexProfileAvatar" type="button" aria-label="Alterar foto do perfil" title="Clique para trocar sua foto">N</button><input type="file" id="nexProfilePhotoFile" accept="image/png,image/jpeg,image/webp" style="display:none" aria-label="Escolher foto do perfil"><form id="nexProfileForm"><label>Nome<input id="nexProfileName" maxlength="60" autocomplete="name" required></label><label>E-mail<input id="nexProfileEmail" type="email" readonly></label><label>Idade (opcional)<input id="nexProfileAge" type="number" inputmode="numeric" min="1" max="120" placeholder="Não informada"></label><div class="nex-profile-actions"><button type="submit" id="nexProfileSave">Salvar perfil</button><button type="button" id="nexProfilePassword">Trocar senha</button><button type="button" id="nexProfileLogout">Desconectar</button></div></form></div><small id="nexProfileStatus" role="status"></small>';
 document.body.append(profile);
 const cropDialog=document.createElement('dialog');
@@ -141,7 +141,7 @@ else{
   const bridge=getBridge();
   if(!bridge){status('Preparando acesso às fichas da conta…');setTimeout(()=>{if(current&&!busy)sync();},500);return;}
   const account=current.uid;
-  busy=true;status('Sincronizando fichas com a conta NEX…');
+  busy=true;status('Sincronizando fichas com a conta D20X…');
   const versionAtStart=localVersion;
   try{
    const priorLocal=bridge.read();
@@ -254,12 +254,12 @@ else{
    try{localStorage.setItem('nex_account_last_uid',account);}catch(error){}
    ready=true;
    window.NEX_ACCOUNT_SYNC_READY=true;
-   status('Conta NEX · fichas sincronizadas na nuvem');
-   message('Fichas vinculadas à sua conta NEX. A cópia do navegador é apenas uma recuperação temporária.');
+   status('Conta D20X · fichas sincronizadas na nuvem');
+   message('Fichas vinculadas à sua conta D20X. A cópia do navegador é apenas uma recuperação temporária.');
    window.dispatchEvent(new CustomEvent('nex-cloud-sync-state',{detail:{state:'saved',uid:account}}));
   }catch(error){
     console.error('NEX sincronização',error);
-    status('Conta NEX · não foi possível sincronizar');
+    status('Conta D20X · não foi possível sincronizar');
     message('Não foi possível confirmar o salvamento na conta ('+(error?.code||error?.message||'erro')+'). Uma cópia temporária foi mantida neste navegador; não a considere salva na nuvem.');
     window.dispatchEvent(new CustomEvent('nex-cloud-sync-state',{detail:{state:'error',uid:current?.uid}}));
   }finally{
@@ -295,7 +295,7 @@ else{
  function updateHeaderAvatar(){
    const user=current;
    if(!user){
-     open.textContent='Conta NEX';
+     open.textContent='Conta D20X';
      open.classList.remove('nex-header-avatar');
      open.style.removeProperty('background-image');
      open.style.removeProperty('background-color');
@@ -419,7 +419,7 @@ else{
  function updateProfileDisplay(){
    if(!current)return;
    const saved=currentProfile();
-   const name=current.displayName||saved.name||'Usuário NEX';
+   const name=current.displayName||saved.name||'Usuário D20X';
    $('nexProfileName').value=name;
    $('nexProfileEmail').value=current.email||'';
    $('nexProfileAge').value=Number.isInteger(saved.age)&&saved.age>=1&&saved.age<=120?saved.age:'';
@@ -545,7 +545,7 @@ else{
   window.NEX_ACCOUNT_SYNC_READY=false;
   $('nexAccountGuest').hidden=!!user;$('nexAccountConnected').hidden=!user;
   updateHeaderAvatar();
-  open.title=user?(user.email||'Conta NEX conectada'):'Entrar ou criar conta';
+  open.title=user?(user.email||'Conta D20X conectada'):'Entrar ou criar conta';
   if(user)$('nexProfileEmail').value=user.email||'';
   menu.hidden=true;
   if(user){
@@ -563,7 +563,7 @@ else{
      }catch(error){console.warn('NEX: não foi possível isolar a troca de conta',error);}
     }
    }
-   status('Carregando personagens da conta NEX…');
+   status('Carregando personagens da conta D20X…');
    setTimeout(()=>{if(current?.uid===user.uid)sync();},700);
   }else{
    // Na primeira visita sem login, preserve as fichas antigas para migrá-las
@@ -576,8 +576,8 @@ else{
      bridge.replaceAccountAgents([],[]);
     }catch(error){console.warn('NEX: limpeza da visualização ao sair',error);}
    }
-   status('Entre na conta NEX para carregar e sincronizar personagens.');
-   message('As fichas são vinculadas à conta NEX. Sem login, o salvamento na nuvem não está disponível.');
+   status('Entre na conta D20X para carregar e sincronizar personagens.');
+   message('As fichas são vinculadas à conta D20X. Sem login, o salvamento na nuvem não está disponível.');
   }
  });
  document.addEventListener('nex51-ready',()=>{if(current&&!busy&&!ready)sync();});
