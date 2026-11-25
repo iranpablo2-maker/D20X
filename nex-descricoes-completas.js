@@ -50,9 +50,30 @@ function narrative(item){
  if(spaces)pieces.push('Ocupa '+spaces+' espaço(s) de carga.');
  return pieces.join(' ');
 }
+// Resumos de regras revisados diretamente nas seções de itens paranormais dos PDFs.
+const verifiedParanormal=[
+ [/^amarras de(?: |$)/,'Armadilha ou laço sobrenatural contra criaturas vulneráveis ao elemento escolhido. A armadilha custa 2 PE e uma ação completa (Reflexos, DT Int); o laço custa 1 PE e uma ação padrão (Vontade, DT Agi), com manutenção de 1 PE por rodada. Fonte: Ordem Paranormal RPG, Itens Paranormais.'],
+ [/^camera de aura paranormal$/,'Por 1 PE e uma ação padrão, produz uma fotografia que identifica a presença e o elemento de auras sobrenaturais em objetos e pessoas. Fonte: Ordem Paranormal RPG, Itens Paranormais.'],
+ [/^componentes ritualisticos(?: |$)/,'Conjunto de materiais que permite conjurar rituais do elemento correspondente. Há componentes de Sangue, Morte, Conhecimento e Energia; Medo não possui componentes próprios. Fonte: Ordem Paranormal RPG, Itens Paranormais.'],
+ [/^emissor de pulsos paranormais$/,'Escolha um elemento e ative o dispositivo com uma ação completa e 1 PE. Criaturas do elemento são atraídas e as do oposto, repelidas; Vontade (DT Pre) resiste. Fonte: Ordem Paranormal RPG, Itens Paranormais.'],
+ [/^escuta de ruidos paranormais$/,'Ativação: ação completa e 2 PE. Registra sons sobrenaturais durante até 24 horas. A gravação concede +5 em Ocultismo para identificação de criatura. Fonte: Ordem Paranormal RPG, Itens Paranormais.'],
+ [/^medidor de estabilidade da membrana$/,'Um personagem treinado em Ocultismo pode avaliar as condições locais da Membrana. Leituras anormais sugerem risco de manifestações, mas não confirmam nem descartam a presença de criaturas. Fonte: Ordem Paranormal RPG, Itens Paranormais.'],
+ [/^scanner de manifestacao paranormal(?: |$)/,'Ative com uma ação padrão e mantenha por 1 PE a cada rodada. Indica a direção de manifestações ativas em alcance longo que possuam o elemento selecionado, inclusive como elemento complementar. Fonte: Ordem Paranormal RPG, Itens Paranormais.'],
+ [/^catalisador ritualistico ampliador(?: |$)/,'Consumível empunhado durante a conjuração: aumenta o alcance em um passo, de curto até extremo, ou duplica a área. Máximo de um catalisador por ritual, do elemento correspondente. Fonte: Sobrevivendo ao Horror, Itens Paranormais.'],
+ [/^catalisador ritualistico perturbador(?: |$)/,'Consumível do elemento do ritual que acrescenta +2 à DT de resistência. Deve estar empunhado; limite de um catalisador por conjuração. Fonte: Sobrevivendo ao Horror, Itens Paranormais.'],
+ [/^catalisador ritualistico potencializador(?: |$)/,'Acrescenta um dado do mesmo tipo ao dano do ritual. É consumido, deve estar empunhado e não se acumula com outro catalisador na mesma conjuração. Fonte: Sobrevivendo ao Horror, Itens Paranormais.'],
+ [/^catalisador ritualistico prolongador(?: |$)/,'Duplica a duração do ritual, exceto efeitos instantâneos ou sustentados. É consumido durante a conjuração; exige empunhadura e admite apenas um catalisador por ritual. Fonte: Sobrevivendo ao Horror, Itens Paranormais.'],
+ [/^ligacao direta infernal$/,'No RPG, anima sobrenaturalmente um veículo com uma ação completa. Concede RD 20 cumulativa, imunidade a Sangue e +5 em Pilotagem, mas agrava as consequências de falhas. Remoção: ação completa. Fonte: Sobrevivendo ao Horror, Itens Paranormais.'],
+ [/^medidor de condicao vertebral$/,'Vestimenta paranormal que indica o estado de saúde e a presença de efeitos sobrenaturais. Equipar exige ação completa e causa atordoamento por uma rodada. Fornece +2 em Fortitude e +5 em Medicina para auxiliar o portador. Fonte: Sobrevivendo ao Horror, Itens Paranormais.'],
+ [/^pe de morto$/,'Vestimenta que concede +5 em Furtividade. Em cenas de furtividade, ações chamativas que consistem apenas em deslocamento aumentam a visibilidade em 1. Fonte: Sobrevivendo ao Horror, Itens Paranormais.'],
+ [/^pen ?drive selado$/,'Dispositivo protegido de interferências, rituais e efeitos de Energia; seus arquivos permanecem protegidos por Conhecimento. Fonte: Sobrevivendo ao Horror, Itens Paranormais.'],
+ [/^valete da salvacao$/,'Carta consumível que indica a melhor rota de fuga em alcance médio, ativada com uma ação padrão. Em perseguições, garante sucesso na ação de cortar caminho. Fonte: Sobrevivendo ao Horror, Itens Paranormais.']
+];
 function describe(item){
  if(!item)return '';
  const key=norm(item.name);
+ const verified=verifiedParanormal.find(([pattern])=>pattern.test(key));
+ if(verified)return verified[1];
  const manualText=manual.get(key);
  if(manualText)return manualText;
  const specific=extra.get(key);
