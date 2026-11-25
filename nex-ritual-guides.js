@@ -2,15 +2,15 @@
    Para regras integrais, consulte as publicações originais. */
 window.NEX_RITUAL_GUIDES={
   "amaldicoar arma|conhecimento|1": {
-    "description": "A arma ou munição recebe uma propriedade paranormal do elemento escolhido. Seus ataques passam a causar dano elemental adicional conforme a versão, sem exigir que o personagem troque de arma. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 arma corpo a corpo ou pacote de munição; Duração: Cena.",
+    "description": "Ao aprender, selecione um elemento entre Conhecimento, Energia, Morte e Sangue. A arma ou o pacote de munição afetado causa +1d6 de dano do elemento até o fim da cena.",
     "kind": "Suporte"
   },
   "compreensao paranormal|conhecimento|1": {
-    "description": "Permite interpretar mensagens, inscrições e informações que seriam impossíveis de entender normalmente. É útil para investigar pistas, mas não garante que toda informação seja verdadeira ou completa. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser ou objeto; Duração: Cena; Resistência: Vontade anula (veja texto).",
+    "description": "Permite compreender informação em idioma humano presente em objeto tocado, comunicar-se com pessoa tocada e perceber emoções básicas de animal. Não decifra sigilos paranormais. Ser involuntário pode resistir com Vontade.",
     "kind": "Suporte"
   },
   "enfeiticar|conhecimento|1": {
-    "description": "Afeta a atitude de uma pessoa, tornando-a mais receptiva à interação do conjurador. Não substitui controle mental absoluto; a resistência do alvo e os limites da versão continuam importantes. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 pessoa; Duração: Cena; Resistência: Vontade anula.",
+    "description": "O alvo fica prestativo, sem ficar sob controle do conjurador, que recebe +10 em Diplomacia com ele. Alvos hostis ou em combate têm +5 na resistência. Ações hostis do grupo contra o alvo encerram o efeito e podem piorar sua atitude.",
     "kind": "Suporte"
   },
   "perturbacao|conhecimento|1": {
@@ -18,23 +18,23 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "ouvir os sussurros|conhecimento|1": {
-    "description": "O conjurador procura respostas sobrenaturais a dúvidas que não conseguiria resolver apenas com os sentidos. As respostas podem exigir interpretação e não substituem investigação. Parâmetros: Execução: Completa; Alcance: Pessoal; Alvo/área: você; Duração: Instantânea.",
+    "description": "Faça uma pergunta sobre uma ação prevista para a mesma cena. O mestre rola 1d6 oculto: 2 a 6 oferecem resposta afirmativa, negativa ou ambígua; 1 produz resposta negativa sem revelar a falha. Repetir a pergunta mantém o primeiro resultado.",
     "kind": "Suporte"
   },
   "tecer ilusao|conhecimento|1": {
-    "description": "Cria imagens ou sons aparentes em uma área para distrair, enganar ou esconder pistas. A ilusão não produz um objeto físico; criaturas podem perceber a inconsistência. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: Efeito: ilusão que se estende a até 4 cubos de 1,5m; Duração: Cena; Resistência: Vontade desacredita.",
+    "description": "Cria uma imagem ou um som simples em até quatro cubos de 1,5m. Não produz sensações físicas ou sons complexos, nem causa dano. Dissipa quando o conjurador sai do alcance.",
     "kind": "Suporte"
   },
   "terceiro olho|conhecimento|1": {
-    "description": "Durante a cena, permite perceber auras de rituais, criaturas e itens amaldiçoados em alcance longo e reconhecer seu elemento e intensidade. Uma ação de movimento permite examinar a capacidade paranormal de um ser visível em alcance médio. Discente (+2 PE): dura um dia. Verdadeiro (+5 PE): revela também seres e objetos invisíveis.",
+    "description": "Percebe auras paranormais em alcance longo e distingue seus elementos e intensidade. Auras fracas: 1º círculo ou VD até 80; moderadas: 2º ou 3º círculo ou VD 81–280; poderosas: 4º círculo ou VD a partir de 281. Ação de movimento permite identificar se ser visível em alcance médio possui poderes ou rituais e seus elementos.",
     "kind": "Suporte"
   },
   "amaldicoar arma|energia|1": {
-    "description": "A arma ou munição recebe uma propriedade paranormal do elemento escolhido. Seus ataques passam a causar dano elemental adicional conforme a versão, sem exigir que o personagem troque de arma. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 arma corpo a corpo ou pacote de munição; Duração: Cena.",
+    "description": "Ao aprender, selecione um elemento entre Conhecimento, Energia, Morte e Sangue. A arma ou o pacote de munição afetado causa +1d6 de dano do elemento até o fim da cena.",
     "kind": "Suporte"
   },
   "amaldicoar tecnologia|energia|1": {
-    "description": "Canaliza Energia para aumentar a eficácia de um equipamento ou arma de fogo. O benefício acompanha o item durante a duração, conforme os bônus previstos para cada versão. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 acessório ou arma de fogo; Duração: Cena.",
+    "description": "O equipamento recebe uma modificação escolhida pelo conjurador durante a cena.",
     "kind": "Suporte"
   },
   "coincidencia forcada|energia|1": {
@@ -50,7 +50,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "luz|energia|1": {
-    "description": "Faz um objeto emitir iluminação sobrenatural, útil para explorar locais escuros. O alcance da claridade e os efeitos adicionais dependem da versão do ritual. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 objeto; Duração: Cena; Resistência: Vontade anula (veja texto).",
+    "description": "Objeto produz iluminação em raio de 9m sem calor. Cobri-lo interrompe a luz, que retorna quando exposto. Vontade do portador involuntário anula o ritual.",
     "kind": "Suporte"
   },
   "polarizacao caotica|energia|1": {
@@ -58,7 +58,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "amaldicoar arma|morte|1": {
-    "description": "A arma ou munição recebe uma propriedade paranormal do elemento escolhido. Seus ataques passam a causar dano elemental adicional conforme a versão, sem exigir que o personagem troque de arma. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 arma corpo a corpo ou pacote de munição; Duração: Cena.",
+    "description": "Ao aprender, selecione um elemento entre Conhecimento, Energia, Morte e Sangue. A arma ou o pacote de munição afetado causa +1d6 de dano do elemento até o fim da cena.",
     "kind": "Suporte"
   },
   "cicatrizacao|morte|1": {
@@ -66,7 +66,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Cura"
   },
   "consumir manancial|morte|1": {
-    "description": "Concentra a energia da Morte em uma reserva de proteção temporária. O efeito concede pontos de vida temporários, que devem ser separados dos pontos de vida normais. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Instantânea.",
+    "description": "Concede 3d6 PV temporários, que expiram no fim da cena.",
     "kind": "Suporte"
   },
   "decadencia|morte|1": {
@@ -86,7 +86,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "amaldicoar arma|sangue|1": {
-    "description": "A arma ou munição recebe uma propriedade paranormal do elemento escolhido. Seus ataques passam a causar dano elemental adicional conforme a versão, sem exigir que o personagem troque de arma. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 arma corpo a corpo ou pacote de munição; Duração: Cena.",
+    "description": "Ao aprender, selecione um elemento entre Conhecimento, Energia, Morte e Sangue. A arma ou o pacote de munição afetado causa +1d6 de dano do elemento até o fim da cena.",
     "kind": "Suporte"
   },
   "arma atroz|sangue|1": {
@@ -98,7 +98,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "corpo adaptado|sangue|1": {
-    "description": "Prepara o corpo para suportar condições ambientais adversas por tempo limitado. O efeito ajuda na sobrevivência em ambientes hostis, dentro das condições descritas para a versão. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 pessoa ou animal; Duração: Cena.",
+    "description": "Concede imunidade aos extremos de temperatura, adapta a respiração entre ar e água e impede sufocamento por fumaça densa.",
     "kind": "Suporte"
   },
   "distorcer aparencia|sangue|1": {
@@ -142,7 +142,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "contencao fantasmagorica|energia|2": {
-    "description": "Produz amarras ou forças de Energia que restringem o deslocamento de uma criatura. O alvo pode ter oportunidades de resistir ou escapar conforme as regras. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: 1 ser; Duração: Cena; Resistência: Reflexos anula.",
+    "description": "Se falhar em Reflexos, o alvo fica agarrado por três laços. Ação padrão e Atletismo contra a DT destroem um laço, mais um para cada 5 acima da DT. Cada laço possui Defesa 10, PV 10, RD 5 e imunidade a Energia; também afetam incorpóreos. Destruir todos encerra o efeito.",
     "kind": "Suporte"
   },
   "dissonancia acustica|energia|2": {
@@ -162,11 +162,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "eco espiral|morte|2": {
-    "description": "Reproduz sobre um alvo uma consequência temporal associada à Morte. Pode causar dano por repetição de um fenômeno, respeitando as condições de aplicação. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: 2 rodadas; Resistência: Fortitude reduz à metade.",
+    "description": "No turno após conjurar, use ação padrão para concentrar; no segundo turno, outra ação padrão descarrega o efeito. O alvo sofre dano de Morte igual ao dano recebido durante a rodada de concentração (Fortitude reduz à metade). Se faltar uma das ações, o ritual termina sem efeito.",
     "kind": "Dano"
   },
   "paradoxo|morte|2": {
-    "description": "Distorce o tempo em uma área, impondo efeitos de Morte às criaturas atingidas. A zona afetada e os testes de resistência definem as consequências. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: Área: esfera com 6m de raio; Duração: Instantânea; Resistência: Fortitude reduz à metade.",
+    "description": "Causa 6d6 de Morte nos seres na área; Fortitude reduz à metade.",
     "kind": "Dano"
   },
   "miasma entropico|morte|2": {
@@ -206,11 +206,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "alterar memoria|conhecimento|3": {
-    "description": "Interfere em lembranças específicas do alvo, mudando o que ele recorda. A aplicação deve respeitar alcance, resistência e limites das alterações permitidas. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 pessoa; Duração: Instantânea; Resistência: Vontade anula.",
+    "description": "Modifica detalhes de memórias ou apaga acontecimentos da última hora, sem reescrever integralmente os eventos. As memórias retornam após 1d4 dias.",
     "kind": "Suporte"
   },
   "contato paranormal|conhecimento|3": {
-    "description": "Busca informações através de uma conexão com manifestações sobrenaturais. A informação obtida pode ser parcial, perigosa ou exigir interpretação. Parâmetros: Execução: Completa; Alcance: Pessoal; Alvo/área: você; Duração: 1 dia.",
+    "description": "Recebe uma reserva de seis d6 durante um dia; pode gastar um dado para somar seu resultado a um teste de perícia. Resultado 6 custa 2 SAN. Termina ao esgotar a reserva ou atingir SAN 0.",
     "kind": "Suporte"
   },
   "mergulho mental|conhecimento|3": {
@@ -222,7 +222,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "convocacao instantanea|energia|3": {
-    "description": "Faz surgir próximo ao conjurador um item previamente associado ao ritual. É útil para recuperar um recurso à distância, desde que o vínculo e as limitações sejam cumpridos. Parâmetros: Execução: Padrão; Alcance: Ilimitado; Alvo/área: 1 objeto de até 2 espaços; Duração: Instantânea; Resistência: Vontade anula.",
+    "description": "Traz à mão um objeto previamente marcado de até dois espaços, de qualquer distância. Se estiver empunhado por outra pessoa, Vontade pode impedir a transferência; nesse caso o conjurador identifica a localização e o portador. Dentro de uma hora, ação de movimento devolve o objeto.",
     "kind": "Suporte"
   },
   "salto fantasma|energia|3": {
@@ -238,7 +238,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "ancora temporal|morte|3": {
-    "description": "Prende ou estabiliza a relação de um alvo com o tempo. Isso pode dificultar alterações temporais sobre ele, conforme as condições do ritual. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Cena; Resistência: Vontade parcial.",
+    "description": "No início de cada turno, o alvo faz Vontade: falha impede deslocamento naquele turno, sem impedir outras ações. Dois sucessos consecutivos encerram o efeito.",
     "kind": "Suporte"
   },
   "poeira da podridao|morte|3": {
@@ -286,7 +286,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "alterar destino|energia|4": {
-    "description": "Intervém em um acontecimento imediato para tornar mais favorável um resultado desfavorável. Pode fortalecer uma reação defensiva ou resistência, conforme a versão. Parâmetros: Execução: Reação; Alcance: Pessoal; Alvo/área: você; Duração: Instantânea.",
+    "description": "Como reação, concede +15 a um teste de resistência ou à Defesa contra um ataque.",
     "kind": "Suporte"
   },
   "deflagracao de energia|energia|4": {
@@ -346,11 +346,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "sede de adrenalina|sangue|2": {
-    "description": "Intensifica reações corporais e instintos do alvo para favorecer esforço ou combate. O aprimoramento é temporário e pode trazer limitações próprias. Parâmetros: Execução: Reação; Alcance: Pessoal; Alvo/área: você; Duração: Instantânea.",
+    "description": "Uma vez por rodada, reação para repetir teste fracassado de Acrobacia ou Atletismo usando Presença, ou reduzir dano de impacto em 20. A redução de dano impõe atordoado por uma rodada, mesmo se anular o dano.",
     "kind": "Suporte"
   },
   "odor da cacada|sangue|3": {
-    "description": "Aguça a percepção ligada à perseguição de um alvo. Pode ajudar a seguir rastros e localizar a presa dentro das restrições do ritual. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena.",
+    "description": "Concede faro. Nas perseguições em que o outro participante emite odores, +5 em Atletismo e a ação de esforço extra não reduz PV. Na cena seguinte, aplica a condição de fome e sede prevista no livro até satisfazer a necessidade.",
     "kind": "Suporte"
   },
   "martirio de sangue|sangue|4": {
@@ -390,7 +390,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "overclock|energia|1": {
-    "description": "Impulsiona sobrenaturalmente o desempenho de um dispositivo tecnológico. Pode beneficiar seu uso por algum tempo, observando as limitações do equipamento. Parâmetros: Execução: Reação; Alcance: Pessoal; Alvo/área: você; Duração: Instantânea.",
+    "description": "Após um teste de Tecnologia envolvendo eletrônico, a mesa pode substituir a resolução por um jogo analógico definido pelo mestre; sucesso revela a informação procurada. Independentemente do resultado, o eletrônico fica inutilizável por efeito paranormal.",
     "kind": "Suporte"
   },
   "tremeluzir|energia|2": {
@@ -398,7 +398,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "mutar|energia|3": {
-    "description": "Interfere na emissão de sons, silenciando ou modificando ruídos na região afetada. Pode ser útil em infiltração e em situações em que ouvir seja essencial. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena.",
+    "description": "O personagem fica isolado de sons, sem emitir ou ouvir. Recebe +10 em Furtividade e reduz ganhos de visibilidade em 1 nas cenas correspondentes, conforme o mestre. A mesa aplica a regra de comunicação sem voz; falar sem autorização encerra o efeito.",
     "kind": "Suporte"
   },
   "milagre ionizante|energia|3": {
