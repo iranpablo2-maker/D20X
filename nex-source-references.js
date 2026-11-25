@@ -54,5 +54,5 @@ if(kind==="item"&&/amaldi[cç]oad/.test(norm(extra.section)))kind="curse";
 return {name,book,page:sectionPages[book]?.[kind]||0,exact:false};
 }
 window.NEX_SOURCE_REFERENCE=reference;
-window.NEX_SOURCE_LINK=(name,source,kind,extra)=>{const r=reference(name,source,kind,extra);if(!r)return "";const q=new URLSearchParams({name:String(r.name||""),book:r.book,page:String(r.page||""),exact:r.exact?"1":"0"});return '<a class="nex-source-link" style="display:inline-block;margin-top:8px;color:#ef8a94;font-size:12px;text-decoration:underline" target="_blank" rel="noopener" href="./nex-fontes.html?'+q.toString().replace(/&/g,"&amp;")+'">Consultar texto original (PDF)</a>';};
+window.NEX_SOURCE_LINK=()=>"";
 })();
