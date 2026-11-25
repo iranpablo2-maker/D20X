@@ -59,7 +59,7 @@ const special={
  'Tecer Ilusão':{description:'Manifesta uma imagem ou som ilusório.'}
 };
 function catalogue(){
- const result=BASE.map((b,i)=>({...b,key:'base:'+i,description:ritualGuideFor(b)||special[b.name]?.description||RITUAL_SUMMARIES[b.name]||'',...special[b.name],...ritualMetaFor(b),summaryKind:'Resumo original; consulte o livro para regras e aprimoramentos.'}));
+ const result=BASE.map((b,i)=>({...b,key:'base:'+i,...special[b.name],...ritualMetaFor(b),description:ritualGuideFor(b)||special[b.name]?.description||RITUAL_SUMMARIES[b.name]||'',summaryKind:'Resumo original; consulte o livro para regras e aprimoramentos.'}));
  for(const r of window.NEX_SAH?.rituals||[]){
    if(!r?.name)continue;
    result.push({name:r.name,circle:Number(r.circle)||1,element:r.element||'Conhecimento',source:'Sobrevivendo ao Horror',description:ritualGuideFor(r)||r.description||'',key:'sah:'+r.name,...ritualMetaFor(r)});
@@ -78,14 +78,18 @@ function catalogue(){
 }
 function metadata(record){
  const src=record.source||'Personalizado';
- const match=catalogue().find(x=>x.key===record.catalogKey || (x.name===record.name&&x.element===record.element&&x.circle===Number(record.circle)));
+ const isCustom=/^(?:Homebrew|Personalizado)$/i.test(src)&&!String(record.catalogKey||'').startsWith('base:')&&!String(record.catalogKey||'').startsWith('sah:');
+ const catalog=catalogue();
+ const match=catalog.find(x=>x.key===record.catalogKey)||(!isCustom?catalog.find(x=>x.source===src&&x.name===record.name&&x.element===record.element&&x.circle===Number(record.circle)):undefined);
+ const official=!!match&&!/^(?:Homebrew|Personalizado)$/i.test(match.source||'');
  const resolved={...match,...record,source:record.source||match?.source||src};
  for(const field of ['execution','range','target','duration','resistance','discente','verdadeiro']){
-  if(!String(resolved[field]??'').trim())resolved[field]=match?.[field]||'';
+  if(official&&Object.prototype.hasOwnProperty.call(match,field))resolved[field]=match[field]||'';
+  else if(!String(resolved[field]??'').trim())resolved[field]=match?.[field]||'';
  }
  if(!String(resolved.note??'').trim())resolved.note=match?.description||'';
  const guide=ritualGuideFor(resolved);
- if(guide && resolved.source!=='Homebrew' && resolved.source!=='Personalizado')resolved.guide=guide;
+ if(guide && official)resolved.guide=guide;
  return resolved;
 }
 function ritualDT(){const limit=Math.max(0,Number(maxValues().peLimit)||0);const pre=Math.max(0,Number(state.attributes?.pre)||0);return 10+limit+pre+(Number(state.ritualDtBonus)||0);}
