@@ -46,6 +46,7 @@ if(!explicitSource&&kind!=="threat"){
 if(/arquivos secretos/.test(s)&&!months.some(m=>s.includes(m)))return {name,book:"basico",page:0,exact:false};
 if(kind==="ritual"){const direct=rituals[book]?.[n];if(direct)return {name,book,page:direct,exact:true};}
 const pageMatch=src.match(/(?:\bp\.?|página|pagina)\s*[:.]?\s*(\d+)/i);
+if(Number(extra.pdfPage)>0)return {name,book,page:Number(extra.pdfPage),exact:true};
 let p=Number(extra.page||pageMatch?.[1]||0);
 if(p>0){p+=book==="basico"?10:book==="sah"?1:book==="fevereiro"?-1:0;return {name,book,page:p,exact:true};}
 if(kind==="ability"){if(s.startsWith("origem:"))kind="origin";else if(s.includes("paranormal"))kind="power";}
