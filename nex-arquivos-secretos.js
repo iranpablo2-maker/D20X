@@ -186,7 +186,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Janeiro",
       "page": 44,
-      "description": "Ao causar dano ou recuperar vida por meio de um ritual, acrescente seu valor de Presença à rolagem correspondente. Requisito: Presença 2.",
+      "description": "Some Pre às rolagens de dano e de cura de rituais. Exige Pre 2.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 44"
     },
     {
@@ -194,7 +194,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Janeiro",
       "page": 44,
-      "description": "Uma vez por cena, pode gastar uma ação de movimento e 3 PE para receber PV temporários equivalentes a dez vezes seu valor de Presença. Essa proteção termina no fim da cena e não se acumula consigo mesma. Requisitos: Intelecto 2, Presença 2 e capacidade de conjurar ritual de 1º círculo.",
+      "description": "Uma vez por cena, ação de movimento e 3 PE concedem PV temporários iguais a 10 × Pre, até o fim da cena, sem acumular consigo mesmo. Requisitos: Int 2, Pre 2 e conjuração de 1º círculo.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 44"
     },
     {
@@ -202,7 +202,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Janeiro",
       "page": 44,
-      "description": "Escolha Sangue, Morte, Conhecimento ou Energia. Ao falhar no teste que poderia causar perda de Sanidade pelo preço de uma maldição de item desse elemento, evita apenas essa perda de Sanidade; outros efeitos negativos continuam valendo. Requisitos: Intelecto 2 e conjurar ritual de 2º círculo do elemento escolhido.",
+      "description": "Escolha um elemento diferente de Medo. Se falhar no teste do preço de maldição de item desse elemento, não perde SAN por essa falha. Demais efeitos negativos continuam. Requisitos: Int 2 e conjuração de 2º círculo do elemento escolhido.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 44"
     },
     {
@@ -210,7 +210,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Janeiro",
       "page": 46,
-      "description": "Escolha uma habilidade ou ritual com DT de resistência: essa DT recebe +2. O poder pode ser adquirido novamente para outras opções e até duas vezes para a mesma; duas escolhas para o mesmo efeito concedem aumento total de +5.",
+      "description": "Escolha uma habilidade ou ritual com DT de resistência; aumente-a em 2. Pode repetir para opções distintas ou duas vezes para a mesma opção, caso em que o aumento total é 5.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 46"
     },
     {
@@ -218,7 +218,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Janeiro",
       "page": 46,
-      "description": "Recebe treinamento em Crime, ou bônus +2 se já possuir o treinamento. Em ambientes fechados, pode realizar Crime DT 20 para localizar uma rota de fuga. Se encontrar uma rota, ao fugir ganha movimento extra no primeiro turno e +2 em Defesa até escapar. Caso não exista rota identificável, recebe +2 em Defesa enquanto permanecer no local. Requisito: Agilidade 2.",
+      "description": "Treinamento em Crime ou +2 se já treinado. Na mecânica de fuga do RPG em ambiente fechado, Crime DT 20 identifica saída; na fuga, +1 ação de movimento no primeiro turno e +2 Defesa até sair. Sem saída identificável, +2 Defesa enquanto permanecer no local. Exige Agi 2.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 46"
     },
     {
@@ -226,7 +226,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Janeiro",
       "page": 47,
-      "description": "Com uma ação de movimento e o custo de 2 PV, pode encantar um único projétil. Seu próximo acerto com essa munição acrescenta 1d6 de Sangue. Com afinidade, esse acréscimo aumenta para 1d8.",
+      "description": "Regra paranormal da ficha: ação de movimento e 2 PV aplicam a uma unidade de munição bônus de dano de Sangue +1d6, para um uso. Afinidade: +1d8.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 47"
     },
     {
@@ -234,7 +234,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Janeiro",
       "page": 47,
-      "description": "Após conjurar um ritual de Sangue, ganha bônus na Defesa igual ao círculo do ritual até o começo do próximo turno. Com afinidade, acrescenta mais 2 ao bônus. Requisito: conseguir conjurar rituais de Sangue.",
+      "description": "Ao conjurar ritual de Sangue, Defesa aumenta pelo círculo até o começo do próximo turno. Afinidade: acrescenta 2 a esse bônus. Exige conjuração de Sangue.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 47"
     },
     {
@@ -258,7 +258,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Fevereiro",
       "page": 78,
-      "description": "Oferece pontos de vida temporários a um aliado com contrapartidas.",
+      "description": "Ação de NPC de Maria, não poder de personagem confirmado: ação padrão, toque, concede 2d10+10 PV temporários. Quando estes acabam, aplica fraco até o fim da cena. Limite de uma aplicação por alvo na cena.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 78"
     },
     {
@@ -274,7 +274,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Fevereiro",
       "page": 86,
-      "description": "Aprimora deslocamento em situações de combate.",
+      "description": "Ação de movimento da ficha de Tuco (NPC): quando se desloca em direção a cobertura ou inimigo, o alcance de movimento na ficha é duplicado.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 86"
     },
     {
@@ -282,7 +282,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Fevereiro",
       "page": 86,
-      "description": "Melhora a percepção tática e a capacidade de detectar adversários.",
+      "description": "Habilidade da ficha de Tuco (NPC): imunidade a desprevenido; alvo que sofre dano dele falha em testes de Furtividade contra ele por uma rodada.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 86"
     },
     {
@@ -290,7 +290,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Fevereiro",
       "page": 86,
-      "description": "Especialização em golpes com armas de impacto.",
+      "description": "Ação completa de Tuco (NPC): um ser adjacente recebe 6d6+20 de dano de impacto, com Fortitude DT 20 para reduzir à metade.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 86"
     },
     {
@@ -298,7 +298,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Março",
       "page": 108,
-      "description": "Permite interceptar ataques direcionados a aliados.",
+      "description": "Reação e 2 PE permitem assumir ataque ou habilidade de alvo único destinado a aliado adjacente. Se ataque não vencer a Defesa ou habilidade não produzir efeito completo, recupera 1 SAN. Pode adquirir novamente para alcance curto. Exige Ataque Especial e Casca Grossa.",
       "source": "Arquivos Secretos · Março/2026 · p. 108"
     },
     {
@@ -306,7 +306,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Março",
       "page": 108,
-      "description": "Aprimora a conversão entre PV e PE em habilidades de Flagelador.",
+      "description": "Na conversão de recursos da ficha Poder do Flagelo, a proporção passa a 1 PV por PE. Requisitos: Escolhido pelo Outro Lado e Poder do Flagelo.",
       "source": "Arquivos Secretos · Março/2026 · p. 108"
     },
     {
@@ -314,7 +314,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Março",
       "page": 108,
-      "description": "Aumenta possibilidades de recuperar PV gastos em habilidades.",
+      "description": "Uma vez entre interlúdios, pode recuperar PV gastos com Poder do Flagelo por outro método além de descanso. Pode adquirir novamente, até três usos por intervalo. Exige Escolhido pelo Outro Lado e Poder do Flagelo.",
       "source": "Arquivos Secretos · Março/2026 · p. 108"
     },
     {
@@ -322,7 +322,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Março",
       "page": 108,
-      "description": "Permite realizar dois ataques enquanto empunha duas armas sob condições.",
+      "description": "Mecânica de RPG: agredir com duas armas, pelo menos uma leve, permite um ataque com cada, com −1d20 nos ataques até próximo turno. Se já possui Combater com Duas Armas, elimina essa penalidade e permite duas armas de uma mão. Exige For 2 ou Agi 2 e Luta treinada.",
       "source": "Arquivos Secretos · Março/2026 · p. 108"
     },
     {
@@ -330,7 +330,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Março",
       "page": 108,
-      "description": "Altera a progressão de pontos de vida do combatente.",
+      "description": "PV iniciais passam a 24 + Vig, e o ganho por nível de exposição a 6 + Vig. Recalcule níveis anteriores e futuros. Exige Ataque Especial.",
       "source": "Arquivos Secretos · Março/2026 · p. 108"
     },
     {
@@ -338,7 +338,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Março",
       "page": 109,
-      "description": "Aprimora interações quando o personagem chega a um ambiente.",
+      "description": "Uma vez por sessão, ao anunciar a chegada em um ambiente, +1d20 no primeiro teste nele, exceto Furtividade. Pode transferir como reação ao primeiro teste de aliado no mesmo ambiente em alcance longo. Exige Pre 2.",
       "source": "Arquivos Secretos · Março/2026 · p. 109"
     },
     {
@@ -346,7 +346,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Abril",
       "page": 65,
-      "description": "Melhora uso e consumo de munição em ataques.",
+      "description": "Regra de inventário e dados de RPG: pacotes de munição duram o dobro de cenas. Antes de rolar dano de ataque de arma de fogo, pode descartar pacotes, somando dois dados de dano por pacote. Na contagem opcional, +10 unidades por pacote.",
       "source": "Arquivos Secretos · Abril/2026 · p. 65"
     },
     {
@@ -354,7 +354,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Abril",
       "page": 65,
-      "description": "Especialização em esforço de combate.",
+      "description": "+1 PE por incremento de NEX. Requisito: For 3 ou Vig 3.",
       "source": "Arquivos Secretos · Abril/2026 · p. 65"
     },
     {
@@ -362,7 +362,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Abril",
       "page": 66,
-      "description": "Percebe condições da Membrana e adapta conjuração.",
+      "description": "Uma vez por cena, 2 PE identificam o estado da Membrana. Se danificada ou pior, perde 1 SAN e o custo de seus rituais diminui em 1 PE.",
       "source": "Arquivos Secretos · Abril/2026 · p. 66"
     },
     {
@@ -370,7 +370,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Abril",
       "page": 66,
-      "description": "Altera a percepção paranormal em áreas com Membrana fragilizada.",
+      "description": "Ao entrar em área de Membrana danificada ou pior, pode aceitar o efeito: perde 1d6 SAN e troca entre si os atributos-chave de dois pares de perícias. Exclui perícias que exigem treinamento que não possui. Termina ao sair da área; nova aceitação apenas no dia seguinte.",
       "source": "Arquivos Secretos · Abril/2026 · p. 66"
     },
     {
@@ -378,7 +378,7 @@ window.NEX_ARQUIVOS={
       "category": "Especialista",
       "month": "Abril",
       "page": 67,
-      "description": "Concede uma chance final de investigar a cena.",
+      "description": "Uma vez por cena de investigação, na última rodada, 2 PE acrescentam uma rodada à urgência.",
       "source": "Arquivos Secretos · Abril/2026 · p. 67"
     },
     {
@@ -386,7 +386,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Abril",
       "page": 67,
-      "description": "Reduz o espaço ocupado por um equipamento escolhido, com risco.",
+      "description": "Escolha equipamento que passa a ocupar zero espaços enquanto guardado. Ao empunhá-lo, há 25% de chance de deslocamento sobrenatural para ponto em alcance curto definido pelo mestre. Se destruído ou consumido, escolha outro. Afinidade: até três equipamentos.",
       "source": "Arquivos Secretos · Abril/2026 · p. 67"
     },
     {
@@ -394,7 +394,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Maio",
       "page": 55,
-      "description": "Concede benefícios de iniciativa e coragem aos aliados próximos.",
+      "description": "Aliados a até 18m recebem +5 em Iniciativa e testes contra presença perturbadora; o próprio personagem não recebe o benefício.",
       "source": "Arquivos Secretos · Maio/2026 · p. 55"
     },
     {
@@ -402,7 +402,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Maio",
       "page": 55,
-      "description": "Recupera parte de recursos durante conflito.",
+      "description": "Uma vez por cena com ameaça presente, ação de movimento recupera 1d8+Vig PV ou PE, à escolha.",
       "source": "Arquivos Secretos · Maio/2026 · p. 55"
     },
     {
@@ -410,7 +410,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Maio",
       "page": 55,
-      "description": "Fornece cobertura a aliados adjacentes.",
+      "description": "Concede cobertura leve (+5 Defesa) a aliados adjacentes. Exige Vig 3 ou For 3.",
       "source": "Arquivos Secretos · Maio/2026 · p. 55"
     },
     {
@@ -418,7 +418,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Maio",
       "page": 56,
-      "description": "Aprimora Pilotagem e a proteção de veículos.",
+      "description": "Treinamento em Pilotagem ou +2 se já treinado. +1d20 em testes de jogo para preservar o veículo, conforme o mestre. Na regra de veículos operacionais, uma regalia extra sem contar no limite. Exige Agi 2.",
       "source": "Arquivos Secretos · Maio/2026 · p. 56"
     },
     {
@@ -426,7 +426,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Maio",
       "page": 56,
-      "description": "Aprimora a identificação de criaturas paranormais.",
+      "description": "+5 em Ocultismo para identificar criaturas, podendo testar por vestígios sem observá-las diretamente.",
       "source": "Arquivos Secretos · Maio/2026 · p. 56"
     },
     {
@@ -434,7 +434,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Maio",
       "page": 57,
-      "description": "Adiciona efeitos químicos a golpes e armas.",
+      "description": "Efeito sobrenatural de RPG: 1 PE concede até fim da cena +2 em ataque e +5 no dano desarmado, que se torna químico; pode aplicar à arma corpo a corpo, que será destruída ao fim da cena se não amaldiçoada. Afinidade: +4 ataque e +10 dano.",
       "source": "Arquivos Secretos · Maio/2026 · p. 57"
     },
     {
@@ -442,7 +442,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Maio",
       "page": 62,
-      "description": "Permite comunicação compartilhada a distância.",
+      "description": "Comunicação telepática ficcional com outros portadores do poder a até 90m, detectando sua localização nesse raio. Cada outro portador dentro do raio concede +2 em resistência contra efeitos negativos da comunicação dos Alheios. Requer conexão com o Sino de Transmissão.",
       "source": "Arquivos Secretos · Maio/2026 · p. 62"
     },
     {
@@ -450,7 +450,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Maio",
       "page": 63,
-      "description": "Permite compartilhar temporariamente uma perícia de um aliado conectado.",
+      "description": "Uma vez por cena, ação de movimento e 2 PE permitem escolher uma perícia de outro portador do mesmo poder em alcance curto, usando os valores permanentes dele até fim da cena, sem bônus temporários. Requer conexão com o Sino.",
       "source": "Arquivos Secretos · Maio/2026 · p. 63"
     },
     {
@@ -458,7 +458,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Maio",
       "page": 63,
-      "description": "Permite compartilhar poderes entre personagens conectados.",
+      "description": "Uma vez por cena, ação de movimento e 3 PE permitem usar um poder elegível de outro portador em alcance curto até fim da cena, cumprindo os requisitos. Requer conexão com o Sino.",
       "source": "Arquivos Secretos · Maio/2026 · p. 63"
     },
     {
@@ -466,7 +466,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Junho",
       "page": 67,
-      "description": "Aprimora a identificação de ameaças e confrontos planejados.",
+      "description": "+5 nos testes feitos por Ciente das Cicatrizes. Contra ameaça previamente investigada com sucesso por essa habilidade, +2 em testes. Exige Ciente das Cicatrizes.",
       "source": "Arquivos Secretos · Junho/2026 · p. 67"
     },
     {
@@ -474,7 +474,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Junho",
       "page": 67,
-      "description": "Aumenta defesa e reflexos ao usar proteção leve.",
+      "description": "Enquanto veste proteção leve, +2 Defesa e Reflexos.",
       "source": "Arquivos Secretos · Junho/2026 · p. 67"
     },
     {
@@ -482,7 +482,7 @@ window.NEX_ARQUIVOS={
       "category": "Especialista",
       "month": "Junho",
       "page": 68,
-      "description": "Aprimora atendimento médico em combate.",
+      "description": "Paramédico usa d12 em vez de d10. Uma vez por rodada, 3 PE permitem executá-lo como ação de movimento. Exige Paramédico.",
       "source": "Arquivos Secretos · Junho/2026 · p. 68"
     },
     {
@@ -490,7 +490,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Junho",
       "page": 69,
-      "description": "Escolha um elemento. Ao conjurar ritual dele, pode gastar PE para ganhar +2 em Defesa por ponto gasto; o bônus dura uma rodada e o gasto respeita seu limite de PE. Requisitos: Especialista em Elemento do tipo escolhido e NEX 30%.",
+      "description": "Escolha elemento. Ao conjurar ritual dele, pode pagar PE extras, respeitando o limite: +2 Defesa por PE por uma rodada. Exige Especialista em Elemento correspondente e NEX 30%.",
       "source": "Arquivos Secretos · Junho/2026 · p. 69"
     },
     {
@@ -498,7 +498,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Junho",
       "page": 70,
-      "description": "Fortalece a resistência diante de ambientes extremos.",
+      "description": "+2 Fortitude e imunidade ao dano de clima muito quente ou frio, inclusive extremos, na ficha. Exige Vig 2.",
       "source": "Arquivos Secretos · Junho/2026 · p. 70"
     },
     {
@@ -506,7 +506,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Junho",
       "page": 71,
-      "description": "Defesa paranormal associada ao elemento Morte.",
+      "description": "Reação, 2 PE, uma vez por rodada: contra dano de munição, RD 20 e projétil destruído; contra dano de arma corpo a corpo, RD 10 e o equipamento sofre 10 de dano químico sobrenatural. A RD não se aplica a Energia. Exige Morte 2. Afinidade: múltiplos usos por rodada e dano químico 20.",
       "source": "Arquivos Secretos · Junho/2026 · p. 71"
     },
     {
@@ -514,7 +514,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Janeiro",
       "page": 44,
-      "description": "Usando a regra opcional Reter Ritual, permite prolongar certos efeitos negativos já mantidos quando o alvo sai da linha de efeito. Também pode gastar uma reação e 1 PE por ritual retido para preservar seus efeitos ao sofrer uma condição que encerraria a retenção. Requisitos: Intelecto 2 e conjurar ritual de 1º círculo.",
+      "description": "Com regra opcional Reter Ritual, reação altera duração para cena quando alvo de efeito negativo sai da linha de efeito. Ao receber condição que interromperia retenção, reação e 1 PE por ritual alteram sua duração para cena. Exige Int 2 e conjuração de 1º círculo.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 44"
     },
     {
@@ -522,7 +522,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Janeiro",
       "page": 46,
-      "description": "Ao expor uma cicatriz marcante com uma ação de movimento, aumenta em 1d8 o dano que causa, mas sofre desvantagem em Vontade e em ações que exigem calma. Os efeitos permanecem até o fim da cena; também podem ser desencadeados por outra pessoa. Requisito: ter cicatrizes.",
+      "description": "Regra de personagem: expor uma marca física ou psicológica relevante à história, como ação de movimento, ativa +1d8 de dano do mesmo tipo e −1d20 em Vontade e testes que exigem calma. Outra pessoa pode desencadear o efeito narrativamente. Até fim da cena. Requer cicatrizes na história.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 46"
     },
     {
@@ -530,7 +530,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Janeiro",
       "page": 47,
-      "description": "Pode gastar uma ação de movimento e 1 PE para ativar uma proteção corrosiva pelo restante da cena. Quando sofre dano de um adversário adjacente, o agressor recebe 1d10 de Sangue; com afinidade, 2d10.",
+      "description": "Ação de movimento e 1 PE: efeito sobrenatural até fim da cena. Quando um ser adjacente causa dano ao personagem, recebe 1d10 de Sangue. Afinidade: 2d10.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 47"
     },
     {
@@ -538,7 +538,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Janeiro",
       "page": 47,
-      "description": "Enquanto estiver machucado, recebe RD 5. Com afinidade, também pode obter 20 PV temporários uma vez por cena. Requisito: Sangue 1.",
+      "description": "Mecânica ficcional: enquanto machucado, RD 5. Exige Sangue 1. Afinidade: também concede 20 PV temporários uma vez por cena.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 47"
     },
     {
@@ -546,7 +546,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Março",
       "page": 109,
-      "description": "Transforma um instrumento musical em arma especial de Energia.",
+      "description": "Antes da missão ou no interlúdio, transforma um instrumento musical conhecido em equipamento sobrenatural de uso exclusivo: tático de Energia, duas mãos, categoria II, 2 espaços, alcance curto, ataque por Artes, dano 2d8 Energia + Pre, crítico 20/×2. Se quebrar, pode substituir por outro; se o personagem morrer, quebra. Interações com outras habilidades dependem do mestre. Afinidade: alvos escolhidos em alcance curto.",
       "source": "Arquivos Secretos · Março/2026 · p. 109"
     },
     {
@@ -554,7 +554,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Abril",
       "page": 67,
-      "description": "Modifica a iniciativa por meio de uma rolagem caótica.",
+      "description": "No começo da rodada, uma vez por rodada, 2 PE permitem rolar 1d20: se par, acrescenta à Iniciativa; se ímpar, subtrai. Reordena a iniciativa. Afinidade: rola dois dados e escolhe um.",
       "source": "Arquivos Secretos · Abril/2026 · p. 67"
     },
     {
@@ -562,7 +562,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Abril",
       "page": 67,
-      "description": "Distorce registros digitais do personagem.",
+      "description": "Efeito paranormal de jogo: reação e 2 PE distorcem a identidade do personagem em imagem digital que o registra. Afinidade: efeito permanente e distorção sobrenatural da voz em gravações.",
       "source": "Arquivos Secretos · Abril/2026 · p. 67"
     },
     {
@@ -570,7 +570,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Maio",
       "page": 55,
-      "description": "Melhora a atuação no escuro e em ambientes de pouca luz.",
+      "description": "Ignora camuflagem leve e total por escuridão; +2 em Investigação em penumbra.",
       "source": "Arquivos Secretos · Maio/2026 · p. 55"
     },
     {
@@ -578,7 +578,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Maio",
       "page": 55,
-      "description": "Beneficia testes com equipamentos eletrônicos antigos.",
+      "description": "+5 em Tecnologia com eletrônicos anteriores a 2000; na ficção, pode compatibilizá-los com aparelhos digitais modernos.",
       "source": "Arquivos Secretos · Maio/2026 · p. 55"
     },
     {
@@ -586,7 +586,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Maio",
       "page": 55,
-      "description": "Permite usar Intelecto em certas reações de combate.",
+      "description": "Ao testar Iniciativa ou Reflexos, pode pagar 2 PE para usar Int em vez de Agi.",
       "source": "Arquivos Secretos · Maio/2026 · p. 55"
     },
     {
@@ -594,7 +594,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Maio",
       "page": 56,
-      "description": "Adiciona opção de recuperar esforço em interlúdios.",
+      "description": "Nova ação de interlúdio, uma vez por interlúdio. Recuperação em PE: condição precária, 1 × limite de PE por rodada; normal, 2 ×; confortável, 6 ×; luxuosa, 8 ×, conforme multiplicadores descritos no suplemento.",
       "source": "Arquivos Secretos · Maio/2026 · p. 56"
     },
     {
@@ -602,7 +602,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Maio",
       "page": 56,
-      "description": "Relaciona o personagem aos sinais e efeitos da Transmissão.",
+      "description": "Quando alvo em alcance curto recebe bônus ou penalidade em dados rolados, reação e 4 PE invertem o sinal desse efeito até fim da cena.",
       "source": "Arquivos Secretos · Maio/2026 · p. 56"
     },
     {
@@ -610,7 +610,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Maio",
       "page": 57,
-      "description": "Transmite treinamento em uma perícia sob uma condição de risco.",
+      "description": "Enquanto machucado, escolha alvo em alcance médio e uma perícia treinada; ele recebe seu grau de treinamento até você recuperar PV acima da metade ou morrer. Afinidade: até três alvos e duas perícias; se o personagem morrer, os últimos alvos mantêm os benefícios até fim da missão.",
       "source": "Arquivos Secretos · Maio/2026 · p. 57"
     },
     {
@@ -618,7 +618,7 @@ window.NEX_ARQUIVOS={
       "category": "Especialista",
       "month": "Junho",
       "page": 68,
-      "description": "Melhora a resposta de primeiros socorros em emergências.",
+      "description": "No RPG, 2 PE garantem sucesso em teste de primeiros socorros. Uma vez por alvo na cena. Exige Medicina veterana.",
       "source": "Arquivos Secretos · Junho/2026 · p. 68"
     },
     {
@@ -626,7 +626,7 @@ window.NEX_ARQUIVOS={
       "category": "Especialista",
       "month": "Junho",
       "page": 68,
-      "description": "Aprimora a remoção de condições durante tratamento.",
+      "description": "Equipe de Trauma passa a remover até três condições negativas, exceto morrendo. Exige Paramédico e Equipe de Trauma.",
       "source": "Arquivos Secretos · Junho/2026 · p. 68"
     },
     {
@@ -634,7 +634,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Junho",
       "page": 68,
-      "description": "Aumenta a eficiência de medicamentos e cuidados médicos.",
+      "description": "Na ficha, itens de cura ou PV temporários aplicados pelo personagem recebem +1d8 PV no efeito. +5 em Medicina para aplicar tratamento; sucesso concede +10, em vez de +5, no próximo teste de Fortitude do paciente contra doença ou veneno. Exige Especialista em Emergências.",
       "source": "Arquivos Secretos · Junho/2026 · p. 68"
     },
     {
@@ -642,7 +642,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Junho",
       "page": 69,
-      "description": "Escolha um elemento. Sempre que conjura ritual desse elemento, pode gastar 1 PE para conferir um benefício a um aliado ou impor condição a um inimigo. Os efeitos variam por Sangue, Morte, Conhecimento e Energia e atingem um alvo, com duração definida pela opção.",
+      "description": "Escolha elemento. Ao conjurar ritual dele, 1 PE acrescenta efeito para um alvo, inclusive o próprio conjurador: Sangue, aliado +2d4 Sangue no dano, inimigo debilitado; Morte, aliado 3d8+3 PV temporários, inimigo enjoado; Conhecimento, aliado +2 em perícias, inimigo esmorecido; Energia, aliado +6m em todos deslocamentos, inimigo desprevenido. Bônus duram a cena; condições, uma rodada e ignoram imunidades. Exige Mestre em Elemento correspondente e NEX 60%.",
       "source": "Arquivos Secretos · Junho/2026 · p. 69"
     },
     {
@@ -650,7 +650,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Junho",
       "page": 70,
-      "description": "Aprimora combate com objetos usados como armas improvisadas.",
+      "description": "Regra de RPG: ignora penalidade de ataque com equipamento classificado como arma improvisada e acrescenta um dado do mesmo tipo ao dano. Exige For 2 ou Agi 2 e Luta treinada.",
       "source": "Arquivos Secretos · Junho/2026 · p. 70"
     },
     {
@@ -658,7 +658,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Junho",
       "page": 70,
-      "description": "Reduz a visibilidade e melhora a Furtividade.",
+      "description": "Na cena de furtividade, subtraia 1d4 da visibilidade inicial. +3 em Furtividade. Exige Sorrateiro.",
       "source": "Arquivos Secretos · Junho/2026 · p. 70"
     },
     {
@@ -666,7 +666,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Junho",
       "page": 71,
-      "description": "Cria uma área paranormal de restrição associada à Morte.",
+      "description": "2 PE criam área paranormal de raio 9m centrada no personagem até fim da cena. Seres na área, exceto conjurador e criaturas de Morte, sofrem 3d6 Morte e lento; Fortitude com DT pelo maior atributo reduz dano à metade e evita condição por uma rodada. Afinidade: 6d6 e enredado em vez de lento.",
       "source": "Arquivos Secretos · Junho/2026 · p. 71"
     },
     {
@@ -674,7 +674,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Junho",
       "page": 71,
-      "description": "Manipula dados mediante conexão com Energia.",
+      "description": "Ação completa e 2 PE criam marcador sobrenatural na ficha, válido por um dia, limite de um. Reação e 3 PE consomem a marca e restauram os dados físicos e mentais da ficha ao estado salvo, apagando memórias posteriores. Aplica alquebrado e frustrado até fim da cena, pasmo por 1d4+1 rodadas. Exige Energia 2. Afinidade: validade de um ano.",
       "source": "Arquivos Secretos · Junho/2026 · p. 71"
     },
     {
@@ -682,7 +682,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Janeiro",
       "page": 46,
-      "description": "Recebe treinamento em Ocultismo ou +2 caso já seja treinado. Ao realizar um teste de Vontade, pode gastar 2 PE para substituir a perícia por Ocultismo. Requisito: Intelecto 2.",
+      "description": "Treinamento em Ocultismo ou +2 se já treinado. Por 2 PE substitui um teste de Vontade por Ocultismo. Exige Int 2.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 46"
     },
     {
@@ -690,7 +690,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Janeiro",
       "page": 46,
-      "description": "Ao conjurar um ritual, pode combinar os benefícios de até três catalisadores ritualísticos diferentes. Requisitos: Intelecto 3, conjurar ritual de 2º círculo e o poder Domínio Esotérico.",
+      "description": "Combina até três catalisadores distintos na mesma conjuração. Exige Int 3, conjuração de 2º círculo e Domínio Esotérico.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 46"
     },
     {
@@ -700,7 +700,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 39,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
-      "description": "Adiciona a ação de interlúdio municiar: prepara pacotes virtuais de munição equivalentes a 1d6 por ponto de Intelecto, sem ocupar espaços. Requisito: Intelecto 2."
+      "description": "Mecânica de inventário do RPG: ação de interlúdio municiar concede 1d6 pacotes de munição por ponto de Int que não contam na carga. Exige Int 2."
     },
     {
       "name": "Ripostar Ousado",
@@ -709,7 +709,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 39,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
-      "description": "Em reação a um ataque corpo a corpo, gasta 2 PE e sua reação especial de defesa para contra-atacar. Recebe +5 de Defesa nesse ataque e, se o atacante errar, +5 no teste do contra-ataque. Requisitos: Agilidade 2 e Luta treinada."
+      "description": "Mecânica de combate do RPG: antes do resultado de ataque corpo a corpo contra o personagem, reação especial de defesa e 2 PE permitem contra-ataque. +5 Defesa contra o ataque; se errar, +5 no teste de contra-ataque. Exige Agi 2 e Luta treinada."
     },
     {
       "name": "Tiro Intuitivo",
@@ -718,7 +718,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 39,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
-      "description": "Ataques à distância sem usar a ação mirar recebem +2 na margem de ameaça. Pode gastar 2 PE para aumentar o multiplicador crítico em +1 e ignorar até RD 10 ao acertar. Requisito: Pontaria veterana."
+      "description": "No RPG, ataque à distância sem ação mirar recebe +2 na margem de ameaça. 2 PE adicionais concedem +1 no multiplicador de crítico e ignoram até 10 de RD no dano desse acerto. Exige Pontaria veterana."
     },
     {
       "name": "Tática de Abordagem",
@@ -727,7 +727,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 39,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
-      "description": "Em interlúdio, planeja uma cena futura com teste de Tática DT 25; recebe três dados de tática d6 ao passar, mais um para cada 5 pontos excedentes. Gasta os dados para aumentar testes, dano ou cura durante a situação planejada. Requisitos: Intelecto 1, Tática veterana."
+      "description": "Uma vez por interlúdio, planeje uma cena futura aprovada pelo mestre e teste Tática DT 25. Sucesso concede três d6 de tática, mais um por cada 5 acima da DT. Durante a cena planejada, reação permite gastar quaisquer dados acumulados para somar ao teste, dano ou cura de você ou aliado que participou do planejamento, independentemente da distância. Dados restantes expiram no próximo interlúdio. Exige Int 1 e Tática veterana."
     }
   ],
   "items": [
