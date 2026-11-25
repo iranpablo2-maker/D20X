@@ -14,7 +14,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "perturbacao|conhecimento|1": {
-    "description": "Implanta uma ordem ou interferência mental que atrapalha a ação do alvo por um período breve. O resultado depende da resistência e dos comandos permitidos pela versão utilizada. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 pessoa; Duração: 1 rodada; Resistência: Vontade (anula).",
+    "description": "No RPG, escolha um comando audível: fugir, aproximar-se, largar itens, sentar ou ficar pasmo. Falha em Vontade obriga o alvo a cumprir o comando no turno seguinte. Largar e sentar são ações livres e restringem a recuperação dos itens ou o ato de levantar até o turno posterior.",
     "kind": "Suporte"
   },
   "ouvir os sussurros|conhecimento|1": {
@@ -38,7 +38,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "coincidencia forcada|energia|1": {
-    "description": "O alvo recebe +2 em testes de perícia até o fim da cena. Discente (+2 PE; exige 2º círculo): afeta aliados escolhidos. Verdadeiro (+5 PE; exige 3º círculo e afinidade): afeta os aliados escolhidos e concede +5.",
+    "description": "Alvo recebe +2 em testes de perícia pela cena.",
     "kind": "Suporte"
   },
   "eletrocussao|energia|1": {
@@ -54,7 +54,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "polarizacao caotica|energia|1": {
-    "description": "Controla a ação de forças magnéticas para mover ou interferir em objetos metálicos. Pode deslocar metal no ambiente, mas exige observar as limitações de peso, alcance e sustentação. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: você; Duração: Sustentada; Resistência: Vontade anula.",
+    "description": "Aura magnética sobrenatural: atrair objeto metálico de até 2 espaços com ação de movimento, ou repelir, concedendo RD 5 contra balístico, corte, impacto e perfuração.",
     "kind": "Suporte"
   },
   "amaldicoar arma|morte|1": {
@@ -62,7 +62,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "cicatrizacao|morte|1": {
-    "description": "Ritual de toque que recupera 3d8+3 PV e envelhece o alvo em um ano. Discente (+2 PE; exige 2º círculo): cura 5d8+5. Verdadeiro (+9 PE; exige 4º círculo e afinidade com Morte): cura 7d8+7 em seres escolhidos no alcance curto.",
+    "description": "Recupera 3d8+3 PV; alvo envelhece um ano.",
     "kind": "Cura"
   },
   "consumir manancial|morte|1": {
@@ -70,15 +70,15 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "decadencia|morte|1": {
-    "description": "Desgasta o alvo com energia de Morte, causando dano por deterioração paranormal. O alcance e as versões avançadas determinam como o efeito atinge a vítima. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Instantânea; Resistência: Fortitude reduz à metade.",
+    "description": "2d8+2 de Morte; Fortitude reduz à metade.",
     "kind": "Dano"
   },
   "definhar|morte|1": {
-    "description": "Impõe enfraquecimento temporário ao alvo, prejudicando suas capacidades físicas. É um efeito de penalidade, não uma redução permanente dos atributos. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Cena; Resistência: Fortitude parcial.",
+    "description": "Alvo fica fatigado pela cena; sucesso em Fortitude substitui a condição por vulnerável.",
     "kind": "Suporte"
   },
   "espirais da perdicao|morte|1": {
-    "description": "Espalha uma influência debilitante de Morte sobre múltiplos alvos. As criaturas afetadas sofrem limitações enquanto o efeito permanecer, conforme sua resistência. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Cena.",
+    "description": "Alvo sofre −1d20 nos testes de ataque pela cena.",
     "kind": "Suporte"
   },
   "nuvem de cinzas|morte|1": {
@@ -102,7 +102,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "distorcer aparencia|sangue|1": {
-    "description": "Modifica a aparência externa de uma criatura, permitindo assumir traços visuais diferentes. Muda o aspecto físico percebido, mas não concede automaticamente identidade, lembranças ou habilidades de outra pessoa. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena; Resistência: Vontade desacredita.",
+    "description": "Altera a aparência do personagem e concede +10 em Enganação para disfarce, sem alterar estatísticas ou habilidades.",
     "kind": "Suporte"
   },
   "fortalecimento sensorial|sangue|1": {
@@ -110,11 +110,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "odio incontrolavel|sangue|1": {
-    "description": "Desperta um impulso agressivo que favorece ataques e altera o comportamento do alvo. O efeito tem contrapartidas e exige atenção às limitações indicadas na versão. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 pessoa; Duração: Cena.",
+    "description": "Concede +2 em ataque e dano corpo a corpo e RD 5 contra balístico, corte, impacto e perfuração. Impede ações que exijam concentração e obriga o personagem a atacar a cada rodada, mesmo se só houver aliado ao alcance.",
     "kind": "Suporte"
   },
   "cineraria|medo|1": {
-    "description": "Cria uma névoa de raio 6m durante a cena. Dentro dela, a DT dos rituais aumenta em 5. Discente (+2 PE): também reduz o custo dos rituais em 2 PE. Verdadeiro (+5 PE): além do efeito normal, maximiza o dano dos rituais.",
+    "description": "Rituais conjurados dentro da névoa de raio 6m recebem DT +5.",
     "kind": "Suporte"
   },
   "aprimorar mente|conhecimento|2": {
@@ -126,15 +126,15 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "esconder dos olhos|conhecimento|2": {
-    "description": "Dificulta que outras criaturas percebam visualmente o alvo. O ritual pode ajudar em infiltrações, mas suas limitações e formas de detecção precisam ser respeitadas. Parâmetros: Execução: Livre; Alcance: Pessoal; Alvo/área: você; Duração: 1 rodada.",
+    "description": "Invisibilidade por uma rodada, incluindo equipamento: camuflagem total e +15 em Furtividade. Ataque ou habilidade hostil encerra o efeito. Objetos soltos voltam a ser visíveis; luz e partes de itens além do alcance natural permanecem visíveis.",
     "kind": "Suporte"
   },
   "invadir mente|conhecimento|2": {
-    "description": "Projeta uma interferência agressiva na mente do alvo, com consequências psíquicas e possível dano. A resistência determina quanto do efeito se aplica. Parâmetros: Execução: Padrão; Alcance: Médio ou toque; Alvo/área: 1 ser ou 2 pessoas voluntárias; Duração: Instantânea ou 1 dia; Resistência: Vontade parcial ou nenhuma.",
+    "description": "Escolha rajada mental (6d6 de Conhecimento e atordoado por uma rodada; Vontade reduz dano e evita condição; atordoamento uma vez por alvo por cena) ou elo telepático entre duas pessoas voluntárias durante um dia, independentemente da distância.",
     "kind": "Dano"
   },
   "localizacao|conhecimento|2": {
-    "description": "Procura sobrenaturalmente a posição de um alvo, objeto ou ser conhecido. A precisão da busca depende das condições e das informações exigidas pelo ritual. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: Área: círculo com 90m de raio; Duração: Cena.",
+    "description": "Indica direção e distância do objeto ou pessoa mais próxima que corresponda à busca, em raio de 90m. Busca específica exige imagem mental correta; falha ainda gasta PE. Chumbo bloqueia o efeito.",
     "kind": "Suporte"
   },
   "chamas do caos|energia|2": {
@@ -146,11 +146,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "dissonancia acustica|energia|2": {
-    "description": "Cria área sustentada de raio 6m. Seres dentro dela ficam surdos e não conseguem conjurar.\n\nDiscente: +1 PE: um objeto passa a emitir silêncio em raio de 3m; Vontade anula se for de portador involuntário.\n\nVerdadeiro: +3 PE: duração de uma cena.",
+    "description": "Esfera de 6m, sustentada, impede audição e conjuração de rituais dentro dela.",
     "kind": "Suporte"
   },
   "sopro do caos|energia|2": {
-    "description": "Libera uma manifestação instável de Energia capaz de alterar o ambiente ou atingir alvos. O resultado específico deve seguir as opções e condições da versão. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: Área: varia; Duração: Sustentada; Resistência: veja texto.",
+    "description": "Escolha ascender (alvo Médio, movimento vertical de 6m por ação de movimento, máximo 30m, vulnerável; Fortitude no início do turno encerra), sopro (cone de 4,5m, disputa de empurrar usando Ocultismo, manutenção por ação padrão) ou vento (altera intensidade do vento na área, manutenção por movimento).",
     "kind": "Suporte"
   },
   "tela de ruido|energia|2": {
@@ -158,7 +158,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "desacelerar impacto|morte|2": {
-    "description": "Interfere na velocidade de uma queda, colisão ou outro impacto brusco. Serve para diminuir consequências de movimentos perigosos conforme a situação. Parâmetros: Execução: Reação; Alcance: Curto; Alvo/área: 1 ser ou objetos somando até 10 espaços; Duração: Até chegar ao solo ou cena, o que vier primeiro.",
+    "description": "Queda desacelerada a 18m por rodada, sem dano de queda; um projétil afetado causa metade do dano. Apenas queda livre ou equivalente, não golpes ou ataques de mergulho.",
     "kind": "Suporte"
   },
   "eco espiral|morte|2": {
@@ -182,27 +182,27 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "descarnar|sangue|2": {
-    "description": "O Sangue agride diretamente a integridade física do alvo, provocando dano paranormal. A resistência e a versão definem o resultado numérico. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Instantânea; Resistência: Fortitude parcial.",
+    "description": "6d8 de dano, metade corte e metade Sangue. Fortitude reduz à metade e evita o efeito contínuo. Caso falhe, teste no início dos turnos; falha causa 2d8 de Sangue e dois sucessos seguidos encerram.",
     "kind": "Dano"
   },
   "flagelo de sangue|sangue|2": {
-    "description": "Impõe uma punição paranormal ligada ao Sangue, que pode ferir a criatura afetada. O efeito segue condições próprias, e não deve ser confundido com dano livre a qualquer momento. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 pessoa; Duração: Cena; Resistência: Fortitude parcial.",
+    "description": "No RPG, o alvo recebe uma ordem. A cada rodada de descumprimento, sofre 10d6 de Sangue e enjoado pela rodada; Fortitude reduz o dano pela metade e evita a condição. Dois sucessos seguidos encerram o efeito.",
     "kind": "Dano"
   },
   "hemofagia|sangue|2": {
-    "description": "Retira vitalidade de um alvo e a converte em recuperação para o conjurador. O dano causado e a cura recebida se relacionam conforme a versão e as rolagens. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Instantânea; Resistência: Fortitude reduz à metade. Dano e cura são acompanhados separadamente, respeitando as condições da versão.",
+    "description": "6d6 de Sangue, Fortitude reduz à metade; recupera PV iguais à metade do dano efetivo.",
     "kind": "Dano + Cura"
   },
   "transfusao vital|sangue|2": {
-    "description": "Move vitalidade de um ser para outro, permitindo recuperar pontos de vida do destinatário. É importante acompanhar separadamente a perda e a recuperação. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Instantânea.",
+    "description": "Mecânica de transferência de PV entre personagens: até 30 PV do conjurador para o alvo, sem reduzir o conjurador abaixo de 1 PV.",
     "kind": "Cura"
   },
   "protecao contra rituais|medo|2": {
-    "description": "Cria uma defesa sobrenatural contra efeitos ritualísticos. Pode ajudar a resistir a conjurações hostis, sem cancelar automaticamente qualquer ritual. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Cena.",
+    "description": "RD paranormal 5 e +5 em resistências contra rituais e habilidades de criaturas paranormais.",
     "kind": "Suporte"
   },
   "rejeitar nevoa|medo|2": {
-    "description": "Afasta ou enfraquece a influência de névoas paranormais, abrindo espaço contra esse fenômeno. Seu funcionamento depende da presença do efeito que pretende dissipar. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: Área: nuvem de 6m de raio; Duração: Cena.",
+    "description": "Na área, rituais custam 2 PE adicionais por círculo e a execução aumenta um passo (livre, movimento, padrão, completa, duas rodadas). Anula Cinerária; se ela for mantida por ação completa a cada rodada, ambos os efeitos se neutralizam.",
     "kind": "Suporte"
   },
   "alterar memoria|conhecimento|3": {
@@ -214,11 +214,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "mergulho mental|conhecimento|3": {
-    "description": "Permite investigar fragmentos mentais e experiências de um alvo. É útil para descobrir informações escondidas, observando resistência e condições do ritual. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 pessoa; Duração: Sustentada; Resistência: Vontade parcial (veja texto).",
+    "description": "Conjurador fica desprevenido enquanto sustenta e toca o alvo. No início de cada turno, Vontade do alvo; falha obriga resposta verdadeira a uma pergunta de sim ou não, conforme o conhecimento do alvo e decisão do mestre.",
     "kind": "Suporte"
   },
   "videncia|conhecimento|3": {
-    "description": "Oferece vislumbres de informações além dos sentidos normais. Pode auxiliar a investigação ao revelar pistas, sem substituir uma resposta garantida para toda pergunta. Parâmetros: Execução: Completa; Alcance: Ilimitado; Alvo/área: 1 ser; Duração: 5 rodadas; Resistência: Vontade anula.",
+    "description": "Por superfície reflexiva, observa e ouve o alvo e arredores num raio aproximado de 6m. Vontade a cada turno impede a observação; dois sucessos seguidos encerram e conferem imunidade por uma semana. Modificador da resistência conforme conhecimento do alvo: mínimo +10, algum +5, familiar 0, pertence −5, amostra pessoal −10.",
     "kind": "Suporte"
   },
   "convocacao instantanea|energia|3": {
@@ -226,15 +226,15 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "salto fantasma|energia|3": {
-    "description": "Desloca rapidamente o alvo de uma posição para outra usando Energia. Pode auxiliar em movimentação e fuga, dentro das restrições do alcance. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: você; Duração: Instantânea.",
+    "description": "Teletransporte ficcional para local previamente observado em alcance médio. Não requer linha de efeito; se ocupado, chega ao espaço vazio mais próximo. Não pode agir novamente naquele turno.",
     "kind": "Suporte"
   },
   "transfigurar agua|energia|3": {
-    "description": "Altera propriedades da água em uma região, transformando seu estado ou comportamento. Pode modificar obstáculos e condições do ambiente. Parâmetros: Execução: Padrão; Alcance: Longo; Alvo/área: Área: esfera com 30m de raio; Duração: Cena; Resistência: veja texto.",
+    "description": "Escolha um efeito sobrenatural sobre água mundana: congelar (imobiliza nadadores, Atletismo e ação padrão para escapar), derreter gelo, elevar nível em até 4,5m ou dar +6m à embarcação, evaporar (5d8 de Energia; Fortitude metade), ou baixar nível em até 4,5m (Pilotagem para escapar de redemoinho ficcional).",
     "kind": "Suporte"
   },
   "transfigurar terra|energia|3": {
-    "description": "Transforma terra e rocha em uma área, alterando o terreno. O efeito pode criar obstáculos ou abrir passagem, dentro dos limites da versão. Parâmetros: Execução: Padrão; Alcance: Longo; Alvo/área: Área: 9 cubos com 1,5m de lado; Duração: Instantânea; Resistência: veja texto.",
+    "description": "Escolha alteração sobrenatural do terreno: amolecer (terreno difícil ou dano ficcional de 10d6 impacto, Reflexos metade), modelar objetos simples ou cobertura total (RD 8 e 50 PV por 3m), ou solidificar (agarrado, ação padrão e Atletismo contra DT para escapar).",
     "kind": "Suporte"
   },
   "ancora temporal|morte|3": {
@@ -242,7 +242,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "poeira da podridao|morte|3": {
-    "description": "Espalha partículas sobrenaturais de Morte que deterioram o que atingem. Pode causar dano aos alvos expostos enquanto o efeito estiver em ação. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: Área: nuvem com 6m de raio; Duração: Sustentada; Resistência: Fortitude (veja texto).",
+    "description": "Ao conjurar e no início dos turnos do conjurador, seres e objetos na área sofrem 4d8 de Morte. Fortitude reduz à metade; falha também impede recuperar PV por uma rodada.",
     "kind": "Dano"
   },
   "tentaculos de lodo|morte|3": {
@@ -254,19 +254,19 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "ferver sangue|sangue|3": {
-    "description": "Aquece sobrenaturalmente o Sangue do alvo, causando dano intenso. A aplicação depende da versão e das resistências envolvidas. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Sustentada; Resistência: Fortitude parcial.",
+    "description": "Na conjuração e início de cada turno do alvo: Fortitude; falha causa 4d8 de Sangue e fraco, sucesso reduz à metade e evita a condição na rodada. Dois sucessos consecutivos encerram.",
     "kind": "Dano"
   },
   "forma monstruosa|sangue|3": {
-    "description": "Transforma o corpo do conjurador em uma forma paranormal voltada ao combate. A alteração modifica capacidades físicas durante sua duração. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena.",
+    "description": "Tamanho Grande, +5 em ataque e dano corpo a corpo e 30 PV temporários. Equipamento indisponível, bônus mantidos. Não fala nem conjura; deve atacar o ser mais próximo ou mover-se em sua direção. Se for aliado, Vontade contra DT do ritual permite escolher outro alvo.",
     "kind": "Suporte"
   },
   "purgatorio|sangue|3": {
-    "description": "Marca uma região com uma influência perigosa de Sangue. Dentro da área, determinadas ações e danos tornam-se mais ameaçadores conforme a versão. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: área de 6m de raio; Duração: Sustentada; Resistência: Fortitude parcial.",
+    "description": "Inimigos na área ficam vulneráveis a balístico, corte, impacto e perfuração. Ao tentar sair, sofrem 6d6 de Sangue; Fortitude permite sair, falha impede o movimento e consome a ação.",
     "kind": "Suporte"
   },
   "vomitar pestes|sangue|3": {
-    "description": "Libera uma infestação paranormal que se espalha sobre os alvos na região. A manifestação causa consequências ofensivas conforme os testes aplicáveis. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: Efeito: 1 enxame Grande (quadrado de 3m); Duração: Sustentada; Resistência: Reflexos reduz à metade.",
+    "description": "Enxame ficcional Grande de 3m, surge adjacente e compartilha espaços. No fim do turno do conjurador, seres no espaço sofrem 5d12 de Sangue (Reflexos reduz à metade). Ação de movimento desloca o enxame até 12m.",
     "kind": "Dano"
   },
   "dissipar ritual|medo|3": {
@@ -274,15 +274,15 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "controle mental|conhecimento|4": {
-    "description": "Permite impor comandos e influenciar diretamente o comportamento de outra criatura. O alvo e as ordens permanecem sujeitos aos limites e resistências do ritual. Parâmetros: Execução: Padrão; Alcance: Médio; Alvo/área: 1 pessoa ou animal; Duração: Sustentada; Resistência: Vontade parcial.",
+    "description": "O alvo obedece comandos permitidos pelas regras da mesa. Vontade ao fim de cada turno encerra; sucesso impõe pasmo por uma rodada, apenas uma vez na cena.",
     "kind": "Suporte"
   },
   "inexistir|conhecimento|4": {
-    "description": "Ataca a própria permanência do alvo na realidade por meio do Conhecimento. É um efeito ofensivo extremo, cujas consequências seguem o resultado e a resistência. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Instantânea; Resistência: Vontade parcial.",
+    "description": "10d12+10 de Conhecimento; sucesso em Vontade substitui por 2d12 e debilitado por uma rodada. Se chegar a 0 PV, o personagem é removido da existência na ficção do jogo.",
     "kind": "Dano"
   },
   "possessao|conhecimento|4": {
-    "description": "Permite que a consciência do conjurador exerça controle paranormal sobre outro corpo. A transferência e a manutenção dependem das limitações do ritual. Parâmetros: Execução: Padrão; Alcance: Longo; Alvo/área: 1 pessoa viva ou morta; Duração: 1 dia; Resistência: Vontade anula.",
+    "description": "Controla corpo do alvo, usando a própria ficha com Agi, For, Vig e deslocamento dele. Vontade bem-sucedida revela tentativa e concede imunidade por um dia. Retorno voluntário como ação livre; se um corpo morrer no jogo, a mente sobrevivente permanece no outro, salvo nova conjuração.",
     "kind": "Suporte"
   },
   "alterar destino|energia|4": {
@@ -290,7 +290,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "deflagracao de energia|energia|4": {
-    "description": "Desencadeia uma grande liberação de Energia capaz de atingir vários alvos. A área de efeito, o dano e os testes de resistência precisam ser aplicados separadamente. Parâmetros: Execução: Completa; Alcance: Pessoal; Alvo/área: Área: explosão com 15m de raio; Resistência: Fortitude parcial.",
+    "description": "Efeito sobrenatural de área: 3d10 × 10 de Energia; itens tecnológicos dos atingidos ficam quebrados. Fortitude reduz dano pela metade e restabelece os itens após 1d4 rodadas. Conjurador não é afetado.",
     "kind": "Dano"
   },
   "teletransporte|energia|4": {
@@ -298,27 +298,27 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "convocar o algoz|morte|4": {
-    "description": "Invoca uma manifestação perigosa ligada à Morte para agir na cena. O poder da entidade e sua atuação são determinados pelo ritual. Parâmetros: Execução: Padrão; Alcance: 1,5m; Alvo/área: 1 pessoa; Duração: Sustentada; Resistência: Vontade anula, Fortitude parcial.",
+    "description": "Manifestação incorpórea imune a dano surge adjacente ao conjurador e se move 12m no fim de cada turno dele em direção ao alvo. Em alcance curto, falha em Vontade causa abalado; adjacente, Fortitude evita redução a 0 PV, mas causa 6d6 de Morte, limitado a 1 PV mínimo. Termina ao deixar o alvo morrendo ou ser dissipado.",
     "kind": "Dano"
   },
   "distorcao temporal|morte|4": {
-    "description": "Modifica o fluxo do tempo sobre uma região, afetando o ritmo dos acontecimentos. A duração e os efeitos sobre as criaturas seguem a versão. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: veja texto; Duração: Veja texto.",
+    "description": "Três rodadas em bolsão temporal próprio. Pode agir, mas não se deslocar nem interagir com seres ou objetos; efeitos externos não o atingem e seus efeitos não atingem o exterior. Efeitos de área ainda ativos voltam a funcionar quando o bolsão termina.",
     "kind": "Suporte"
   },
   "fim inevitavel|morte|4": {
-    "description": "Canaliza a Morte para produzir uma consequência destrutiva sobre o alvo. O dano e as demais consequências dependem do resultado da conjuração. Parâmetros: Execução: Completa; Alcance: Extremo; Alvo/área: Efeito: buraco negro com 1,5m de diâmetro; Duração: 4 rodadas; Resistência: Fortitude parcial.",
+    "description": "Cria vácuo temporal ficcional por quatro rodadas. A cada início de turno do conjurador, seres a até 90m fazem Fortitude; falha deixa caído e desloca 30m em direção ao efeito. Ação de movimento para se apoiar concede +5 na resistência. Contato no início do turno causa 100 de Morte.",
     "kind": "Dano"
   },
   "capturar o coracao|sangue|4": {
-    "description": "Interfere na vitalidade e nas funções físicas de uma criatura com o poder do Sangue. Pode impor condições severas, respeitando a resistência aplicável. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 pessoa; Duração: Cena; Resistência: Vontade parcial.",
+    "description": "No RPG, o alvo fica sujeito à influência sobrenatural. No começo de cada turno, falha em Vontade obriga a auxiliar o conjurador; dois sucessos consecutivos encerram o efeito.",
     "kind": "Suporte"
   },
   "involucro de carne|sangue|4": {
-    "description": "Forma uma estrutura de carne paranormal que protege ou envolve o alvo. A manifestação tem limites de manutenção e resistência próprios. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: Efeito: 1 clone seu; Duração: Cena.",
+    "description": "Cria cópia ficcional com as mesmas estatísticas e equipamento mundano, mas Int e Pre nulos. Ação de movimento dá ordem executada no fim do turno; alternativamente, controla diretamente a cópia no início do turno. Percepção contra DT identifica a cópia; desaparece com 0 PV ou fora do alcance.",
     "kind": "Suporte"
   },
   "vinculo de sangue|sangue|4": {
-    "description": "Estabelece uma conexão paranormal entre criaturas, permitindo que efeitos sejam compartilhados conforme a versão. O vínculo não concede controle irrestrito dos alvos. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Cena; Resistência: Fortitude anula.",
+    "description": "Quando o conjurador sofre dano, falha do alvo em Fortitude divide o dano igualmente entre ambos. Pode inverter o vínculo para receber metade do dano do alvo. Alvos voluntários dispensam resistência.",
     "kind": "Suporte"
   },
   "canalizar o medo|medo|4": {
@@ -326,19 +326,19 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "conhecendo o medo|medo|4": {
-    "description": "Expõe o alvo a uma manifestação intensa do Medo que pode provocar consequências ofensivas. O ritual exige a aplicação das condições próprias desse elemento. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 pessoa; Duração: Instantânea; Resistência: Vontade parcial.",
+    "description": "Se o alvo falhar em Vontade, SAN passa a zero, com a condição enlouquecendo. Sucesso causa 10d6 de dano mental e apavorado por uma rodada. A consequência ficcional da insanidade fica a cargo do mestre.",
     "kind": "Dano"
   },
   "lamina do medo|medo|4": {
-    "description": "Projeta uma lâmina paranormal de Medo para atingir um alvo. O dano e a resistência devem seguir a versão usada. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Instantânea; Resistência: Fortitude parcial.",
+    "description": "Fortitude: falha reduz PV a zero e aplica morrendo; sucesso causa 10d8 de Medo, ignorando RD, e apavorado por uma rodada. Requer poder de trilha específico.",
     "kind": "Dano"
   },
   "medo tangivel|medo|4": {
-    "description": "Torna perceptível ou físico um efeito associado ao Medo. A manifestação pode interagir com a cena conforme as regras específicas. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena.",
+    "description": "Imunidade a atordoado, cego, debilitado, enjoado, envenenado, exausto, fatigado, fraco, lento, ofuscado, paralisado, doenças e venenos. Ignora dano extra de crítico e ataque furtivo; dano balístico, corte, impacto e perfuração não reduz PV abaixo de 1.",
     "kind": "Suporte"
   },
   "presenca do medo|medo|4": {
-    "description": "Irradia uma presença aterrorizante ao redor do conjurador. Quem é afetado pode sofrer consequências relacionadas ao Medo, dependendo da resistência. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: Área: emanação de 9m de raio; Duração: Sustentada.",
+    "description": "Na conjuração e início de cada turno, alvos no raio de 9m sofrem 5d8 mental e 5d8 Medo. Vontade reduz ambos à metade; falha impõe atordoado por uma rodada, uma vez por cena.",
     "kind": "Dano"
   },
   "esfolar|sangue|1": {
