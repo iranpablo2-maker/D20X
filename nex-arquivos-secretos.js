@@ -1464,19 +1464,19 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Identificação Macabra",
-          "NEX 10%: gaste 1 PE para adicionar 1d10 a um teste de identificação de item amaldiçoado ou ritual."
+          "NEX 10% — por 1 PE, soma 1d10 a teste para identificar ritual ou item amaldiçoado. Ao identificar item amaldiçoado como ação completa, a penalidade é de apenas 1d20."
         ],
         [
           "Compreensão de Maldições",
-          "NEX 40%: em interlúdio, estude um item por 3 PE e teste Ocultismo. Pode absorver um ritual armazenado ou transferir uma maldição mediante custos e riscos."
+          "NEX 40% — uma ação de interlúdio e 3 PE permitem estudar item amaldiçoado com Ocultismo DT 10 + 5 por categoria. Falha custa 2d4+2 SAN e impede nova tentativa no item. Sucesso custa 1d4+1 SAN e consome o item: se contém ritual, aprende-o sem contar no limite; caso contrário, transfere maldições a outro item ou marcador paranormal de personagem voluntário adjacente ou próprio. Limite de um marcador por pessoa, removível por ação de interlúdio."
         ],
         [
           "Reproduzir Maldição",
-          "NEX 65%: memorize uma maldição já conhecida; durante um interlúdio, use 3 PE e teste Ocultismo para reproduzi-la temporariamente em outro item."
+          "NEX 65% — memorize uma maldição conhecida por uma ação de interlúdio e 3 PE. Para aplicá-la a outro item, use outra ação de interlúdio, 3 PE e Ocultismo DT 10 + 5 por categoria. Falha custa 2d8+2 SAN; sucesso custa 1d8+1 SAN e concede a maldição até fim da missão. Respeita categoria máxima IV."
         ],
         [
           "Maldição Suprema",
-          "NEX 99%: ao reproduzir uma maldição, considera a categoria efetiva do item três níveis menor, respeitando o limite final de categoria IV."
+          "NEX 99% — para Reproduzir Maldição, considera o item três categorias abaixo da real, até o limite final IV."
         ]
       ],
       "description": "Trilha de Ocultista voltada ao estudo e manipulação de objetos amaldiçoados. No NEX 10%, pode gastar 1 PE para receber +1d10 em identificação de itens ou rituais. No NEX 40%, pode estudar um item durante interlúdio, gastando 3 PE e fazendo Ocultismo contra DT definida pela categoria: um sucesso pode permitir aprender um ritual armazenado ou transferir uma maldição, com perda de Sanidade e consumo do item. No NEX 65%, memoriza maldições e pode aplicá-las temporariamente a outros itens por testes e custos. No NEX 99%, reduz em três categorias o valor efetivo usado para calcular a reprodução de uma maldição."
@@ -1489,19 +1489,19 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Método Intuitivo",
-          "Desenvolve o trabalho com selos paranormais."
+          "NEX 10% — recebe Criar Selo; se adquirido novamente, duplica limite de selos simultâneos. Cria dois selos por ação de interlúdio, mais um por outra habilidade desta trilha adquirida."
         ],
         [
           "Caligrafia Eficiente",
-          "Melhora a utilização e a identificação de selos."
+          "NEX 40% — teste para usar selo criado pelo personagem com ritual desconhecido passa a Ocultismo DT 10 + custo em PE do ritual. +5 em testes para identificar rituais."
         ],
         [
           "Decifrar à Distância",
-          "Permite usar selos sem empunhá-los dentro de limites."
+          "NEX 65% — pode usar selo legível em alcance curto sem empunhá-lo ou lê-lo em voz alta. +5 em testes para compreender linguagens paranormais."
         ],
         [
           "Selo Supremo",
-          "Aprimora os efeitos dos selos criados pelo ocultista."
+          "NEX 99% — selos criados pelo personagem dispensam teste de Ocultismo; DT de resistência +5, dano +3 dados do mesmo tipo, e formas avançadas não exigem PE adicionais do usuário."
         ]
       ],
       "description": "Trilha de Ocultista especializada na preparação e utilização de selos paranormais. Seus estágios aprimoram o uso, a leitura e o alcance de selos até versões mais avançadas."
@@ -1514,19 +1514,19 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Meus Bebês",
-          "Produz e recebe explosivos autorais."
+          "NEX 10% — treinamento em Profissão (químico), ou +5 se já treinado. Começa missão com um item explosivo autoral de jogo, fora do limite de itens; quantidade aumenta em um aos NEX 40%, 65% e 99%. Usa exclusivamente a mecânica abstrata de fabricação em campo do RPG."
         ],
         [
           "Fogo Amigo",
-          "Aprimora o controle da área de explosivos."
+          "NEX 40% — recebe Perito em Explosivos. Se já possui ou adquirir novamente uma vez, dobra o modificador de resistência e quantidade de alvos excluídos conforme esse poder. A medida de área do efeito de jogo aumenta em 6m."
         ],
         [
           "O Calor do Momento",
-          "Permite improvisar um explosivo em combate, com risco."
+          "NEX 65% — regra abstrata de RPG: ação completa e 4 PE geram um item autoral temporário com os bônus normais; chance de 25% de falha perigosa ao usar."
         ],
         [
           "Memória Muscular",
-          "Aprimora o uso e o dano de explosivos autorais."
+          "NEX 99% — sacar item autoral é ação livre para qualquer personagem. Por 4 PE, o uso passa a ação de movimento. Dobra os dados de dano de itens autorais no jogo."
         ]
       ],
       "description": "Trilha de Especialista voltada ao uso de explosivos próprios em combate. As habilidades desenvolvem a criação, o posicionamento e a improvisação de explosivos, incluindo riscos e limitações da técnica."
@@ -1541,19 +1541,19 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Ser Experimentado",
-          "NEX 10% — O personagem recebe treinamento em Ocultismo; se já era treinado, recebe +2 nessa perícia. Escolhe um elemento entre Sangue, Morte, Conhecimento e Energia e passa a sofrer –2 em Diplomacia, Enganação e Intuição. Sua transformação paranormal concede benefícios particulares do elemento escolhido, mas exige a manutenção diária de uma condição narrativa descrita nas regras. Quando essa condição é cumprida, recupera 1d8+1 PV e mantém os efeitos do elemento até o final do dia. Sem a manutenção, sofre penalidades semelhantes às de privação. A habilidade também interage com a afinidade paranormal do personagem; consulte o suplemento para a tabela completa de benefícios elementais."
+          "NEX 10% — Ocultismo treinado ou +2 se já treinado; −2 em Diplomacia, Enganação e Intuição. Escolha elemento, que define afinidade futura. Uma ação completa diária de transformação paranormal fictícia recupera 1d8+1 PV e ativa efeitos até fim do dia; sem ela, aplicam-se condições de privação do RPG. Sangue: tamanho Grande (+2 manobras, −2 Furtividade), soma For aos testes de For e usa For para PE. Morte: 2d6 PV temporários, uma ação padrão adicional por cena, soma Vig aos testes de Vig e usa Vig para PE. Conhecimento: treinamento em duas perícias escolhidas, soma Int aos testes de Int e usa Int para PE. Energia: uma ação livre extra de sacar item por rodada, +6m em deslocamentos, soma Agi aos testes de Agi e usa Agi para PE. A trilha segue progressão opcional de NEX, dobrando exposição na regra de experiência separada."
         ],
         [
           "Ser Testado",
-          "NEX 40% — A manifestação escolhida é aprimorada e modifica as características sobrenaturais já adquiridas no primeiro estágio. Os efeitos se distinguem conforme Sangue, Morte, Conhecimento ou Energia; a escolha do primeiro estágio continua definindo a especialização. Consulte a tabela da trilha para conferir os valores exatos de cada elemento, as condições e os limites, pois não há um bônus universal aplicável a todos."
+          "NEX 40% — penalidade social da trilha passa a −5; transformação diária recupera 2d8+2 PV. Sangue: +1d6 Sangue em ataques e RD 2, podendo reduzir temporariamente Int para obter os mesmos bônus por ponto. Morte: +1 turno de tolerância na condição morrendo e 2d8 PV temporários no início de cada cena, repetindo esses ganhos por ponto de For temporariamente reduzido. Conhecimento: +1d6 em testes de Int e +2 nesses testes por ponto de Agi temporariamente reduzido. Energia: +1d6 ataque e +2 Defesa, mais +1d4 ataque e +2 Defesa por ponto de Vig temporariamente reduzido. Atributos podem chegar a zero; reduções não afetam PV, PE, SAN ou perícias treinadas e não incluem pontos emprestados por efeitos."
         ],
         [
           "Ser Expurgado",
-          "NEX 65% — O personagem passa a expressar habilidades de sua transformação de maneira mais intensa. A habilidade concede uma nova opção de atuação ligada ao elemento escolhido e inclui uma limitação em combate quando a manifestação é prejudicada. O benefício específico depende da variante elemental, por isso não deve ser convertido em um bônus genérico."
+          "NEX 65% — Pre −1 permanente; transformação diária recupera 3d8+3 PV e habilita manifestação sobrenatural, inativa sem a transformação. Sangue: For +1, +1d8 em ataque corpo a corpo, dano elemental de Ser Testado passa a d8; uma vez por rodada, 1 PE permite ataque desarmado adicional. Morte: Vig +1; primeiro contato com item e 3 PE permitem causar 50 de dano de Morte ao objeto (resistência de portador pela manobra quebrar) ou obter visão de seu passado por um minuto. Conhecimento: Int +1; ação completa e 3 PE permitem Detecção de Ameaças discente sobre si pela cena ou Mergulho Mental em outro ser por três rodadas, sem sustentação nem resistência, encerrando ao perder contato; alvo resistente exige teste de ataque. Energia: Agi +1; ação de movimento e 2 PE tornam manifestação intangível pela cena, com +5 em testes apropriados a critério do mestre; interlúdio permite acoplar um item de uma mão, liberando a mão na ficha."
         ],
         [
           "Ser Apavorante",
-          "NEX 99% — A transformação atinge seu estágio final e reforça seus recursos elementais, mas também aprofunda consequências da aparência e da interação social. O suplemento corrigiu uma penalidade social que passa de –5 para –10 em circunstâncias pertinentes. Demais efeitos variam por elemento e exigem consulta à tabela completa da trilha."
+          "NEX 99% — Pre −1 permanente; penalidades sociais passam a −10; transformação diária recupera 4d8+4 PV. Sangue: tamanho Enorme (+5 manobras, −5 Furtividade), soma For aos testes de For; +1 For e Vínculo de Sangue. Morte: 4d6 PV temporários e duas ações padrão adicionais por cena; soma Vig a seus testes, +1 Vig e Distorção Temporal. Conhecimento: três perícias em grau expert, soma Int a seus testes, +1 Int e Controle Mental. Energia: três saques livres por rodada, +12m deslocamentos, soma Agi a seus testes, +1 Agi e Teletransporte. Aplicam-se também as consequências narrativas da trilha Monstruoso."
         ]
       ]
     },
@@ -1567,19 +1567,19 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Ser Escarificado",
-          "NEX 10% — Escolha Sangue, Morte, Conhecimento ou Energia para definir a forma de sua conexão ritualística. Recebe benefícios ligados ao elemento, com exigências próprias da transformação descrita no suplemento. A progressão da variante de Ocultista é independente da versão de Especialista e não permite aplicar automaticamente os bônus da outra trilha."
+          "NEX 10% — +2 Ocultismo; −2 Diplomacia, Enganação e Intuição. Escolha elemento (também define afinidade). Uma ação completa diária de manifestação sobrenatural recupera 1d4 PE e ativa benefícios até fim do dia; sem ela, condições de privação do jogo. Sangue: For +1 e For substitui Pre no cálculo de PE e DT de ritual; Morte: equivalente com Vig; Conhecimento: Int; Energia: Agi. A trilha segue progressão opcional de NEX, dobrando exposição se usada experiência separada."
         ],
         [
           "Ser Perfurado",
-          "NEX 40% — A conexão com o elemento escolhido permite aprimorar manifestações e ampliar opções de conjuração. As vantagens mudam conforme o elemento e respeitam os limites normais de custo, círculo e pré-requisitos dos rituais, além das alterações expressas pela trilha."
+          "NEX 40% — penalidade social passa a −5; manifestação diária recupera 1d6 PE. Recebe Tatuagem Ritualística, abrangendo todos os rituais registrados do elemento escolhido; se já possui o poder, troca por outro de Ocultista. +5 em concentração desses rituais. Uma vez por cena, pode conjurar um ritual registrado como reação sob as condições correspondentes: Sangue, machucado ou fadiga; Morte, morrendo ou sentidos; Conhecimento, mental ou medo; Energia, paralisia ou sentidos."
         ],
         [
           "Ser Rasgado",
-          "NEX 65% — A especialização afeta sua relação com rituais e habilidades paranormais do elemento escolhido. Algumas opções podem ser substituídas de acordo com o suplemento e com os poderes disponíveis. Verifique o custo e os limites próprios de Sangue, Morte, Conhecimento ou Energia antes de aplicar o efeito."
+          "NEX 65% — Pre −1 permanente; manifestação diária recupera 1d8 PE; +2 DT de rituais registrados do elemento. Sangue: ao conjurar, movimento e custo ficcional de 2d8+2 PV permitem conceder a aliado adjacente voluntário +1d20 em testes de Agi, For e Vig pela cena, mediante reação dele. Morte: aprende Cicatrização ou reduz custo em 1 PE se já conhece; após conjurar outro ritual de Morte, pode conjurar Cicatrização como movimento. Conhecimento: após conjurar, movimento e 2 PE permitem cinco perguntas sim/não ao mestre sobre alvo ou, se alvo for o próprio conjurador, percepção de seres e objetos ocultos sobrenaturalmente pela cena. Energia: após conjurar, movimento e 3 PE permitem teletransporte de 3m para espaço livre e bônus de Defesa igual ao custo do ritual por uma rodada."
         ],
         [
           "Ser Mutilado",
-          "NEX 99% — Último estágio da especialização do Ocultista Monstruoso. A transformação alcança efeitos avançados ligados à duração e ao uso dos poderes e rituais do elemento escolhido. A aplicação depende das regras específicas dessa variante e não concede os efeitos das trilhas Monstruoso de outras classes."
+          "NEX 99% — Pre −1 permanente; penalidade social −10; manifestação diária recupera 1d12 PE. Sangue: For +1; Morte: Vig +1; Conhecimento: Int +1; Energia: Agi +1. Em todos os casos, rituais registrados do elemento dispensam fala, gestos e componentes, e aprende um ritual de 4º círculo desse elemento. Aplicam-se consequências da trilha Monstruoso."
         ]
       ]
     },
@@ -1592,19 +1592,19 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Close Quarters Battle",
-          "NEX 10%: recebe treino em Tática (ou +2 caso treinado) e bônus de dano de armas de fogo equivalente ao bônus de Tática; ignora penalidade contra alvos engajados em corpo a corpo."
+          "NEX 10% — treinamento em Tática ou +2 se já treinado. Na ficha, acrescenta bônus de Tática ao dano de arma de fogo e ignora penalidade de ataque contra alvo engajado em corpo a corpo."
         ],
         [
           "Especialista Tático",
-          "NEX 40%: recebe Tática de Abordagem sem exigir pré-requisitos; ao adquiri-la novamente, pode aprimorar os dados de tática gastando PE."
+          "NEX 40% — recebe Tática de Abordagem sem requisitos. Se adquirir novamente, cumprindo requisitos, pode aumentar dados de tática: d8 por 3 PE, d10 por 6 PE, d12 por 9 PE, respeitando limite."
         ],
         [
           "Proteger Reféns",
-          "NEX 65%: pode assumir um efeito negativo destinado a alguém próximo gastando 2 PE; com custo adicional, reduz pela metade o dano transferido."
+          "NEX 65% — reação e 2 PE permitem assumir efeito negativo destinado a ser até 3m; mais 2 PE reduzem dano transferido à metade. Até três seres distintos por rodada. Pode anular chance de alvo errado da condição agarrando no RPG."
         ],
         [
           "Alvo-prioritário",
-          "NEX 99%: conhece o VD de inimigos visíveis e pode designar alvo prioritário por 5 PE; o efeito ofensivo depende do VD do alvo."
+          "NEX 99% — mestre revela VD de inimigo visível. 5 PE designam um inimigo visível como alvo prioritário; VD até 200, dano causado reduz seus PV a zero; VD 201+, margem de ameaça +5 contra ele. Termina ao eliminar o alvo ou escolher outro."
         ]
       ],
       "description": "Combatente especializado em combate tático, proteção de aliados e identificação de ameaças."
@@ -1618,19 +1618,19 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Companheiro Drone",
-          "NEX 10%: recebe treinamento ou bônus em Pilotagem/Tecnologia e um Drone de Combate Tático vinculado à trilha, com reposição condicionada à disponibilidade da Ordem."
+          "NEX 10% — escolhe treinamento em Pilotagem ou Tecnologia, ou +2 se já treinado. Recebe aliado drone de combate tático fora do limite de itens; modificações apenas pela trilha. Uma ação de interlúdio permite reparo ou reposição pela Ordem quando disponível."
         ],
         [
           "Drone em Combate",
-          "NEX 40%: pode gastar 3 PE para impedir dano ao drone; recebe duas modificações gratuitas de categoria."
+          "NEX 40% — por 3 PE, evita dano ao drone. Duas modificações sem aumento de categoria. Na regra Drones Complexos, alcance de ajuda passa a médio."
         ],
         [
           "Drone em Interlúdio",
-          "NEX 65%: protege o grupo durante interlúdio por 3 PE, melhora recuperação e recebe mais duas modificações."
+          "NEX 65% — por 3 PE, drone protege descanso do grupo, impedindo interrupções quando possível; caso contrário evita surpresa ou desprevenido. Dormir recupera +2 PV e +2 PE. Mais duas modificações sem categoria (total quatro); custo de proteção do drone cai para 2 PE. Em Drones Complexos, alcance de ajuda passa a longo."
         ],
         [
           "Drone de Eficiência Máxima",
-          "NEX 99%: por uma ação padrão e 5 PE, estende a ajuda do drone a vários aliados próximos pela cena; ganha mais três modificações."
+          "NEX 99% — ação padrão e 5 PE concedem ajuda simultânea ao piloto e até cinco seres em alcance longo até fim da cena; aliado além de 36m perde ajuda enquanto fora desse limite. Mais três modificações sem categoria (total sete); proteção do drone custa 1 PE."
         ]
       ],
       "description": "Especialista em comandar drones como aliados, tanto em exploração quanto no suporte à equipe."
