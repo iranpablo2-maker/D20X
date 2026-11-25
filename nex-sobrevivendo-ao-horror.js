@@ -8,7 +8,7 @@ window.NEX_SAH={
         "Percepção"
       ],
       "ability": "Companheiro Animal",
-      "description": "Você possui um companheiro animal que atua como aliado e oferece +2 em uma perícia aprovada pelo mestre. Em NEX 35% ganha benefícios adicionais de aliado e em 70% sua habilidade especial. A perda do companheiro traz uma penalidade séria de Sanidade.",
+      "description": "Entende a disposição dos animais e pode mudar sua atitude por Adestramento. Possui um companheiro que funciona como aliado, concedendo +2 em uma perícia aprovada pelo mestre. No NEX 35%, recebe também o bônus de um tipo de aliado; no NEX 70%, recebe a habilidade desse tipo. Se o companheiro morrer, perde 10 SAN permanentemente e fica perturbado até o fim da cena. A aquisição de outro companheiro depende do mestre, normalmente entre missões.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -19,7 +19,7 @@ window.NEX_SAH={
         "Fortitude"
       ],
       "ability": "Acostumado ao Extremo",
-      "description": "Acostumado a ambientes extremos, pode gastar 1 PE para reduzir em 5 o dano de frio, fogo ou mental recebido. A cada nova utilização na mesma cena, esse custo cresce em 1 PE.",
+      "description": "Ao receber dano mental, de frio ou fogo, pode investir 1 PE para diminuir o dano em 5. Cada ativação posterior na mesma cena encarece o uso em 1 PE.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -30,7 +30,7 @@ window.NEX_SAH={
         "Profissão"
       ],
       "ability": "Fome do Outro Lado",
-      "description": "Prepara pratos com ingredientes paranormais durante o interlúdio. Um teste de Profissão pode conceder resistência ao elemento da criatura, mas o preparo malsucedido prejudica quem come. Consumir essas refeições também tem efeitos negativos permanentes na Sanidade.",
+      "description": "Mecânica ficcional de interlúdio: ingredientes paranormais são itens de categoria I e 0,5 espaço; criaturas Pequenas ou maiores derrotadas fornecem uma unidade. A ação de preparo utiliza um ingrediente e um teste de Profissão (cozinheiro), DT 15 + 1d20, ocultado pelo mestre. Sucesso concede RD 10 contra o elemento escolhido; falha impõe vulnerabilidade a ele. Ambos duram até o final da próxima cena. Cada refeição custa 1 SAN máxima ao personagem; com a regra opcional de experiência separada, cada tipo distinto de ingrediente aumenta o NEX em 3%.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -41,7 +41,7 @@ window.NEX_SAH={
         "Tecnologia"
       ],
       "ability": "Poder da Amizade",
-      "description": "Escolhe um melhor amigo. Enquanto ambos estiverem próximos e puderem se comunicar visualmente, recebe +2 nos testes de perícia. Caso perca esse companheiro, sofre redução temporária de PE.",
+      "description": "Escolha outro personagem como melhor amigo. Enquanto estiverem em alcance médio e puderem se ver, recebe +2 em todos os testes de perícia. Se o amigo morrer, reduza o total de PE em 1 para cada 5% de NEX até o término da missão. Um novo amigo pode ser escolhido no início da missão seguinte.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -52,7 +52,7 @@ window.NEX_SAH={
         "Vontade"
       ],
       "ability": "Não é Fantasia, É Cosplay!",
-      "description": "Pode empregar Artes para criar disfarces no lugar de Enganação. Se usar uma caracterização relacionada à perícia testada, recebe +2 no teste correspondente.",
+      "description": "Pode substituir Enganação por Artes nos testes de disfarce. Quando a fantasia usada tem relação com a perícia testada, recebe +2 no teste.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -63,7 +63,7 @@ window.NEX_SAH={
         "Diplomacia"
       ],
       "ability": "Conexões",
-      "description": "Recebe +2 em Diplomacia e pode recorrer a um contato especializado. Após gastar 10 minutos e 2 PE, substitui um teste ligado ao conhecimento desse contato por um teste de Diplomacia.",
+      "description": "+2 em Diplomacia. Se houver um NPC acessível capaz de ajudar, invista 10 minutos e 2 PE para substituir um teste ligado à especialidade desse contato por Diplomacia, até o fim da cena.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -74,7 +74,7 @@ window.NEX_SAH={
         "Sobrevivência"
       ],
       "ability": "Manual do Sobrevivente",
-      "description": "Pode gastar 2 PE para somar +5 a resistências contra dificuldades do ambiente, armadilhas, condições físicas e perigos semelhantes. Durante interlúdios, descanso em condições precárias é tratado como normal.",
+      "description": "Por 2 PE, acrescenta +5 a um teste de resistência a armadilhas, clima, doença, fome, sede, fumaça, sono, sufocamento ou veneno, inclusive de origem paranormal. No interlúdio, sono em condições precárias conta como normal.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -85,7 +85,7 @@ window.NEX_SAH={
         "Fortitude"
       ],
       "ability": "Mutação",
-      "description": "As mudanças sofridas pelo personagem concedem resistência a dano 2 e +2 em uma perícia física escolhida. Em contrapartida, suas diferenças causam desvantagem em interações de Diplomacia.",
+      "description": "RD 2 e +2 em uma perícia escolhida cujo atributo original seja Força, Agilidade ou Vigor. Em contrapartida, perde 1d20 nos testes de Diplomacia.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -96,7 +96,7 @@ window.NEX_SAH={
         "Ocultismo"
       ],
       "ability": "Conhecimento Oculto",
-      "description": "Pode investigar criaturas usando Ocultismo a partir de pistas indiretas. Ao identificar uma criatura com sucesso, recebe +2 nos testes realizados contra ela até o término da missão.",
+      "description": "Pode identificar uma criatura com Ocultismo a partir de imagem, rastros ou outras evidências consideradas suficientes pelo mestre. O sucesso revela suas características conforme a perícia, sem revelar necessariamente sua identidade ou espécie. Depois de identificá-la com sucesso, recebe +2 em todos os testes contra ela até o fim da missão.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -107,7 +107,7 @@ window.NEX_SAH={
         "Percepção"
       ],
       "ability": "Através da Lente",
-      "description": "Ao observar ou analisar pistas por lentes e fotografias, pode gastar 2 PE para receber +5 em Investigação ou Percepção. Enxergar o ambiente continuamente por uma lente também reduz seu deslocamento.",
+      "description": "Por 2 PE, acrescenta +5 ao teste de Investigação, Percepção ou busca de pistas realizado usando câmera ou fotografia. Na ficha de RPG, observar continuamente por uma lente reduz o deslocamento à metade.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -118,7 +118,7 @@ window.NEX_SAH={
         "Vontade"
       ],
       "ability": "Invenção Paranormal",
-      "description": "Cria um dispositivo capaz de reproduzir o efeito básico de um ritual de primeiro círculo. Ativar exige teste de Profissão (engenheiro); falhar pode travar o invento. Uma manutenção no interlúdio permite reutilizá-lo.",
+      "description": "Escolha um ritual de 1º círculo. O invento de categoria 0 ocupa um espaço e reproduz a forma básica do ritual, sem custo de PE. Ativação: ação padrão ou execução normal do ritual, o que exigir mais tempo, e Profissão (engenheiro), DT 15 + 5 por ativação anterior na missão. Falha deixa o invento inoperante. Uma ação de interlúdio restaura seu funcionamento e redefine a DT para 15. Pode trocar o ritual no início da missão.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -129,7 +129,7 @@ window.NEX_SAH={
         "Religião"
       ],
       "ability": "A Culpa é das Estrelas",
-      "description": "Escolhe um número da sorte no d6. No início de uma cena, pode gastar 1 PE e testar a sorte para conseguir +2 nos testes de perícia. Falhas aumentam temporariamente as chances de sucesso futuro.",
+      "description": "Escolha um número entre 1 e 6. No início de cada cena, pode pagar 1 PE e lançar 1d6. Se obtiver um número escolhido, recebe +2 nos testes de perícia pela cena e volta a ter apenas um número da sorte. Após cada falha, adicione outro número na próxima utilização.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -140,7 +140,7 @@ window.NEX_SAH={
         "Medicina"
       ],
       "ability": "Luto Habitual",
-      "description": "Reduz o dano mental de acontecimentos relacionados à rotina de necropsias e legistas. Pode gastar 2 PE para receber +5 em Medicina ao prestar primeiros socorros ou examinar corpos.",
+      "description": "Sofre metade do dano mental provocado por situações relacionadas ao trabalho de legista, conforme avaliação do mestre. Por 2 PE, recebe +5 em Medicina para primeiros socorros ou necropsia.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -151,7 +151,7 @@ window.NEX_SAH={
         "Sobrevivência"
       ],
       "ability": "Mapa Celeste",
-      "description": "Consegue se orientar pelos pontos cardeais e lembrar caminhos já percorridos quando observa o céu. Pode gastar 2 PE para repetir testes de Sobrevivência e escolher o melhor resultado; também suporta descanso precário.",
+      "description": "Quando pode ver o céu, sabe a direção dos pontos cardeais e encontra locais que já visitou. Por 2 PE, repete um teste de Sobrevivência e usa o melhor resultado. Durante o interlúdio, sono precário conta como normal.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -162,7 +162,7 @@ window.NEX_SAH={
         "Fortitude"
       ],
       "ability": "Fôlego de Nadador",
-      "description": "Recebe +5 PV, prende a respiração por mais tempo conforme seu Vigor e pode nadar com seu deslocamento normal após um teste bem-sucedido de Atletismo.",
+      "description": "Regra da ficha de RPG: +5 PV; o limite de rodadas sem respirar é duas vezes o Vigor. Sucesso no teste de Atletismo para natação permite deslocamento normal, em vez de metade.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -173,7 +173,7 @@ window.NEX_SAH={
         "Reflexos"
       ],
       "ability": "Mãos no Volante",
-      "description": "Ignora penalidades de ataque por estar em veículo em movimento. Ao pilotar, pode gastar 2 PE para ganhar +5 em testes de Pilotagem ou resistência.",
+      "description": "No RPG, ignora penalidades de ataque por estar em veículo em movimento. Enquanto pilota, pode investir 2 PE para obter +5 em teste de Pilotagem ou resistência.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -184,7 +184,7 @@ window.NEX_SAH={
         "Tecnologia"
       ],
       "ability": "O Inteligentão",
-      "description": "Aumenta em um dado o bônus obtido pela atividade de leitura durante o interlúdio, aproveitando melhor estudos, livros e outras fontes de informação.",
+      "description": "Ao escolher a ação Ler no interlúdio, o bônus passa de 1d6 para 2d6.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -194,7 +194,7 @@ window.NEX_SAH={
         "Vontade"
       ],
       "ability": "Luta ou Fuga",
-      "description": "Tem Vontade como perícia fixa e escolhe mais uma relacionada à sua premonição. Recebe +2 em Vontade e pode obter 2 PE temporários quando surge uma referência relevante à visão, conforme avaliação do mestre.",
+      "description": "Recebe +2 em Vontade. Quando o mestre identifica um acontecimento relacionado à premonição do personagem, ele recebe 2 PE temporários até terminar a cena. A origem não concede PE por provocar deliberadamente referências à premonição.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -205,7 +205,7 @@ window.NEX_SAH={
         "Profissão"
       ],
       "ability": "Terapia",
-      "description": "Pode usar Profissão (psicólogo) em situações de Diplomacia. Gastando 2 PE, pode substituir um teste de resistência falho contra dano mental por um teste da profissão, uma vez por rodada.",
+      "description": "Pode utilizar Profissão (psicólogo) no lugar de Diplomacia. Uma vez por rodada, quando ele próprio ou um aliado em alcance curto falha em resistência contra dano mental, pode investir 2 PE para substituir o resultado pelo teste dessa profissão.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -216,7 +216,7 @@ window.NEX_SAH={
         "Investigação"
       ],
       "ability": "Encontrar a Verdade",
-      "description": "Pode usar Investigação para persuadir e influenciar atitudes em vez de Diplomacia. Ao investigar, pode gastar 2 PE para receber +5 no teste.",
+      "description": "Pode usar Investigação em vez de Diplomacia para persuadir ou mudar atitudes. Ao fazer um teste de Investigação, pode investir 2 PE para receber +5.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     }
