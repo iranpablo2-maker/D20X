@@ -53,7 +53,7 @@ run.addEventListener('click',async()=>{
   say('SUCESSO! ✅\nO Google autenticou sua conta, o NEX gravou no Cloudflare D1, leu os mesmos dados e excluiu o registro de teste.\nAs fichas e campanhas do Firebase não foram modificadas.');
  }catch(error){
   const detail=String(error.message||error);
-  const help=detail.includes('Cloudflare D1 ainda não foi configurado')?'\nA vinculação NEX_D1 não chegou à função publicada. Confira as Associações do ambiente Produção.':'';
+  const help=detail.includes('Cloudflare D1 ainda não foi configurado')?'\nA vinculação D20X_D1 não chegou à função publicada. Confira as Associações do ambiente Produção.':'';
   say('Não foi possível concluir o teste.\n'+detail+help+'\nNenhuma ficha ou campanha foi modificada.');
  }finally{
   if(created&&token){try{await call('DELETE');}catch(error){say(status.textContent+'\nAviso: não foi possível excluir o registro temporário de teste.');}}

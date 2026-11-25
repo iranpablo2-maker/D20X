@@ -10,7 +10,7 @@ Status: **infraestrutura opcional adicionada; integração de dados ainda não a
 - Cada registro é privado do seu UID. Permissões de campanhas compartilhadas e sincronização em tempo real **ainda não foram implementadas** nesse serviço.
 
 ## Provisionar serviços (ações manuais)
-1. Cloudflare: criar um banco D1 e adicionar o binding **NEX_D1** no projeto Pages que serve o NEX. Deploy Functions requer projeto Pages com suporte a Functions (verificar que não é deploy somente estático por integração externa).
+1. Cloudflare: criar um banco D1 e adicionar o binding **D20X_D1** no projeto Pages que serve o D20X. Deploy Functions requer projeto Pages com suporte a Functions (verificar que não é deploy somente estático por integração externa).
 2. Criar banco Turso, pegar a URL HTTPS de conexão e gerar um token de acesso.
 3. Nas variáveis privadas do projeto Cloudflare Pages, adicionar `FIREBASE_PROJECT_ID`, `TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`. **Nunca publicar o token do Turso no GitHub ou JavaScript público.**
 4. Em **ambos** os bancos, executar:

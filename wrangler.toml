@@ -5,9 +5,9 @@ pages_build_output_dir = "."
 compatibility_date = "2026-11-10"
 
 [[d1_databases]]
-binding = "NEX_D1"
-database_name = "nex-rpg-db"
-database_id = "b94ee999-b6ec-4842-8de6-75a7766cd065"
+binding = "D20X_D1"
+database_name = "d20x-db"
+database_id = "8039a543-e32b-480c-a504-4aadb6590808"
 
 [vars]
 FIREBASE_PROJECT_ID = "nex-rpg"

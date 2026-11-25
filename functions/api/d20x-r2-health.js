@@ -5,7 +5,7 @@ export function onRequestGet({env}){
  return new Response(JSON.stringify({
   service:'NEX R2 status',
   r2Configured:configured,
-  d1Configured:Boolean(env?.NEX_D1&&typeof env.NEX_D1.prepare==='function'),
+  d1Configured:Boolean(env?.D20X_D1&&typeof env.D20X_D1.prepare==='function'),
   firebaseProjectConfigured:Boolean(env?.FIREBASE_PROJECT_ID),
   nextStep:configured?'O bucket R2 esta conectado. Teste uma imagem na mesa.':'Crie o bucket nex-vtt-media, vincule como NEX_MEDIA no Pages e adicione ao wrangler.toml antes da nova implantacao.'
  }),{headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'}});

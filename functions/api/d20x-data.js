@@ -1,5 +1,5 @@
 // Cloudflare Pages Functions endpoint for authenticated, owner-scoped NEX records.
-// Env: FIREBASE_PROJECT_ID, NEX_D1 (D1 binding), TURSO_DATABASE_URL, TURSO_AUTH_TOKEN.
+// Env: FIREBASE_PROJECT_ID, D20X_D1 (D1 binding), TURSO_DATABASE_URL, TURSO_AUTH_TOKEN.
 // Database tables must first be provisioned using docs/D20X-MULTISTORE.md.
 const respond=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store'}});
 function base64url(text){const bytes=Uint8Array.from(atob(text.replace(/-/g,'+').replace(/_/g,'/')+'='.repeat((4-text.length%4)%4)),c=>c.charCodeAt(0));return bytes;}
@@ -38,11 +38,11 @@ async function handle({request,env}){
   const uid=await verifyFirebase(request,env);
   const url=new URL(request.url),store=url.searchParams.get('store'),key=url.searchParams.get('key');
   if(!['d1','turso'].includes(store)||!key||!/^[a-zA-Z0-9_.:-]{1,160}$/.test(key))return respond({error:'Parâmetros inválidos.'},400);
-  if(store==='d1'&&!env.NEX_D1)return respond({error:'Cloudflare D1 ainda não foi configurado.'},503);
+  if(store==='d1'&&!env.D20X_D1)return respond({error:'Cloudflare D1 ainda não foi configurado.'},503);
   if(store==='turso'&&(!env.TURSO_DATABASE_URL||!env.TURSO_AUTH_TOKEN))return respond({error:'Turso ainda não foi configurado.'},503);
   if(request.method==='GET'){
    let row;
-   if(store==='d1')row=await env.NEX_D1.prepare('SELECT body FROM nex_records WHERE uid=? AND record_key=?').bind(uid,key).first();
+   if(store==='d1')row=await env.D20X_D1.prepare('SELECT body FROM nex_records WHERE uid=? AND record_key=?').bind(uid,key).first();
    else {const out=await turso(env,'SELECT body FROM nex_records WHERE uid=? AND record_key=?',[uid,key]);row=out.rows?.[0];}
    const data=store==='d1'?row?.body:row?.[0]?.value;
    return respond({value:data==null?null:JSON.parse(data)});
@@ -52,11 +52,11 @@ async function handle({request,env}){
    if(!body||!Object.hasOwn(body,'value'))return respond({error:'Valor obrigatório.'},400);
    const data=JSON.stringify(body.value);
    if(data===undefined||new TextEncoder().encode(data).length>100000)return respond({error:'Registro excede 100 KB.'},413);
-   if(store==='d1')await env.NEX_D1.prepare('INSERT INTO nex_records (uid,record_key,body,updated_at) VALUES (?,?,?,?) ON CONFLICT(uid,record_key) DO UPDATE SET body=excluded.body,updated_at=excluded.updated_at').bind(uid,key,data,Date.now()).run();
+   if(store==='d1')await env.D20X_D1.prepare('INSERT INTO nex_records (uid,record_key,body,updated_at) VALUES (?,?,?,?) ON CONFLICT(uid,record_key) DO UPDATE SET body=excluded.body,updated_at=excluded.updated_at').bind(uid,key,data,Date.now()).run();
    else await turso(env,'INSERT INTO nex_records (uid,record_key,body,updated_at) VALUES (?,?,?,?) ON CONFLICT(uid,record_key) DO UPDATE SET body=excluded.body,updated_at=excluded.updated_at',[uid,key,data,Date.now()]);
    return respond({ok:true});
   }
-  if(store==='d1')await env.NEX_D1.prepare('DELETE FROM nex_records WHERE uid=? AND record_key=?').bind(uid,key).run();
+  if(store==='d1')await env.D20X_D1.prepare('DELETE FROM nex_records WHERE uid=? AND record_key=?').bind(uid,key).run();
   else await turso(env,'DELETE FROM nex_records WHERE uid=? AND record_key=?',[uid,key]);
   return respond({ok:true});
  }catch(error){const msg=String(error.message||'Erro de servidor');const auth=/login|sessão|assinatura/i.test(msg);
