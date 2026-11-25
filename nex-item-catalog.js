@@ -46,15 +46,19 @@ for(const record of [...(window.NEX_ITEM_BOOKS||[]),...(window.NEX_BASE_WEAPONS|
 for(const entry of window.NEX_ARQUIVOS?.items||[]){
  if(!sections.includes(entry.section))continue;
  const existing=items.find(x=>norm(x.name)===norm(entry.name)&&x.section===entry.section);
- if(existing)continue;
- items.push({name:entry.name,section:entry.section,description:entry.description+' Consulte '+entry.source+' para as regras completas.',subtitle:'Arquivos Secretos',stats:[...(entry.tier!=null?[['Categoria',String(entry.tier)]]:[]),...(entry.spaces!=null?[['Espaços',String(entry.spaces)]]:[]),['Fonte',entry.source]],spaces:entry.spaces??1,source:entry.source});
+ const september=entry.month==='Setembro';
+ if(existing&&!september)continue;
+ const stats=[...(entry.tier!=null?[['Categoria',String(entry.tier)]]:[]),...(entry.spaces!=null?[['Espaços',String(entry.spaces)]]:[]),...(Array.isArray(entry.stats)?entry.stats:[]),['Fonte',entry.source]];
+ const record={name:entry.name,section:entry.section,description:entry.description+(september?'':' Consulte '+entry.source+' para as regras completas.'),subtitle:entry.subtitle||'Arquivos Secretos',stats,spaces:entry.spaces??1,source:entry.source,sourceMonth:entry.month};
+ if(existing){const merged=new Map((existing.stats||[]).map(row=>[norm(row[0]),row]));for(const row of stats)merged.set(norm(row[0]),row);Object.assign(existing,record,{stats:[...merged.values()]});}
+ else items.push(record);
 }
 // Preenche cada descrição com seu texto específico; só gera resumo quando faltar conteúdo.
 const bookDescriptions=window.NEX_ITEM_COMPLEMENTS?.descriptions||{};
 for(const item of items){
  const key=Object.keys(bookDescriptions).find(k=>norm(k)===norm(item.name));
  if(key && !item.description)item.description=bookDescriptions[key];
- item.description=window.NEX_ITEM_DESCRIBE?.(item)||item.description||'';
+ if(item.sourceMonth!=='Setembro')item.description=window.NEX_ITEM_DESCRIBE?.(item)||item.description||'';
 }
 items.sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
 // Proficiências aplicadas ao catálogo; também usadas pelo inventário ao equipar armas.
