@@ -598,49 +598,49 @@ window.NEX_SAH={
       "name": "Espreitar da Besta",
       "element": "Sangue",
       "prerequisite": "",
-      "description": "Sangue. Concede +5 em Furtividade e facilita perseguições e ações discretas. Com afinidade, o bônus em Furtividade aumenta para +10."
+      "description": "Na ficha, +5 em Furtividade. Nas perseguições, quando o personagem ocupa o papel de caçador, pode substituir Atletismo por Furtividade; nas cenas de furtividade, ações discretas não sofrem −1d20. Afinidade: o bônus numérico passa a +10."
     },
     {
       "name": "Instintos Sanguinários",
       "element": "Sangue",
       "prerequisite": "",
-      "description": "Sangue. Concede visão no escuro e faro. A afinidade amplia a percepção de perigos e a proteção contra flanqueamento, despreparo e armadilhas."
+      "description": "Adquire faro e visão no escuro. Afinidade: não fica flanqueado ou desprevenido e recebe +5 em resistências contra armadilhas, inclusive paranormais."
     },
     {
       "name": "Antecipar Vitalidade",
       "element": "Morte",
       "prerequisite": "",
-      "description": "Morte. Obtém dados extras em testes criando cargas que serão cobradas no descanso posterior. A afinidade amplia o limite dessas cargas e a velocidade de recuperação."
+      "description": "Ao testar, pode acrescentar 1d20 acumulando uma carga, até um total igual a Vig. Enquanto houver cargas, a ação dormir do interlúdio remove uma delas em vez de recuperar PV. Afinidade: limite de cargas aumenta em 2, e dormir remove duas cargas."
     },
     {
       "name": "Aura de Pavor",
       "element": "Morte",
       "prerequisite": "",
-      "description": "Morte. Gasta 2 PE para impor uma condição de medo a uma pessoa ou animal próximo, com teste de Vontade para resistir. A afinidade fortalece o efeito e permite atingir mais alvos."
+      "description": "Ação de movimento e 2 PE aplicam apavorado a uma pessoa ou animal em alcance médio, mesmo sem contato visual; Vontade (DT Pre) reduz para abalado. Termina ao fim da cena, ao sair do alcance ou ao selecionar outro alvo. Um mesmo alvo só é afetado uma vez ao dia. Afinidade: DT +5 e alvos escolhidos no alcance."
     },
     {
       "name": "Absorver Conhecimento",
       "element": "Conhecimento",
       "prerequisite": "",
-      "description": "Conhecimento. Pode consultar diretamente uma fonte escrita e receber informações que ela contém, gastando PE. Também melhora o bônus obtido com leitura; a afinidade reduz o custo de certos rituais."
+      "description": "Com uma fonte escrita em mãos, use ação completa e 1 PE para descobrir a resposta a uma pergunta se ela constar na fonte. Na ação ler, aumenta o dado de bônus em um passo. Afinidade: reduz em 1 PE o custo de ritual de Conhecimento direcionado a outra pessoa quando puder tocá-la."
     },
     {
       "name": "Apatia Herege",
       "element": "Conhecimento",
       "prerequisite": "Conhecimento 1",
-      "description": "Conhecimento. Pode gastar 2 PE para repetir um teste de resistência contra medo, aceitando o segundo resultado. Com afinidade, decide depois de conhecer o resultado e escolhe a melhor rolagem. Pré-requisito: Conhecimento 1."
+      "description": "Por 2 PE, pode repetir um teste contra condição de medo, aceitando a segunda rolagem. Afinidade: pode ativar após conhecer o resultado do teste e ficar com a melhor rolagem. Requisito: Conhecimento 1."
     },
     {
       "name": "Conexão Empática",
       "element": "Energia",
       "prerequisite": "Energia 1",
-      "description": "Energia. Permite conversar temporariamente com um dispositivo elétrico ligado para obter informações do que ele conhece. A afinidade concede bônus em interações técnicas e sociais com o objeto. Pré-requisito: Energia 1."
+      "description": "Efeito sobrenatural de RPG: ação completa e 2 PE permitem conversar com um dispositivo elétrico ligado enquanto houver contato, até acabar a cena. A informação é limitada aos dados armazenados e à percepção do dispositivo. Sua atitude inicial é indiferente; Vontade normalmente 1, podendo ser 2 ou 3 conforme o mestre. A comunicação é unilateralmente audível pelo conjurador. Após a primeira utilização, a atitude passa a hostil em novo contato. Afinidade: +5 em testes de Int ou Pre envolvendo o dispositivo. Requisito: Energia 1."
     },
     {
       "name": "Valer-se do Caos",
       "element": "Energia",
       "prerequisite": "",
-      "description": "Energia. Adiciona um dado aos testes, mas resultados desfavoráveis podem custar Sanidade. A afinidade reduz as chances de sofrer essa penalidade."
+      "description": "Pode acrescentar 1d20 identificado separadamente a um teste. Se falhar no teste ou o dado extra mostrar 1 a 5, perde 1d4 SAN. Afinidade: o intervalo de risco no dado extra cai para 1 ou 2; falhar no teste ainda provoca a perda."
     }
   ],
   "trails": {
@@ -648,37 +648,37 @@ window.NEX_SAH={
       "Agente Secreto": [
         [
           "Carteirada",
-          "NEX 10%. Treina Diplomacia ou Enganação, ou recebe +2 se já for treinado. Também dispõe de credenciais especiais que podem facilitar o acesso a áreas e investigações."
+          "NEX 10% — escolha Diplomacia ou Enganação: treinamento ou +2 se já treinado. No início de cada missão recebe credenciais ficcionais de categoria operacional, sem ocupar espaços, que conferem privilégios definidos pelo mestre. Podem valer para o agente ou para o grupo. NPCs de segurança ou veteranos em Crime podem questionar a autenticidade."
         ],
         [
           "O Sorriso",
-          "NEX 40%. Recebe +2 em Diplomacia e Enganação; pode gastar 2 PE para repetir testes falhos dessas perícias. Uma vez por cena também consegue tentar se acalmar."
+          "NEX 40% — +2 em Diplomacia e Enganação. Uma vez por teste fracassado em uma dessas perícias, 2 PE permitem repetir a rolagem, aceitando o novo resultado. Uma vez por cena, pode usar Diplomacia para acalmar o próprio personagem."
         ],
         [
           "Método Investigativo",
-          "NEX 65%. Acrescenta uma rodada a investigações e pode gastar PE para cancelar eventos inconvenientes, com custo crescente em novos usos."
+          "NEX 65% — aumenta em uma rodada a urgência de investigações em que participa. Pode cancelar um evento da tabela pagando 2 PE, com acréscimo de 2 PE no custo a cada uso adicional na mesma cena."
         ],
         [
           "Multifacetado",
-          "NEX 99%. Uma vez por cena, pode gastar Sanidade para acessar temporariamente habilidades de outra trilha de Combatente ou Especialista até NEX 65%, respeitando restrições."
+          "NEX 99% — uma vez por cena, gaste 5 SAN para obter as habilidades até NEX 65% de uma trilha de Combatente ou Especialista, atendendo seus requisitos, até o fim da cena. Cada trilha pode ser escolhida apenas uma vez por missão. A SAN gasta só retorna ao fim da missão."
         ]
       ],
       "Caçador": [
         [
           "Rastrear o Paranormal",
-          "NEX 10%. Treina Sobrevivência ou recebe +2 nessa perícia, podendo utilizá-la para identificar criaturas e rastrear vestígios paranormais."
+          "NEX 10% — treinamento em Sobrevivência ou +2 se já treinado. No RPG, usa essa perícia no lugar de Ocultismo para identificar criaturas, e de Investigação ou Percepção para reconhecer pistas e vestígios paranormais."
         ],
         [
           "Estudar Fraquezas",
-          "NEX 40%. Usa um interlúdio e uma pista ligada a um ser para descobrir vulnerabilidades e maneiras de enfrentá-lo, conforme a investigação."
+          "NEX 40% — uma ação de interlúdio e uma pista diretamente relacionada ao ser escolhido rendem uma informação determinada pelo mestre e +1 em testes de perícia contra ele até o fim da missão. Cada pista fornece uma informação; algumas exigem evidências específicas."
         ],
         [
           "Atacar das Sombras",
-          "NEX 65%. Reduz penalidades em Furtividade ao correr e atacar com armas discretas, começando cenas furtivas com menor visibilidade."
+          "NEX 65% — na ficha, elimina a penalidade de Furtividade por deslocamento normal. Com equipamento classificado como silencioso, a penalidade por ataque na rodada é −1d20. A visibilidade inicial nas cenas de furtividade diminui em 1, podendo ser negativa."
         ],
         [
           "Estudar a Presa",
-          "NEX 99%. Pode definir um tipo de inimigo estudado como presa, ganhando bônus em testes, críticos e resistência contra esse tipo de adversário."
+          "NEX 99% — ao utilizar Estudar Fraquezas, pode designar o tipo do inimigo como presa. Contra esse tipo, recebe +1d20 em perícias, +1 na margem de ameaça e multiplicador de crítico e RD 5. Apenas um tipo de presa por vez."
         ]
       ],
       "Monstruoso": [
@@ -704,55 +704,55 @@ window.NEX_SAH={
       "Bibliotecário": [
         [
           "Conhecimento Prático",
-          "NEX 10%. Gastando 2 PE, pode usar Intelecto como atributo-base em diversos testes de perícia, exceto Luta e Pontaria."
+          "NEX 10% — por 2 PE, utiliza Int como atributo-base de uma perícia, exceto Luta ou Pontaria. Se já possui Conhecimento Aplicado, em vez disso reduz seu custo em 1 PE."
         ],
         [
           "Leitor Contumaz",
-          "NEX 40%. Aprimora os dados de bônus obtidos com leitura, permite usá-los em qualquer perícia e pode ampliá-los pagando PE."
+          "NEX 40% — cada dado da ação ler passa a d8 e pode ser utilizado em qualquer perícia. Ao aplicar o bônus, 2 PE acrescentam um d8."
         ],
         [
           "Rato de Biblioteca",
-          "NEX 65%. Em locais ricos em livros, pode reproduzir uma ação de interlúdio de leitura ou revisão de caso, limitado a uma vez por cena."
+          "NEX 65% — uma vez por cena, em local com muitos livros, alguns minutos (ou uma rodada de investigação) concedem os benefícios de ler ou revisar caso."
         ],
         [
           "A Força do Saber",
-          "NEX 99%. Aumenta Intelecto, acrescenta esse atributo aos PE totais e permite usar Intelecto como base para uma perícia escolhida."
+          "NEX 99% — Int +1; acrescenta Int ao total de PE e altera para Int o atributo-base de uma perícia escolhida."
         ]
       ],
       "Perseverante": [
         [
           "Soluções Improvisadas",
-          "NEX 10%. Gastando 2 PE, permite repetir um dado de um teste recém-realizado e utilizar o melhor resultado."
+          "NEX 10% — 2 PE permitem repetir um dos dados do teste recém-realizado, uma vez por teste, e aproveitar o melhor resultado."
         ],
         [
           "Fuga Obstinada",
-          "NEX 40%. Concede dado adicional em testes de fuga e aumenta a quantidade de falhas toleradas antes de ser alcançado numa perseguição."
+          "NEX 40% — +1d20 nos testes de fuga, inclusive fora de perseguições. Como presa em uma perseguição, pode acumular até quatro falhas antes de ser alcançado."
         ],
         [
           "Determinação Inquestionável",
-          "NEX 65%. Uma vez por cena, pode gastar 5 PE para remover de si uma condição de medo, mental ou de paralisia, respeitando exceções do mestre."
+          "NEX 65% — uma vez por cena, ação padrão e 5 PE removem uma condição de medo, mental ou de paralisia do próprio personagem, respeitando as exceções determinadas pelo mestre."
         ],
         [
           "Só Mais um Passo...",
-          "NEX 99%. Pode gastar 5 PE uma vez por rodada para permanecer com 1 PV quando um dano o reduziria a zero; não evita dano massivo."
+          "NEX 99% — uma vez por rodada, 5 PE permitem ficar com 1 PV quando o dano reduziria os PV a zero, exceto dano massivo."
         ]
       ],
       "Muambeiro": [
         [
           "Mascate",
-          "NEX 10%. Ganha treinamento em uma profissão de fabricação, amplia a carga e melhora a dificuldade para criar equipamentos improvisados."
+          "NEX 10% — treinamento em uma Profissão entre armeiro, engenheiro ou químico; carga +5 espaços. Na regra de fabricação improvisada do RPG, redução da DT passa de 5 para 10."
         ],
         [
           "Fabricação Própria",
-          "NEX 40%. Reduz pela metade o tempo necessário para fabricar equipamentos comuns, consumíveis e proteções."
+          "NEX 40% — reduz à metade o tempo de fabricação de itens mundanos no RPG: duas unidades consumíveis por ação de manutenção, ou uma ação para equipamentos duráveis. Não beneficia itens modificados ou paranormais."
         ],
         [
           "Laboratório de Campo",
-          "NEX 65%. Amplia conhecimento profissional e permite fabricar ou reparar itens paranormais durante interlúdios, segundo regras específicas."
+          "NEX 65% — treinamento em uma Profissão entre armeiro, engenheiro ou químico, ou +5 em uma dessas já treinada. Permite fabricação e conserto de itens paranormais em campo segundo as regras do RPG; fabricação exige três ações de interlúdio, não necessariamente seguidas."
         ],
         [
           "Achado Conveniente",
-          "NEX 99%. Gastando 5 PE e uma ação completa, improvisa um item não paranormal de até categoria III que dura até o fim da cena."
+          "NEX 99% — ação completa e 5 PE permitem obter um item temporário até categoria III, exceto paranormal, com justificativa aprovada pelo mestre. O item fica inutilizável permanentemente no fim da cena."
         ]
       ]
     },
@@ -760,55 +760,55 @@ window.NEX_SAH={
       "Exorcista": [
         [
           "Revelação do Mal",
-          "NEX 10%. Treina Religião ou recebe +2 e pode empregá-la para identificar manifestações paranormais e encontrar vestígios ocultos."
+          "NEX 10% — recebe treinamento em Religião ou +2 se já treinado. Pode usar Religião no lugar de Ocultismo, e no lugar de Investigação ou Percepção para identificar pistas, rastros e seres paranormais."
         ],
         [
           "Poder da Fé",
-          "NEX 40%. Torna-se veterano em Religião ou melhora seus testes; gastando PE, pode repetir uma resistência com essa perícia."
+          "NEX 40% — torna-se veterano em Religião ou recebe +1d20 se já veterano. Após falhar em resistência, pode pagar 2 PE para repetir usando Religião, aceitando o novo resultado."
         ],
         [
           "Parareligiosidade",
-          "NEX 65%. Ao conjurar um ritual, pode gastar 2 PE extras para adicionar o efeito de um catalisador ritualístico escolhido."
+          "NEX 65% — por 2 PE extras na conjuração, acrescenta efeito equivalente ao de um catalisador ritualístico escolhido."
         ],
         [
           "Chagas da Resistência",
-          "NEX 99%. Pode gastar 10 PV para evitar ficar com Sanidade zero, permanecendo com 1 ponto de Sanidade."
+          "NEX 99% — conversão de recursos da ficha: quando SAN seria reduzida a zero, permite gastar 10 PV para ficar com 1 SAN."
         ]
       ],
       "Possuído": [
         [
           "Poder Não Desejado",
-          "NEX 10%. Passa a receber Transcender no lugar de novos poderes de Ocultista e desenvolve pontos de possessão, que podem recuperar PV ou PE."
+          "NEX 10% — novos poderes de Ocultista são substituídos por Transcender. PP máximos = 3 + 2 por poder Transcender. Limite de gasto por turno = Pre. Cada PP recupera 10 PV ou 2 PE; dormir no interlúdio restaura 1 PP."
         ],
         [
           "As Sombras Dentro de Mim",
-          "NEX 40%. Recupera mais pontos de possessão ao dormir e pode gastar PE para obter dados extras em testes físicos e agir de modo mais furtivo."
+          "NEX 40% — dormir recupera 2 PP. Por 2 PE, recebe +1d20 em Acrobacia, Atletismo e Furtividade por uma rodada; durante essa rodada, aumentos de visibilidade na cena furtiva diminuem em 1."
         ],
         [
           "Ele Me Ensina",
-          "NEX 65%. Escolhe entre Transcender ou aprender o primeiro poder de outra trilha de Ocultista, respeitando os pré-requisitos."
+          "NEX 65% — escolhe Transcender ou a primeira habilidade de outra trilha de Ocultista, respeitando requisitos."
         ],
         [
           "Tornamo-nos Um",
-          "NEX 99%. Recebe um benefício especial definido pela afinidade elemental, oferecendo efeitos poderosos de recuperação, mobilidade ou aprendizado, com custos importantes."
+          "NEX 99% — benefício por afinidade: Sangue, uma vez por rodada, 6 PE restauram 50 PV e alteram os bônus de treinamento das perícias físicas e Intimidação para +35 e demais perícias de Pre para −10 até o próximo turno; pode ativar inconsciente. Morte, 6 PE uma vez por rodada concedem turno extra no final da iniciativa, inclusive inconsciente. Conhecimento, uma vez por cena, 6 PE concedem poder elegível (exceto trilha NEX 99%) pela cena; Vontade DT 15 + 5 por uso anterior na missão, com perda de 1d6 SAN por utilização na missão se falhar. Energia, uma vez por rodada, 6 PE permitem teletransporte ficcional em alcance médio, para o espaço livre mais próximo se o destino estiver ocupado."
         ]
       ],
       "Parapsicólogo": [
         [
           "Terapia",
-          "NEX 10%. Usa Profissão (psicólogo) para interações de Diplomacia e para substituir resistências falhas contra dano mental, gastando PE. Exige treinamento na profissão."
+          "NEX 10% — requer Profissão (psicólogo) treinada para acessar a trilha. Pode usar essa profissão no lugar de Diplomacia. Uma vez por rodada, 2 PE permitem substituir resistência fracassada contra dano mental, própria ou de aliado em alcance curto, por teste de Profissão (psicólogo). Se já possui Terapia, reduz o custo em 1 PE e recebe +2 na profissão."
         ],
         [
           "Palavras-chave",
-          "NEX 40%. Ao acalmar alguém com sucesso, pode gastar PE para recuperar parte da Sanidade do paciente."
+          "NEX 40% — após sucesso na ação acalmar, pode pagar PE até seu limite; cada PE recupera 1 SAN (ou PD, conforme a regra opcional) do personagem atendido."
         ],
         [
           "Reprogramação Mental",
-          "NEX 65%. Com um interlúdio e 5 PE, ajuda um voluntário a adquirir temporariamente um poder elegível até o próximo interlúdio."
+          "NEX 65% — 5 PE e uma ação de interlúdio de cada participante concedem a um voluntário em alcance curto um poder escolhido por ele até o próximo interlúdio: geral, da própria classe ou primeiro poder de outra trilha, respeitando requisitos."
         ],
         [
           "A Sanidade Está Lá Fora",
-          "NEX 99%. Gasta 5 PE e uma ação de movimento para retirar condições mentais e de medo de um alvo adjacente, inclusive de si."
+          "NEX 99% — uma ação de movimento e 5 PE removem todas as condições mentais ou de medo de uma pessoa adjacente, inclusive do próprio personagem."
         ]
       ]
     }
