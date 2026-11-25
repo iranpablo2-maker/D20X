@@ -168,6 +168,7 @@ body.detail-open main{width:min(1250px,100%);padding:8px 10px 28px}
 <script src="./nex-arquivos-ameacas-faltantes.js?v=20261115realidade1"></script>
 <script src="./nex-sah-ameacas-faltantes.js?v=20261115sah17"></script>
 <script src="./nex-ameacas-realidade-basico.js?v=20261120combatcomplete2"></script>
+<script src="./nex-ameacas-setembro.js?v=20261125hellhunters1"></script>
 <script src="./nex-arquivos-atlas-uploads.js?v=nov14fotos3"></script>
 <script src="./nex-arquivos-atlas-lote2.js?v=nov14lote2a"></script>
 <script>
@@ -177,6 +178,7 @@ const records=[{"name":"Aberração de Carne","element":"Sangue","source":"Livro
 records.push({name:"Carrara",element:"Realidade",source:"Arquivos Secretos — Janeiro",category:"Ameaça da Realidade"});
 records.push(...[{"name":"Assecla","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Investido","element":"Sangue","source":"Arquivos Secretos — Janeiro","category":"Ameaça"},{"name":"Apóstolo do Sangue","element":"Sangue","source":"Arquivos Secretos — Janeiro","category":"Ameaça"},{"name":"Giovanni Opspor","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Mosto","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Tarrafa","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Nando Salles","element":"Realidade","source":"Arquivos Secretos — Janeiro","category":"Ameaça da Realidade"},{"name":"Anulado","element":"Sangue","source":"Arquivos Secretos — Janeiro","category":"Ameaça"},{"name":"Jonas Aguiar","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Dalmo Magno","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Jae","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Kemi","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Labirinto","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Juan","element":"Realidade","source":"Arquivos Secretos — Fevereiro","category":"Ameaça da Realidade"},{"name":"Chispa","element":"Realidade","source":"Arquivos Secretos — Março","category":"Ameaça da Realidade"},{"name":"Assistente de Produção","element":"Realidade","source":"Arquivos Secretos — Abril","category":"Ameaça da Realidade"},{"name":"Produtor","element":"Realidade","source":"Arquivos Secretos — Abril","category":"Ameaça da Realidade"},{"name":"Diretor","element":"Realidade","source":"Arquivos Secretos — Abril","category":"Ameaça da Realidade"},{"name":"Simulacro","element":"Energia","source":"Arquivos Secretos — Abril","category":"Ameaça"},{"name":"Alice Cruzes","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"},{"name":"Ketan Arjuna","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"},{"name":"Laila Verdante","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"},{"name":"Dr. Neruda","element":"Realidade","source":"Arquivos Secretos — Junho","category":"Ameaça da Realidade"}]);
 records.push(...(window.NEX_JULY_THREATS||[]));
+records.push(...(window.NEX_SEPTEMBER_THREATS||[]).filter(x=>!records.some(y=>y.name===x.name&&y.source===x.source)));
 records.push(...(window.NEX_SECRET_MISSING_THREATS||[]).filter(x=>!records.some(y=>y.name===x.name&&y.source===x.source)));
 records.push(...(window.NEX_SAH_ADDITIONAL_THREATS||[]).filter(x=>!records.some(y=>y.name===x.name&&y.source===x.source)));
 records.push(...(window.NEX_BASIC_REALITY_THREATS||[]).filter(x=>!records.some(y=>y.name===x.name&&y.source===x.source)));
@@ -304,7 +306,7 @@ function openThreatDetail(key){
  document.body.classList.add("detail-open");
  threatDetailView.hidden=false;
  threatDetailFrame.style.height="800px";
- threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&publicLibrary=1&v=20261120hpnotemp5";
+ threatDetailFrame.src="./ameaca-ficha.html?id="+encodeURIComponent(key)+"&embedded=1&publicLibrary=1&v=20261125hellhunters1";
  window.scrollTo(0,0);
 }
 function closeThreatDetail(){
