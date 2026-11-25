@@ -49,8 +49,8 @@ window.NEX_RITUAL_META=[
     "target": "1 pessoa",
     "duration": "1 rodada",
     "resistance": "Vontade (anula)",
-    "discente": "+2 PE · Modifica alvo, dano · Dados: 3d8. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Acesso: 3º círculo · Afinidade necessária · Modifica alcance, alvo. Consulte o livro para as condições completas."
+    "discente": "+2 PE: afeta um ser e acrescenta opção que causa 3d8 de Conhecimento e abalado por uma rodada.",
+    "verdadeiro": "+5 PE: até cinco seres ou opção adicional de ataque em jogo. Exige 3º círculo e afinidade."
   },
   {
     "name": "Ouvir os Sussurros",
@@ -121,8 +121,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "+2 PE · Acesso: 2º círculo · Modifica alvo. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Acesso: 3º círculo · Afinidade necessária · Modifica alvo. Consulte o livro para as condições completas."
+    "discente": "+2 PE: aliados escolhidos. Exige 2º círculo.",
+    "verdadeiro": "+5 PE: aliados escolhidos, bônus +5. Exige 3º círculo e afinidade."
   },
   {
     "name": "Eletrocussão",
@@ -169,8 +169,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "Sustentada",
     "resistance": "Vontade anula",
-    "discente": "+2 PE · Modifica dano, testes · Dados: 1d6 · Medidas: 3m. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Modifica alcance, alvo, testes, movimentação · Medidas: 9m. Consulte o livro para as condições completas."
+    "discente": "+2 PE: efeito instantâneo sobre até dez objetos ou dez espaços, com dano ficcional variável por espaço e Reflexos para metade; Vontade resiste à movimentação involuntária.",
+    "verdadeiro": "+5 PE: alcance médio, efeito instantâneo; deslocamento sobrenatural de até 9m para alvo de até dez espaços; Vontade anula efeito involuntário."
   },
   {
     "name": "Amaldiçoar Arma",
@@ -193,8 +193,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Não consta",
-    "discente": "+2 PE · Acesso: 2º círculo · Versão aprimorada do efeito · Dados: 5d8+5. Consulte o livro para as condições completas.",
-    "verdadeiro": "+9 PE · Acesso: 4º círculo · Afinidade necessária · Modifica alcance, alvo · Dados: 7d8+7. Consulte o livro para as condições completas."
+    "discente": "+2 PE: cura 5d8+5. Exige 2º círculo.",
+    "verdadeiro": "+9 PE: alcance curto, seres escolhidos, cura 7d8+7. Exige 4º círculo e afinidade."
   },
   {
     "name": "Consumir Manancial",
@@ -217,8 +217,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Fortitude reduz à metade",
-    "discente": "+2 PE · Modifica execução, alvo, resistência, dano · Dados: 3d8+3. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Acesso: 3º círculo · Modifica alcance, alvo, dano · Dados: 8d8+8 · Medidas: 6m. Consulte o livro para as condições completas."
+    "discente": "+2 PE: teste de ataque corpo a corpo em vez de resistência; acerto soma 3d8+3 de Morte ao dano normal.",
+    "verdadeiro": "+5 PE: área de raio 6m centrada no conjurador, 8d8+8 de Morte em todos os seres. Exige 3º círculo."
   },
   {
     "name": "Definhar",
@@ -229,8 +229,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Cena",
     "resistance": "Fortitude parcial",
-    "discente": "+2 PE · Acesso: 2º círculo · Modifica alvo, resistência. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Acesso: 3º círculo · Afinidade necessária · Modifica alvo. Consulte o livro para as condições completas."
+    "discente": "+2 PE: exausto; sucesso deixa fatigado. Exige 2º círculo.",
+    "verdadeiro": "+5 PE: efeito Discente em até cinco seres. Exige 3º círculo e afinidade."
   },
   {
     "name": "Espirais da Perdição",
@@ -241,8 +241,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "+2 PE · Acesso: 2º círculo · Versão aprimorada do efeito · Dados: 2d20. Consulte o livro para as condições completas.",
-    "verdadeiro": "+8 PE · Acesso: 3º círculo · Modifica alvo · Dados: 2d20. Consulte o livro para as condições completas."
+    "discente": "+2 PE: penalidade de −2d20. Exige 2º círculo.",
+    "verdadeiro": "+8 PE: penalidade de −2d20 em seres escolhidos. Exige 3º círculo."
   },
   {
     "name": "Nuvem de Cinzas",
@@ -313,8 +313,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "Cena",
     "resistance": "Vontade desacredita",
-    "discente": "+2 PE · Modifica alcance, alvo, testes. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Acesso: 3º círculo · Modifica alvo. Consulte o livro para as condições completas."
+    "discente": "+2 PE: alcance curto, um ser; alvo involuntário pode resistir com Vontade.",
+    "verdadeiro": "+5 PE: como Discente, para seres escolhidos. Exige 3º círculo."
   },
   {
     "name": "Fortalecimento Sensorial",
@@ -337,8 +337,8 @@ window.NEX_RITUAL_META=[
     "target": "1 pessoa",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "+2 PE · Modifica alvo. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Acesso: 3º círculo · Afinidade necessária · Modifica alvo, dano. Consulte o livro para as condições completas."
+    "discente": "+2 PE: ao agredir, um ataque adicional corpo a corpo contra o mesmo alvo.",
+    "verdadeiro": "+5 PE: ataque e dano +5; recebe metade do dano dos quatro tipos físicos citados. Exige 3º círculo e afinidade."
   },
   {
     "name": "Cinerária",
@@ -349,8 +349,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: nuvem de 6m de raio",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "+2 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Modifica dano. Consulte o livro para as condições completas."
+    "discente": "+2 PE: também reduz custo em 2 PE.",
+    "verdadeiro": "+5 PE: além do normal, maximiza dano dos rituais."
   },
   {
     "name": "Aprimorar Mente",
@@ -385,8 +385,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "1 rodada",
     "resistance": "Não consta",
-    "discente": "+3 PE · Acesso: 3º círculo · Modifica duração · Medidas: 3m. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Afinidade necessária · Modifica execução, alcance, alvo, duração. Consulte o livro para as condições completas."
+    "discente": "+3 PE: sustentado, esfera móvel de raio 3m que torna aliados na área invisíveis; ações hostis revelam quem as pratica. Exige 3º círculo.",
+    "verdadeiro": "+7 PE: ação padrão, toque, um ser, sustentado; ações hostis não encerram. Exige 4º círculo e afinidade."
   },
   {
     "name": "Invadir Mente",
@@ -397,8 +397,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser ou 2 pessoas voluntárias",
     "duration": "Instantânea ou 1 dia",
     "resistance": "Vontade parcial ou nenhuma",
-    "discente": "+3 PE · Acesso: 3º círculo · Modifica alvo, dano, testes, movimentação · Dados: 10d6. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Modifica alvo, dano · Dados: 10d6. Consulte o livro para as condições completas."
+    "discente": "+3 PE: rajada 10d6 ou elo que permite ver e ouvir pelos sentidos do alvo com ação de movimento; Vontade do alvo involuntário suprime por uma hora. Exige 3º círculo.",
+    "verdadeiro": "+7 PE: rajada 10d6 em seres escolhidos ou elo entre até cinco pessoas. Exige 4º círculo."
   },
   {
     "name": "Localização",
@@ -409,8 +409,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: círculo com 90m de raio",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "+3 PE · Modifica alcance, alvo, duração. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Versão aprimorada do efeito. Consulte o livro para as condições completas."
+    "discente": "+3 PE: toque, uma pessoa, uma hora; revela caminho mais direto para entrar ou sair de um lugar, não para encontrar seres ou objetos.",
+    "verdadeiro": "+7 PE: raio de 1km. Exige 4º círculo."
   },
   {
     "name": "Chamas do Caos",
@@ -445,8 +445,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: esfera com 6m de raio",
     "duration": "Sustentada",
     "resistance": "Não consta",
-    "discente": "+1 PE: um objeto passa a emitir silêncio em raio de 3m; Vontade anula se for de portador involuntário.",
-    "verdadeiro": "+3 PE: duração de uma cena."
+    "discente": "+1 PE: objeto emite silêncio em raio de 3m; Vontade de portador involuntário anula.",
+    "verdadeiro": "+3 PE: duração cena; sons não saem da área, mas audição, fala e conjuração dentro dela funcionam. Exige 3º círculo."
   },
   {
     "name": "Sopro do Caos",
@@ -457,8 +457,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: varia",
     "duration": "Sustentada",
     "resistance": "veja texto",
-    "discente": "+3 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas.",
-    "verdadeiro": "+9 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas."
+    "discente": "+3 PE: afeta Grandes.",
+    "verdadeiro": "+9 PE: afeta Enormes."
   },
   {
     "name": "Tela de Ruído",
@@ -481,8 +481,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser ou objetos somando até 10 espaços",
     "duration": "Até chegar ao solo ou cena, o que vier primeiro",
     "resistance": "Não consta",
-    "discente": "+3 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": "+3 PE: seres ou objetos somando até 100 espaços."
   },
   {
     "name": "Eco Espiral",
@@ -553,8 +553,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Fortitude parcial",
-    "discente": "+3 PE · Acesso: 3º círculo · Modifica dano · Dados: 10d8, 4d8. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 3º círculo · Afinidade necessária · Modifica alvo, duração, dano, testes · Dados: 4d8. Consulte o livro para as condições completas."
+    "discente": "+3 PE: dano inicial 10d8 e contínuo 4d8. Exige 3º círculo.",
+    "verdadeiro": "+7 PE: pessoal, sustentado; ataques corpo a corpo acrescentam 4d8 de Sangue e aplicam o efeito contínuo, sujeito ao teste no início do turno. Exige 3º círculo e afinidade."
   },
   {
     "name": "Flagelo de Sangue",
@@ -565,8 +565,8 @@ window.NEX_RITUAL_META=[
     "target": "1 pessoa",
     "duration": "Cena",
     "resistance": "Fortitude parcial",
-    "discente": "+3 PE · Acesso: 3º círculo · Modifica alvo. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Afinidade necessária · Modifica duração. Consulte o livro para as condições completas."
+    "discente": "+3 PE: qualquer ser, exceto criatura de Sangue. Exige 3º círculo.",
+    "verdadeiro": "+7 PE: como Discente, duração de um dia. Exige 4º círculo e afinidade."
   },
   {
     "name": "Hemofagia",
@@ -577,8 +577,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Fortitude reduz à metade",
-    "discente": "+3 PE · Modifica execução, alvo, resistência, dano. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Modifica alcance, alvo, duração, dano · Dados: 4d6. Consulte o livro para as condições completas."
+    "discente": "+3 PE: ataque corpo a corpo em vez de resistência; se acertar, soma dano do ataque e ritual e recupera metade do total.",
+    "verdadeiro": "+7 PE: pessoal, duração cena; ação padrão a cada rodada causa 4d6 de Sangue por toque e recupera metade do dano. Exige 4º círculo."
   },
   {
     "name": "Transfusão Vital",
@@ -589,8 +589,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Não consta",
-    "discente": "+3 PE · Acesso: 3º círculo · Versão aprimorada do efeito. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Versão aprimorada do efeito. Consulte o livro para as condições completas."
+    "discente": "+3 PE: limite 50 PV. Exige 3º círculo.",
+    "verdadeiro": "+7 PE: limite 100 PV. Exige 4º círculo."
   },
   {
     "name": "Proteção contra Rituais",
@@ -601,8 +601,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "+3 PE · Acesso: 3º círculo · Modifica alvo. Consulte o livro para as condições completas.",
-    "verdadeiro": "+6 PE · Acesso: 4º círculo · Modifica alvo, resistência, dano, testes. Consulte o livro para as condições completas."
+    "discente": "+3 PE: até cinco seres tocados. Exige 3º círculo.",
+    "verdadeiro": "+6 PE: até cinco seres tocados, RD paranormal 10 e resistências +10. Exige 4º círculo."
   },
   {
     "name": "Rejeitar Névoa",
@@ -613,8 +613,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: nuvem de 6m de raio",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "+2 PE · Modifica resistência, testes. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Modifica dano. Consulte o livro para as condições completas."
+    "discente": "+2 PE: reduz em 5 a DT de resistência aos rituais na área.",
+    "verdadeiro": "+5 PE: como Discente; dano ritualístico na área é mínimo."
   },
   {
     "name": "Alterar Memória",
@@ -649,8 +649,8 @@ window.NEX_RITUAL_META=[
     "target": "1 pessoa",
     "duration": "Sustentada",
     "resistance": "Vontade parcial (veja texto)",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "+4 PE · Acesso: 4º círculo · Modifica execução, alcance, alvo. Consulte o livro para as condições completas."
+    "discente": "",
+    "verdadeiro": "+4 PE: execução de um dia, alcance ilimitado, exige informações do alvo e componente especial de categoria II. Exige 4º círculo."
   },
   {
     "name": "Vidência",
@@ -661,8 +661,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "5 rodadas",
     "resistance": "Vontade anula",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Convocação Instantânea",
@@ -685,8 +685,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "Instantânea",
     "resistance": "Não consta",
-    "discente": "+2 PE · Modifica execução, Defesa, testes · Medidas: 5m. Consulte o livro para as condições completas.",
-    "verdadeiro": "+4 PE · Modifica alcance, alvo. Consulte o livro para as condições completas."
+    "discente": "+2 PE: reação, desloca 1,5m e recebe +10 em Defesa e Reflexos contra o efeito iminente.",
+    "verdadeiro": "+4 PE: alcance longo, conjurador e até dois seres voluntários tocados."
   },
   {
     "name": "Transfigurar Água",
@@ -697,8 +697,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: esfera com 30m de raio",
     "duration": "Cena",
     "resistance": "veja texto",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "+5 PE · Modifica dano · Dados: 10d8 · Medidas: 12m. Consulte o livro para as condições completas."
+    "discente": "",
+    "verdadeiro": "+5 PE: embarcação +12m, evaporar 10d8."
   },
   {
     "name": "Transfigurar Terra",
@@ -709,8 +709,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: 9 cubos com 1,5m de lado",
     "duration": "Instantânea",
     "resistance": "veja texto",
-    "discente": "+3 PE · Versão aprimorada do efeito · Medidas: 5m. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Versão aprimorada do efeito. Consulte o livro para as condições completas."
+    "discente": "+3 PE: 15 cubos de 1,5m.",
+    "verdadeiro": "+7 PE: também afeta minerais e metais. Exige 4º círculo."
   },
   {
     "name": "Âncora Temporal",
@@ -733,8 +733,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: nuvem com 6m de raio",
     "duration": "Sustentada",
     "resistance": "Fortitude (veja texto)",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "+4 PE · Modifica dano · Dados: 4d8+16. Consulte o livro para as condições completas."
+    "discente": "",
+    "verdadeiro": "+4 PE: dano 4d8+16."
   },
   {
     "name": "Tentáculos de Lodo",
@@ -769,8 +769,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Sustentada",
     "resistance": "Fortitude parcial",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "+4 PE · Acesso: 4º círculo · Afinidade necessária · Modifica alvo. Consulte o livro para as condições completas."
+    "discente": "",
+    "verdadeiro": "+4 PE: seres escolhidos. Exige 4º círculo e afinidade."
   },
   {
     "name": "Forma Monstruosa",
@@ -781,8 +781,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "+3 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas.",
-    "verdadeiro": "+9 PE · Acesso: 4º círculo · Afinidade necessária · Modifica dano, testes. Consulte o livro para as condições completas."
+    "discente": "+3 PE: imunidade a atordoamento, fadiga, sangramento, sono e veneno.",
+    "verdadeiro": "+9 PE: ataque e dano +10, 50 PV temporários. Exige 4º círculo e afinidade."
   },
   {
     "name": "Purgatório",
@@ -793,8 +793,8 @@ window.NEX_RITUAL_META=[
     "target": "área de 6m de raio",
     "duration": "Sustentada",
     "resistance": "Fortitude parcial",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Vomitar Pestes",
@@ -805,8 +805,8 @@ window.NEX_RITUAL_META=[
     "target": "Efeito: 1 enxame Grande (quadrado de 3m)",
     "duration": "Sustentada",
     "resistance": "Reflexos reduz à metade",
-    "discente": "+2 PE · Modifica alvo, testes. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Versão aprimorada do efeito · Medidas: 6m, 18m. Consulte o livro para as condições completas."
+    "discente": "+2 PE: falha em Reflexos também deixa agarrado; ação padrão e Acrobacia ou Atletismo permitem escapar. Mover o enxame liberta o alvo.",
+    "verdadeiro": "+5 PE: tamanho Enorme, cubo de 6m, voo 18m."
   },
   {
     "name": "Dissipar Ritual",
@@ -829,8 +829,8 @@ window.NEX_RITUAL_META=[
     "target": "1 pessoa ou animal",
     "duration": "Sustentada",
     "resistance": "Vontade parcial",
-    "discente": "+5 PE · Modifica alvo. Consulte o livro para as condições completas.",
-    "verdadeiro": "+10 PE · Afinidade necessária · Modifica alvo. Consulte o livro para as condições completas."
+    "discente": "+5 PE: até cinco pessoas ou animais.",
+    "verdadeiro": "+10 PE: até dez pessoas ou animais. Exige afinidade com Conhecimento."
   },
   {
     "name": "Inexistir",
@@ -841,8 +841,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Vontade parcial",
-    "discente": "+5 PE · Modifica dano · Dados: 15d12+15, 3d12. Consulte o livro para as condições completas.",
-    "verdadeiro": "+10 PE · Afinidade necessária · Modifica dano · Dados: 20d12+20, 4d12. Consulte o livro para as condições completas."
+    "discente": "+5 PE: dano 15d12+15 ou 3d12 se resistido.",
+    "verdadeiro": "+10 PE: dano 20d12+20 ou 4d12 se resistido. Exige afinidade."
   },
   {
     "name": "Possessão",
@@ -853,8 +853,8 @@ window.NEX_RITUAL_META=[
     "target": "1 pessoa viva ou morta",
     "duration": "1 dia",
     "resistance": "Vontade anula",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Alterar Destino",
@@ -877,8 +877,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: explosão com 15m de raio",
     "duration": "Não especificado",
     "resistance": "Fortitude parcial",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "+5 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas."
+    "discente": "",
+    "verdadeiro": "+5 PE: apenas alvos escolhidos."
   },
   {
     "name": "Teletransporte",
@@ -901,8 +901,8 @@ window.NEX_RITUAL_META=[
     "target": "1 pessoa",
     "duration": "Sustentada",
     "resistance": "Vontade anula, Fortitude parcial",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Distorção Temporal",
@@ -913,8 +913,8 @@ window.NEX_RITUAL_META=[
     "target": "veja texto",
     "duration": "Veja texto",
     "resistance": "Não consta",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Fim Inevitável",
@@ -925,8 +925,8 @@ window.NEX_RITUAL_META=[
     "target": "Efeito: buraco negro com 1,5m de diâmetro",
     "duration": "4 rodadas",
     "resistance": "Fortitude parcial",
-    "discente": "+5 PE · Afinidade necessária · Modifica duração. Consulte o livro para as condições completas.",
-    "verdadeiro": "+10 PE · Afinidade necessária · Modifica alcance, duração. Consulte o livro para as condições completas."
+    "discente": "+5 PE: cinco rodadas; conjurador imune. Exige afinidade.",
+    "verdadeiro": "+10 PE: seis rodadas; seres escolhidos imunes. Exige afinidade."
   },
   {
     "name": "Capturar o Coração",
@@ -937,8 +937,8 @@ window.NEX_RITUAL_META=[
     "target": "1 pessoa",
     "duration": "Cena",
     "resistance": "Vontade parcial",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Invólucro de Carne",
@@ -949,8 +949,8 @@ window.NEX_RITUAL_META=[
     "target": "Efeito: 1 clone seu",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Vínculo de Sangue",
@@ -961,8 +961,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Cena",
     "resistance": "Fortitude anula",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Canalizar o Medo",
@@ -985,8 +985,8 @@ window.NEX_RITUAL_META=[
     "target": "1 pessoa",
     "duration": "Instantânea",
     "resistance": "Vontade parcial",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Lâmina do Medo",
@@ -997,8 +997,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Fortitude parcial",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Medo Tangível",
@@ -1009,8 +1009,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Presença do Medo",
@@ -1021,8 +1021,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: emanação de 9m de raio",
     "duration": "Sustentada",
     "resistance": "Não consta",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   },
   {
     "name": "Esfolar",
