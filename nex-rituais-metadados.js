@@ -421,8 +421,8 @@ window.NEX_RITUAL_META=[
     "target": "veja texto",
     "duration": "Cena",
     "resistance": "Não consta",
-    "discente": "+3 PE · Modifica alcance, alvo, duração, resistência · Dados: 4d6. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 3º círculo · Modifica dano · Dados: 8d6. Consulte o livro para as condições completas."
+    "discente": "+3 PE: sustentado; ação de movimento uma vez por rodada causa 4d6 de Energia a alvo em alcance curto, Reflexos metade.",
+    "verdadeiro": "+7 PE: como Discente, dano 8d6. Exige 3º círculo."
   },
   {
     "name": "Contenção Fantasmagórica",
@@ -1033,8 +1033,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Reflexos parcial",
-    "discente": "+2 PE · Acesso: 2º círculo · Modifica alcance, alvo, dano · Dados: 5d4+5 · Medidas: 6m. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Acesso: 3º círculo · Modifica alcance, alvo, resistência, dano · Dados: 10d4+10 · Medidas: 6m. Consulte o livro para as condições completas."
+    "discente": "+2 PE: alcance médio, raio 6m, dano 5d4+5. Exige 2º círculo.",
+    "verdadeiro": "+5 PE: alcance longo, raio 6m, dano 10d4+10; resistência não evita condição. Exige 3º círculo."
   },
   {
     "name": "Sede de Adrenalina",
@@ -1058,7 +1058,7 @@ window.NEX_RITUAL_META=[
     "duration": "Cena",
     "resistance": "Não consta",
     "discente": "+4 PE: toque, um ser.",
-    "verdadeiro": ""
+    "verdadeiro": "+9 PE: alcance curto, até cinco seres. Exige afinidade."
   },
   {
     "name": "Martírio de Sangue",
@@ -1069,8 +1069,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "Veja texto",
     "resistance": "Não consta",
-    "discente": "+5 PE · Afinidade necessária · Versão aprimorada do efeito. Consulte o livro para as condições completas.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "+5 PE: bônus +20 e 50 PV temporários. Exige afinidade.",
+    "verdadeiro": ""
   },
   {
     "name": "Apagar as Luzes",
@@ -1081,8 +1081,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "Instantânea",
     "resistance": "Não consta",
-    "discente": "+2 PE · Acesso: 2º círculo · Modifica alcance. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Acesso: 3º círculo · Modifica alcance. Consulte o livro para as condições completas."
+    "discente": "+2 PE: fontes afetadas em alcance longo. Exige 2º círculo.",
+    "verdadeiro": "+5 PE: como Discente; até cinco outros seres recebem visão no escuro. Exige 3º círculo."
   },
   {
     "name": "Língua Morta",
@@ -1093,8 +1093,8 @@ window.NEX_RITUAL_META=[
     "target": "1 cadáver",
     "duration": "Sustentada",
     "resistance": "Não consta",
-    "discente": "+3 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Afinidade necessária · Versão aprimorada do efeito. Consulte o livro para as condições completas."
+    "discente": "+3 PE: quatro rodadas; ao final surge Enraizado.",
+    "verdadeiro": "+7 PE: cinco rodadas; ao final surge Marionete. Exige 4º círculo e afinidade."
   },
   {
     "name": "Fedor Pútrido",
@@ -1105,8 +1105,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "Sustentada",
     "resistance": "Não consta",
-    "discente": "+4 PE · Modifica alcance, alvo. Consulte o livro para as condições completas.",
-    "verdadeiro": "+9 PE · Afinidade necessária · Modifica alcance, alvo. Consulte o livro para as condições completas."
+    "discente": "+4 PE: toque, um voluntário.",
+    "verdadeiro": "+9 PE: alcance curto, até cinco voluntários. Exige afinidade."
   },
   {
     "name": "Singularidade Temporal",
@@ -1117,8 +1117,8 @@ window.NEX_RITUAL_META=[
     "target": "1 objeto não paranormal Médio",
     "duration": "Instantânea",
     "resistance": "veja texto",
-    "discente": "+5 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas.",
-    "verdadeiro": "+10 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas."
+    "discente": "+5 PE: objeto Grande.",
+    "verdadeiro": "+10 PE: objeto Enorme."
   },
   {
     "name": "Desfazer Sinapses",
@@ -1129,8 +1129,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Vontade parcial",
-    "discente": "+2 PE · Acesso: 2º círculo · Modifica alcance, alvo, dano · Dados: 3d6+3. Consulte o livro para as condições completas.",
-    "verdadeiro": "+5 PE · Acesso: 3º círculo · Modifica alcance, resistência, dano, testes · Dados: 8d6+8. Consulte o livro para as condições completas."
+    "discente": "+2 PE: alcance longo, até cinco seres escolhidos, dano 3d6+3. Exige 2º círculo.",
+    "verdadeiro": "+5 PE: alcance extremo, dano 8d6+8, condição esmorecido; sucesso substitui por frustrado. Exige 3º círculo."
   },
   {
     "name": "Aurora da Verdade",
@@ -1141,8 +1141,8 @@ window.NEX_RITUAL_META=[
     "target": "Área: esfera com 3m de raio",
     "duration": "Sustentada",
     "resistance": "Vontade parcial",
-    "discente": "+3 PE · Modifica alcance · Medidas: 9m. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Afinidade necessária · Modifica alcance, duração. Consulte o livro para as condições completas."
+    "discente": "+3 PE: alcance médio, raio 9m, conjurador não afetado.",
+    "verdadeiro": "+7 PE: como Discente, alcance longo, duração cena; conjurador ouve o que é dito na área a qualquer distância. Exige 4º círculo e afinidade."
   },
   {
     "name": "Relembrar Fragmento",
@@ -1153,8 +1153,8 @@ window.NEX_RITUAL_META=[
     "target": "1 objeto",
     "duration": "Instantânea",
     "resistance": "Não consta",
-    "discente": "+4 PE · Versão aprimorada do efeito. Consulte o livro para as condições completas.",
-    "verdadeiro": "+9 PE · Afinidade necessária · Versão aprimorada do efeito. Consulte o livro para as condições completas."
+    "discente": "+4 PE: restauração até fim da missão.",
+    "verdadeiro": "+9 PE: em vez de restaurar, altera sobrenaturalmente o texto na ficção até o fim da missão. Exige afinidade."
   },
   {
     "name": "Pronunciar Sigilo",
@@ -1165,8 +1165,8 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea/veja texto",
     "resistance": "Vontade parcial",
-    "discente": "+5 PE · Modifica alcance. Consulte o livro para as condições completas.",
-    "verdadeiro": "+10 PE · Afinidade necessária · Modifica alvo. Consulte o livro para as condições completas."
+    "discente": "+5 PE: alcance extremo.",
+    "verdadeiro": "+10 PE: até cinco seres. Exige afinidade."
   },
   {
     "name": "Overclock",
@@ -1189,8 +1189,8 @@ window.NEX_RITUAL_META=[
     "target": "você",
     "duration": "Sustentada",
     "resistance": "Não consta",
-    "discente": "+3 PE · Modifica alcance, alvo. Consulte o livro para as condições completas.",
-    "verdadeiro": "+7 PE · Acesso: 4º círculo · Modifica alcance, alvo. Consulte o livro para as condições completas."
+    "discente": "+3 PE: toque, um voluntário.",
+    "verdadeiro": "+7 PE: alcance curto, até cinco voluntários. Exige 4º círculo."
   },
   {
     "name": "Mutar",
@@ -1213,7 +1213,7 @@ window.NEX_RITUAL_META=[
     "target": "1 ser",
     "duration": "Instantânea",
     "resistance": "Não consta",
-    "discente": "Não consta nesta referência.",
-    "verdadeiro": "Não consta nesta referência."
+    "discente": "",
+    "verdadeiro": ""
   }
 ];
