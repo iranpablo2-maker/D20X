@@ -1017,7 +1017,17 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 42,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 42",
-      "description": "Item operacional de categoria 0 e cinco espaços. Oferece +10 em testes de arrombamento do sistema."
+      "description": "Equipamento operacional de duas mãos. Na resolução de um teste de arrombamento de objeto, concede +10 ao resultado. Categoria 0; ocupa 5 espaços.",
+      "stats": [
+        [
+          "Empunhadura",
+          "Duas mãos"
+        ],
+        [
+          "Bônus de perícia",
+          "+10 (arrombamento)"
+        ]
+      ]
     },
     {
       "name": "Capacete Tático",
@@ -1027,7 +1037,17 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 43,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
-      "description": "Proteção de categoria II e um espaço. Oferece Fortificação 25% contra dano adicional de acertos críticos ou furtivos."
+      "description": "Equipamento vestido que exige proficiência em proteção pesada. Concede Fortificação 25%: role 1d4 ao receber dano adicional de crítico ou ataque furtivo; um resultado 1 elimina apenas o acréscimo de dano. Categoria II; 1 espaço.",
+      "stats": [
+        [
+          "Proficiência",
+          "Proteções pesadas"
+        ],
+        [
+          "Fortificação",
+          "25%"
+        ]
+      ]
     },
     {
       "name": "Boroscópio Articulado",
@@ -1037,7 +1057,17 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 43,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
-      "description": "Item operacional de categoria I e um espaço, usado no jogo para observar ambientes por câmera e realizar testes de Investigação e Percepção."
+      "description": "Equipamento de investigação que permite resolver testes de Investigação e Percepção em ambientes ainda não explorados, por meio da câmera do personagem. No RPG, requer as duas mãos e uma ação completa; possui visão no escuro. Categoria I; 1 espaço.",
+      "stats": [
+        [
+          "Empunhadura",
+          "Duas mãos"
+        ],
+        [
+          "Execução",
+          "Completa"
+        ]
+      ]
     },
     {
       "name": "Rifle de Atirador Designado",
@@ -1047,7 +1077,34 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 43,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
-      "description": "Arma de categoria III e três espaços, com estatísticas específicas de alcance e ataque no suplemento."
+      "description": "Arma de fogo tática de duas mãos. No sistema, inflige 2d10 de dano balístico, com crítico 19/x3 e alcance médio. Ataque Furtivo pode ser aplicado em alcance médio; o suplemento prevê ajustes próprios de margem de ameaça e penalidade de distância. Consulte a p. 43 para essas condições. Categoria III; 3 espaços.",
+      "subtitle": "Arma tática · Disparo · Duas mãos",
+      "stats": [
+        [
+          "Proficiência",
+          "Armas táticas"
+        ],
+        [
+          "Dano",
+          "2d10"
+        ],
+        [
+          "Crítico",
+          "19/x3"
+        ],
+        [
+          "Alcance",
+          "Médio"
+        ],
+        [
+          "Tipo",
+          "Balístico"
+        ],
+        [
+          "Munição",
+          "Balas longas"
+        ]
+      ]
     },
     {
       "name": "Drone de Combate Tático",
@@ -1057,7 +1114,17 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 44,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 44",
-      "description": "Item operacional de categoria III e dois espaços. Funciona como um aliado drone especializado, com câmera e modalidades de ajuda."
+      "description": "Aliado especial que oferece auxílio a um personagem conforme a modalidade escolhida. O conjunto ocupa 2 espaços; o controle isolado não ocupa espaço. Na regra padrão, o drone não possui turno nem PV próprios; concede bônus e uma habilidade por rodada. Na rodada em que muda de aliado beneficiado, não concede seus efeitos. As modalidades e modificações estão nas pp. 44–48; a variante com ficha simplificada, nas pp. 49–50. Categoria III.",
+      "stats": [
+        [
+          "Tipo de item",
+          "Operacional"
+        ],
+        [
+          "Regra",
+          "Aliado drone"
+        ]
+      ]
     },
     {
       "name": "Escudo Balístico LED",
@@ -1067,7 +1134,25 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 50,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 50",
-      "description": "Proteção de categoria II e dois espaços. Oferece bônus de Defesa, resistência balística, cobertura e iluminação conforme regras próprias."
+      "description": "Proteção pesada de uma mão. No RPG, concede Defesa +2 e resistência a dano balístico 10. Possui efeitos adicionais de cobertura e iluminação que dependem de ação de movimento; a cobertura termina com o deslocamento. O efeito de ofuscamento dura uma rodada e não se repete no mesmo alvo durante a cena. Categoria II; 2 espaços.",
+      "stats": [
+        [
+          "Proficiência",
+          "Proteções pesadas"
+        ],
+        [
+          "Empunhadura",
+          "Uma mão"
+        ],
+        [
+          "Defesa",
+          "+2"
+        ],
+        [
+          "Resistência balística",
+          "10"
+        ]
+      ]
     },
     {
       "name": "Lançador de Granadas Portátil",
@@ -1077,7 +1162,14 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 51,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 51",
-      "description": "Arma de categoria II e um espaço, variante compacta de arma presente nos suplementos anteriores."
+      "description": "Arma tática de categoria II, com 1 espaço. Sua resolução em jogo utiliza a regra do lançador de granadas do pacote de abril (AS #04, p. 71), com a diferença indicada na edição de setembro (p. 51). O suplemento de setembro não apresenta uma nova tabela de dano ou crítico para esse item.",
+      "subtitle": "Arma tática · Disparo",
+      "stats": [
+        [
+          "Proficiência",
+          "Armas táticas"
+        ]
+      ]
     },
     {
       "name": "Machado Tático",
@@ -1087,7 +1179,34 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 51,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 51",
-      "description": "Arma tática de categoria II e um espaço, com opções de contra-ataque e bloqueio descritas na fonte."
+      "description": "Arma tática corpo a corpo, ágil e de uma mão. Inflige 1d8 de corte e tem crítico 20/x3. No RPG, concede +2 ao teste de contra-ataque; ao bloquear, pode-se gastar 2 PE e perder o item para acrescentar 20 à RD do bloqueio. Também possui alcance curto para arremesso. Categoria II; 1 espaço.",
+      "subtitle": "Arma tática · Corpo a corpo · Uma mão",
+      "stats": [
+        [
+          "Proficiência",
+          "Armas táticas"
+        ],
+        [
+          "Dano",
+          "1d8"
+        ],
+        [
+          "Crítico",
+          "20/x3"
+        ],
+        [
+          "Tipo",
+          "Corte"
+        ],
+        [
+          "Alcance",
+          "Curto"
+        ],
+        [
+          "Propriedade",
+          "Ágil"
+        ]
+      ]
     },
     {
       "name": "Espingarda Serrada",
@@ -1097,7 +1216,34 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 51,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 51",
-      "description": "Arma de categoria I e um espaço, com alcance e dano específicos no sistema."
+      "description": "Arma de fogo tática de uma mão. No RPG, causa 3d6 de dano balístico, crítico 20/x3 e alcance curto. A partir do alcance médio, o dano é reduzido à metade. Utiliza a categoria de munição cartuchos. Categoria I; 1 espaço.",
+      "subtitle": "Arma tática · Disparo · Uma mão",
+      "stats": [
+        [
+          "Proficiência",
+          "Armas táticas"
+        ],
+        [
+          "Dano",
+          "3d6"
+        ],
+        [
+          "Crítico",
+          "20/x3"
+        ],
+        [
+          "Tipo",
+          "Balístico"
+        ],
+        [
+          "Alcance",
+          "Curto"
+        ],
+        [
+          "Munição",
+          "Cartuchos"
+        ]
+      ]
     },
     {
       "name": "Dardos Condutores",
@@ -1107,7 +1253,8 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 52,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 52",
-      "description": "Munição de categoria I e um espaço, associada à Pistola Taser."
+      "description": "Munição associada à Pistola Taser no inventário do RPG. Categoria I, 1 espaço. A contagem opcional de munição segue a regra específica da p. 52.",
+      "stats": []
     },
     {
       "name": "Pistola Taser",
@@ -1117,7 +1264,34 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 52,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 52",
-      "description": "Arma de categoria II e um espaço, com efeito de eletricidade e condição de atordoamento no jogo."
+      "description": "Arma simples de disparo, de uma mão. No RPG, causa 2d6 de dano elétrico, crítico 20/x3 e alcance curto. A condição Atordoado dura uma rodada, com teste de Fortitude contra DT de Agilidade para evitar. O efeito de condição é limitado a uma vez por alvo em cada cena, salvo ajuste de mesa. Categoria II; 1 espaço.",
+      "subtitle": "Arma simples · Disparo · Uma mão",
+      "stats": [
+        [
+          "Proficiência",
+          "Armas simples"
+        ],
+        [
+          "Dano",
+          "2d6"
+        ],
+        [
+          "Crítico",
+          "20/x3"
+        ],
+        [
+          "Tipo",
+          "Eletricidade"
+        ],
+        [
+          "Alcance",
+          "Curto"
+        ],
+        [
+          "Munição",
+          "Dardos Condutores"
+        ]
+      ]
     }
   ],
   "rules": [
