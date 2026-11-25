@@ -142,6 +142,42 @@ window.NEX_ARQUIVOS={
       "page": 80,
       "source": "Arquivos Secretos · Julho/2026 · p. 80",
       "official": true
+    },
+    {
+      "name": "Veterano de Conflito Armado",
+      "skills": [
+        "Luta",
+        "Pontaria"
+      ],
+      "ability": "Full Metal Jacket",
+      "description": "Treina Luta e Pontaria. Por 2 PE, permite ignorar uma penalidade em um teste dessas perícias que já esteja penalizado.",
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 38",
+      "month": "Setembro",
+      "page": 38,
+      "official": true
+    },
+    {
+      "name": "Treinado pela Hell Hunters",
+      "skills": [
+        "Luta",
+        "Fortitude"
+      ],
+      "skillChoices": [
+        [
+          "Luta",
+          "Fortitude"
+        ],
+        [
+          "Pontaria",
+          "Reflexos"
+        ]
+      ],
+      "ability": "Treinamento com Arsenal",
+      "description": "Escolha Luta e Fortitude ou Pontaria e Reflexos. Ganha proficiência com armas táticas e proteções leves; quando já possuir essas proficiências, progride para armas pesadas e proteções pesadas, respectivamente.",
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 38",
+      "month": "Setembro",
+      "page": 38,
+      "official": true
     }
   ],
   "powers": [
@@ -656,6 +692,42 @@ window.NEX_ARQUIVOS={
       "page": 46,
       "description": "Ao conjurar um ritual, pode combinar os benefícios de até três catalisadores ritualísticos diferentes. Requisitos: Intelecto 3, conjurar ritual de 2º círculo e o poder Domínio Esotérico.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 46"
+    },
+    {
+      "name": "Municiador Ambulante",
+      "category": "Combatente",
+      "requires": "INT 2",
+      "month": "Setembro",
+      "page": 39,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
+      "description": "Adiciona a ação de interlúdio municiar: prepara pacotes virtuais de munição equivalentes a 1d6 por ponto de Intelecto, sem ocupar espaços. Requisito: Intelecto 2."
+    },
+    {
+      "name": "Ripostar Ousado",
+      "category": "Combatente",
+      "requires": "AGI 2; Luta treinada",
+      "month": "Setembro",
+      "page": 39,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
+      "description": "Em reação a um ataque corpo a corpo, gasta 2 PE e sua reação especial de defesa para contra-atacar. Recebe +5 de Defesa nesse ataque e, se o atacante errar, +5 no teste do contra-ataque. Requisitos: Agilidade 2 e Luta treinada."
+    },
+    {
+      "name": "Tiro Intuitivo",
+      "category": "Combatente",
+      "requires": "Pontaria veterana",
+      "month": "Setembro",
+      "page": 39,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
+      "description": "Ataques à distância sem usar a ação mirar recebem +2 na margem de ameaça. Pode gastar 2 PE para aumentar o multiplicador crítico em +1 e ignorar até RD 10 ao acertar. Requisito: Pontaria veterana."
+    },
+    {
+      "name": "Tática de Abordagem",
+      "category": "Combatente",
+      "requires": "INT 1; Tática veterana",
+      "month": "Setembro",
+      "page": 39,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
+      "description": "Em interlúdio, planeja uma cena futura com teste de Tática DT 25; recebe três dados de tática d6 ao passar, mais um para cada 5 pontos excedentes. Gasta os dados para aumentar testes, dano ou cura durante a situação planejada. Requisitos: Intelecto 1, Tática veterana."
     }
   ],
   "items": [
@@ -936,6 +1008,116 @@ window.NEX_ARQUIVOS={
       "page": 55,
       "description": "Arma tática de duas mãos: 2d10 de impacto mais 2d12 de Sangue, crítico 20/x4. Seu uso causa perda de PV ao portador. Acertos críticos podem impor uma condição debilitante ao alvo que falhe na resistência de Fortitude; os limites e o tratamento seguem as regras do suplemento.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 55"
+    },
+    {
+      "name": "Aríete Portátil",
+      "section": "Geral",
+      "tier": "0",
+      "spaces": 5,
+      "month": "Setembro",
+      "page": 42,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 42",
+      "description": "Item operacional de categoria 0 e cinco espaços. Oferece +10 em testes de arrombamento do sistema."
+    },
+    {
+      "name": "Capacete Tático",
+      "section": "Proteções",
+      "tier": "II",
+      "spaces": 1,
+      "month": "Setembro",
+      "page": 43,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
+      "description": "Proteção de categoria II e um espaço. Oferece Fortificação 25% contra dano adicional de acertos críticos ou furtivos."
+    },
+    {
+      "name": "Boroscópio Articulado",
+      "section": "Geral",
+      "tier": "I",
+      "spaces": 1,
+      "month": "Setembro",
+      "page": 43,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
+      "description": "Item operacional de categoria I e um espaço, usado no jogo para observar ambientes por câmera e realizar testes de Investigação e Percepção."
+    },
+    {
+      "name": "Rifle de Atirador Designado",
+      "section": "Armas",
+      "tier": "III",
+      "spaces": 3,
+      "month": "Setembro",
+      "page": 43,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
+      "description": "Arma de categoria III e três espaços, com estatísticas específicas de alcance e ataque no suplemento."
+    },
+    {
+      "name": "Drone de Combate Tático",
+      "section": "Geral",
+      "tier": "III",
+      "spaces": 2,
+      "month": "Setembro",
+      "page": 44,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 44",
+      "description": "Item operacional de categoria III e dois espaços. Funciona como um aliado drone especializado, com câmera e modalidades de ajuda."
+    },
+    {
+      "name": "Escudo Balístico LED",
+      "section": "Proteções",
+      "tier": "II",
+      "spaces": 2,
+      "month": "Setembro",
+      "page": 50,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 50",
+      "description": "Proteção de categoria II e dois espaços. Oferece bônus de Defesa, resistência balística, cobertura e iluminação conforme regras próprias."
+    },
+    {
+      "name": "Lançador de Granadas Portátil",
+      "section": "Armas",
+      "tier": "II",
+      "spaces": 1,
+      "month": "Setembro",
+      "page": 51,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 51",
+      "description": "Arma de categoria II e um espaço, variante compacta de arma presente nos suplementos anteriores."
+    },
+    {
+      "name": "Machado Tático",
+      "section": "Armas",
+      "tier": "II",
+      "spaces": 1,
+      "month": "Setembro",
+      "page": 51,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 51",
+      "description": "Arma tática de categoria II e um espaço, com opções de contra-ataque e bloqueio descritas na fonte."
+    },
+    {
+      "name": "Espingarda Serrada",
+      "section": "Armas",
+      "tier": "I",
+      "spaces": 1,
+      "month": "Setembro",
+      "page": 51,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 51",
+      "description": "Arma de categoria I e um espaço, com alcance e dano específicos no sistema."
+    },
+    {
+      "name": "Dardos Condutores",
+      "section": "Munições",
+      "tier": "I",
+      "spaces": 1,
+      "month": "Setembro",
+      "page": 52,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 52",
+      "description": "Munição de categoria I e um espaço, associada à Pistola Taser."
+    },
+    {
+      "name": "Pistola Taser",
+      "section": "Armas",
+      "tier": "II",
+      "spaces": 1,
+      "month": "Setembro",
+      "page": 52,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 52",
+      "description": "Arma de categoria II e um espaço, com efeito de eletricidade e condição de atordoamento no jogo."
     }
   ],
   "rules": [
@@ -1024,6 +1206,69 @@ window.NEX_ARQUIVOS={
       "page": 92,
       "source": "Arquivos Secretos · Julho/2026 · p. 92",
       "description": "Reúne restrições de deslocamento, respiração e combate em ambiente submerso."
+    },
+    {
+      "name": "Analisar Perigo (Tática)",
+      "month": "Setembro",
+      "page": 38,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 38",
+      "description": "Novo uso treinado de Tática: ação de movimento, teste DT 15 para bônus circunstancial +2 em testes e Defesa, aumentando +1 por cada 5 acima da DT. Uma vez por cena."
+    },
+    {
+      "name": "Regalias para Veículos",
+      "month": "Setembro",
+      "page": 42,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 42",
+      "description": "Novas opções para veículos operacionais: Central de Drones, Estação de Armas e Lançadores de Fumaça."
+    },
+    {
+      "name": "Aliado Drone",
+      "month": "Setembro",
+      "page": 44,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 44",
+      "description": "Drone de Combate Tático pode ajudar um personagem como aliado, com uma especialidade e uma habilidade de uso limitado por rodada."
+    },
+    {
+      "name": "Tipos de Drone",
+      "month": "Setembro",
+      "page": 45,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 45",
+      "description": "Modalidades de aliado: Drone Hacker, Atirador, Espião, Médico, Protetor, Utilitário e Inteligente."
+    },
+    {
+      "name": "Modificações para Drones",
+      "month": "Setembro",
+      "page": 47,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 47",
+      "description": "Oito modificações: Genial, Guardião, Observador, Versátil, Cirurgião, Codificador, Eficiente e Fuzilador. Aumentam a categoria e aprimoram modalidades de suporte."
+    },
+    {
+      "name": "Acumulando Efeitos de Drones",
+      "month": "Setembro",
+      "page": 48,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 48",
+      "description": "Regra para acumulação de bônus não idênticos e limitação de habilidades de aliados drone por rodada."
+    },
+    {
+      "name": "Regra Opcional: Limite de Aliados",
+      "month": "Setembro",
+      "page": 48,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 48",
+      "description": "Regra opcional que limita a quantidade de aliados simultâneos conforme a faixa de NEX e esclarece como acumular seus bônus."
+    },
+    {
+      "name": "Regra Opcional: Drones Complexos",
+      "month": "Setembro",
+      "page": 49,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 49",
+      "description": "Transforma drones em entidades de ficha simplificada, com PV, Defesa e deslocamento por categoria, sujeitas a movimentação e ataques na cena."
+    },
+    {
+      "name": "Modificações de Drones Complexos",
+      "month": "Setembro",
+      "page": 50,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 50",
+      "description": "Adapta as modificações de drones aos atributos de Defesa, PV, RD e deslocamento dos drones complexos."
     }
   ],
   "editions": [
@@ -1032,7 +1277,9 @@ window.NEX_ARQUIVOS={
     "Março",
     "Abril",
     "Maio",
-    "Junho"
+    "Junho",
+    "Julho",
+    "Setembro"
   ],
   "trails": [
     {
@@ -1161,6 +1408,58 @@ window.NEX_ARQUIVOS={
           "NEX 99% — Último estágio da especialização do Ocultista Monstruoso. A transformação alcança efeitos avançados ligados à duração e ao uso dos poderes e rituais do elemento escolhido. A aplicação depende das regras específicas dessa variante e não concede os efeitos das trilhas Monstruoso de outras classes."
         ]
       ]
+    },
+    {
+      "name": "Incursor",
+      "className": "Combatente",
+      "month": "Setembro",
+      "page": 40,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 40",
+      "stages": [
+        [
+          "Close Quarters Battle",
+          "NEX 10%: recebe treino em Tática (ou +2 caso treinado) e bônus de dano de armas de fogo equivalente ao bônus de Tática; ignora penalidade contra alvos engajados em corpo a corpo."
+        ],
+        [
+          "Especialista Tático",
+          "NEX 40%: recebe Tática de Abordagem sem exigir pré-requisitos; ao adquiri-la novamente, pode aprimorar os dados de tática gastando PE."
+        ],
+        [
+          "Proteger Reféns",
+          "NEX 65%: pode assumir um efeito negativo destinado a alguém próximo gastando 2 PE; com custo adicional, reduz pela metade o dano transferido."
+        ],
+        [
+          "Alvo-prioritário",
+          "NEX 99%: conhece o VD de inimigos visíveis e pode designar alvo prioritário por 5 PE; o efeito ofensivo depende do VD do alvo."
+        ]
+      ],
+      "description": "Combatente especializado em combate tático, proteção de aliados e identificação de ameaças."
+    },
+    {
+      "name": "Piloto de Drone",
+      "className": "Especialista",
+      "month": "Setembro",
+      "page": 41,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 41",
+      "stages": [
+        [
+          "Companheiro Drone",
+          "NEX 10%: recebe treinamento ou bônus em Pilotagem/Tecnologia e um Drone de Combate Tático vinculado à trilha, com reposição condicionada à disponibilidade da Ordem."
+        ],
+        [
+          "Drone em Combate",
+          "NEX 40%: pode gastar 3 PE para impedir dano ao drone; recebe duas modificações gratuitas de categoria."
+        ],
+        [
+          "Drone em Interlúdio",
+          "NEX 65%: protege o grupo durante interlúdio por 3 PE, melhora recuperação e recebe mais duas modificações."
+        ],
+        [
+          "Drone de Eficiência Máxima",
+          "NEX 99%: por uma ação padrão e 5 PE, estende a ajuda do drone a vários aliados próximos pela cena; ganha mais três modificações."
+        ]
+      ],
+      "description": "Especialista em comandar drones como aliados, tanto em exploração quanto no suporte à equipe."
     }
   ],
   "rituals": [
@@ -1202,6 +1501,112 @@ window.NEX_ARQUIVOS={
       "source": "Arquivos Secretos · Julho/2026 · p. 76",
       "description": "Ritual de Sangue que permite adquirir benefícios temporários associados às lembranças e características de uma pessoa. Sujeito às condições e restrições da fonte.",
       "ritualType": "Suporte"
+    }
+  ],
+  "members": [
+    {
+      "name": "Jason Bloom",
+      "month": "Setembro",
+      "page": 21,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 21",
+      "vd": 140,
+      "defense": 30,
+      "pv": 200,
+      "role": "Proteção de aliados e combate defensivo",
+      "kind": "NPC",
+      "status": "referência",
+      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+    },
+    {
+      "name": "Karen Brown",
+      "month": "Setembro",
+      "page": 23,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 23",
+      "vd": 160,
+      "defense": 33,
+      "pv": 240,
+      "role": "Atiradora de precisão e chefe de Confronto",
+      "kind": "NPC",
+      "status": "referência",
+      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+    },
+    {
+      "name": "Troy Walker",
+      "month": "Setembro",
+      "page": 25,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 25",
+      "vd": 140,
+      "defense": 29,
+      "pv": 180,
+      "role": "Combatente de linha de frente",
+      "kind": "NPC",
+      "status": "referência",
+      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+    },
+    {
+      "name": "Roy Stevens",
+      "month": "Setembro",
+      "page": 27,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 27",
+      "vd": 160,
+      "defense": 32,
+      "pv": 250,
+      "role": "Médico de campo e suporte",
+      "kind": "NPC",
+      "status": "referência",
+      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+    },
+    {
+      "name": "Stella Green",
+      "month": "Setembro",
+      "page": 29,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 29",
+      "vd": 140,
+      "defense": 29,
+      "pv": 190,
+      "role": "Piloto e mecânica",
+      "kind": "NPC",
+      "status": "referência",
+      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+    },
+    {
+      "name": "Arnold Strolley",
+      "month": "Setembro",
+      "page": 31,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 31",
+      "vd": 140,
+      "defense": 30,
+      "pv": 200,
+      "role": "Especialista em engenharia e equipamentos",
+      "kind": "NPC",
+      "status": "referência",
+      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+    },
+    {
+      "name": "Chloe Grey",
+      "month": "Setembro",
+      "page": 33,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 33",
+      "vd": 140,
+      "defense": 29,
+      "pv": 170,
+      "role": "Administração, investigação e apoio",
+      "kind": "NPC",
+      "status": "referência",
+      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+    },
+    {
+      "name": "Ryder Staten",
+      "month": "Setembro",
+      "page": 34,
+      "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 34",
+      "vd": 200,
+      "defense": 34,
+      "pv": 320,
+      "role": "Líder e coordenador do grupo",
+      "kind": "NPC",
+      "status": "referência",
+      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
     }
   ]
 };
