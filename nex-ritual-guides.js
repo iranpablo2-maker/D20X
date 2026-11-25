@@ -26,7 +26,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "terceiro olho|conhecimento|1": {
-    "description": "Revela sinais de atividade paranormal que normalmente estariam ocultos à visão. Ajuda a identificar presenças, fenômenos e detalhes sobrenaturais durante a investigação. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Cena.",
+    "description": "Durante a cena, permite perceber auras de rituais, criaturas e itens amaldiçoados em alcance longo e reconhecer seu elemento e intensidade. Uma ação de movimento permite examinar a capacidade paranormal de um ser visível em alcance médio. Discente (+2 PE): dura um dia. Verdadeiro (+5 PE): revela também seres e objetos invisíveis.",
     "kind": "Suporte"
   },
   "amaldicoar arma|energia|1": {
@@ -38,7 +38,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "coincidencia forcada|energia|1": {
-    "description": "Altera probabilidades em favor do alvo, fornecendo vantagem nos testes afetados pela versão. Pode ajudar em ações de perícia e situações arriscadas sem garantir sucesso automático. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Cena.",
+    "description": "O alvo recebe +2 em testes de perícia até o fim da cena. Discente (+2 PE; exige 2º círculo): afeta aliados escolhidos. Verdadeiro (+5 PE; exige 3º círculo e afinidade): afeta os aliados escolhidos e concede +5.",
     "kind": "Suporte"
   },
   "eletrocussao|energia|1": {
@@ -62,7 +62,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "cicatrizacao|morte|1": {
-    "description": "Fecha ferimentos e restaura pontos de vida ao alvo tocado. A quantidade recuperada depende dos dados da versão; o NEX mostra a rolagem, sem curar automaticamente outras fichas. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 ser; Duração: Instantânea.",
+    "description": "Ritual de toque que recupera 3d8+3 PV e envelhece o alvo em um ano. Discente (+2 PE; exige 2º círculo): cura 5d8+5. Verdadeiro (+9 PE; exige 4º círculo e afinidade com Morte): cura 7d8+7 em seres escolhidos no alcance curto.",
     "kind": "Cura"
   },
   "consumir manancial|morte|1": {
@@ -114,7 +114,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "cineraria|medo|1": {
-    "description": "Conjura uma névoa ligada ao Medo que interage com outros rituais na área. Seu uso muda condições de conjuração, mas não deve ser tratado como dano automático. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: Área: nuvem de 6m de raio; Duração: Cena.",
+    "description": "Cria uma névoa de raio 6m durante a cena. Dentro dela, a DT dos rituais aumenta em 5. Discente (+2 PE): também reduz o custo dos rituais em 2 PE. Verdadeiro (+5 PE): além do efeito normal, maximiza o dano dos rituais.",
     "kind": "Suporte"
   },
   "aprimorar mente|conhecimento|2": {
