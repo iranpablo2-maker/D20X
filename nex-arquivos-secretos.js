@@ -7,7 +7,7 @@ window.NEX_ARQUIVOS={
         "Ocultismo"
       ],
       "ability": "Mácula Ritualística",
-      "description": "Ao criar o personagem, escolha Sangue, Morte, Conhecimento ou Energia. Treina Ocultismo e uma perícia relacionada ao elemento: Fortitude para Sangue, Vontade para Morte ou Conhecimento, e Reflexos para Energia. Aprende um ritual de 1º círculo desse elemento, além do limite normal de rituais. Uma vez por cena pode conjurar esse ritual sem o custo básico de PE; aprimoramentos ainda custam PE. Em troca, recebe uma penalidade em resistências contra efeitos do elemento escolhido.",
+      "description": "Treina Ocultismo e Fortitude (Sangue), Vontade (Morte ou Conhecimento) ou Reflexos (Energia), conforme o elemento escolhido. Aprende um ritual de 1º círculo desse elemento, fora do limite de conhecidos. Uma vez por cena, pode conjurá-lo sem custo básico de PE, pagando aprimoramentos normalmente. Sofre −1d20 em resistências a efeitos do mesmo elemento.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 43",
       "month": "Janeiro",
       "page": 43,
@@ -20,7 +20,7 @@ window.NEX_ARQUIVOS={
         "Ocultismo"
       ],
       "ability": "Sofrimento de Sangue",
-      "description": "Treina Luta e Ocultismo. Sua resistência a dano mental começa em 2 e aumenta em 1 a cada dois rituais ou poderes paranormais de Sangue que possuir. Como desvantagem permanente, a qualidade de qualquer descanso é reduzida em uma categoria.",
+      "description": "Treina Luta e Ocultismo. RD mental inicial 2, acrescida de 1 para cada dois rituais ou poderes paranormais de Sangue conhecidos. Descanso luxuoso conta como confortável, confortável como normal e normal como precário.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 43",
       "month": "Janeiro",
       "page": 43,
@@ -33,7 +33,7 @@ window.NEX_ARQUIVOS={
         "Investigação"
       ],
       "ability": "Quem Não Arrisca, Não Petisca",
-      "description": "Aumenta a resistência a efeitos mentais e permite reagir melhor depois de falhar.",
+      "description": "Treina Crime e Investigação. +2 em resistências contra condições mentais ou de medo. Quando falha em uma dessas resistências, recebe +1d20 no próximo teste; o benefício expira no fim da cena e não se acumula consigo mesmo.",
       "source": "Arquivos Secretos · Abril/2026 · p. 64",
       "month": "Abril",
       "page": 64,
@@ -46,7 +46,7 @@ window.NEX_ARQUIVOS={
         "Tecnologia"
       ],
       "ability": "Registrar o Paranormal",
-      "description": "Registra manifestações paranormais e obtém benefícios ao enfrentar aquilo que já documentou.",
+      "description": "Treina Enganação e Tecnologia. Uma vez por cena, ação padrão e 2 PE registram criatura ou ritual conjurado na cena. Recebe +5 em testes de presença perturbadora de criaturas previamente registradas. Uma ação de interlúdio permite memorizar um ritual registrado até o próximo interlúdio. Círculos disponíveis conforme NEX: 1º em 5%, 2º em 25%, 3º em 55%, 4º em 85%.",
       "source": "Arquivos Secretos · Abril/2026 · p. 64",
       "month": "Abril",
       "page": 64,
@@ -59,7 +59,7 @@ window.NEX_ARQUIVOS={
         "Ocultismo"
       ],
       "ability": "Minha Teoria Absurda",
-      "description": "Formula hipóteses de investigação e recebe um benefício quando elas se confirmam.",
+      "description": "Treina Ciências e Ocultismo. Uma vez por missão investigativa, pode gastar dez minutos apresentando uma hipótese ao grupo antes de obter todas as respostas. Se ela estiver correta ao fim da missão, ganha +3 PE máximos e atuais.",
       "source": "Arquivos Secretos · Maio/2026 · p. 54",
       "month": "Maio",
       "page": 54,
@@ -72,7 +72,7 @@ window.NEX_ARQUIVOS={
         "Intuição"
       ],
       "ability": "Turno Invertido",
-      "description": "Treina Fortitude e Intuição. Uma vez por missão, pode receber os benefícios de dormir durante um interlúdio, sem precisar usar sua ação de interlúdio para dormir. Também recebe +2 em testes destinados a evitar a condição inconsciente.",
+      "description": "Treina Fortitude e Intuição. Uma vez por missão, durante um interlúdio, recebe o benefício de dormir sem gastar a ação correspondente. +2 nos testes contra efeitos que causariam inconsciência.",
       "source": "Arquivos Secretos · Maio/2026 · p. 54",
       "month": "Maio",
       "page": 54,
@@ -85,7 +85,7 @@ window.NEX_ARQUIVOS={
         "Ciências"
       ],
       "ability": "Existe uma Explicação",
-      "description": "Pode usar Ciências em lugar de Ocultismo em uma situação prevista pela origem.",
+      "description": "Treina Atualidades e Ciências. Ao testar Ocultismo, pode pagar 2 PE para substituir a perícia por Ciências.",
       "source": "Arquivos Secretos · Junho/2026 · p. 66",
       "month": "Junho",
       "page": 66,
@@ -98,7 +98,7 @@ window.NEX_ARQUIVOS={
         "Vontade"
       ],
       "ability": "Forças para Enfrentar",
-      "description": "Converte lembranças de experimentos em resistência temporária ao medo.",
+      "description": "Treina Fortitude e Vontade. Quando um elemento da cena remete ao trauma ficcional definido com o mestre, fica abalado. Pode gastar 2 PE para adquirir imunidade a efeitos de medo até o fim da cena, inclusive contra essa condição.",
       "source": "Arquivos Secretos · Junho/2026 · p. 66",
       "month": "Junho",
       "page": 66,
@@ -111,7 +111,7 @@ window.NEX_ARQUIVOS={
         "Pontaria"
       ],
       "ability": "Técnicas de Contenção",
-      "description": "Melhora manobras de combate mediante gasto de esforço.",
+      "description": "Treina Luta e Pontaria. Na regra de manobras de combate, 2 PE concedem +5 ao teste da manobra.",
       "source": "Arquivos Secretos · Junho/2026 · p. 66",
       "month": "Junho",
       "page": 66,
@@ -124,7 +124,7 @@ window.NEX_ARQUIVOS={
         "Ocultismo"
       ],
       "ability": "O Que Restou",
-      "description": "Treina Fortitude e Ocultismo. Escolhe Sangue, Morte, Conhecimento ou Energia e recebe resistência a dano 10 contra esse elemento. Na primeira exposição a uma manifestação desse elemento em cada cena, perde 3 pontos de Sanidade.",
+      "description": "Treina Fortitude e Ocultismo. Escolhe elemento exceto Medo; recebe RD 10 contra ele. O primeiro contato com uma manifestação desse elemento na cena custa 3 SAN.",
       "month": "Julho",
       "page": 80,
       "source": "Arquivos Secretos · Julho/2026 · p. 80",
@@ -137,7 +137,7 @@ window.NEX_ARQUIVOS={
         "Vontade"
       ],
       "ability": "Sussurros e Vultos",
-      "description": "Treina Intuição e Vontade. Ao fazer Diplomacia, Enganação, Intimidação ou Intuição, pode perder 2 pontos de Sanidade para somar +5 ao teste escolhido.",
+      "description": "Treina Intuição e Vontade. Pode gastar 2 SAN para obter +5 em um teste de Diplomacia, Enganação, Intimidação ou Intuição.",
       "month": "Julho",
       "page": 80,
       "source": "Arquivos Secretos · Julho/2026 · p. 80",
@@ -150,7 +150,7 @@ window.NEX_ARQUIVOS={
         "Pontaria"
       ],
       "ability": "Full Metal Jacket",
-      "description": "Treina Luta e Pontaria. Por 2 PE, permite ignorar uma penalidade em um teste dessas perícias que já esteja penalizado.",
+      "description": "Treina Luta e Pontaria. No jogo, ao realizar um teste dessas perícias sujeito a uma ou mais penalidades, pode pagar 2 PE para ignorar uma delas.",
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 38",
       "month": "Setembro",
       "page": 38,
@@ -173,7 +173,7 @@ window.NEX_ARQUIVOS={
         ]
       ],
       "ability": "Treinamento com Arsenal",
-      "description": "Escolha Luta e Fortitude ou Pontaria e Reflexos. Ganha proficiência com armas táticas e proteções leves; quando já possuir essas proficiências, progride para armas pesadas e proteções pesadas, respectivamente.",
+      "description": "Escolha Luta e Fortitude ou Pontaria e Reflexos como perícias treinadas. Recebe proficiência em armas táticas e proteções leves. Se já possuir uma dessas proficiências, ela é substituída pelo acesso à respectiva categoria pesada.",
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 38",
       "month": "Setembro",
       "page": 38,
@@ -1643,7 +1643,7 @@ window.NEX_ARQUIVOS={
       "element": "Energia",
       "month": "Abril",
       "page": 68,
-      "description": "Ritual de Energia de 2º círculo. Execução padrão; alcance curto e duração de 24 horas. Cria uma réplica que permanece ligada ao conjurador em um raio de 50 km. Dentro desse limite, é possível trocar de lugar com a cópia usando uma reação, com custo de Sanidade; o efeito termina caso ela sofra dano. Discente (+2 PE) permite duração permanente e observar pelos sentidos da cópia. Verdadeiro (+5 PE) permite falar por ela, mudar sua aparência e usar uma opção ofensiva ao dissipar o ritual. Consulte a fonte para os efeitos e resistências exatos.",
+      "description": "Energia 2. Padrão; curto; duração 24h. Cria duplicata em espaço livre, que repete movimentos simples e uma frase escolhida. O vínculo tem raio de 50 km. Uma reação troca a posição do conjurador e da cópia, custando 2d4 SAN. Termina se a cópia sofrer dano ou o conjurador deixar a área vinculada.\nDiscente (+2 PE, 2º círculo): permanente; ação padrão alterna a visão e audição para a cópia, deixando o conjurador cego, surdo e pasmo enquanto usa o efeito.\nVerdadeiro (+5 PE, 3º círculo): inclui o Discente; permite falar através da cópia e escolher aparência conhecida. Ao trocar de posição, pode encerrar o ritual causando 6d6 de Energia nos seres em alcance curto dos dois pontos (Reflexos metade).",
       "ritualType": "Suporte"
     },
     {
@@ -1652,7 +1652,7 @@ window.NEX_ARQUIVOS={
       "element": "Conhecimento",
       "month": "Junho",
       "page": 72,
-      "description": "Afeta a confiança e o desempenho do alvo durante a sustentação.",
+      "description": "Conhecimento 1. Padrão; curto; uma pessoa; sustentada; Vontade parcial. No início de cada turno do alvo, falhar na resistência exige repetir o maior dado de cada teste naquele turno. Dois sucessos consecutivos encerram o efeito.\nDiscente (+2 PE, 2º círculo): afeta um ser; além do normal, se falhar, não pode realizar ações hostis contra o conjurador.\nVerdadeiro (+5 PE, 3º círculo e afinidade): Vontade anula; substitui o efeito por repetir o menor dado de cada teste e aceitar o novo resultado. Quando um aliado adjacente é atacado, o alvo usa reação para receber o ataque no lugar dele. Um alvo involuntário pode testar Vontade no início dos turnos.",
       "ritualType": "Suporte"
     },
     {
@@ -1662,7 +1662,7 @@ window.NEX_ARQUIVOS={
       "otherElement": "Sangue",
       "month": "Janeiro",
       "page": 48,
-      "description": "Ritual de Sangue e Conhecimento, 2º círculo. Execução completa, alcance toque, alvo uma pessoa, duração de uma cena e resistência de Vontade para evitar. Permite projetar sua consciência para controlar o corpo do alvo ou trocar as consciências entre os dois corpos. Os atributos físicos acompanham o corpo ocupado; o controle e as possibilidades de resistência dependem da modalidade. Discente (+3 PE) amplia alcance e duração para curto e um dia, exigindo 2º círculo. Verdadeiro (+7 PE) aumenta o alcance para médio e torna a troca permanente, exigindo 4º círculo e afinidade. Consulte a ficha oficial para restrições específicas e interações com cada corpo.",
+      "description": "Sangue e Conhecimento 2. Completa; toque; uma pessoa; cena; Vontade evita. Na ficção, pode ocupar temporariamente o corpo do alvo, deixando o corpo original inconsciente, ou trocar as consciências. As fichas mantêm atributos mentais e passam a usar os atributos físicos do corpo ocupado, com características inatas a critério do mestre. Na ocupação unilateral, o alvo pode repetir Vontade no começo de seus turnos, ou mais vezes se o mestre permitir; sucesso devolve o controle. Na troca completa, não há nova resistência; termina pela duração ou nova conjuração. A morte de um corpo elimina a consciência que o ocupa; se o corpo original for perdido durante ocupação unilateral, o retorno não é possível.\nDiscente (+3 PE, 2º círculo): curto e um dia; na ocupação unilateral, resistência uma vez ao dia ou à cena, o que ocorrer mais vezes.\nVerdadeiro (+7 PE, 4º círculo e afinidade): médio, permanente; resistência unilateral uma vez ao ano.",
       "ritualType": "Suporte",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 48"
     },
@@ -1673,7 +1673,7 @@ window.NEX_ARQUIVOS={
       "month": "Julho",
       "page": 76,
       "source": "Arquivos Secretos · Julho/2026 · p. 76",
-      "description": "Ritual de Sangue que permite adquirir benefícios temporários associados às lembranças e características de uma pessoa. Sujeito às condições e restrições da fonte.",
+      "description": "Sangue 2. Completa; toque; uma pessoa; um dia. Efeito sobrenatural exclusivamente ficcional de transferência de memórias e capacidades. Cada benefício é utilizável uma vez por alvo e dura um dia, exceto recuperação instantânea de PV. A mesma pessoa não pode ser afetada novamente após o término.\nForma básica: Visão +2 em ataque; Audição acesso a um ritual de 1º círculo conhecido pelo alvo; Paladar recupera 3d8+3 PV; Olfato +5 para rastrear um ser ligado ao alvo; Tato concede treinamento em uma perícia conhecida pelo alvo ou +2 se já treinado.\nDiscente (+7 PE, 3º círculo): respectivamente +5, ritual de 2º círculo, 6d8+6 PV, +10, e grau veterano ou +4 se já veterano.\nVerdadeiro (+12 PE, 4º círculo e afinidade): respectivamente +10, ritual de 3º círculo, 9d8+9 PV, +15, e grau expert ou +6 se já expert.",
       "ritualType": "Suporte"
     }
   ],
