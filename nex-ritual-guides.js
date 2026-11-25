@@ -138,7 +138,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "chamas do caos|energia|2": {
-    "description": "Manipula fogo através da Energia, podendo alterar chamas e seu comportamento. É um poder de controle ambiental cujo uso depende do efeito selecionado. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: veja texto; Duração: Cena.",
+    "description": "Quatro efeitos de jogo: Chamejar acrescenta 1d6 de fogo ao dano de arma corpo a corpo; Esquentar causa 1d6 de fogo por rodada a objeto e portador, podendo ser encerrado com ação completa; Extinguir apaga chama Grande ou menor e cria fumaça de raio 3m, com camuflagem leve; Modelar move chama Grande ou menor até 9m por ação livre e causa 3d6 de fogo uma vez por rodada por ser atingido.",
     "kind": "Suporte"
   },
   "contencao fantasmagorica|energia|2": {
@@ -342,7 +342,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "esfolar|sangue|1": {
-    "description": "O Sangue fere o alvo diretamente, causando dano paranormal e possíveis condições associadas. A intensidade depende da versão e da resistência. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Instantânea; Resistência: Reflexos parcial.",
+    "description": "3d4+3 de corte e condição sangrando. Reflexos reduz dano à metade e evita a condição.",
     "kind": "Dano"
   },
   "sede de adrenalina|sangue|2": {
@@ -350,43 +350,43 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "odor da cacada|sangue|3": {
-    "description": "Concede faro. Nas perseguições em que o outro participante emite odores, +5 em Atletismo e a ação de esforço extra não reduz PV. Na cena seguinte, aplica a condição de fome e sede prevista no livro até satisfazer a necessidade.",
+    "description": "Concede faro. Nas perseguições em que o outro participante emite odores, Atletismo +5 e esforço extra não reduz PV. Na cena seguinte, aplica regras de fome e sede até satisfazer a necessidade.",
     "kind": "Suporte"
   },
   "martirio de sangue|sangue|4": {
-    "description": "Impõe ao corpo do conjurador uma transformação de Sangue que altera suas capacidades de combate. O efeito é poderoso, mas depende das condições e custos previstos. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Veja texto.",
+    "description": "Transformação ficcional: faro, visão no escuro, cura acelerada 10, ataque e dano corpo a corpo e Defesa +10, 30 PV temporários. Ataques desarmados recebem um dado adicional e podem causar dano letal de corte, impacto ou perfuração. Impede ações de concentração e impõe −3d20 em testes sociais. Ao final da cena, o personagem torna-se criatura de Sangue sob controle do mestre.",
     "kind": "Suporte"
   },
   "apagar as luzes|morte|1": {
-    "description": "Espalha uma influência de escuridão ligada à Morte, alterando a iluminação da cena. A ausência de luz pode prejudicar a percepção visual e favorecer ocultação, conforme as condições do ambiente. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Instantânea.",
+    "description": "Extingue iluminação natural e paranormal em alcance curto; cria penumbra ou escuridão conforme cenário. Obstruções temporárias persistem até o fim da cena. Conjurador recebe visão no escuro pela cena.",
     "kind": "Suporte"
   },
   "lingua morta|morte|2": {
-    "description": "Permite comunicação sobrenatural associada à Morte com interlocutores que normalmente seriam inacessíveis. As respostas e as possibilidades de diálogo dependem das condições do ritual. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 cadáver; Duração: Sustentada.",
+    "description": "Consulta sobrenatural a um cadáver humano na ficção: uma resposta por rodada sustentada, até três rodadas. As respostas dependem do mestre e estado do corpo, sem teste adicional. Encerrar antes do limite desfaz a manifestação; atingir o limite gera um Esqueleto de Lodo.",
     "kind": "Suporte"
   },
   "fedor putrido|morte|3": {
-    "description": "Faz o corpo ou a presença do conjurador exalar uma influência de deterioração. A manifestação pode afetar criaturas próximas e interferir na cena. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Sustentada.",
+    "description": "Estado sobrenatural: animais se afastam, Diplomacia −3d20, Furtividade +5 e Enganação +10 para fingir-se morto. Visibilidade diminui em 1 enquanto parado nas cenas de furtividade. Não concede imunidade a doenças nem elimina necessidades biológicas. Cada rodada ativa causa 1d4 de Morte ignorando RD.",
     "kind": "Suporte"
   },
   "singularidade temporal|morte|4": {
-    "description": "Distorce intensamente a passagem do tempo sobre um alvo ou objeto. As consequências temporais e sua duração seguem os limites do ritual. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 objeto não paranormal Médio; Duração: Instantânea; Resistência: veja texto.",
+    "description": "Envelhece sobrenaturalmente objeto não paranormal Médio até estado de deterioração definido pelo mestre: danificado (−5 em testes com ele) ou destruído, conforme sua natureza. Portador pode proteger objeto em uso com Fortitude.",
     "kind": "Suporte"
   },
   "desfazer sinapses|conhecimento|1": {
-    "description": "Interrompe funções mentais ou nervosas do alvo com Conhecimento, causando dano. O efeito ofensivo depende dos testes e da versão escolhida. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Instantânea; Resistência: Vontade parcial.",
+    "description": "Alvo com cérebro sofre 2d6+2 de Conhecimento e fica frustrado por uma rodada. Vontade reduz dano à metade e evita condição.",
     "kind": "Dano"
   },
   "aurora da verdade|conhecimento|2": {
-    "description": "Revela ou destaca informações que estavam escondidas por efeitos sobrenaturais. É útil para investigação e para identificar enganos, conforme as limitações. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: Área: esfera com 3m de raio; Duração: Sustentada; Resistência: Vontade parcial.",
+    "description": "Na esfera de raio 3m, todos, incluindo conjurador, devem falar a verdade salvo sucesso em Vontade. Intuição ainda pode detectar mentiras. Revela seres ocultos, invisíveis ou camuflados dentro da luz.",
     "kind": "Suporte"
   },
   "relembrar fragmento|conhecimento|3": {
-    "description": "Recupera traços de informação danificada ou perdida por meio do Conhecimento. Pode auxiliar a recompor pistas, sem garantir recuperar qualquer registro. Parâmetros: Execução: Padrão; Alcance: Toque; Alvo/área: 1 objeto; Duração: Instantânea.",
+    "description": "Restaura temporariamente documento escrito danificado até sua última anotação, mesmo a partir de pequeno fragmento. Mantém-se restaurado enquanto tocado; não funciona em documentos destruídos por meios paranormais.",
     "kind": "Suporte"
   },
   "pronunciar sigilo|conhecimento|4": {
-    "description": "Emite uma manifestação sonora do Conhecimento com efeito paranormal sobre o alvo. Os resultados dependem da versão e da resistência aplicável. Parâmetros: Execução: Padrão; Alcance: Curto; Alvo/área: 1 ser; Duração: Instantânea/veja texto; Resistência: Vontade parcial.",
+    "description": "Esquecer: atordoado por 1d4+1 rodadas uma vez por cena; Vontade bem-sucedida ou repetição aplica desprevenido por 1d4. Cegar: cego ou ofuscado por 1d4 se resistido. Inexistir: remove temporariamente da cena por 1d4+1 rodadas, ou uma se resistido, uma vez por cena; retorna ao espaço original ou adjacente livre. Criatura pode retornar em ponto escolhido num raio de 18m.",
     "kind": "Suporte"
   },
   "overclock|energia|1": {
@@ -394,7 +394,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "tremeluzir|energia|2": {
-    "description": "Desestabiliza momentaneamente a manifestação visível do corpo do alvo. Pode dificultar a percepção ou a interação com ele durante o efeito. Parâmetros: Execução: Padrão; Alcance: Pessoal; Alvo/área: você; Duração: Sustentada.",
+    "description": "Permite atravessar matéria sólida por efeito sobrenatural, com ação de movimento por objeto e falha em 1 de 1d4. Em perseguição, permite cortar caminho sem penalidade em Atletismo. Cada rodada causa 1d4 de Energia ignorando RD e mais 1d4 se terminar dentro de matéria sólida.",
     "kind": "Suporte"
   },
   "mutar|energia|3": {
@@ -402,7 +402,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "milagre ionizante|energia|3": {
-    "description": "Emprega Energia paranormal para restaurar vitalidade de maneira extraordinária. A cura depende da versão e dos dados informados. Parâmetros: Execução: Completa; Alcance: Toque; Alvo/área: 1 ser; Duração: Instantânea.",
+    "description": "Remove uma condição dentre abalado, apavorado, alquebrado, atordoado, cego, confuso, debilitado, enjoado, envenenado, esmorecido, exausto, fascinado, fatigado, fraco, frustrado, lento, ofuscado, paralisado, pasmo e surdo, ou doença ou veneno. Não afeta condições permanentes ou efeitos paranormais de Energia. Após a cura, Fortitude DT 30; falha aplica incubação de infectcídio na ficção.",
     "kind": "Cura"
   }
 };
