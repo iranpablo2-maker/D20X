@@ -54,5 +54,5 @@ if(kind==="item"&&/amaldi[cç]oad/.test(norm(extra.section)))kind="curse";
 return {name,book,page:sectionPages[book]?.[kind]||0,exact:false};
 }
 window.NEX_SOURCE_REFERENCE=reference;
-window.NEX_SOURCE_LINK=()=>"";
+window.NEX_SOURCE_LINK=()=>'';
 })();
