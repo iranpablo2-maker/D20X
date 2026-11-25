@@ -5,6 +5,28 @@ const by=id=>document.getElementById(id);
 const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('pt-BR');
 const sources=['Itens','Itens Homebrew'];
+const cursedSection='Itens Amaldiçoados';
+const cursedFilters=['Todos','Armas Amaldiçoadas','Proteções Amaldiçoadas','Munições Amaldiçoadas','Itens Paranormais'];
+const paranormalNames=new Set(['Ligação Direta Infernal','Medidor de Condição Vertebral','Pé de Morto','Pendrive Selado','Valete da Salvação'].map(norm));
+function cursedGroup(item){
+ const name=norm(item.name), subtitle=norm(item.subtitle);
+ const category=norm((item.stats||[]).find(s=>norm(s[0])==='categoria')?.[1]);
+ const kind=[subtitle,category,norm(item.cursedGroup||'')].join(' ');
+ const cursed=item.section===cursedSection||/amaldicoad/.test(kind);
+ if(cursed){
+  if(/munic|projetil de lodo/.test(name)||/munic/.test(kind))return cursedFilters[3];
+  if(/protecao|armadura|escudo|colete/.test(kind)||/^(protecao|armadura|escudo|colete|peitoral da segunda chance|casaco de lodo|jaqueta de verissimo)( |$)/.test(name))return cursedFilters[2];
+  if(/\barmas?\b/.test(kind)||/^(fuzil alheio|a primeira adaga|dupla obsessiva)( |$)/.test(name))return cursedFilters[1];
+  return cursedFilters[4];
+ }
+ if(item.section==='Geral'&&(
+  /item paranormal|catalisador ritualistico/.test(subtitle)||
+  /^(componentes ritualisticos|catalisador ritualistico|amarras de |camera de aura paranormal|emissor de pulsos paranormais|escuta de ruidos paranormais|medidor de estabilidade da membrana|scanner de manifestacao paranormal)/.test(name)||
+  paranormalNames.has(name)
+ ))return cursedFilters[4];
+ return '';
+}
+function catalogSection(item){return cursedGroup(item)?cursedSection:item.section;}
 const sections=['Armas','Munições','Proteções','Geral','Itens Amaldiçoados'];
 const mapCategory={'Armas':'Arma','Munições':'Munição','Proteções':'Proteção','Geral':'Geral','Itens Amaldiçoados':'Item Amaldiçoado'};
 const items=[];
@@ -138,6 +160,9 @@ style.textContent=[
 '#nexItemModal .nex-item-categories{display:flex;gap:10px;overflow-x:auto;white-space:nowrap;padding:7px 18px 10px;scrollbar-width:thin}',
 '#nexItemModal .nex-item-category-button{border:1px solid #5f4143;border-radius:3px;color:#e4c4c7;background:#181519;padding:7px 12px;font-size:12px}',
 '#nexItemModal .nex-item-category-button[aria-selected="true"]{border-color:#ff5361;background:#a0333c;color:#fff}',
+'#nexItemModal .nex-item-cursed-filters{display:flex;flex:0 0 auto;flex-wrap:wrap;gap:6px;padding:0 18px 9px}',
+'#nexItemModal .nex-item-cursed-filters[hidden]{display:none!important}',
+'@media(max-width:600px){#nexItemModal .nex-item-cursed-filters{padding:0 10px 7px;gap:5px}#nexItemModal .nex-item-cursed-filters button{font-size:11px;padding:5px 7px;min-height:27px!important}}',
 '#nexItemModal .nex-item-search-wrap{padding:14px 16px 9px}',
 '#nexItemModal #nexItemModalSearch{width:100%;border:0;border-radius:3px;background:#101010;color:#fff;height:42px;padding:8px 13px;font-size:16px}',
 '#nexItemModal .nex-item-results{overflow-y:auto;flex:1;min-height:180px;padding:6px 16px 18px;overscroll-behavior:contain}',
@@ -166,22 +191,25 @@ modal.innerHTML='<section class="nex-item-dialog" role="dialog" aria-modal="true
 '<div class="nex-item-tabs" role="tablist" aria-label="Tipo de item">'+sources.map((c,i)=>'<button type="button" class="nex-item-tab" role="tab" data-source="'+escape(c)+'" aria-selected="'+String(i===0)+'">'+escape(c)+'</button>').join('')+'</div>'+ 
 '<div class="nex-item-category-label">CATEGORIAS</div>'+ 
 '<div class="nex-item-categories" role="tablist" aria-label="Categorias de itens">'+sections.map((c,i)=>'<button type="button" class="nex-item-category-button" role="tab" data-cat="'+escape(c)+'" aria-selected="'+String(i===0)+'">'+escape(c)+'</button>').join('')+'</div>'+ 
+'<div class="nex-item-cursed-filters" role="tablist" aria-label="Categorias de itens amaldiçoados" hidden>'+cursedFilters.map((c,i)=>'<button type="button" class="nex-item-category-button" role="tab" data-cursed="'+escape(c)+'" aria-selected="'+String(i===0)+'">'+escape(c)+'</button>').join('')+'</div>'+
 '<div class="nex-item-search-wrap"><input type="search" id="nexItemModalSearch" placeholder="⌕  Buscar" aria-label="Buscar itens"></div>'+ 
 '<div class="nex-item-count" id="nexItemCatalogCount" aria-live="polite"></div>'+ 
 '<div id="nexItemModalResults" class="nex-item-results" aria-live="polite"></div>'+ 
 '</section>';
 document.body.appendChild(modal);
 const search=by('nexItemModalSearch'),results=by('nexItemModalResults');
-let selectedSource='Itens',selected='Armas',lastFocus=null,renderedItems=[];
+let selectedSource='Itens',selected='Armas',selectedCursed='Todos',lastFocus=null,renderedItems=[];
 function render(){
  modal.querySelectorAll('[data-source]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.source===selectedSource)));
  modal.querySelectorAll('[data-cat]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.cat===selected)));
+ modal.querySelector('.nex-item-cursed-filters').hidden=selected!==cursedSection;
+ modal.querySelectorAll('[data-cursed]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.cursed===selectedCursed)));
  const term=norm(search.value.trim());
  const visible=selectedSource==='Itens'?items:homebrewItems();
- const list=visible.filter(i=>i.section===selected&&norm([i.name,i.description,i.subtitle,i.source,...i.stats.map(s=>s.join(' '))].join(' ')).includes(term));
+ const list=visible.filter(i=>catalogSection(i)===selected&&(selected!==cursedSection||selectedCursed==='Todos'||cursedGroup(i)===selectedCursed)&&norm([i.name,i.description,i.subtitle,i.source,...i.stats.map(s=>s.join(' '))].join(' ')).includes(term));
  renderedItems=list;
  const countLabel=by('nexItemCatalogCount');
- if(countLabel)countLabel.textContent=list.length+' '+(list.length===1?'item encontrado':'itens encontrados')+' em '+selected+' · '+selectedSource;
+ if(countLabel)countLabel.textContent=list.length+' '+(list.length===1?'item encontrado':'itens encontrados')+' em '+(selected===cursedSection&&selectedCursed!=='Todos'?selectedCursed:selected)+' · '+selectedSource;
  results.innerHTML=list.length?list.map(item=>{
    const index=list.indexOf(item);
    const categoryStat=String((item.stats||[]).find(x=>norm(x[0])==='categoria')?.[1]||'0');
@@ -198,7 +226,7 @@ function render(){
    '<div class="nex-item-detail" hidden><div class="nex-item-detail-source">'+escape(item.source||'Equipamento')+'</div><div>'+escape(item.description||window.NEX_ITEM_DESCRIBE?.(item)||'Descrição personalizada não cadastrada.')+'</div></div></article>';
  }).join(''):'<div class="nex-item-empty">'+(selectedSource==='Itens Homebrew'?'Nenhum item homebrew nesta categoria. Cadastre um na biblioteca Homebrew.':'Nenhum item encontrado nesta categoria.')+'</div>';
 }
-function open(){lastFocus=document.activeElement;selectedSource='Itens';selected='Armas';search.value='';render();modal.hidden=false;document.body.classList.add('nex-item-modal-open');search.focus();}
+function open(){lastFocus=document.activeElement;selectedSource='Itens';selected='Armas';selectedCursed='Todos';search.value='';render();modal.hidden=false;document.body.classList.add('nex-item-modal-open');search.focus();}
 function close(){modal.hidden=true;document.body.classList.remove('nex-item-modal-open');lastFocus?.focus?.();}
 function add(index){
  const item=renderedItems[index];if(!item)return;
@@ -232,7 +260,8 @@ modal.addEventListener('click',event=>{
  const button=event.target.closest('button');if(!button)return;
  if(button.classList.contains('nex-item-close')){close();return;}
  if(button.dataset.source){selectedSource=button.dataset.source;search.value='';render();return;}
- if(button.dataset.cat){selected=button.dataset.cat;search.value='';render();return;}
+ if(button.dataset.cat){selected=button.dataset.cat;selectedCursed='Todos';search.value='';render();return;}
+ if(button.dataset.cursed){selectedCursed=button.dataset.cursed;search.value='';render();return;}
  if(button.dataset.add!==undefined){add(Number(button.dataset.add));return;}
  if(button.dataset.expand!==undefined){
   const card=button.closest('.nex-item-card'),detail=card.querySelector('.nex-item-detail');
