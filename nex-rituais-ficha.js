@@ -164,14 +164,14 @@ function render(){
   const blocked=state.class==='Ocultista'&&Number(r.circle)>circleAccess();
   return '<article class="nex-ritual-card" data-ritual-element="'+esc(String(r.element||'Conhecimento').trim())+'"><details><summary><span class="nex-ritual-arrow">⌃</span>'+nexRitualArtHTML(r)+'<strong>'+esc(r.name)+'</strong></summary>'+
    '<div class="nex-ritual-detail"><div class="nex-ritual-pill nex-ritual-'+esc(r.element)+'">'+esc(r.element).toUpperCase()+' '+esc(r.circle)+'</div>'+
-   '<p class="nex-ritual-summary">'+esc(shortRitualEffect(d.guide||d.note||d.description))+'</p>'+
+   '<p class="nex-ritual-summary">'+esc(d.guide||d.note||d.description||'')+'</p>'+
    '<p class="nex-ritual-params">'+ritualParamLine(d)+'</p>'+
    (d.resistance?'<p class="nex-ritual-resistance">'+lines('Resistência',d.resistance)+'</p>':'')+
    (d.summaryKind?'<small class="nex-ritual-summary-kind">'+esc(d.summaryKind)+'</small>':'')+
    (d.discente?'<p class="nex-ritual-enhance"><b>Discente:</b> '+esc(d.discente)+'</p>':'')+
    (d.verdadeiro?'<p class="nex-ritual-enhance"><b>Verdadeiro:</b> '+esc(d.verdadeiro)+'</p>':'')+
    '<div class="nex-ritual-actions"><button type="button" data-ritual-remove="'+esc(r.id)+'">Remover</button><button type="button" data-ritual-edit="'+esc(r.id)+'">Editar</button></div>'+
-   '<small>'+esc(d.source||'Ritual personalizado')+' · '+esc(cost)+' PE'+(blocked?' · Círculo acima do disponível':'')+'</small></div></details></article>';
+   '<small>'+esc(d.source||'Ritual personalizado')+' · '+esc(cost)+' PE'+(blocked?' · Círculo acima do disponível':'')+'</small>'+(window.NEX_SOURCE_LINK?.(r.name,d.source,'ritual',d)||'')+'</div></details></article>';
  }).join(''):'<p class="nex-ritual-hint">Nenhum ritual aprendido. Clique em Adicionar para escolher um.</p>';
  refreshCasting();
 }
