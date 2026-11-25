@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0c0e"><title>NEX | Sistema de fichas</title><script src="./nex-roll-popup.js?v=20261121transparentd20"></script><script id="nex-f5-restore-boot">
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0b0c0e"><title>D20X | Plataforma Universal de RPG</title><script src="./nex-roll-popup.js?v=20261121transparentd20"></script><script id="nex-f5-restore-boot">
 (function(){
  try{
   const nav=JSON.parse(sessionStorage.getItem('nex_navigation_screen_v1')||'null');
@@ -2203,7 +2203,7 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 </head><body>
 <script src="nex-sobrevivendo-ao-horror.js?v=20261125revisao40"></script>
 <script src="nex-arquivos-secretos.js?v=20261125revisao136"></script>
-<header class="topbar"><div class="topinner"><button type="button" id="n17MenuToggle" class="n17-menu-button" aria-expanded="false" aria-controls="n17Drawer" aria-label="Abrir menu">☰</button><button type="button" class="brand" id="nexBrandHome" aria-label="Voltar ao menu principal" title="Voltar ao menu principal"><span class="brand-mark" aria-hidden="true">◈</span><span><h1>NEX</h1><span class="subtitle">SISTEMA DE FICHAS · ORDEM PARANORMAL</span></span></button><div class="actions"><button type="button" id="nexAccountOpen" class="btn sm" style="display:inline-flex!important;align-items:center;justify-content:center;background:#8c2534;color:white;border:1px solid #c64657;border-radius:7px;min-height:36px;padding:6px 12px;font-weight:750;white-space:nowrap">Conta NEX</button><button class="btn sm" id="menuHeaderButton" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">⌂ Menu principal</button><button class="btn sm" id="newChar" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">＋ Nova ficha</button><button class="btn sm" id="importBtn" style="display:none!important" aria-hidden="true" tabindex="-1">Importar</button><button class="btn sm" id="exportBtn" style="display:none!important" aria-hidden="true" tabindex="-1">↓ Exportar</button><input type="file" id="fileInput" accept="application/json,.json" hidden><span id="n17SaveIndicator" hidden aria-hidden="true"></span></div></div></header>
+<header class="topbar"><div class="topinner"><button type="button" id="n17MenuToggle" class="n17-menu-button" aria-expanded="false" aria-controls="n17Drawer" aria-label="Abrir menu">☰</button><button type="button" class="brand" id="nexBrandHome" aria-label="Voltar ao menu principal" title="Voltar ao menu principal"><span class="brand-mark" aria-hidden="true">◈</span><span><h1>D20X</h1><span class="subtitle">SISTEMA DE FICHAS · ORDEM PARANORMAL</span></span></button><div class="actions"><button type="button" id="nexAccountOpen" class="btn sm" style="display:inline-flex!important;align-items:center;justify-content:center;background:#8c2534;color:white;border:1px solid #c64657;border-radius:7px;min-height:36px;padding:6px 12px;font-weight:750;white-space:nowrap">Conta D20X</button><button class="btn sm" id="menuHeaderButton" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">⌂ Menu principal</button><button class="btn sm" id="newChar" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">＋ Nova ficha</button><button class="btn sm" id="importBtn" style="display:none!important" aria-hidden="true" tabindex="-1">Importar</button><button class="btn sm" id="exportBtn" style="display:none!important" aria-hidden="true" tabindex="-1">↓ Exportar</button><input type="file" id="fileInput" accept="application/json,.json" hidden><span id="n17SaveIndicator" hidden aria-hidden="true"></span></div></div></header>
 <nav class="nex-ref-nav" aria-label="Navegação principal">
  <div class="nex-ref-nav-inner">
   <button type="button" data-nexnav="agents">Personagens</button>
@@ -2217,20 +2217,20 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 
 <div id="n17DrawerBackdrop" class="n17-drawer-backdrop" aria-hidden="true"></div>
 <aside id="n17Drawer" class="n17-drawer" aria-label="Menu de navegação" aria-hidden="true">
-<button class="n17-close" type="button" id="n17Close" aria-label="Fechar menu">×</button><h2>NEX</h2><p>SISTEMA DE FICHAS</p>
+<button class="n17-close" type="button" id="n17Close" aria-label="Fechar menu">×</button><h2>D20X</h2><p>SISTEMA DE FICHAS</p>
 <button type="button" data-n17-action="home">⌂ &nbsp; Menu principal</button>
 <button type="button" data-n17-action="agents">♙ &nbsp; Meus personagens</button>
 <button type="button" data-n17-action="new">＋ &nbsp; Criar personagem</button>
 <button type="button" data-n17-action="campaigns">◎ &nbsp; Campanhas</button>
 <button type="button" data-n17-action="threats">◈ &nbsp; Ameaças</button>
 <button type="button" data-n17-action="homebrew">✧ &nbsp; Homebrew</button>
-<button type="button" data-n17-action="account">◈ &nbsp; Conta NEX</button>
+<button type="button" data-n17-action="account">◈ &nbsp; Conta D20X</button>
 
 </aside>
 
-<section id="mainMenu" aria-label="Menu principal NEX">
- <div class="home-hero"><div class="home-eyebrow">PLATAFORMA DE PERSONAGENS</div><h2>NEX</h2><p>Organize personagens, crie campanhas e jogue RPG de mesa em um único lugar.</p><div class="actions"><button class="home-action" type="button" id="menuNew">＋ Criar personagem</button><button class="home-action secondary" type="button" id="menuContinue" style="display:none!important" hidden tabindex="-1" aria-hidden="true">Abrir ficha atual →</button></div></div>
- <aside id="nexCommunityNotice" aria-label="Licença e avisos" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:16px 0;padding:16px;border:1px solid #62353a;border-radius:8px;background:#171315;color:#f0e6e6"><div style="flex:1 1 240px;min-width:0;line-height:1.6"><strong style="font-size:15px">NEX — projeto independente, não oficial e não canônico</strong><p style="font-weight:700;color:#fff;margin:4px 0">Contém material gerado por inteligência artificial.</p><p>Temas sensíveis: terror e violência fictícia. Não existe parceria ou endosso dos titulares da obra original.</p><p><a href="https://ordemparanormal.com.br/licenca" target="_blank" rel="noopener noreferrer" style="color:#ff9da5">Licença da Comunidade</a> · <a href="./licenca-nex.html" style="color:#ff9da5">Licença, direitos e privacidade</a></p></div></aside>
+<section id="mainMenu" aria-label="Menu principal D20X">
+ <div class="home-hero"><div class="home-eyebrow">PLATAFORMA DE PERSONAGENS</div><h2>D20X</h2><p>Organize personagens, crie campanhas e jogue RPG de mesa em um único lugar.</p><div class="actions"><button class="home-action" type="button" id="menuNew">＋ Criar personagem</button><button class="home-action secondary" type="button" id="menuContinue" style="display:none!important" hidden tabindex="-1" aria-hidden="true">Abrir ficha atual →</button></div></div>
+ <aside id="nexCommunityNotice" aria-label="Licença e avisos" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin:16px 0;padding:16px;border:1px solid #62353a;border-radius:8px;background:#171315;color:#f0e6e6"><div style="flex:1 1 240px;min-width:0;line-height:1.6"><strong style="font-size:15px">D20X — projeto independente, não oficial e não canônico</strong><p style="font-weight:700;color:#fff;margin:4px 0">Contém material gerado por inteligência artificial.</p><p>Temas sensíveis: terror e violência fictícia. Não existe parceria ou endosso dos titulares da obra original.</p><p><a href="https://ordemparanormal.com.br/licenca" target="_blank" rel="noopener noreferrer" style="color:#ff9da5">Licença da Comunidade</a> · <a href="./licenca-nex.html" style="color:#ff9da5">Licença, direitos e privacidade</a></p></div></aside>
  <div class="home-section-heading"><h2>Central de operações</h2></div>
  <div class="home-grid"><button class="home-tile" data-home="agents"><span class="symbol">♙</span><strong>Meus personagens</strong><small>Visualize, abra e gerencie fichas de personagens.</small></button><button class="home-tile" data-home="new"><span class="symbol">＋</span><strong>Criar personagem</strong><small>Escolha o sistema de RPG da sua ficha.</small></button><button class="home-tile" type="button" id="nexUniversalSheets"><span class="symbol">▤</span><strong>Fichas universais</strong><small>Gerencie fichas manuais de diferentes sistemas.</small></button><button class="home-tile" data-home="campaigns"><span class="symbol">◎</span><strong>Campanhas</strong><small>Crie mesas, convide amigos e acompanhe as fichas na mesma campanha.</small></button><button class="home-tile" data-home="threats"><span class="symbol">◈</span><strong>Ameaças</strong><small>Consulte criaturas por livro e elemento.</small></button><button class="home-tile" data-home="homebrew"><span class="symbol">✧</span><strong>Homebrew</strong><small>Crie e edite origens personalizadas na biblioteca independente.</small></button></div>
  <div class="home-section-heading" id="agentsHeading"><h2>Personagens registrados</h2><div class="home-toolbar"><button class="btn sm" id="menuBackup" style="display:none!important" aria-hidden="true" tabindex="-1">↓ Exportar ficha atual</button><button class="btn sm" id="menuImport" style="display:none!important" aria-hidden="true" tabindex="-1">↑ Importar ficha</button></div></div>
@@ -2239,7 +2239,7 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 <section id="agentsPanel" class="hide agents-panel" aria-label="Personagens salvos">
  <div class="agents-panel-header">
   <div>
-   <div class="home-eyebrow">CONTA NEX · PERSONAGENS</div>
+   <div class="home-eyebrow">CONTA D20X · PERSONAGENS</div>
    <h2>Personagens</h2>
    <p>Abra, duplique e gerencie suas fichas em um painel visual inspirado no estilo da referência que você enviou.</p>
   </div>
@@ -2271,14 +2271,14 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 </details>
 </section>
 <section id="threatsPanel" class="hide" aria-label="Biblioteca de Ameaças">
- <iframe id="nexThreatLibrary" title="Biblioteca de Ameaças NEX" data-src="./ameacas.html?v=20261125direitos2" loading="lazy" scrolling="no"></iframe>
+ <iframe id="nexThreatLibrary" title="Biblioteca de Ameaças D20X" data-src="./ameacas.html?v=20261125d20x1" loading="lazy" scrolling="no"></iframe>
 </section>
 <section id="campaignPanel" class="hide" aria-label="Campanhas">
  <div class="home-toolbar"><button class="btn" id="campaignBack">← Menu principal</button></div>
  <div class="home-section-heading"><h2>Campanhas</h2><span class="home-tag">MESAS E PERSONAGENS</span></div>
  <p class="muted" style="margin:4px 0 16px">Crie sua campanha, autorize jogadores e acompanhe as fichas na mesma sala. Todos os participantes podem visualizar; somente o dono e o mestre podem editar.</p>
  <div class="nex-campaign-integrated" aria-label="Área de campanhas online">
-  <iframe id="nexCampaignRoomFrame" title="Campanhas online do NEX" data-src="./multiplayer.html?integrado=1&v=20261125direitos2" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen" allowfullscreen></iframe>
+  <iframe id="nexCampaignRoomFrame" title="Campanhas online do D20X" data-src="./multiplayer.html?integrado=1&v=20261125d20x1" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen" allowfullscreen></iframe>
  </div>
  <details class="nex-campaign-legacy">
   <summary>Campanhas salvas neste dispositivo <span class="muted">(modo local anterior)</span></summary>
@@ -3335,7 +3335,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  }
  function openEditableCampaignSheet(data,details={}){
   if(!data||typeof data!=='object'||Array.isArray(data)||!details.sheetId)return;
-  if(!window.NEX_ACCOUNT_USER){toast('Entre na conta NEX para editar personagens.');return;}
+  if(!window.NEX_ACCOUNT_USER){toast('Entre na conta D20X para editar personagens.');return;}
   if(nexCampaignLiveEdit)finishCampaignLiveEdit();
   const backup=JSON.parse(JSON.stringify(state));
   const before=active;
@@ -3389,13 +3389,13 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    const status=document.getElementById('nex29SheetSaveIndicator');
    if(status){
     const loggedIn=!!window.NEX_ACCOUNT_USER;
-    status.textContent=loggedIn?'◌ Aguardando sincronização com a conta NEX':localSaved?'● Cópia temporária neste navegador':'⚠ Entre na conta NEX';
+    status.textContent=loggedIn?'◌ Aguardando sincronização com a conta D20X':localSaved?'● Cópia temporária neste navegador':'⚠ Entre na conta D20X';
     status.style.color=loggedIn?'#e5bf79':localSaved?'#e5bf79':'#ff9a9f';
    }
-   showStorageStatus(localSaved||saving,window.NEX_ACCOUNT_USER?'Aguardando confirmação do salvamento na conta NEX':localSaved?'Cópia temporária no navegador · entre na conta NEX':'Entre na sua conta NEX para salvar');
+   showStorageStatus(localSaved||saving,window.NEX_ACCOUNT_USER?'Aguardando confirmação do salvamento na conta D20X':localSaved?'Cópia temporária no navegador · entre na conta D20X':'Entre na sua conta D20X para salvar');
    if(show){
-     if(window.NEX_ACCOUNT_USER)toast('Enviando alterações para a conta NEX…');
-     else toast('Entre na sua conta NEX para salvar na nuvem.');
+     if(window.NEX_ACCOUNT_USER)toast('Enviando alterações para a conta D20X…');
+     else toast('Entre na sua conta D20X para salvar na nuvem.');
    }
    return localSaved||saving;
  }
@@ -3417,7 +3417,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
     return true;
    }
    if(!window.NEX_ACCOUNT_USER||!window.NEX_ACCOUNT_SYNC_READY){
-    if(show)toast('Entre na conta NEX e aguarde a sincronização.');
+    if(show)toast('Entre na conta D20X e aguarde a sincronização.');
     return false;
    }
    if(show)captureDisplayedFields();
@@ -3713,7 +3713,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    rehydrate();
    clone=original.cloneNode(true);
    clone.classList.remove('hide');
-   clone.setAttribute('aria-label',description.canEdit?'Ficha de campanha — edição autorizada':'Ficha NEX compartilhada — somente leitura');
+   clone.setAttribute('aria-label',description.canEdit?'Ficha de campanha — edição autorizada':'Ficha D20X compartilhada — somente leitura');
    clone.classList.add('nex-shared-sheet-static');
    clone.querySelectorAll('input,select,textarea').forEach(el=>{
     const allowed=description.canEdit&&(el.hasAttribute('data-field')||el.hasAttribute('data-attr'));
@@ -3736,7 +3736,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    dialog=document.createElement('dialog');
    dialog.id='nexSharedRealSheetDialog';
    dialog.className='nex-shared-real-sheet';
-   dialog.innerHTML='<header class="nex-shared-head"><div><strong id="nexSharedRealSheetTitle">Ficha do personagem</strong><small id="nexSharedSheetAccessLabel">Ficha NEX original · visualização somente leitura</small></div><div><button type="button" id="nexSharedRealSheetSave" hidden>Salvar ficha da campanha</button> <button type="button" id="nexSharedRealSheetClose" aria-label="Fechar ficha">Fechar ×</button></div></header><p id="nexSharedSheetSaveStatus" role="status"></p><div id="nexSharedRealSheetMount"></div>';
+   dialog.innerHTML='<header class="nex-shared-head"><div><strong id="nexSharedRealSheetTitle">Ficha do personagem</strong><small id="nexSharedSheetAccessLabel">Ficha D20X original · visualização somente leitura</small></div><div><button type="button" id="nexSharedRealSheetSave" hidden>Salvar ficha da campanha</button> <button type="button" id="nexSharedRealSheetClose" aria-label="Fechar ficha">Fechar ×</button></div></header><p id="nexSharedSheetSaveStatus" role="status"></p><div id="nexSharedRealSheetMount"></div>';
    document.body.appendChild(dialog);
    dialog.querySelector('#nexSharedRealSheetClose').onclick=()=>dialog.close();
    dialog.addEventListener('close',()=>{dialog.querySelector('#nexSharedRealSheetMount').replaceChildren();});
@@ -3745,7 +3745,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   const mount=dialog.querySelector('#nexSharedRealSheetMount');
   mount.replaceChildren(clone);
   const editable=!!description.canEdit&&!!description.sheetId;
-  dialog.querySelector('#nexSharedSheetAccessLabel').textContent=editable?'Ficha da campanha · edição autorizada pelo Mestre':'Ficha NEX · somente leitura';
+  dialog.querySelector('#nexSharedSheetAccessLabel').textContent=editable?'Ficha da campanha · edição autorizada pelo Mestre':'Ficha D20X · somente leitura';
   dialog.querySelector('#nexSharedSheetSaveStatus').textContent='';
   const saveButton=dialog.querySelector('#nexSharedRealSheetSave');
   saveButton.hidden=!editable;
@@ -3779,7 +3779,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  }
  function openAgent(id){
   if(nexCampaignLiveEdit)finishCampaignLiveEdit();
-  if(!window.NEX_ACCOUNT_USER){toast('Entre na sua conta NEX para abrir esta ficha.');return;}
+  if(!window.NEX_ACCOUNT_USER){toast('Entre na sua conta D20X para abrir esta ficha.');return;}
   if(!window.NEX_ACCOUNT_SYNC_READY){toast('Carregando seus personagens da nuvem.');return;}
   if(!agents.some(a=>a.id===id))return;persist();active=id;state=normalize(JSON.parse(JSON.stringify(agents.find(a=>a.id===id).data)));visible('sheet');try{rehydrate();}catch(err){console.error(err);renderFields();renderStats();}save();}
 
@@ -3862,7 +3862,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    const file=event.target.files?.[0];event.target.value='';if(!file)return;
    if(file.size>12000000){toast('O backup ultrapassa o limite de 12 MB.');return;}
    let parsed;try{parsed=JSON.parse(await file.text());}catch{toast('Backup inválido: não é um JSON.');return;}
-   if(parsed?.format!=='nex-backup-all'||!Array.isArray(parsed.agents)||parsed.agents.length>200||!parsed.agents.every(a=>a && typeof a.id==='string' && a.data && typeof a.data==='object' && !Array.isArray(a.data))){toast('Este arquivo não é um backup completo válido do NEX.');return;}
+   if(parsed?.format!=='nex-backup-all'||!Array.isArray(parsed.agents)||parsed.agents.length>200||!parsed.agents.every(a=>a && typeof a.id==='string' && a.data && typeof a.data==='object' && !Array.isArray(a.data))){toast('Este arquivo não é um backup completo válido do D20X.');return;}
    if(!confirm('Restaurar este backup com '+parsed.agents.length+' ficha(s)? A coleção atual será substituída. Exporte seus dados atuais antes de continuar.'))return;
    // Restaurar um backup é uma decisão explícita: os IDs daquele arquivo
    // deixam de ser bloqueados, mas só se a restauração for realmente salva.
@@ -4159,11 +4159,11 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  }
   function wRender(){document.querySelectorAll('[data-wpanel]').forEach(el=>el.hidden=Number(el.dataset.wpanel)!==wStep);document.querySelectorAll('[data-wstep]').forEach(el=>{const i=Number(el.dataset.wstep);el.classList.toggle('current',i===wStep);el.classList.toggle('completed',i<wStep);});$('wBack').textContent=wStep===0?'← Menu principal':'← Voltar';$('wNext').textContent=wStep===4?'Finalizar personagem ✓':'Próximo →';if(wStep===0)wRenderAttrs();if(wStep===1)wRenderOrigins();if(wStep===2)wRenderClass();if(wStep===3)wRenderTrainSkills();window.scrollTo(0,0);}
  function createAgent(){
-  if(!window.NEX_ACCOUNT_USER){toast('Entre na sua conta NEX antes de criar personagens.');document.getElementById('nexAccountOpen')?.click();return;}
-  if(!window.NEX_ACCOUNT_SYNC_READY){toast('Aguarde o carregamento dos personagens da sua conta NEX.');return;}
+  if(!window.NEX_ACCOUNT_USER){toast('Entre na sua conta D20X antes de criar personagens.');document.getElementById('nexAccountOpen')?.click();return;}
+  if(!window.NEX_ACCOUNT_SYNC_READY){toast('Aguarde o carregamento dos personagens da sua conta D20X.');return;}
   persist();wDraft=normalize({...defaults(),homebrew:JSON.parse(JSON.stringify(globalHomebrew())),name:'',origin:'',class:'Combatente',attributes:{agi:1,for:1,int:1,pre:1,vig:1},nex:5});wCategory='ordem';wStep=0;wOpen='';$('wSearch').value='';for(const id of ['wName','wPlayer','wAppearance','wPersonality','wHistory','wObjective'])$(id).value='';visible('wizard');wRender();}
  function wFinish(){
-  if(!window.NEX_ACCOUNT_USER||!window.NEX_ACCOUNT_SYNC_READY){toast('Entre na conta NEX e aguarde carregar as fichas antes de salvar.');return;}
+  if(!window.NEX_ACCOUNT_USER||!window.NEX_ACCOUNT_SYNC_READY){toast('Entre na conta D20X e aguarde carregar as fichas antes de salvar.');return;}
   if(wPoints()!==0){toast('Confira os pontos de atributos do NEX escolhido.');wStep=0;wRender();return;}
   const name=$('wName').value.trim();if(!name){toast('Informe o nome do personagem.');$('wName').focus();return;}
   if(!wDraft.origin){toast('Escolha uma origem antes de finalizar.');return;}
@@ -4453,7 +4453,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    </div>`;
   }).join('');
  }
- // Descrições editoriais do NEX: texto autoral em vez de recados para consultar o livro.
+ // Descrições editoriais do D20X: texto autoral em vez de recados para consultar o livro.
 // Efeitos numéricos só são apresentados quando já estão registrados no catálogo.
 const NEX_POWER_DETAILS={
  'Visão do Oculto':'Elemento: Conhecimento. Efeito: você recebe +5 em testes de Percepção e consegue enxergar na escuridão, inclusive em ambientes sem iluminação. Na prática, esse benefício auxilia a procurar pistas, observar ambientes escuros e perceber detalhes que passariam despercebidos. Afinidade com Conhecimento: você também ignora efeitos de camuflagem ao localizar alvos. A habilidade melhora a percepção do personagem, mas não revela automaticamente a identidade, os atributos ou os poderes de uma criatura. O bônus é aplicado aos testes de Percepção, e não a todas as perícias.',
@@ -4513,20 +4513,20 @@ Object.assign(NEX_ABILITY_EXPLANATIONS,{
  "Revidar": "O guerreiro pode aproveitar uma defesa bem-sucedida por bloqueio para responder ao inimigo com um contra-ataque. O gatilho é uma ação defensiva específica, então a opção não fica disponível quando nenhuma defesa apropriada ocorreu. Confira o gasto e o limite de reações antes de utilizá-la.",
  "Força Opressora": "Permite associar a pressão de um ataque corpo a corpo a manobras físicas de controle, como empurrar ou derrubar. É importante registrar qual manobra foi escolhida, o alvo e o resultado do ataque. Não substitui automaticamente toda rolagem por um sucesso.",
  "Potência Máxima": "Fortalece o Ataque Especial quando o guerreiro usa armas corpo a corpo. A melhoria depende da ativação e do investimento de recursos da habilidade de classe. Não deve aparecer como bônus permanente em ataques que não utilizaram o Ataque Especial.",
- "Iniciativa Aprimorada": "Melhora a capacidade de agir cedo na cena: o NEX já soma +5 à Iniciativa enquanto a trilha estiver ativa. Também existe uma vantagem de movimento no começo do confronto, que precisa ser resolvida no momento apropriado. Esse deslocamento não modifica o valor da perícia.",
+ "Iniciativa Aprimorada": "Melhora a capacidade de agir cedo na cena: o D20X já soma +5 à Iniciativa enquanto a trilha estiver ativa. Também existe uma vantagem de movimento no começo do confronto, que precisa ser resolvida no momento apropriado. Esse deslocamento não modifica o valor da perícia.",
  "Ataque Extra": "Oferece ao combatente a possibilidade de realizar uma ofensiva adicional durante seu turno com gasto de PE. O novo ataque continua usando a arma, a perícia e os modificadores válidos da situação. A habilidade não acrescenta automaticamente ataques gratuitos a todas as rodadas.",
  "Surto de Adrenalina": "Permite ao agente gastar PE para obter uma ação adicional em combate conforme os limites da habilidade. É preciso marcar a ativação no turno em que o recurso é utilizado. Não aumenta definitivamente a quantidade de ações do personagem.",
  "Sempre Alerta": "Representa a preparação excepcional do agente ao iniciar um confronto, concedendo uma ação padrão adicional no momento previsto. O benefício está ligado ao início da cena, não a todas as rodadas. Considere os limites de ações já aplicáveis ao personagem.",
- "Casca Grossa": "Fortalece a resistência física do Tropa de Choque. O NEX concede automaticamente PV máximos extras proporcionais ao NEX e recalcula esse valor quando a progressão muda. A possibilidade de reforçar o bloqueio com Vigor é condicional à reação escolhida e deve ser tratada separadamente da Defesa passiva.",
+ "Casca Grossa": "Fortalece a resistência física do Tropa de Choque. O D20X concede automaticamente PV máximos extras proporcionais ao NEX e recalcula esse valor quando a progressão muda. A possibilidade de reforçar o bloqueio com Vigor é condicional à reação escolhida e deve ser tratada separadamente da Defesa passiva.",
  "Cai Dentro": "Permite que o combatente se coloque entre o perigo e um aliado, atraindo uma agressão que iria atingi-lo. O posicionamento, o alvo protegido e o gatilho precisam ser considerados na cena. Não é um aumento geral de Defesa para todo o grupo.",
  "Duro de Matar": "Concede uma forma de atenuar o dano recebido mediante investimento de PE e nas condições definidas pela trilha. O benefício é resolvido quando o dano é sofrido, não somado de forma permanente aos PV máximos. A redução deve ser aplicada apenas ao evento permitido.",
- "Inquebrável": "Protege o combatente em momentos de grande desgaste físico. Quando seus PV ficam na faixa de personagem machucado, o NEX ativa o bônus condicional de +5 na Defesa e resistência a dano 5. Quando a condição deixa de existir, os bônus não devem continuar ativos.",
- "Mira de Elite": "O especialista aproveita seu Intelecto para aumentar o dano de ataques com armas de fogo de longo alcance. O NEX considera esse atributo nas rolagens dos ataques corretamente identificados como armas de fogo de longo alcance. Outras armas não recebem esse acréscimo.",
+ "Inquebrável": "Protege o combatente em momentos de grande desgaste físico. Quando seus PV ficam na faixa de personagem machucado, o D20X ativa o bônus condicional de +5 na Defesa e resistência a dano 5. Quando a condição deixa de existir, os bônus não devem continuar ativos.",
+ "Mira de Elite": "O especialista aproveita seu Intelecto para aumentar o dano de ataques com armas de fogo de longo alcance. O D20X considera esse atributo nas rolagens dos ataques corretamente identificados como armas de fogo de longo alcance. Outras armas não recebem esse acréscimo.",
  "Disparo Letal": "Após preparar a pontaria, o atirador pode investir PE para tornar o próximo disparo mais ameaçador. O efeito diz respeito à margem de ameaça do tiro preparado e não deve alterar todos os ataques do personagem. O gasto só é registrado ao utilizar a habilidade.",
  "Disparo Impactante": "Permite usar um disparo para deslocar, derrubar ou controlar um inimigo, em vez de tratar o tiro somente como dano. Escolha a manobra e verifique suas condições antes da rolagem. A arma continua sujeita a munição, alcance e proficiência.",
  "Atirar para Matar": "É o ápice da precisão do atirador com armas de fogo, tornando acertos críticos especialmente perigosos. A regra se aplica apenas ao tipo de ataque indicado e ao resultado crítico, não a qualquer dano. O cálculo precisa preservar os outros modificadores pertinentes.",
  "Ataque Furtivo": "Recompensa uma ofensiva contra inimigos desprevenidos ou em posição vulnerável, acrescentando dano nas circunstâncias adequadas. Antes de rolar, identifique se o alvo realmente atende à condição de surpresa ou flanqueamento. Esse dano extra não faz parte de todos os ataques do infiltrador.",
- "Gatuno": "Aprimora a mobilidade e a prática de atividades clandestinas. O NEX aplica automaticamente +5 em Atletismo e Crime a partir do marco correspondente da trilha. Benefícios ligados ao deslocamento furtivo devem ser verificados conforme as condições da cena.",
+ "Gatuno": "Aprimora a mobilidade e a prática de atividades clandestinas. O D20X aplica automaticamente +5 em Atletismo e Crime a partir do marco correspondente da trilha. Benefícios ligados ao deslocamento furtivo devem ser verificados conforme as condições da cena.",
  "Assassinar": "Transforma a preparação e a observação de um alvo em uma ofensiva particularmente eficiente. A habilidade potencializa o Ataque Furtivo somente quando o alvo foi analisado e as condições foram satisfeitas. Não afeta inimigos escolhidos aleatoriamente sem preparação.",
  "Sombra Fugaz": "A experiência do infiltrador permite recuperar a discrição após uma ação que normalmente denunciaria sua presença. O benefício é relativo à Furtividade e à situação de combate ou perseguição. Ele não torna o personagem invisível nem impede que seja localizado por outros meios.",
  "Paramédico": "Permite usar conhecimentos e materiais de medicina para restaurar PV de um aliado ou de si mesmo. O procedimento depende de um kit apropriado, do gasto de PE e das condições de atendimento. O valor da recuperação deve ser calculado no momento do uso, sem acrescentar PV máximos.",
@@ -4537,7 +4537,7 @@ Object.assign(NEX_ABILITY_EXPLANATIONS,{
  "Discurso Motivador": "Permite reunir o grupo com uma fala de incentivo que melhora temporariamente seus testes em circunstâncias previstas. É necessário determinar os aliados alcançados e a duração do benefício. O bônus não fica gravado permanentemente na ficha dos destinatários.",
  "Eu Conheço um Cara": "Representa a rede de contatos do negociador, que pode oferecer ajuda ou recursos especiais durante a missão. A possibilidade concreta deve ser combinada com o mestre e com o contexto narrativo. Não significa acesso automático a qualquer pessoa ou objeto.",
  "Truque de Mestre": "Permite adaptar temporariamente uma capacidade observada de outro personagem, respeitando limitações e custos próprios. O efeito deve registrar qual habilidade está sendo reproduzida e em que situação. Não transfere definitivamente trilhas ou poderes para a ficha.",
- "Inventário Otimizado": "O Técnico combina Força e Intelecto para definir a capacidade de carga a partir do marco inicial da trilha. O NEX recalcula automaticamente esse limite quando os atributos mudam. Essa melhoria não altera os limites de categoria de itens por patente.",
+ "Inventário Otimizado": "O Técnico combina Força e Intelecto para definir a capacidade de carga a partir do marco inicial da trilha. O D20X recalcula automaticamente esse limite quando os atributos mudam. Essa melhoria não altera os limites de categoria de itens por patente.",
  "Remendão": "Ajuda a recuperar o funcionamento de equipamentos ou a lidar com reparos urgentes. O reparo tem as limitações e duração da habilidade, portanto não deve transformar itens temporariamente consertados em equipamentos novos. Verifique os recursos e ferramentas necessários.",
  "Improvisar": "Permite montar uma ferramenta adequada a um problema imediato com materiais disponíveis no ambiente. O item improvisado está sujeito aos limites da habilidade e da cena. Não é equivalente a criar permanentemente qualquer equipamento de categoria elevada.",
  "Preparado para Tudo": "Representa a capacidade de ter guardado um recurso útil mesmo quando ele não havia sido destacado antes. A habilidade requer o gasto previsto e o atendimento de condições de inventário e categoria. O item escolhido deve ser registrado para evitar duplicações.",
@@ -4581,7 +4581,7 @@ Object.assign(NEX_ABILITY_EXPLANATIONS,{
  "Ingrediente Secreto": "Durante um interlúdio, o personagem utiliza sua experiência culinária para preparar uma refeição especial. Quem se alimenta nas condições apropriadas recebe benefícios adicionais de alimentação. O recurso exige a preparação da comida; não é uma cura que ocorre sozinha.",
  "O Crime Compensa": "A experiência de recuperar e conservar objetos valiosos permite selecionar um item encontrado ao final de uma missão. O benefício acompanha o item escolhido na missão seguinte e afeta os limites indicados pela regra. Não altera a patente nem todos os itens obtidos.",
  "Traços do Outro Lado": "A origem concede um poder paranormal escolhido na criação, com uma perda importante na Sanidade inicial. O poder escolhido precisa cumprir suas próprias regras. Essa concessão não significa que todos os poderes paranormais foram liberados.",
- "Calejado": "A vivência em condições difíceis fortalece a reserva de PV do personagem de forma proporcional ao NEX. O NEX calcula automaticamente o acréscimo e atualiza os PV máximos quando a progressão muda. Não equivale a resistência a dano.",
+ "Calejado": "A vivência em condições difíceis fortalece a reserva de PV do personagem de forma proporcional ao NEX. O D20X calcula automaticamente o acréscimo e atualiza os PV máximos quando a progressão muda. Não equivale a resistência a dano.",
  "Ferramenta Favorita": "O engenheiro escolhe um equipamento que não seja arma para receber uma redução específica de categoria. O benefício deve ficar associado ao item selecionado, sem se aplicar automaticamente a todos os equipamentos iguais.",
  "Processo Otimizado": "Permite usar métodos de organização e revisão para melhorar um teste elegível com gasto de PE. A vantagem acontece durante uma atividade de documentos ou um teste estendido apropriado. Não altera permanentemente todas as perícias.",
  "Faro para Pistas": "Uma vez por cena, gaste 1 PE durante um teste de busca de pistas para acrescentar +5 ao resultado.",
@@ -4593,7 +4593,7 @@ Object.assign(NEX_ABILITY_EXPLANATIONS,{
  "Patrulha": "A experiência policial aumenta a capacidade de se defender em combate. O bônus de +2 na Defesa é passivo e deve ser calculado pela ficha sem repetir o valor nos campos manuais.",
  "Acalentar": "Permite utilizar Religião para tranquilizar alguém em situação apropriada. A recuperação de Sanidade depende de conseguir acalmar o alvo e da rolagem prevista; o poder não recupera automaticamente Sanidade de todos os aliados.",
  "Espírito Cívico": "O personagem pode aumentar a ajuda que presta a outro participante em um teste adequado. É necessário realizar a ação de ajudar e pagar o PE previsto. O benefício não vale para testes em que não houve colaboração.",
- "Eu Já Sabia": "A origem concede resistência contra dano mental baseada no Intelecto do personagem. O NEX calcula a resistência separadamente dos bônus manuais, permitindo recalcular quando o atributo mudar.",
+ "Eu Já Sabia": "A origem concede resistência contra dano mental baseada no Intelecto do personagem. O D20X calcula a resistência separadamente dos bônus manuais, permitindo recalcular quando o atributo mudar.",
  "Motor de Busca": "O conhecimento digital permite utilizar Tecnologia como alternativa para testes elegíveis quando existe acesso à internet e concordância do mestre. O efeito exige gasto de PE e não transforma permanentemente as demais perícias em Tecnologia.",
  "Desbravador": "A vivência rural auxilia nas perícias de Adestramento ou Sobrevivência, mediante o investimento adequado de PE. Também oferece vantagem de deslocamento em terreno difícil nas situações cobertas pela origem. Não elimina todos os tipos de impedimento de movimento.",
  "Impostor": "O personagem pode recorrer à Enganação para substituir outra perícia em um teste específico, desde que a situação permita. O benefício possui custo e limite por cena. A perícia substituída não muda de treinamento permanentemente.",
@@ -4827,7 +4827,7 @@ function abilityRecords(){
      entries.push({
        name:p.name||'Poder',
        source:paranormal?'Origem: Cultista Arrependido · Poder Paranormal':`Poder — NEX ${int(p.nex)}%`,
-       detail:findPowerDescription(p.name)||nexPowerDescription(p.name,p.note)||'Este poder está registrado na ficha, mas ainda não há um efeito mecânico verificado no catálogo do NEX.',
+       detail:findPowerDescription(p.name)||nexPowerDescription(p.name,p.note)||'Este poder está registrado na ficha, mas ainda não há um efeito mecânico verificado no catálogo do D20X.',
        id:p.id||null,
        removeKind:'power'
      });
@@ -5314,8 +5314,8 @@ function abilityRecords(){
        }else if(!dialog.open){dialog.showModal();}
      }else{
        const button=b;
-       button.setAttribute('aria-label','Conta NEX indisponível: tente recarregar o site');
-       button.textContent='◈  Conta NEX — recarregue a página';
+       button.setAttribute('aria-label','Conta D20X indisponível: tente recarregar o site');
+       button.textContent='◈  Conta D20X — recarregue a página';
      }
      return;
    }
@@ -6175,7 +6175,7 @@ const PARANORMAL=[
   popup.style.left=Math.max(8,Math.min(rect.left,innerWidth-width-8))+'px';
   popup.style.top=(rect.bottom+height+9<=innerHeight?rect.bottom+9:Math.max(8,rect.top-height-9))+'px';
  }
- // Usa a rolagem já calculada pelo NEX, sem gerar uma segunda sequência de dados.
+ // Usa a rolagem já calculada pelo D20X, sem gerar uma segunda sequência de dados.
  document.addEventListener('click',e=>{
    const roll=e.target.closest('[data-nex-attr-roll]');
    if(!roll||roll.closest('.nex-attrs-editing'))return;
@@ -6688,7 +6688,7 @@ body > #nexVttSheetClose[hidden]{display:none!important}
 
 <script src="nex-defense-selectors-safe.js?v=20261112readonly3"></script>
 <script src="./firebase-config.js?v=20261112accounts1"></script>
-<script type="module" src="./nex-account-sync.js?v=20261121deletedHomebrew2"></script>
+<script type="module" src="./nex-account-sync.js?v=20261125d20x1"></script>
 <script type="module" src="./nex-homebrew-share.js?v=20261115share6"></script>
 <script>
 window.addEventListener('nex-cloud-sync-state',event=>{
@@ -6697,7 +6697,7 @@ window.addEventListener('nex-cloud-sync-state',event=>{
  const marker=document.getElementById('nex29SheetSaveIndicator');
  const small=document.getElementById('n17SaveIndicator');
  const ok=detail.state==='saved';
- const message=ok?'● Salvo na conta NEX':'⚠ Sem sincronização · cópia temporária';
+ const message=ok?'● Salvo na conta D20X':'⚠ Sem sincronização · cópia temporária';
  if(marker){marker.textContent=message;marker.style.color=ok?'#84d6a2':'#ff9a9f';}
  if(small)small.textContent=message;
 });
