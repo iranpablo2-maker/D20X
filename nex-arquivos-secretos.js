@@ -241,16 +241,16 @@ window.NEX_ARQUIVOS={
       "name": "Esquiva Tática",
       "category": "Geral",
       "month": "Fevereiro",
-      "page": 52,
-      "description": "Permite uma esquiva especial adicional em circunstâncias específicas.",
+      "page": 53,
+      "description": "Permite uma segunda reação especial de defesa na rodada, desde que seja esquiva. Exige Agi 2.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 52"
     },
     {
       "name": "Dominar Habilidade Ritualística",
       "category": "Ocultista",
       "month": "Fevereiro",
-      "page": 74,
-      "description": "Permite aprender uma habilidade de trilha de Ocultista, com requisitos.",
+      "page": 75,
+      "description": "Aprenda uma habilidade de trilha de Ocultista cujo NEX necessário já tenha atingido. Dependências de habilidades anteriores continuam válidas. Pode adquirir até três vezes. Requisitos: Int 3, Ocultismo treinado e capacidade de conjurar rituais.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 74"
     },
     {
@@ -265,32 +265,32 @@ window.NEX_ARQUIVOS={
       "name": "Arte da Música Macabra",
       "category": "Geral",
       "month": "Fevereiro",
-      "page": 82,
-      "description": "Com uma ação padrão e 2 PE, usa música para beneficiar um ser no alcance curto que possa ouvi-lo. Escolhe uma vantagem para a próxima ação do alvo: +5 no dano, +2 na margem de ameaça de um ataque, +5 no teste de ataque ou +9 metros no alcance de uma ação ofensiva ou habilidade.",
+      "page": 83,
+      "description": "Ação padrão e 2 PE beneficiam um ser que possa ouvi-lo em alcance curto. Escolha um efeito para a próxima ação correspondente: +5 no dano, +2 na margem de ameaça, +5 no teste de ataque ou +9m no alcance de ataque ou habilidade.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 82"
     },
     {
       "name": "Movimentação Tática",
       "category": "Geral",
       "month": "Fevereiro",
-      "page": 86,
-      "description": "Ação de movimento da ficha de Tuco (NPC): quando se desloca em direção a cobertura ou inimigo, o alcance de movimento na ficha é duplicado.",
+      "page": 87,
+      "description": "No RPG, 1 PE permite dobrar o deslocamento ao se mover rumo a cobertura ou inimigo. Exige For 2, Atletismo e Tática treinadas.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 86"
     },
     {
       "name": "Sentido Tático",
       "category": "Geral",
       "month": "Fevereiro",
-      "page": 86,
-      "description": "Habilidade da ficha de Tuco (NPC): imunidade a desprevenido; alvo que sofre dano dele falha em testes de Furtividade contra ele por uma rodada.",
+      "page": 87,
+      "description": "Imune a desprevenido. Ao causar dano a um alvo, 2 PE fazem com que ele falhe automaticamente nos testes de Furtividade contra o personagem por uma rodada. Exige Pre 2, Percepção e Tática treinadas.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 86"
     },
     {
       "name": "Marteladas",
       "category": "Combatente",
       "month": "Fevereiro",
-      "page": 86,
-      "description": "Ação completa de Tuco (NPC): um ser adjacente recebe 6d6+20 de dano de impacto, com Fortitude DT 20 para reduzir à metade.",
+      "page": 87,
+      "description": "Mecânica de combate do RPG: ação completa e 3 PE resolvem três ataques desarmados contra o mesmo alvo; as rolagens verificam apenas críticos, sem comparar à Defesa. Some o dano como uma fonte única; Fortitude DT For reduz à metade. Exige For 2, Luta treinada e Artista Marcial.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 86"
     },
     {
@@ -736,7 +736,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Janeiro",
       "page": 54,
-      "description": "Ao adquirir o amuleto, escolha Sangue, Morte, Conhecimento ou Energia. Enquanto vestido, ele manifesta um sinal próprio quando uma criatura do elemento escolhido se aproxima em alcance longo, mesmo que existam barreiras entre ela e o portador.",
+      "description": "Escolha um elemento exceto Medo. Enquanto vestido, sinaliza a presença de criatura correspondente em alcance longo, mesmo através de obstáculos. Sinal: Sangue, gotas vermelhas; Morte, fumaça; Conhecimento, luz dourada; Energia, mudanças de cor. Categoria II; 1 espaço.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 54"
     },
     {
@@ -744,7 +744,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Janeiro",
       "page": 54,
-      "description": "Pequeno suporte para componentes e catalisadores. Uma ação padrão permite prender um item nele, até o máximo de quatro. Ao empunhar o agrupador, considera-se que os componentes e catalisadores acoplados também estão empunhados.",
+      "description": "Ação padrão permite acoplar um componente ou catalisador ritualístico, até quatro simultâneos. Empunhar o agrupador conta como empunhar todos os itens anexos. Categoria II; 1 espaço.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 54"
     },
     {
@@ -752,7 +752,7 @@ window.NEX_ARQUIVOS={
       "section": "Armas",
       "month": "Janeiro",
       "page": 55,
-      "description": "Arma simples de uma mão, utilizável corpo a corpo ou arremessada em alcance curto. Dano: 1d8 de perfuração mais 1d12 de Sangue; crítico 20/x3. Ao atingir com arremesso, o alvo fica lento até remover a arma com uma ação padrão e um teste de Atletismo contra DT baseada em Força.",
+      "description": "Ficha de RPG: arma simples de uma mão, categoria III, 1 espaço. Dano 1d8 perfuração + 1d12 Sangue, crítico 20/×3; alcance de arremesso curto. Acerto de arremesso aplica lento até o alvo gastar ação padrão e passar em Atletismo DT For.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 55"
     },
     {
@@ -760,7 +760,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Março",
       "page": 113,
-      "description": "Artefato paranormal com efeito de controle.",
+      "description": "Artefato sobrenatural, categoria III, 1 espaço. Empunhado, ação padrão e 2 PE afetam até dois alvos em alcance curto com paralisado; Reflexos DT Pre evita. Correntes fictícias: Defesa 10, RD 10, 20 PV. Recarga de 24 horas; correntes anteriores desaparecem quando volta a estar disponível.",
       "source": "Arquivos Secretos · Março/2026 · p. 113",
       "tier": "III",
       "spaces": 1
@@ -770,7 +770,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Março",
       "page": 114,
-      "description": "Vestimenta especial relacionada ao Sangue.",
+      "description": "Vestimenta amaldiçoada de Sangue, categoria II, 1 espaço. Enquanto o personagem estiver machucado e a vestir, todas as rolagens de dano recebem 2d8 adicionais de Sangue.",
       "source": "Arquivos Secretos · Março/2026 · p. 114",
       "tier": "II",
       "spaces": 1
@@ -780,7 +780,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Março",
       "page": 114,
-      "description": "Conjunto de armas amaldiçoadas.",
+      "description": "Conjunto ficcional de Sangue, categoria III, 2 espaços. Maça tática de uma mão: 2d4 perfuração + 1d6 Sangue, crítico 20/×3. Florete tático ágil de uma mão: 1d6 perfuração + 2d4 Sangue, crítico 18/×2. O dano elemental é multiplicado no crítico. Com ambos empunhados, uma ação padrão permite um ataque de cada. Reação e 2 PE assumem ataque destinado a aliado em alcance curto; se a origem está em alcance corpo a corpo, mais 2 PE permitem ataque de maça.",
       "source": "Arquivos Secretos · Março/2026 · p. 114",
       "tier": "III",
       "spaces": 2
@@ -790,7 +790,7 @@ window.NEX_ARQUIVOS={
       "section": "Proteções",
       "month": "Março",
       "page": 115,
-      "description": "Proteção especial dos Couraças.",
+      "description": "Proteção pesada de Sangue, categoria III, 0 espaços, sem exigência de proficiência. Defesa +10, aumentando 1 por semana até +20. RD 5 contra balístico, impacto e perfuração; RD Sangue 10; vulnerabilidade a Morte. Primeiro contato: Vontade contra DT determinada por 6d6, falha força equipar. Equipada: Fortitude DT 6d6, falha permite controle paranormal pelo mestre, sucesso impede controle. Remoção exige resolução sobrenatural da maldição; testes repetidos após uma semana ou nova missão, o que ocorrer primeiro.",
       "source": "Arquivos Secretos · Março/2026 · p. 115"
     },
     {
@@ -798,7 +798,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Março",
       "page": 112,
-      "description": "Item de alimentação de uso narrativo.",
+      "description": "Categoria 0, 0,5 espaço. Conta como prato rápido. Em ocasiões especiais, por decisão do mestre, uma vez por dia pode restaurar 1d8+1 de PV, PE e SAN.",
       "source": "Arquivos Secretos · Março/2026 · p. 112",
       "tier": "0",
       "spaces": 0.5
@@ -808,7 +808,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Maio",
       "page": 60,
-      "description": "Utensílio de investigação com funções de iluminação.",
+      "description": "Utensílio, categoria 0, 1 espaço. +2 em Investigação e Percepção; iluminação em cone de 9m ou função visão no escuro.",
       "source": "Arquivos Secretos · Maio/2026 · p. 60",
       "tier": "0",
       "spaces": 1
@@ -818,7 +818,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Maio",
       "page": 60,
-      "description": "Vestimenta vinculada ao elemento Morte.",
+      "description": "Vestimenta de Morte, categoria III, 1 espaço. +5 na Defesa e resistências contra efeitos originados em alcance curto; −5 contra efeitos originados além de 9m. Também +2 Intimidação.",
       "source": "Arquivos Secretos · Maio/2026 · p. 60",
       "tier": "III",
       "spaces": 1
@@ -828,7 +828,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Maio",
       "page": 61,
-      "description": "Item consumível com efeitos de combate.",
+      "description": "Consumível sobrenatural fictício, categoria II, 1 espaço. Ação de movimento ativa até fim da cena +4 nos testes de ataque e dano corpo a corpo. Impede ações que exigem concentração, como Furtividade e conjuração. Encerra se terminar uma rodada sem atacar nem ser alvo de ação hostil.",
       "source": "Arquivos Secretos · Maio/2026 · p. 61",
       "tier": "II",
       "spaces": 1
@@ -838,7 +838,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Maio",
       "page": 61,
-      "description": "Equipamento amaldiçoado de Energia.",
+      "description": "Equipamento amaldiçoado de Energia, categoria II, 2 espaços. Na ficha, treinamento em Acrobacia, Atletismo ou Pilotagem concede +3m deslocamento enquanto usado como transporte. Como arma improvisada: 1d12 impacto, duas mãos, crítico ×2. Como escudo: +5 Defesa. Modificações e maldições tratam o item como proteção.",
       "source": "Arquivos Secretos · Maio/2026 · p. 61",
       "tier": "II",
       "spaces": 2
@@ -848,7 +848,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Junho",
       "page": 73,
-      "description": "Acessório amaldiçoado associado à Morte.",
+      "description": "Vestimenta amaldiçoada de Morte, categoria II, 0,5 espaço. Quando o personagem sofre dano de Nidere, reação e 2 PE concedem RD 4d10 contra esse dano.",
       "source": "Arquivos Secretos · Junho/2026 · p. 73",
       "tier": "II",
       "spaces": 0.5
@@ -858,7 +858,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Fevereiro",
       "page": 20,
-      "description": "Recurso de atendimento para uso em aventura.",
+      "description": "Consumível de cura do RPG, categoria I, 0,5 espaço. Ação padrão restaura 2d4+2 PV e remove sangrando do próprio personagem ou de um ser adjacente.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 20",
       "tier": "I",
       "spaces": 0.5
@@ -868,7 +868,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Fevereiro",
       "page": 20,
-      "description": "Utensílio de navegação.",
+      "description": "Utensílio de categoria I, 1 espaço. +2 em Sobrevivência nos testes de orientação.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 20",
       "tier": "I",
       "spaces": 1
@@ -878,7 +878,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Fevereiro",
       "page": 20,
-      "description": "Conjunto de ferramentas para tarefas técnicas.",
+      "description": "Utensílio, categoria I, 2 espaços. +2 em Profissão quando as ferramentas são pertinentes ao teste, a critério do mestre.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 20",
       "tier": "I",
       "spaces": 2
@@ -888,7 +888,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Fevereiro",
       "page": 20,
-      "description": "Recurso de limpeza e higienização.",
+      "description": "Recurso ficcional de categoria I, 0,5 espaço. Ação padrão concede +2 em testes contra infecções e doenças por contato. Junto à Bandagem, o efeito de cura da ficha passa a 2d8+2 PV.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 20",
       "tier": "I",
       "spaces": 0.5
@@ -898,7 +898,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Fevereiro",
       "page": 20,
-      "description": "Recurso de interlúdio.",
+      "description": "Categoria I, 0,5 espaço. Uma ação de interlúdio beneficia os personagens presentes com 1d4 PE de recuperação. Cada personagem só recebe o efeito uma vez ao dia.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 20",
       "tier": "I",
       "spaces": 0.5
@@ -908,7 +908,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Fevereiro",
       "page": 20,
-      "description": "Utensílios de escalada.",
+      "description": "Utensílio de categoria I, 2 espaços. +2 em Atletismo para testes de escalada no jogo.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 20",
       "tier": "I",
       "spaces": 2
@@ -918,7 +918,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Fevereiro",
       "page": 20,
-      "description": "Acessório de manutenção de lâminas.",
+      "description": "Categoria I, 0,5 espaço. Regra de manutenção do RPG: uma ação de interlúdio confere a uma arma de corte ou perfuração +1d4 de dano do mesmo tipo durante a primeira cena em que for utilizada.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 20",
       "tier": "I",
       "spaces": 0.5
@@ -928,7 +928,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Fevereiro",
       "page": 74,
-      "description": "Catalisador paranormal vestível.",
+      "description": "Vestimenta paranormal, categoria III, 1 espaço, não consumida. Uma vez por cena, gera reserva de três d6. Ao conjurar, pode gastar um dado como ação livre para somar ao dano, à cura ou à DT. Limite de um dado por ritual; dados restantes expiram no fim da cena.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 74",
       "tier": "III",
       "spaces": 1
@@ -938,7 +938,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Junho",
       "page": 73,
-      "description": "Medicamento de utilização em combate.",
+      "description": "Item medicinal exclusivamente de RPG, categoria I, 1 espaço. Ação padrão; próprio personagem ou ser adjacente; concede 2d8+2 PV temporários, +3m deslocamento e +2 em testes de For, Agi e Vig até fim da cena. Depois aplica fatigado por uma cena. Conta como medicamento.",
       "source": "Arquivos Secretos · Junho/2026 · p. 73",
       "tier": "I",
       "spaces": 1
@@ -948,7 +948,7 @@ window.NEX_ARQUIVOS={
       "section": "Armas",
       "month": "Junho",
       "page": 73,
-      "description": "Arma experimental com efeito de frio.",
+      "description": "Equipamento ficcional de categoria III, 2 espaços. Estatísticas do RPG: pesado, duas mãos, alcance curto, 6d6 frio, crítico 20/×2. A resolução de área utiliza um teste contra Defesa dos alvos; atingidos ficam enredados até ação padrão, com Fortitude DT Agi reduzindo para lento. Consome a categoria de munição combustível da ficha.",
       "source": "Arquivos Secretos · Junho/2026 · p. 73",
       "tier": "III",
       "spaces": 2
@@ -961,7 +961,7 @@ window.NEX_ARQUIVOS={
       "source": "Arquivos Secretos · Julho/2026 · p. 78",
       "category": "I",
       "spaces": 2,
-      "description": "Usa um vestígio de criatura para indicar por tempo limitado seu trajeto, sem garantir uma rota segura."
+      "description": "Artefato paranormal de categoria I, 2 espaços. Um vestígio de criatura ativa indicação sobrenatural de caminho até ela ou último local em que esteve. O trajeto indicado é sempre perigoso. Dura dez minutos, após os quais consome o vestígio e não pode localizar a mesma criatura novamente."
     },
     {
       "name": "Cajado da Cruz de Sangue",
@@ -971,7 +971,7 @@ window.NEX_ARQUIVOS={
       "source": "Arquivos Secretos · Julho/2026 · p. 78",
       "category": "III",
       "spaces": 2,
-      "description": "Arma corpo a corpo de duas mãos com propriedades relacionadas a Sangue."
+      "description": "Arma ficcional simples, ágil, duas mãos, categoria III, 2 espaços. Dano 1d12 corte, crítico 20/×2; conta como uma mão e leve para Combater com Duas Armas. Para ocultista que conhece ritual de Sangue: −1 PE no custo de rituais e poderes de Sangue, +1 nas DT e um dado extra do mesmo tipo no dano."
     },
     {
       "name": "Pé de Coelho",
@@ -981,7 +981,7 @@ window.NEX_ARQUIVOS={
       "source": "Arquivos Secretos · Julho/2026 · p. 79",
       "category": "I",
       "spaces": 1,
-      "description": "Acessório que acrescenta um bônus aleatório aos testes de uma cena, sujeito a consequências desfavoráveis."
+      "description": "Vestimenta paranormal, categoria I, 1 espaço. Uma vez por cena, ação de movimento ativa +1d4 nos testes até o fim da cena. Resultado ímpar no dado de bônus também causa perda de 1d4 PV na ficha."
     },
     {
       "name": "Sal Dourado",
@@ -991,14 +991,14 @@ window.NEX_ARQUIVOS={
       "source": "Arquivos Secretos · Julho/2026 · p. 79",
       "category": "I",
       "spaces": 1,
-      "description": "Barreira consumível usada para impedir a passagem de manifestações mais fracas de Energia."
+      "description": "Barreira sobrenatural de categoria I, 1 espaço. Possui três usos em aberturas ou um uso circular. Criatura de Energia com VD até 80 testa Vontade DT 20 para atravessar: sucesso permite passagem e aplica fatigado; falha impede passagem e aplica enjoado. Condições duram a cena."
     },
     {
       "name": "Combustível de Sangue",
       "section": "Geral",
       "month": "Janeiro",
       "page": 55,
-      "description": "Munição especial para equipamentos incendiários: converte o tipo de dano causado pelo equipamento em Sangue e aumenta o tamanho de seus dados de dano em um passo, conforme a regra do suplemento.",
+      "description": "Munição paranormal de Sangue, categoria III, 1 espaço. Na ficha, substitui dano do equipamento compatível por Sangue e aumenta os dados de dano em um passo.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 55"
     },
     {
@@ -1006,7 +1006,7 @@ window.NEX_ARQUIVOS={
       "section": "Armas",
       "month": "Janeiro",
       "page": 55,
-      "description": "Arma tática de duas mãos: 2d10 de impacto mais 2d12 de Sangue, crítico 20/x4. Seu uso causa perda de PV ao portador. Acertos críticos podem impor uma condição debilitante ao alvo que falhe na resistência de Fortitude; os limites e o tratamento seguem as regras do suplemento.",
+      "description": "Arma ficcional de Sangue, categoria IV, 2 espaços, tática de duas mãos. Dano 2d10 impacto + 2d12 Sangue, crítico 20/×4; a parcela adicional não multiplica sem regra expressa. Empunhar ou atacar custa 1d6 PV na ficha. Crítico: Fortitude DT For evita fraco até cuidados prolongados em interlúdio; repetição da condição aplica debilitado.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 55"
     },
     {
@@ -1017,7 +1017,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 42,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 42",
-      "description": "Equipamento operacional de duas mãos. Na resolução de um teste de arrombamento de objeto, concede +10 ao resultado. Categoria 0; ocupa 5 espaços.",
+      "description": "Item operacional de categoria 0, 5 espaços, duas mãos. Concede +10 ao teste de arrombamento de objeto no RPG.",
       "stats": [
         [
           "Empunhadura",
@@ -1037,7 +1037,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 43,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
-      "description": "Equipamento vestido que exige proficiência em proteção pesada. Concede Fortificação 25%: role 1d4 ao receber dano adicional de crítico ou ataque furtivo; um resultado 1 elimina apenas o acréscimo de dano. Categoria II; 1 espaço.",
+      "description": "Proteção pesada vestida, categoria II, 1 espaço. Fortificação 25%: 1 em 1d4 ignora o dano adicional de crítico ou ataque furtivo.",
       "stats": [
         [
           "Proficiência",
@@ -1057,7 +1057,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 43,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
-      "description": "Equipamento de investigação que permite resolver testes de Investigação e Percepção em ambientes ainda não explorados, por meio da câmera do personagem. No RPG, requer as duas mãos e uma ação completa; possui visão no escuro. Categoria I; 1 espaço.",
+      "description": "Item operacional de categoria I, 1 espaço, duas mãos. Na ficha, ação completa habilita testes de Investigação e Percepção por câmera com visão no escuro, alcance de 3m.",
       "stats": [
         [
           "Empunhadura",
@@ -1077,7 +1077,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 43,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
-      "description": "Arma de fogo tática de duas mãos. No sistema, inflige 2d10 de dano balístico, com crítico 19/x3 e alcance médio. Ataque Furtivo pode ser aplicado em alcance médio; o suplemento prevê ajustes próprios de margem de ameaça e penalidade de distância. Consulte a p. 43 para essas condições. Categoria III; 3 espaços.",
+      "description": "Estatísticas exclusivamente do RPG: categoria III, 3 espaços, tática de duas mãos; 2d10 balístico, crítico 19/×3, alcance médio, balas longas. Ataque Furtivo permitido em alcance médio; teste em dobro do alcance sofre −5 em vez de −1d20. Na ação mirar, veterano em Pontaria recebe +5 na margem de ameaça.",
       "subtitle": "Arma tática · Disparo · Duas mãos",
       "stats": [
         [
@@ -1114,7 +1114,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 44,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 44",
-      "description": "Aliado especial que oferece auxílio a um personagem conforme a modalidade escolhida. O conjunto ocupa 2 espaços; o controle isolado não ocupa espaço. Na regra padrão, o drone não possui turno nem PV próprios; concede bônus e uma habilidade por rodada. Na rodada em que muda de aliado beneficiado, não concede seus efeitos. As modalidades e modificações estão nas pp. 44–48; a variante com ficha simplificada, nas pp. 49–50. Categoria III.",
+      "description": "Aliado especial do RPG de categoria III, 2 espaços com o conjunto; controle isolado, zero. Escolha modalidade de aliado drone. Permite testes de Investigação e Percepção por câmera e testes de operação por Pilotagem ou Tecnologia. No modo padrão, ação livre de controle e benefícios de aliado ao personagem selecionado; não recebe ficha própria. A regra opcional de Drones Complexos usa ficha e modificações específicas.",
       "stats": [
         [
           "Tipo de item",
@@ -1134,7 +1134,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 50,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 50",
-      "description": "Proteção pesada de uma mão. No RPG, concede Defesa +2 e resistência a dano balístico 10. Possui efeitos adicionais de cobertura e iluminação que dependem de ação de movimento; a cobertura termina com o deslocamento. O efeito de ofuscamento dura uma rodada e não se repete no mesmo alvo durante a cena. Categoria II; 2 espaços.",
+      "description": "Proteção pesada de uma mão, categoria II, 2 espaços. Defesa +2, RD balístico 10. Ação de movimento concede cobertura leve ao portador e seres Médios ou menores atrás dele até se deslocar. Iluminação em cone de 9m; ação de movimento aplica ofuscado por uma rodada a um ser em alcance curto, uma vez por alvo na cena.",
       "stats": [
         [
           "Proficiência",
@@ -1162,7 +1162,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 51,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 51",
-      "description": "Arma tática de categoria II, com 1 espaço. Sua resolução em jogo utiliza a regra do lançador de granadas do pacote de abril (AS #04, p. 71), com a diferença indicada na edição de setembro (p. 51). O suplemento de setembro não apresenta uma nova tabela de dano ou crítico para esse item.",
+      "description": "Equipamento tático do RPG, categoria II, 1 espaço. Usa a regra de lançador de granadas da edição de abril, com capacidade de uma unidade de munição na ficha; não possui nova tabela de dano própria.",
       "subtitle": "Arma tática · Disparo",
       "stats": [
         [
@@ -1179,7 +1179,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 51,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 51",
-      "description": "Arma tática corpo a corpo, ágil e de uma mão. Inflige 1d8 de corte e tem crítico 20/x3. No RPG, concede +2 ao teste de contra-ataque; ao bloquear, pode-se gastar 2 PE e perder o item para acrescentar 20 à RD do bloqueio. Também possui alcance curto para arremesso. Categoria II; 1 espaço.",
+      "description": "Ficha de RPG: categoria II, 1 espaço, arma tática ágil de uma mão; 1d8 corte, crítico 20/×3, arremesso curto. +2 no teste de contra-ataque; no bloqueio, pode pagar 2 PE e consumir o item para acrescentar 20 à RD.",
       "subtitle": "Arma tática · Corpo a corpo · Uma mão",
       "stats": [
         [
@@ -1216,7 +1216,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 51,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 51",
-      "description": "Arma de fogo tática de uma mão. No RPG, causa 3d6 de dano balístico, crítico 20/x3 e alcance curto. A partir do alcance médio, o dano é reduzido à metade. Utiliza a categoria de munição cartuchos. Categoria I; 1 espaço.",
+      "description": "Estatísticas de RPG: categoria I, 1 espaço, arma tática de uma mão; 3d6 balístico, crítico 20/×3, alcance curto; metade do dano a partir do alcance médio. Munição: cartuchos.",
       "subtitle": "Arma tática · Disparo · Uma mão",
       "stats": [
         [
@@ -1253,7 +1253,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 52,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 52",
-      "description": "Munição associada à Pistola Taser no inventário do RPG. Categoria I, 1 espaço. A contagem opcional de munição segue a regra específica da p. 52.",
+      "description": "Munição de RPG, categoria I, 1 espaço, compatível com Pistola Taser. Na regra opcional de contagem, o pacote representa 20 ataques.",
       "stats": []
     },
     {
@@ -1264,7 +1264,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 52,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 52",
-      "description": "Arma simples de disparo, de uma mão. No RPG, causa 2d6 de dano elétrico, crítico 20/x3 e alcance curto. A condição Atordoado dura uma rodada, com teste de Fortitude contra DT de Agilidade para evitar. O efeito de condição é limitado a uma vez por alvo em cada cena, salvo ajuste de mesa. Categoria II; 1 espaço.",
+      "description": "Estatísticas do RPG: categoria II, 1 espaço, simples de uma mão; 2d6 elétrico, crítico 20/×3, alcance curto. Acerto aplica atordoado por uma rodada, Fortitude DT Agi evita, uma vez por alvo na cena, salvo decisão da mesa. Munição: dardos condutores.",
       "subtitle": "Arma simples · Disparo · Uma mão",
       "stats": [
         [
