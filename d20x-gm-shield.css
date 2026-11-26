@@ -1485,3 +1485,39 @@
   grid-template-columns:minmax(0,1fr)!important;
  }
 }
+
+/* Campaign archive: connected notes and investigation board */
+#roomMasterPanel .nex-wiki{min-width:0;display:flex;flex-direction:column;gap:12px}
+#roomMasterPanel .nex-wiki-toolbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;border-bottom:1px solid #39272d;padding-bottom:12px}
+#roomMasterPanel .nex-wiki-toolbar strong{display:block;color:#fff;font-size:15px}
+#roomMasterPanel .nex-wiki-toolbar small{display:block;color:#b6a1a8;font-size:11px;margin-top:3px}
+#roomMasterPanel .nex-wiki-toolbar button[aria-pressed="true"],#roomMasterPanel .nex-wiki-note[aria-pressed="true"]{background:#702437;border-color:#ce5368;color:#fff}
+#roomMasterPanel .nex-wiki-layout{display:grid;grid-template-columns:minmax(170px,230px) minmax(0,1fr);gap:12px;align-items:start}
+#roomMasterPanel .nex-wiki-sidebar{display:flex;flex-direction:column;gap:8px;min-width:0;padding:9px;background:#100d10;border:1px solid #39272d;border-radius:7px}
+#roomMasterPanel .nex-wiki-create{display:flex;align-items:center;gap:5px;min-width:0}
+#roomMasterPanel .nex-wiki-create input,#roomMasterPanel .nex-wiki-create select{flex:1;min-width:0;padding:7px;font-size:12px}
+#roomMasterPanel .nex-wiki-create button{flex:none;padding:6px 7px;font-size:11px;min-height:34px}
+#roomMasterPanel .nex-wiki-tree{display:flex;flex-direction:column;gap:4px;max-height:42vh;overflow:auto}
+#roomMasterPanel .nex-wiki-tree details{border-top:1px solid #34242a;padding-top:6px}
+#roomMasterPanel .nex-wiki-tree summary{cursor:pointer;color:#e3c3cb;font-size:12px;padding:5px;overflow-wrap:anywhere}
+#roomMasterPanel .nex-wiki-tree .nex-wiki-note{display:block;text-align:left;width:100%;border-color:transparent;background:#21191d;overflow-wrap:anywhere;margin:3px 0;padding:6px 8px}
+#roomMasterPanel .nex-wiki-tree .nex-wiki-note[aria-pressed="true"]{background:#702437;border-color:#ce5368}
+#roomMasterPanel .nex-wiki-tree .nex-wiki-note[hidden]{display:none!important}
+#roomMasterPanel .nex-wiki-document{min-width:0}
+#roomMasterPanel .nex-wiki-dochead{display:grid;grid-template-columns:minmax(0,1fr) minmax(95px,145px) auto;gap:6px;align-items:center}
+#roomMasterPanel .nex-wiki-dochead input{font-size:16px;font-weight:750}
+#roomMasterPanel .nex-wiki-document .nex-gm-rich-editor{height:min(50vh,550px);min-height:250px}
+#roomMasterPanel .nex-wiki-links{display:grid;gap:8px;border:1px solid #39272d;background:#100d10;border-radius:7px;padding:10px;font-size:12px}
+#roomMasterPanel .nex-wiki-links small{color:#aa969e}
+#roomMasterPanel .nex-wiki-chips{display:flex;gap:5px;flex-wrap:wrap}
+#roomMasterPanel .nex-wiki-chips button{font-size:11px;padding:5px 8px;min-height:28px}
+#roomMasterPanel .nex-wiki-board-tools{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+#roomMasterPanel .nex-wiki-board-tools small{color:#bca8b0;flex:1;min-width:180px}
+#roomMasterPanel .nex-wiki-board-scroll{overflow:auto;height:min(58vh,600px);min-height:320px;border:1px solid #493039;border-radius:7px;background:#100d10}
+#roomMasterPanel .nex-wiki-board{position:relative;min-width:100%;min-height:100%;background-image:radial-gradient(#47313a 1px,transparent 1px);background-size:20px 20px}
+#roomMasterPanel .nex-wiki-board svg{position:absolute;inset:0;pointer-events:none}
+#roomMasterPanel .nex-wiki-node{position:absolute;width:170px;min-height:64px;background:#21171d;border:1px solid #a64255;border-radius:7px;box-shadow:0 3px 12px #0008;overflow:hidden}
+#roomMasterPanel .nex-wiki-grip{cursor:grab;touch-action:none;user-select:none;background:#4c1e2a;color:#f3c5cf;font-size:11px;padding:5px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#roomMasterPanel .nex-wiki-grip:active{cursor:grabbing}
+#roomMasterPanel .nex-wiki-node button{display:block;width:100%;text-align:left;border:0;background:transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:700px){#roomMasterPanel .nex-wiki-layout{grid-template-columns:minmax(0,1fr)}#roomMasterPanel .nex-wiki-tree{max-height:170px}#roomMasterPanel .nex-wiki-dochead{grid-template-columns:minmax(0,1fr) minmax(85px,110px) auto}}
