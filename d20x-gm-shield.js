@@ -69,7 +69,7 @@ export function mountGmShield(options){
   let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
  let selectedSheet=null,draftNpcId=null,showNpcImport=false,showThreatImport=false;
  function discardNpcDraft(){if(!draftNpcId)return;state.npcs=state.npcs.filter(x=>x.id!==draftNpcId);draftNpcId=null;}
- let activeNoteId='',noteMode='documents',noteSearch='',boardDrag=null,lastLocalWrite=0;
+ let activeNoteId='',noteMode='documents',noteSearch='',boardDrag=null,lastLocalWrite=0,pendingHistoryRoute=null,applyingHistoryRoute=false;
  let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
  let pendingMasterSave=null,pendingNeedsRetry=false;
  const masterDraftKey=(campaign,user)=>'nex_gm_pending_v1:'+user+':'+campaign;
@@ -129,7 +129,7 @@ export function mountGmShield(options){
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
   room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;showThreatImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;pendingMasterSave=null;pendingNeedsRetry=false;
-  clearTimeout(generalSaveTimer);generalSaveTimer=null;activeNoteId='';noteMode='documents';noteSearch='';boardDrag=null;lastLocalWrite=0;richLastRange=null;richDragging=null;root.replaceChildren();
+  clearTimeout(generalSaveTimer);generalSaveTimer=null;activeNoteId='';noteMode='documents';noteSearch='';boardDrag=null;lastLocalWrite=0;pendingHistoryRoute=null;richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
   const ctx=getContext();
@@ -161,7 +161,7 @@ export function mountGmShield(options){
     state=dataSafe(pendingMasterSave);
     saveStatus='Alterações locais não enviadas recuperadas. Confira e salve novamente.';
    }else state=dataSafe(snap.exists()?snap.data():null);
-   ready=true;render();
+   ready=true;if(pendingHistoryRoute){const target=pendingHistoryRoute;pendingHistoryRoute=null;restoreHistoryRoute(target);}else render();
   },error=>{if(room!==current)return;ready=false;root.textContent='Não foi possível carregar o Escudo do Mestre: '+String(error.message||error);});
   readHomebrews();
  }
@@ -1128,6 +1128,21 @@ export function mountGmShield(options){
   }).filter(Boolean);
   return '<details class="nex-gm-favorites"><summary>★ Favoritos ('+titles.length+')</summary><div class="nex-gm-chip-list">'+titles.map(x=>'<span>'+escape(labels[x.kind]||x.kind)+' · '+escape(x.title)+'</span>').join('')+'</div></details>';
  }
+ function historyRoute(){
+  return {tab,noteId:tab==='notes'?(activeNoteId||generalNote()?.id||'nex-general-note'):'',noteMode:tab==='notes'?noteMode:'documents',sheet:selectedSheet?{kind:selectedSheet.kind,id:selectedSheet.id}:null,importView:showNpcImport?'npcs':showThreatImport?'threats':''};
+ }
+ function restoreHistoryRoute(route){
+  if(!route||!kinds.includes(route.tab))return;
+  if(!ready){pendingHistoryRoute=route;return;}
+  flushNoteSave();applyingHistoryRoute=true;
+  try{
+   discardNpcDraft();tab=route.tab;filter='';editing=null;npcInlineEditing=false;
+   activeNoteId=String(route.noteId||'');noteMode=route.noteMode==='board'?'board':'documents';
+   richLastRange=null;selectedSheet=route.sheet&&route.sheet.kind===tab&&state[tab]?.some(n=>n.id===route.sheet.id)?{kind:tab,id:route.sheet.id}:null;
+   showNpcImport=tab==='npcs'&&route.importView==='npcs';showThreatImport=tab==='threats'&&route.importView==='threats';
+   render();if(tab==='threats')void readThreats();
+  }finally{applyingHistoryRoute=false;}
+ }
  function render(){
   if(!room||!getContext().gm)return;
   if(!ready){root.innerHTML='<p class="room-note">Carregando dados privados da campanha…</p>';return;}
@@ -1149,6 +1164,7 @@ export function mountGmShield(options){
   }
   refreshMasterStatus();
   if(tab==='notes')applyNoteSearch();
+  if(!applyingHistoryRoute)options.onHistoryRoute?.(historyRoute());
   if(tab==='threats'&&showThreatImport){const frame=$('[data-gm-threat-picker]');if(frame)frame.addEventListener('load',syncThreatPicker,{once:true});}
   // As cartas de elemento substituem os retratos nos cartões de ameaças.
  }
@@ -1630,5 +1646,5 @@ export function mountGmShield(options){
   render();
   const input=$('[data-gm-search]');if(input){input.focus();try{input.setSelectionRange(at,at);}catch(error){}}
  });
- return {open,close};
+ return {open,close,historyRoute,restoreHistoryRoute};
 }
