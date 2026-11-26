@@ -3501,7 +3501,39 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   }
  }
  window.addEventListener('resize',syncVttRealSheetDock);
+ let d20xHistoryReady=false,d20xHistoryRestoring=false;
+ function d20xRecordScreen(which){
+  if(!storageReady||d20xHistoryRestoring)return;
+  const route={screen:which,agentId:which==='sheet'&&!nexCampaignLiveEdit?active:null,campaignSheet:which==='sheet'&&!!nexCampaignLiveEdit};
+  const current=history.state?.d20xScreen;
+  try{
+   if(!d20xHistoryReady){
+    d20xHistoryReady=true;
+    if(!current&&which!=='home'){
+     history.replaceState({...history.state,d20xScreen:{screen:'home',agentId:null,campaignSheet:false}},'');
+     history.pushState({...history.state,d20xScreen:route},'');
+    }else history.replaceState({...history.state,d20xScreen:route},'');
+   }else if(JSON.stringify(current)!==JSON.stringify(route))history.pushState({...history.state,d20xScreen:route},'');
+  }catch(error){console.warn('D20X: histórico indisponível',error);}
+ }
+ window.addEventListener('popstate',event=>{
+  const route=event.state?.d20xScreen;
+  if(!storageReady||!route||!['home','agents','campaigns','threats','sheet','wizard','homebrew'].includes(route.screen))return;
+  d20xHistoryRestoring=true;
+  try{
+   if(route.screen==='sheet'){
+    if(route.campaignSheet){visible('campaigns');}
+    else if(route.agentId&&agents.some(a=>a.id===route.agentId)){openAgent(route.agentId);}
+    else visible('agents');
+   }else if(route.screen==='home')showHome();
+   else if(route.screen==='agents')showAgents();
+   else if(route.screen==='homebrew')showHomebrew();
+   else if(route.screen==='wizard')visible('agents');
+   else{persist();visible(route.screen);}
+  }finally{d20xHistoryRestoring=false;}
+ });
  function visible(which){
+  d20xRecordScreen(which);
   // Session-only navigation: never store private sheet contents or credentials.
   if(storageReady&&['home','agents','campaigns','threats','sheet','wizard','homebrew'].includes(which)){
     try{sessionStorage.setItem('nex_navigation_screen_v1',JSON.stringify({screen:which,agentId:which==='sheet'?active:null,scrollY:0}));}catch(error){}
