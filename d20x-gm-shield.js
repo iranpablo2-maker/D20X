@@ -310,22 +310,25 @@ export function mountGmShield(options){
   if(holder)holder.textContent=(key.split('::').pop()||'?').trim().charAt(0).toUpperCase();
   requestThreatPortraits();
  },true);
+ const threatCardArt=Object.freeze({energia:'energia',morte:'morte',sangue:'sangue',conhecimento:'conhecimento',medo:'medo',realidade:'realidade',transmissao:'transmissao'});
+ function threatElementArt(entry){
+  const normalize=value=>String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();
+  const catalogEntry=threatCatalog.find(item=>item.title===entry.title);
+  const candidates=[entry.threatHomebrew?.threatSheet?.element,entry.sheet?.element,...String(entry.tag||'').split(' · '),catalogEntry?.tag?.split(' · ')[0]];
+  for(const value of candidates){
+   const key=normalize(value);
+   if(Object.prototype.hasOwnProperty.call(threatCardArt,key))return './assets/rituais/'+threatCardArt[key]+'-carta.webp?v=20261126';
+  }
+  return '';
+ }
  function entityCard(kind,x){
   const title=escape(x.title||'Sem nome'),pic=safeImage(x.image);
-  const sourceKey=kind==='threats'?threatSourceKey(x):'';
-  // Retratos de backup já incluídos no próprio JS. Não somem mesmo após
-  // salvar, recarregar a ficha ou atualizar a campanha no Firebase.
-  const embedded=kind==='threats'&&typeof window.NEX_GM_CARD_IMAGES?.[x.title]==='string'
-   ?window.NEX_GM_CARD_IMAGES[x.title]:'';
-  const storedDirect=pic&&/^\.\/assets\/ameacas\//i.test(pic)?pic:'';
-  const direct=embedded||storedDirect||(sourceKey&&!failedDirectPortraits.has(sourceKey)?directThreatImage(sourceKey):'');
-  const sourced=sourceKey?threatPortraitMarkup(sourceKey):'';
-  const directMarkup=direct?'<img data-gm-direct-threat-image="'+escape(sourceKey)+'" src="'+escape(direct)+'" alt="" loading="eager" decoding="async">':'';
-  const thumb=directMarkup|| (pic?'<img src="'+escape(pic)+'" alt="'+title+'">':'')||sourced||escape((x.title||'?').trim().charAt(0).toUpperCase()||'?');
-  const portraitAttr=sourceKey?' data-gm-threat-portrait="'+escape(sourceKey)+'"':'';
+  const isThreat=kind==='threats',art=isThreat?threatElementArt(x):'';
+  const thumb=isThreat?(art?'<img src="'+escape(art)+'" alt="" loading="lazy" decoding="async">':''):(pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?'));
+  const noCover=isThreat&&!art;
   const key=escape(x.id);
-  return '<article class="nex-gm-entity-card">'+
-   '<div class="nex-gm-entity-cover"'+portraitAttr+'>'+thumb+'</div>'+
+  return '<article class="nex-gm-entity-card"'+(noCover?' style="grid-template-columns:minmax(0,1fr)"':'')+'>'+
+   (noCover?'':'<div class="nex-gm-entity-cover">'+thumb+'</div>')+
    '<div class="nex-gm-entity-body"><div class="nex-gm-entity-top"><strong>'+title+'</strong>'+
    '<details class="nex-gm-entity-settings"><summary aria-label="Configurações da ficha" title="Configurações">⚙</summary>'+
    '<div class="nex-gm-entity-settings-actions"><button type="button" data-gm-edit="'+kind+':'+key+'">Editar</button>'+
@@ -1049,7 +1052,7 @@ export function mountGmShield(options){
   }
   refreshMasterStatus();
   if(tab==='threats'&&showThreatImport){const frame=$('[data-gm-threat-picker]');if(frame)frame.addEventListener('load',syncThreatPicker,{once:true});}
-  if(tab==='threats'&&!showThreatImport)requestThreatPortraits();
+  // As cartas de elemento substituem os retratos nos cartões de ameaças.
  }
  function makeRecord(form,kind){
   const raw=Object.fromEntries(new FormData(form).entries());
