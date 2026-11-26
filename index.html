@@ -2206,6 +2206,44 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 </style>
 <link rel="stylesheet" href="./d20x-mobile-20261123.css?v=20261123mobile2">
 <link rel="stylesheet" href="./d20x-visual-refresh-20261124.css?v=20261124a">
+<style id="d20x-multisystem-hub">
+#d20xSystemHub[hidden],#d20xOrdemWorkspace[hidden]{display:none!important}
+#mainMenu .d20x-hub-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:clamp(22px,4vw,44px);border:1px solid #43262e;border-radius:14px;background:radial-gradient(ellipse at 95% 10%,#4b1824 0%,#161014 52%,#0b0a0d 100%);overflow:hidden}
+#mainMenu .d20x-hub-hero img{flex:none;width:clamp(72px,14vw,145px);height:auto;filter:drop-shadow(0 0 22px #a6374e66)}
+#mainMenu .d20x-hub-kicker{font-size:10px;letter-spacing:.17em;color:#f28a9d;font-weight:800}
+#mainMenu .d20x-hub-hero h2{font-size:clamp(26px,4.3vw,48px);line-height:1.12;color:#fff;margin:14px 0 10px;letter-spacing:-.025em}
+#mainMenu .d20x-hub-hero p{color:#c1b6bf;max-width:560px;font-size:14px;line-height:1.55;margin:0}
+#mainMenu .d20x-hub-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:26px 0 12px}
+#mainMenu .d20x-hub-heading h2{color:#f6eff2;font-size:19px;margin:0}
+#mainMenu .d20x-hub-heading>span{color:#a99ba3;font-size:12px}
+#mainMenu .d20x-system-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#mainMenu .d20x-system-card{--accent:#cf6478;--glow:#47212e;appearance:none;display:grid;grid-template-columns:1fr auto;align-items:start;gap:10px;text-align:left;min-width:0;min-height:160px;padding:20px;background:linear-gradient(145deg,var(--glow),#121014 100%)!important;border:1px solid #48363d;border-radius:10px;color:white;cursor:pointer}
+#mainMenu .d20x-system-card:hover,#mainMenu .d20x-system-card:focus-visible{border-color:var(--accent);outline-offset:2px}
+#mainMenu .d20x-system-card strong,#mainMenu .d20x-system-card small,#mainMenu .d20x-system-enter{grid-column:1/-1}
+#mainMenu .d20x-system-card strong{font-size:16px;line-height:1.25;display:block;color:#fff;text-transform:none;letter-spacing:normal}
+#mainMenu .d20x-system-card small{display:block;font-size:12px;color:#c4b9c1;line-height:1.5;font-weight:400}
+#mainMenu .d20x-system-icon{width:40px;height:40px;border:1px solid var(--accent,#b64e63);border-radius:8px;display:grid;place-items:center;color:var(--accent,#e36e85);font-size:25px;background:#10101499}
+#mainMenu .d20x-system-status{color:var(--accent);font-size:9px;letter-spacing:.06em;font-weight:750;padding-top:4px;text-align:right}
+#mainMenu .d20x-system-enter{color:var(--accent);font-size:11px;font-weight:750;margin-top:auto}
+#mainMenu .d20x-system-fantasy{--accent:#e9b974;--glow:#3d291b}
+#mainMenu .d20x-system-tormenta{--accent:#e48476;--glow:#43221d}
+#mainMenu .d20x-system-cthulhu{--accent:#91c5a2;--glow:#19372e}
+#mainMenu .d20x-system-pathfinder{--accent:#91aadd;--glow:#222b47}
+#mainMenu .d20x-system-custom{--accent:#c5acdf;--glow:#32243d}
+#mainMenu .d20x-hub-campaign{display:flex;align-items:center;gap:14px;text-align:left;width:100%;padding:16px;border:1px solid #51323b;border-radius:10px;background:#191216;color:#fff;cursor:pointer}
+#mainMenu .d20x-hub-campaign>span:nth-child(2){flex:1;min-width:0}
+#mainMenu .d20x-hub-campaign strong,#mainMenu .d20x-hub-campaign small{display:block}
+#mainMenu .d20x-hub-campaign small{color:#c3b6bd;margin-top:5px;font-size:12px;line-height:1.45}
+#mainMenu .d20x-hub-campaign:hover{border-color:#d06a7d}
+#mainMenu .d20x-ordem-hero{margin-top:12px}
+@media(max-width:800px){#mainMenu .d20x-system-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){#mainMenu .d20x-system-cards{grid-template-columns:minmax(0,1fr)}#mainMenu .d20x-system-card{min-height:150px}#mainMenu .d20x-hub-hero{gap:10px}#mainMenu .d20x-hub-hero img{width:65px}#mainMenu .d20x-hub-hero p{font-size:12px}}
+
+#mainMenu .d20x-system-cards{display:grid!important}
+#mainMenu .d20x-system-card{display:grid!important;width:100%;box-sizing:border-box;white-space:normal;overflow-wrap:anywhere;box-shadow:none;text-transform:none;letter-spacing:normal}
+#mainMenu .d20x-hub-hero h2{letter-spacing:-.025em!important;text-transform:none!important}
+#mainMenu .d20x-system-card .d20x-system-enter{display:block}
+</style>
 </head><body>
 <script src="d20x-sobrevivendo-ao-horror.js?v=20261125revisao40"></script>
 <script src="d20x-arquivos-secretos.js?v=20261125revisao136"></script>
@@ -6806,37 +6844,5 @@ body.nex-vtt-sheet-overlay.nex-character-roll-toast-active #nexAttributeRollPopu
 
 
 <style>#nexSystemPicker{color:#f5edef;background:#171416;border:1px solid #6b3941;border-radius:12px;width:min(650px,calc(100% - 24px));max-height:85vh;overflow:auto;padding:20px}#nexSystemPicker::backdrop{background:#000b}#nexSystemPicker .nex-system-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:16px}#nexSystemPicker .nex-system-grid button{display:grid;text-align:left;gap:6px;padding:14px;background:#241c20;color:#f5edef;border:1px solid #67434a;border-radius:8px}#nexSystemPicker button:hover{border-color:#ff8595}#nexSystemPicker small{color:#c5b2b8;font-weight:400}#nexSystemPicker h2{font-size:17px}</style><dialog id="nexSystemPicker" aria-labelledby="nexSystemTitle"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h2 id="nexSystemTitle">Escolha o sistema de RPG</h2><button class="btn" id="nexSystemClose" type="button" aria-label="Fechar">×</button></div><div class="nex-system-grid"><button type="button" data-nex-system="ordem"><strong>Ordem Paranormal</strong><small>Ficha existente · automações atuais</small></button><button type="button" data-nex-system="D&D 5e"><strong>D&amp;D 5e</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Tormenta20"><strong>Tormenta20</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Call of Cthulhu"><strong>Call of Cthulhu</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Pathfinder 2e"><strong>Pathfinder 2e</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Personalizado"><strong>Sistema personalizado</strong><small>Campos editáveis e regras próprias</small></button></div><p class="hint" style="margin-top:12px">Os novos sistemas usam fichas manuais locais; ainda não possuem automação ou integração com campanhas.</p></dialog><script>(()=>{const d=document.getElementById('nexSystemPicker');let origin=null,bypass=false;document.addEventListener('click',e=>{const target=e.target.closest?.('#menuNew,#agentsCreate,[data-home="new"]');if(!target||bypass||document.body.dataset.d20xScreen==='ordem')return;e.preventDefault();e.stopImmediatePropagation();origin=target;if(!d.open)d.showModal();},true);document.getElementById('nexSystemClose').onclick=()=>d.close();d.addEventListener('click',e=>{const target=e.target.closest?.('[data-nex-system]');if(!target)return;const value=target.dataset.nexSystem;d.close();if(value==='ordem'){if(!origin)return;bypass=true;try{origin.click();}finally{bypass=false;}}else location.href='./fichas-universais.html?system='+encodeURIComponent(value);});})();</script>
-<style id="d20x-multisystem-hub">
-#d20xSystemHub[hidden],#d20xOrdemWorkspace[hidden]{display:none!important}
-#mainMenu .d20x-hub-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:clamp(22px,4vw,44px);border:1px solid #43262e;border-radius:14px;background:radial-gradient(ellipse at 95% 10%,#4b1824 0%,#161014 52%,#0b0a0d 100%);overflow:hidden}
-#mainMenu .d20x-hub-hero img{flex:none;width:clamp(72px,14vw,145px);height:auto;filter:drop-shadow(0 0 22px #a6374e66)}
-#mainMenu .d20x-hub-kicker{font-size:10px;letter-spacing:.17em;color:#f28a9d;font-weight:800}
-#mainMenu .d20x-hub-hero h2{font-size:clamp(26px,4.3vw,48px);line-height:1.12;color:#fff;margin:14px 0 10px;letter-spacing:-.025em}
-#mainMenu .d20x-hub-hero p{color:#c1b6bf;max-width:560px;font-size:14px;line-height:1.55;margin:0}
-#mainMenu .d20x-hub-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:26px 0 12px}
-#mainMenu .d20x-hub-heading h2{color:#f6eff2;font-size:19px;margin:0}
-#mainMenu .d20x-hub-heading>span{color:#a99ba3;font-size:12px}
-#mainMenu .d20x-system-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-#mainMenu .d20x-system-card{--accent:#cf6478;--glow:#47212e;display:grid;grid-template-columns:1fr auto;align-items:start;gap:10px;text-align:left;min-width:0;min-height:190px;padding:18px;background:linear-gradient(145deg,var(--glow),#121014 75%);border:1px solid #48363d;border-radius:10px;color:white;cursor:pointer}
-#mainMenu .d20x-system-card:hover,#mainMenu .d20x-system-card:focus-visible{border-color:var(--accent);outline-offset:2px}
-#mainMenu .d20x-system-card strong,#mainMenu .d20x-system-card small,#mainMenu .d20x-system-enter{grid-column:1/-1}
-#mainMenu .d20x-system-card strong{font-size:16px;line-height:1.25}
-#mainMenu .d20x-system-card small{font-size:12px;color:#c4b9c1;line-height:1.5}
-#mainMenu .d20x-system-icon{width:40px;height:40px;border:1px solid var(--accent,#b64e63);border-radius:8px;display:grid;place-items:center;color:var(--accent,#e36e85);font-size:25px;background:#10101499}
-#mainMenu .d20x-system-status{color:var(--accent);font-size:9px;letter-spacing:.06em;font-weight:750;padding-top:4px;text-align:right}
-#mainMenu .d20x-system-enter{color:var(--accent);font-size:11px;font-weight:750;margin-top:auto}
-#mainMenu .d20x-system-fantasy{--accent:#e9b974;--glow:#3d291b}
-#mainMenu .d20x-system-tormenta{--accent:#e48476;--glow:#43221d}
-#mainMenu .d20x-system-cthulhu{--accent:#91c5a2;--glow:#19372e}
-#mainMenu .d20x-system-pathfinder{--accent:#91aadd;--glow:#222b47}
-#mainMenu .d20x-system-custom{--accent:#c5acdf;--glow:#32243d}
-#mainMenu .d20x-hub-campaign{display:flex;align-items:center;gap:14px;text-align:left;width:100%;padding:16px;border:1px solid #51323b;border-radius:10px;background:#191216;color:#fff;cursor:pointer}
-#mainMenu .d20x-hub-campaign>span:nth-child(2){flex:1;min-width:0}
-#mainMenu .d20x-hub-campaign strong,#mainMenu .d20x-hub-campaign small{display:block}
-#mainMenu .d20x-hub-campaign small{color:#c3b6bd;margin-top:5px;font-size:12px;line-height:1.45}
-#mainMenu .d20x-hub-campaign:hover{border-color:#d06a7d}
-#mainMenu .d20x-ordem-hero{margin-top:12px}
-@media(max-width:800px){#mainMenu .d20x-system-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:420px){#mainMenu .d20x-system-cards{grid-template-columns:minmax(0,1fr)}#mainMenu .d20x-system-card{min-height:150px}#mainMenu .d20x-hub-hero{gap:10px}#mainMenu .d20x-hub-hero img{width:65px}#mainMenu .d20x-hub-hero p{font-size:12px}}
-</style>
+
 </body></html>
