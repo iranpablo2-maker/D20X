@@ -12,7 +12,7 @@ nav a{color:#f0c7ce;text-decoration:none;font-weight:600}nav a:hover{text-decora
 .brand{letter-spacing:.16em;font:700 22px Georgia,serif;color:#fff}
 .card{border:1px solid var(--border);border-radius:12px;background:var(--panel);overflow:hidden}
 .hero{display:flex;position:relative;isolation:isolate;gap:20px;padding:24px;min-height:184px;align-items:center;background:var(--art,linear-gradient(110deg,#46131c,#151016));background-size:cover;background-position:center}
-.hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#100b10f0,#100b10af 75%,#100b105c)}
+.hero:before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(90deg,#100b10b8,#100b1060 75%,#100b1033)}
 .portrait-switch{display:flex;flex-direction:column;align-items:stretch;flex:0 0 144px;gap:8px}
 .form-switch{display:none;background:#7f2335;border:1px solid #dd6676;color:#fff;font-weight:650;font-size:11px;line-height:1.35;padding:8px 7px;border-radius:7px;cursor:pointer;text-align:center}
 .form-switch:not([hidden]){display:block}
@@ -280,7 +280,7 @@ function threatFacts(x){
  return {...original,...extra,attributes:{...(original.attributes||{}),...(extra.attributes||{})},abilities:restoredAbilities,actions:restoredActions};
 }
 
-const images={Sangue:"./assets/rituais/sangue-fundo.svg",Morte:"./assets/rituais/morte-fundo.svg",Energia:"./assets/rituais/energia-fundo.svg",Conhecimento:"./assets/rituais/conhecimento-fundo.svg",Medo:"./assets/rituais/medo-fundo.svg"};
+const images={"Energia":"./assets/rituais/energia-carta.webp?v=20261126","Morte":"./assets/rituais/morte-carta.webp?v=20261126","Sangue":"./assets/rituais/sangue-carta.webp?v=20261126","Conhecimento":"./assets/rituais/conhecimento-carta.webp?v=20261126","Medo":"./assets/rituais/medo-carta.webp?v=20261126","Realidade":"./assets/rituais/realidade-carta.webp?v=20261126","Transmissão":"./assets/rituais/transmissao-carta.webp?v=20261126"};
 const $=id=>document.getElementById(id), esc=value=>String(value??"").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const key=new URLSearchParams(location.search).get("id");
 const razielTrueKey="Arquivos Secretos — Julho::O Verdadeiro Raziel";

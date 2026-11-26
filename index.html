@@ -1890,17 +1890,23 @@ body > #nexOriginPopup[hidden]{display:none!important;}
  --nex-element-image:none;
  background-color:#161218!important;
  background-image:linear-gradient(180deg,rgba(10,8,14,.48),rgba(10,8,14,.70)),var(--nex-element-image)!important;
- background-size:100% 100%,cover!important;
- background-position:center center,center center!important;
- background-repeat:no-repeat,no-repeat!important;
+ background-size:100% 100%,cover,cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
  border-color:rgba(180,101,113,.48)!important;
  color:#f7f2f4;
 }
-#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Energia"]{--nex-element-image:url("./assets/rituais/energia-fundo.svg?v=20261113fundosfix9")!important}
-#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Medo"]{--nex-element-image:url("./assets/rituais/medo-fundo.svg?v=20261113fundosfix9")!important}
-#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Morte"]{--nex-element-image:url("./assets/rituais/morte-fundo.svg?v=20261113fundosfix9")!important}
-#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Sangue"]{--nex-element-image:url("./assets/rituais/sangue-fundo.svg?v=20261113fundosfix9")!important}
-#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Conhecimento"]{--nex-element-image:url("./assets/rituais/conhecimento-fundo.svg?v=20261113fundosfix9")!important}
+#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Energia"]{--nex-element-image:url("./assets/rituais/energia-carta.webp?v=20261126"),linear-gradient(135deg,#332045,#111014)!important}
+#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Morte"]{--nex-element-image:url("./assets/rituais/morte-carta.webp?v=20261126"),linear-gradient(135deg,#29272b,#111014)!important}
+#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Sangue"]{--nex-element-image:url("./assets/rituais/sangue-carta.webp?v=20261126"),linear-gradient(135deg,#471e26,#111014)!important}
+#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Conhecimento"]{--nex-element-image:url("./assets/rituais/conhecimento-carta.webp?v=20261126"),linear-gradient(135deg,#42371f,#111014)!important}
+#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Medo"]{--nex-element-image:url("./assets/rituais/medo-carta.webp?v=20261126"),linear-gradient(135deg,#687780,#111014)!important}
+#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Realidade"]{--nex-element-image:url("./assets/rituais/realidade-carta.webp?v=20261126"),linear-gradient(135deg,#5d4831,#111014)!important}
+#sheetScreen :is(.nex-ritual-card,.tk-dmg-card,.tk-card)[data-ritual-element="Transmissão"]{--nex-element-image:url("./assets/rituais/transmissao-carta.webp?v=20261126"),linear-gradient(135deg,#153c1c,#111014)!important}
+
+
+
+
 #sheetScreen .nex-ritual-card[data-ritual-element] summary,
 #sheetScreen #nexTkPanel .tk-dmg-card[data-ritual-element]>summary,
 #sheetScreen #nexTkPanel .tk-card[data-ritual-element] .tk-row{
