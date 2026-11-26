@@ -969,24 +969,34 @@ export function mountGmShield(options){
   const editorContent=sanitized.includes('nex-gm-note-image')&&/<\/div>\s*$/.test(sanitized)?sanitized+'<p><br></p>':sanitized;
   const folders=[...new Set([...state.noteFolders,...state.notes.map(n=>n.noteFolder).filter(Boolean)])];
   const other=state.notes.filter(n=>n.id!==item.id),links=linkedNotes(item),backlinks=other.filter(n=>linkedNotes(n).some(v=>v.id===item.id));
-  const chips=items=>items.length?items.map(n=>'<button type="button" data-wiki-action="open" data-wiki-id="'+escape(n.id)+'">'+escape(n.title)+'</button>').join(''):'<small>Nenhum documento.</small>';
+  const chips=wikiChips;
   const folderOptions='<option value="">Sem pasta</option>'+folders.map(n=>'<option value="'+escape(n)+'"'+(item.noteFolder===n?' selected':'')+'>'+escape(n)+'</option>').join('');
   return '<section class="nex-wiki"><div class="nex-wiki-toolbar"><div><strong>Arquivo da campanha</strong><small>Documentos privados do mestre</small></div><div><button type="button" data-wiki-action="documents" aria-pressed="'+(noteMode==='documents')+'">Documentos</button> <button type="button" data-wiki-action="board" aria-pressed="'+(noteMode==='board')+'">Quadro de investigação</button></div></div>'+
    (noteMode==='board'?renderNoteBoard():'<div class="nex-wiki-layout"><aside class="nex-wiki-sidebar"><input type="search" data-wiki-search placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" value="'+escape(noteSearch)+'"><div class="nex-wiki-create"><input data-wiki-new-note maxlength="110" placeholder="Nome do documento" aria-label="Nome do novo documento"><button type="button" data-wiki-action="new-note">+ Documento</button></div><div class="nex-wiki-create"><input data-wiki-new-folder maxlength="80" placeholder="Nome da pasta" aria-label="Nome da nova pasta"><button type="button" data-wiki-action="new-folder">+ Pasta</button></div><div class="nex-wiki-tree">'+state.notes.filter(n=>!n.noteFolder).map(n=>noteListButton(n,item)).join('')+folders.map(folder=>'<details open><summary>▸ '+escape(folder)+'</summary>'+state.notes.filter(n=>n.noteFolder===folder).map(n=>noteListButton(n,item)).join('')+'</details>').join('')+'</div></aside>'+
    '<div class="nex-gm-general-notes nex-wiki-document"><div class="nex-wiki-dochead"><input data-wiki-title maxlength="110" aria-label="Título do documento" value="'+escape(item.title)+'"'+(item.id===ensureGeneralNote().id?' readonly':'')+'><select data-wiki-folder aria-label="Pasta do documento">'+folderOptions+'</select>'+(item.id===ensureGeneralNote().id?'':'<button type="button" data-wiki-action="delete">Excluir</button>')+'</div>'+
    '<div id="nexGmRichEditor" class="nex-gm-rich-editor" data-gm-rich-note contenteditable="true" role="textbox" aria-label="Anotação" aria-multiline="true" data-placeholder="Escreva informações, pistas e acontecimentos…">'+editorContent+'</div>'+
    '<div class="nex-gm-general-tools"><label class="nex-gm-image-upload">Inserir imagem<input type="file" data-gm-general-file accept="image/png,image/jpeg,image/webp" multiple></label><span class="nex-gm-rich-hint">Arraste imagens ou escreva [[Nome do documento]] para criar vínculos.</span></div>'+
-   '<div class="nex-wiki-links"><strong>Conexões</strong><div class="nex-wiki-create"><select data-wiki-link aria-label="Documento a vincular">'+noteOptions(other,'Escolher documento')+'</select><button type="button" data-wiki-action="link">Vincular</button></div><div class="nex-wiki-chips">'+chips(links)+'</div><div class="nex-wiki-create"><select data-wiki-unlink aria-label="Vínculo a remover">'+noteOptions(other.filter(n=>(item.noteLinks||[]).includes(n.id)),'Remover vínculo manual')+'</select><button type="button" data-wiki-action="unlink">Remover</button></div><strong>Referências a este documento</strong><div class="nex-wiki-chips">'+chips(backlinks)+'</div></div></div></div>')+'</section>';
+   '<div class="nex-wiki-links"><strong>Conexões</strong><div class="nex-wiki-create"><select data-wiki-link aria-label="Documento a vincular">'+noteOptions(other,'Escolher documento')+'</select><button type="button" data-wiki-action="link">Vincular</button></div><div class="nex-wiki-chips" data-wiki-outgoing>'+chips(links)+'</div><div class="nex-wiki-create"><select data-wiki-unlink aria-label="Vínculo a remover">'+noteOptions(other.filter(n=>(item.noteLinks||[]).includes(n.id)),'Remover vínculo manual')+'</select><button type="button" data-wiki-action="unlink">Remover</button></div><strong>Referências a este documento</strong><div class="nex-wiki-chips" data-wiki-incoming>'+chips(backlinks)+'</div></div></div></div>')+'</section>';
  }
  function updateGeneralNote(fields){
   Object.assign(currentNote(),fields);store();
+ }
+ function wikiChips(items){
+  return items.length?items.map(n=>'<button type="button" data-wiki-action="open" data-wiki-id="'+escape(n.id)+'">'+escape(n.title)+'</button>').join(''):'<small>Nenhum documento.</small>';
+ }
+ function refreshWikiDerived(){
+  const n=currentNote(),out=$('[data-wiki-outgoing]'),incoming=$('[data-wiki-incoming]');
+  if(out)out.innerHTML=wikiChips(linkedNotes(n));
+  if(incoming)incoming.innerHTML=wikiChips(state.notes.filter(v=>v.id!==n.id&&linkedNotes(v).some(link=>link.id===n.id)));
+  for(const btn of root.querySelectorAll('[data-wiki-searchable]'))if(btn.dataset.wikiId===n.id){btn.dataset.wikiSearchable=(n.title+' '+noteText(n)).toLocaleLowerCase('pt-BR');}
+  applyNoteSearch();
  }
  function applyNoteSearch(){
   const q=noteSearch.trim().toLocaleLowerCase('pt-BR');
   root.querySelectorAll('[data-wiki-searchable]').forEach(el=>el.hidden=!!q&&!el.dataset.wikiSearchable.includes(q));
  }
  function flushNoteSave(){
-  if(generalSaveTimer){clearTimeout(generalSaveTimer);generalSaveTimer=null;store();}
+  if(generalSaveTimer){clearTimeout(generalSaveTimer);generalSaveTimer=null;refreshWikiDerived();store();}
  }
  function wikiAction(btn){
   const action=btn.dataset.wikiAction;if(!action)return false;
@@ -1075,13 +1085,13 @@ export function mountGmShield(options){
   }
  }
  function scheduleRichSave(){
-  clearTimeout(generalSaveTimer);
+  clearTimeout(generalSaveTimer);generalSaveTimer=null;
   const editor=richEditor(),currentRoom=room;
   if(!editor)return;
   const value=sanitizeRich(editor.innerHTML);
   if(value.length>570000){status('Limite de imagens da anotação atingido. Exclua ou reduza uma imagem.');return;}
   Object.assign(currentNote(),{richHtml:value,body:'',image:''});
-  generalSaveTimer=setTimeout(()=>{generalSaveTimer=null;if(room===currentRoom&&ready)store();},950);
+  generalSaveTimer=setTimeout(()=>{generalSaveTimer=null;if(room===currentRoom&&ready){refreshWikiDerived();store();}},950);
  }
  function gmSectionHeader(kind){
   return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div>'+
