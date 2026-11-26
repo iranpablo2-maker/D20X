@@ -996,7 +996,7 @@ export function mountGmShield(options){
   root.querySelectorAll('[data-wiki-searchable]').forEach(el=>el.hidden=!!q&&!el.dataset.wikiSearchable.includes(q));
  }
  function flushNoteSave(){
-  if(generalSaveTimer){clearTimeout(generalSaveTimer);generalSaveTimer=null;refreshWikiDerived();store();}
+  if(generalSaveTimer){clearTimeout(generalSaveTimer);generalSaveTimer=null;store();}
  }
  function wikiAction(btn){
   const action=btn.dataset.wikiAction;if(!action)return false;
@@ -1091,6 +1091,7 @@ export function mountGmShield(options){
   const value=sanitizeRich(editor.innerHTML);
   if(value.length>570000){status('Limite de imagens da anotação atingido. Exclua ou reduza uma imagem.');return;}
   Object.assign(currentNote(),{richHtml:value,body:'',image:''});
+  const localDraft={...state,version:1,updatedAt:Date.now()};if(JSON.stringify(localDraft).length<=680000)saveMasterDraft(localDraft,room,getContext().uid);
   generalSaveTimer=setTimeout(()=>{generalSaveTimer=null;if(room===currentRoom&&ready){refreshWikiDerived();store();}},950);
  }
  function gmSectionHeader(kind){
