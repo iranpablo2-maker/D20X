@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>D20X | Campanhas e Tabletop</title><link rel="icon" type="image/svg+xml" href="./d20x-logo.svg?v=20261126transparent"><link rel="icon" type="image/png" href="./d20x-logo.png?v=20261126hd">
+<title>D20X | Campanhas e Tabletop</title><link rel="icon" type="image/svg+xml" href="./d20x-logo.svg?v=20261126transparent"><link rel="icon" type="image/png" href="./d20x-logo.png?v=20261126originalHD">
 <style>
 :root{color-scheme:dark;font-family:system-ui,'Segoe UI',sans-serif;background:#08090b;color:#f1eff1;--red:#b72e3a}
 *{box-sizing:border-box}body{margin:0;background:#09090b;color:#eee}button,input,textarea,select{font:inherit}button{cursor:pointer}
@@ -2951,6 +2951,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
 }
 </style>
 <link rel="stylesheet" href="./d20x-tabletop-mobile-20261123.css?v=20261123mobile2">
+<script defer src="./d20x-logo-display.js?v=20261126originalHD"></script>
 </head>
 <body>
 <script>
@@ -3063,7 +3064,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
     <button type="button" data-room-section="invites" aria-pressed="false" class="hide">Convites</button>
    </div>
    <section id="roomTabletopPanel" class="room-panel hide" aria-label="Tabletop da campanha">
-    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><img src="./d20x-logo.png?v=20261126hd" onerror="this.onerror=null;this.src='./d20x-logo.svg?v=20261126transparent'" alt="" width="38" height="38" style="object-fit:contain;background:transparent;border-radius:5px"><div class="nex-vtt-brand-copy"><strong>D20X</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexVttBuildTag" title="Versão do tabletop do D20X">D20X VTT 2.0</span><button type="button" id="nexVttReload" title="Recarregar a interface da mesa">⟳ Recarregar</button><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
+    <div class="nex-vtt-heading"><div class="nex-vtt-brand"><img src="./d20x-logo.png?v=20261126originalHD" onerror="this.onerror=null;this.src='./d20x-logo.svg?v=20261126transparent'" alt="" width="38" height="38" style="object-fit:contain;background:transparent;border-radius:5px"><div class="nex-vtt-brand-copy"><strong>D20X</strong><span>MESA VIRTUAL · <span id="nexVttCampaignName">Campanha</span></span></div></div><nav class="nex-lich-mainnav" aria-label="Navegação da mesa"><button type="button" id="nexVttNavMap" aria-current="page">◈ Mesa</button><button type="button" id="nexVttNavSheets">▤ Personagens</button><button type="button" id="nexVttNavCombat">⚔ Combate</button></nav><div class="nex-vtt-heading-actions"><span id="nexVttBuildTag" title="Versão do tabletop do D20X">D20X VTT 2.0</span><button type="button" id="nexVttReload" title="Recarregar a interface da mesa">⟳ Recarregar</button><span id="nexTabletopRole" class="badge">Tabuleiro</span><button type="button" id="nexVttSheetsToggle" aria-expanded="true" aria-controls="nexVttSheetsPanel">Fichas</button><button type="button" id="nexVttExit">Voltar à campanha</button></div></div>
     <div class="room-panel-head nex-vtt-subheading"><h2>Mesa virtual</h2><small>Mapas e tokens sincronizados</small></div>
     <p class="room-note" id="nexTabletopMessage">Carregando mapa da campanha...</p>
     <div class="nex-vtt-layout" id="nexVttWorkspace"><button id="nexVttSidebarToggle" type="button" aria-controls="nexTabletopTools" aria-expanded="false" title="Abrir ferramentas" aria-label="Abrir ferramentas">›</button><button id="nexVttSheetsCornerToggle" type="button" aria-controls="nexVttMainMenu" aria-expanded="false" title="Menu principal" aria-label="Menu principal">☰</button><div id="nexVttMainMenu" class="nex-vtt-main-menu" hidden>
