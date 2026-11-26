@@ -9,7 +9,7 @@ export function mountGmShield(options){
  const kinds=['notes','npcs','threats'];
  const labels={notes:'Anotações',sessions:'Sessões',npcs:'NPCs',threats:'Ameaças',rules:'Regras',secrets:'Segredos'};
  const icons={notes:'▤ ',npcs:'',threats:''};
- const empty=()=>({notes:[],sessions:[],npcs:[],threats:[],secrets:[],timeline:[],favorites:[],rolls:[]});
+ const empty=()=>({noteFolders:[],notes:[],sessions:[],npcs:[],threats:[],secrets:[],timeline:[],favorites:[],rolls:[]});
  const npcSkillNames=['Acrobacia','Adestramento','Artes','Atletismo','Atualidades','Ciências','Crime','Diplomacia','Enganação','Fortitude','Furtividade','Iniciativa','Intimidação','Intuição','Investigação','Luta','Medicina','Ocultismo','Percepção','Pilotagem','Pontaria','Profissão','Reflexos','Religião','Sobrevivência','Tática','Tecnologia','Vontade'];
  const npcAttrNames=[['agi','Agilidade'],['for','Força'],['int','Intelecto'],['pre','Presença'],['vig','Vigor']];
  const npcSheet=raw=>{
@@ -69,6 +69,7 @@ export function mountGmShield(options){
   let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
  let selectedSheet=null,draftNpcId=null,showNpcImport=false,showThreatImport=false;
  function discardNpcDraft(){if(!draftNpcId)return;state.npcs=state.npcs.filter(x=>x.id!==draftNpcId);draftNpcId=null;}
+ let activeNoteId='',noteMode='documents',noteSearch='',boardDrag=null,lastLocalWrite=0;
  let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
  let pendingMasterSave=null,pendingNeedsRetry=false;
  const masterDraftKey=(campaign,user)=>'nex_gm_pending_v1:'+user+':'+campaign;
@@ -84,8 +85,10 @@ export function mountGmShield(options){
    tag:String(x.tag||'').slice(0,150),body:String(x.body||'').slice(0,key==='notes'?18000:4000),richHtml:key==='notes'?String(x.richHtml||'').slice(0,590000):'',
    date:String(x.date||'').slice(0,80),status:String(x.status||'').slice(0,50),
    image:safeImage(x.image),sourceId:String(x.sourceId||'').slice(0,120),sheet:npcSheet(x.sheet),ritualSupports:Array.isArray(x.ritualSupports)?x.ritualSupports.slice(0,30).filter(e=>e&&typeof e==='object').map(e=>({key:String(e.key||'').slice(0,140),type:String(e.type||'').slice(0,30),value:Math.max(-999,Math.min(999,Number(e.value)||0)),target:String(e.target||'').slice(0,80)})):[],hpCurrent:Number.isSafeInteger(Number(x.hpCurrent))&&x.hpCurrent!==null&&x.hpCurrent!==undefined&&x.hpCurrent!==''?Math.max(0,Math.min(npcSheet(x.sheet).pv,Number(x.hpCurrent))):null,hasFullSheet:!!x.hasFullSheet,revealed:!!x.revealed,
+   noteFolder:key==='notes'?String(x.noteFolder||'').slice(0,80):'',noteLinks:key==='notes'&&Array.isArray(x.noteLinks)?[...new Set(x.noteLinks.map(v=>String(v).slice(0,70)))].slice(0,100):[],noteX:key==='notes'&&Number.isFinite(x.noteX)?Math.max(0,Math.min(5000,x.noteX)):null,noteY:key==='notes'&&Number.isFinite(x.noteY)?Math.max(0,Math.min(5000,x.noteY)):null,
    threatHomebrew:key==='threats'&&x.threatHomebrew&&typeof x.threatHomebrew==='object'?JSON.parse(JSON.stringify(x.threatHomebrew)):null
   })):[]; 
+  result.noteFolders=Array.isArray(raw.noteFolders)?[...new Set(raw.noteFolders.map(v=>String(v).trim().slice(0,80)).filter(Boolean))].slice(0,50):[];
   result.favorites=Array.isArray(raw.favorites)?raw.favorites.slice(0,120).map(x=>String(x).slice(0,130)):[];
   result.rolls=Array.isArray(raw.rolls)?raw.rolls.slice(0,30).filter(x=>x&&typeof x==='object').map(x=>({expression:String(x.expression||'').slice(0,60),result:String(x.result||'').slice(0,220),at:String(x.at||'').slice(0,30)})):[];
   return result;
@@ -126,7 +129,7 @@ export function mountGmShield(options){
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
   room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;showThreatImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;pendingMasterSave=null;pendingNeedsRetry=false;
-  clearTimeout(generalSaveTimer);richLastRange=null;richDragging=null;root.replaceChildren();
+  clearTimeout(generalSaveTimer);generalSaveTimer=null;activeNoteId='';noteMode='documents';noteSearch='';boardDrag=null;lastLocalWrite=0;richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
   const ctx=getContext();
@@ -136,6 +139,7 @@ export function mountGmShield(options){
   // Sessão do navegador: restaura apenas a visualização, nunca um formulário não salvo.
   try{
    const previous=JSON.parse(sessionStorage.getItem('nex_gm_navigation_v1:'+ctx.uid+':'+room)||'null');
+   activeNoteId=String(previous?.noteId||'');noteMode=previous?.noteMode==='board'?'board':'documents';
    tab=kinds.includes(previous?.tab)?previous.tab:'notes';
    selectedSheet=previous?.sheet&&['npcs','threats'].includes(previous.sheet.kind)
     ?{kind:previous.sheet.kind,id:String(previous.sheet.id||'').slice(0,80)}:null;
@@ -151,7 +155,8 @@ export function mountGmShield(options){
   const current=room;
   unsubscribe=onSnapshot(doc(db,'campaigns',room,'masterNotes','shield'),snap=>{
    if(room!==current)return;
-   if(revision>committed)return;
+   if(revision>committed||generalSaveTimer)return;
+   if(ready&&lastLocalWrite&&snap.data()?.updatedAt===lastLocalWrite)return;
    if(pendingMasterSave){
     state=dataSafe(pendingMasterSave);
     saveStatus='Alterações locais não enviadas recuperadas. Confira e salve novamente.';
@@ -162,9 +167,10 @@ export function mountGmShield(options){
  }
  function store(){
   if(!ready||!room||!getContext().gm)return;
-  const payload={...state,version:1,updatedAt:Date.now()};
+  const payload=JSON.parse(JSON.stringify({...state,version:1,updatedAt:Date.now()}));
   if(JSON.stringify(payload).length>680000){status('Limite de dados da campanha atingido. Reduza algumas anotações.');return;}
-  const current=room,user=getContext().uid,number=++revision;
+  lastLocalWrite=payload.updatedAt;
+   const current=room,user=getContext().uid,number=++revision;
   pendingMasterSave=payload;pendingNeedsRetry=false;
   const backupReady=saveMasterDraft(payload,current,user);
   status(backupReady?'Salvando na conta…':'Salvando na conta… (cópia local indisponível)');
@@ -915,20 +921,98 @@ export function mountGmShield(options){
  function richEditor(){
   return $('[data-gm-rich-note]');
  }
+ function ensureGeneralNote(){
+  let item=generalNote();
+  if(!item){item={id:'nex-general-note',title:'Geral',tag:'',body:'',date:'',status:'',image:'',richHtml:'',noteFolder:'',noteLinks:[]};state.notes.unshift(item);}
+  return item;
+ }
+ function currentNote(){
+  const general=ensureGeneralNote();
+  return state.notes.find(n=>n.id===activeNoteId)||general;
+ }
+ function noteText(n){
+  return new DOMParser().parseFromString(n.richHtml||'<p>'+escape(n.body||'')+'</p>','text/html').body.textContent||'';
+ }
+ function linkedNotes(n){
+  const ids=new Set(n.noteLinks||[]);
+  for(const match of noteText(n).matchAll(/\[\[([^\]\n]+)\]\]/g)){
+   const target=state.notes.find(v=>v.title.trim().toLocaleLowerCase('pt-BR')===match[1].trim().toLocaleLowerCase('pt-BR'));
+   if(target)ids.add(target.id);
+  }
+  return state.notes.filter(v=>v.id!==n.id&&ids.has(v.id));
+ }
+ function noteOptions(items,placeholder){
+  return '<option value="">'+escape(placeholder)+'</option>'+items.map(n=>'<option value="'+escape(n.id)+'">'+escape(n.title)+'</option>').join('');
+ }
+ function noteListButton(n,current){
+  return '<button type="button" class="nex-wiki-note" data-wiki-action="open" data-wiki-id="'+escape(n.id)+'" data-wiki-searchable="'+escape((n.title+' '+noteText(n)).toLocaleLowerCase('pt-BR'))+'" aria-pressed="'+(n.id===current.id)+'">▤ '+escape(n.title)+'</button>';
+ }
+ function boardLayout(){
+  return state.notes.map((n,i)=>({n,x:Number.isFinite(n.noteX)?n.noteX:20+(i%3)*210,y:Number.isFinite(n.noteY)?n.noteY:20+Math.floor(i/3)*112}));
+ }
+ function boardEdges(nodes){
+  const byId=new Map(nodes.map(p=>[p.n.id,p]));let html='';
+  for(const p of nodes)for(const n of linkedNotes(p.n)){
+   const q=byId.get(n.id);if(q)html+='<line x1="'+(p.x+85)+'" y1="'+(p.y+32)+'" x2="'+(q.x+85)+'" y2="'+(q.y+32)+'" stroke="#ce5368" stroke-width="2" opacity=".8"/>';
+  }
+  return html;
+ }
+ function renderNoteBoard(){
+  const nodes=boardLayout(),w=Math.max(650,...nodes.map(p=>p.x+190)),h=Math.max(420,...nodes.map(p=>p.y+90));
+  return '<div class="nex-wiki-board-tools"><small>Arraste os cartões pela barra superior. Clique no título para abrir o documento. As linhas representam vínculos entre anotações.</small><button type="button" data-wiki-action="reset-board">Organizar cartões</button></div><div class="nex-wiki-board-scroll"><div class="nex-wiki-board" data-wiki-board style="width:'+w+'px;height:'+h+'px"><svg aria-hidden="true" data-wiki-edges width="100%" height="100%">'+boardEdges(nodes)+'</svg>'+nodes.map(p=>'<article class="nex-wiki-node" data-wiki-node="'+escape(p.n.id)+'" style="left:'+p.x+'px;top:'+p.y+'px"><div class="nex-wiki-grip" data-wiki-grip title="Arrastar cartão">⠿ '+escape(p.n.noteFolder||'Documento')+'</div><button type="button" data-wiki-action="open" data-wiki-id="'+escape(p.n.id)+'">'+escape(p.n.title)+'</button></article>').join('')+'</div></div>';
+ }
  function renderGeneralNotes(){
-  const item=generalNote(),legacy=item?.body||'',image=safeImage(item?.image);
-  const initial=item?.richHtml?sanitizeRich(item.richHtml):('<p>'+escape(legacy).replace(/\\n/g,'<br>')+'</p>'+(image?'<img src="'+escape(image)+'" data-width="420">':''));
+  const item=currentNote(),legacy=item.body||'',image=safeImage(item.image);
+  activeNoteId=item.id;
+  const initial=item.richHtml?sanitizeRich(item.richHtml):('<p>'+escape(legacy).replace(/\n/g,'<br>')+'</p>'+(image?'<img src="'+escape(image)+'" data-width="420">':''));
   const sanitized=sanitizeRich(initial);
   const editorContent=sanitized.includes('nex-gm-note-image')&&/<\/div>\s*$/.test(sanitized)?sanitized+'<p><br></p>':sanitized;
-  return '<div class="nex-gm-general-notes">'+
-   '<label class="nex-gm-general-title" for="nexGmRichEditor">Geral</label>'+
-   '<div id="nexGmRichEditor" class="nex-gm-rich-editor" data-gm-rich-note contenteditable="true" role="textbox" aria-label="Anotações da sessão" aria-multiline="true" data-placeholder="Informações gerais ao longo da sessão…">'+editorContent+'</div>'+
-   '<div class="nex-gm-general-tools"><label class="nex-gm-image-upload">Inserir imagem<input type="file" data-gm-general-file accept="image/png,image/jpeg,image/webp" multiple></label><span class="nex-gm-rich-hint">Arraste imagens para dentro do bloco e escreva entre elas. Arraste uma imagem para mudar sua posição.</span></div></div>';
+  const folders=[...new Set([...state.noteFolders,...state.notes.map(n=>n.noteFolder).filter(Boolean)])];
+  const other=state.notes.filter(n=>n.id!==item.id),links=linkedNotes(item),backlinks=other.filter(n=>linkedNotes(n).some(v=>v.id===item.id));
+  const chips=items=>items.length?items.map(n=>'<button type="button" data-wiki-action="open" data-wiki-id="'+escape(n.id)+'">'+escape(n.title)+'</button>').join(''):'<small>Nenhum documento.</small>';
+  const folderOptions='<option value="">Sem pasta</option>'+folders.map(n=>'<option value="'+escape(n)+'"'+(item.noteFolder===n?' selected':'')+'>'+escape(n)+'</option>').join('');
+  return '<section class="nex-wiki"><div class="nex-wiki-toolbar"><div><strong>Arquivo da campanha</strong><small>Documentos privados do mestre</small></div><div><button type="button" data-wiki-action="documents" aria-pressed="'+(noteMode==='documents')+'">Documentos</button> <button type="button" data-wiki-action="board" aria-pressed="'+(noteMode==='board')+'">Quadro de investigação</button></div></div>'+
+   (noteMode==='board'?renderNoteBoard():'<div class="nex-wiki-layout"><aside class="nex-wiki-sidebar"><input type="search" data-wiki-search placeholder="Pesquisar documentos" aria-label="Pesquisar documentos" value="'+escape(noteSearch)+'"><div class="nex-wiki-create"><input data-wiki-new-note maxlength="110" placeholder="Nome do documento" aria-label="Nome do novo documento"><button type="button" data-wiki-action="new-note">+ Documento</button></div><div class="nex-wiki-create"><input data-wiki-new-folder maxlength="80" placeholder="Nome da pasta" aria-label="Nome da nova pasta"><button type="button" data-wiki-action="new-folder">+ Pasta</button></div><div class="nex-wiki-tree">'+state.notes.filter(n=>!n.noteFolder).map(n=>noteListButton(n,item)).join('')+folders.map(folder=>'<details open><summary>▸ '+escape(folder)+'</summary>'+state.notes.filter(n=>n.noteFolder===folder).map(n=>noteListButton(n,item)).join('')+'</details>').join('')+'</div></aside>'+
+   '<div class="nex-gm-general-notes nex-wiki-document"><div class="nex-wiki-dochead"><input data-wiki-title maxlength="110" aria-label="Título do documento" value="'+escape(item.title)+'"'+(item.id===ensureGeneralNote().id?' readonly':'')+'><select data-wiki-folder aria-label="Pasta do documento">'+folderOptions+'</select>'+(item.id===ensureGeneralNote().id?'':'<button type="button" data-wiki-action="delete">Excluir</button>')+'</div>'+
+   '<div id="nexGmRichEditor" class="nex-gm-rich-editor" data-gm-rich-note contenteditable="true" role="textbox" aria-label="Anotação" aria-multiline="true" data-placeholder="Escreva informações, pistas e acontecimentos…">'+editorContent+'</div>'+
+   '<div class="nex-gm-general-tools"><label class="nex-gm-image-upload">Inserir imagem<input type="file" data-gm-general-file accept="image/png,image/jpeg,image/webp" multiple></label><span class="nex-gm-rich-hint">Arraste imagens ou escreva [[Nome do documento]] para criar vínculos.</span></div>'+
+   '<div class="nex-wiki-links"><strong>Conexões</strong><div class="nex-wiki-create"><select data-wiki-link aria-label="Documento a vincular">'+noteOptions(other,'Escolher documento')+'</select><button type="button" data-wiki-action="link">Vincular</button></div><div class="nex-wiki-chips">'+chips(links)+'</div><div class="nex-wiki-create"><select data-wiki-unlink aria-label="Vínculo a remover">'+noteOptions(other.filter(n=>(item.noteLinks||[]).includes(n.id)),'Remover vínculo manual')+'</select><button type="button" data-wiki-action="unlink">Remover</button></div><strong>Referências a este documento</strong><div class="nex-wiki-chips">'+chips(backlinks)+'</div></div></div></div>')+'</section>';
  }
  function updateGeneralNote(fields){
-  let item=generalNote();
-  if(!item){item={id:'nex-general-note',title:'Geral',tag:'',body:'',date:'',status:'',image:'',richHtml:''};state.notes.unshift(item);}
-  Object.assign(item,fields);store();
+  Object.assign(currentNote(),fields);store();
+ }
+ function applyNoteSearch(){
+  const q=noteSearch.trim().toLocaleLowerCase('pt-BR');
+  root.querySelectorAll('[data-wiki-searchable]').forEach(el=>el.hidden=!!q&&!el.dataset.wikiSearchable.includes(q));
+ }
+ function flushNoteSave(){
+  if(generalSaveTimer){clearTimeout(generalSaveTimer);generalSaveTimer=null;store();}
+ }
+ function wikiAction(btn){
+  const action=btn.dataset.wikiAction;if(!action)return false;
+  flushNoteSave();
+  const item=currentNote();
+  if(action==='documents'||action==='board'){noteMode=action;render();return true;}
+  if(action==='open'){activeNoteId=btn.dataset.wikiId;noteMode='documents';richLastRange=null;render();return true;}
+  if(action==='new-note'){
+   const title=$('[data-wiki-new-note]')?.value.trim().slice(0,110);
+   if(!title){status('Digite o nome do documento.');return true;}
+   if(state.notes.length>=100){status('Limite de 100 documentos.');return true;}
+   if(state.notes.some(n=>n.title.toLocaleLowerCase('pt-BR')===title.toLocaleLowerCase('pt-BR'))){status('Já existe um documento com este nome.');return true;}
+   const n={id:id(),title,body:'',richHtml:'',image:'',noteFolder:item.noteFolder||'',noteLinks:[]};state.notes.push(n);activeNoteId=n.id;richLastRange=null;noteSearch='';
+  }else if(action==='new-folder'){
+   const name=$('[data-wiki-new-folder]')?.value.trim().slice(0,80);
+   if(!name||state.noteFolders.includes(name)||state.noteFolders.length>=50){status('Informe um nome novo para a pasta (máximo de 50 pastas).');return true;}
+   state.noteFolders.push(name);
+  }else if(action==='delete'){
+   if(item.id===ensureGeneralNote().id||!window.confirm('Excluir o documento '+item.title+'?'))return true;
+   state.notes=state.notes.filter(n=>n.id!==item.id);for(const n of state.notes)n.noteLinks=(n.noteLinks||[]).filter(v=>v!==item.id);activeNoteId=ensureGeneralNote().id;richLastRange=null;
+  }else if(action==='link'||action==='unlink'){
+   const target=$(action==='link'?'[data-wiki-link]':'[data-wiki-unlink]')?.value;if(!target)return true;
+   item.noteLinks=action==='link'?[...new Set([...(item.noteLinks||[]),target])]:(item.noteLinks||[]).filter(v=>v!==target);
+  }else if(action==='reset-board'){for(const n of state.notes){n.noteX=null;n.noteY=null;}}
+  else return true;
+  store();render();return true;
  }
  let generalSaveTimer=null;
  let richLastRange=null,richDragging=null;
@@ -984,8 +1068,9 @@ export function mountGmShield(options){
  async function addRichImages(files,point){
   const arr=[...files].filter(f=>f.type.startsWith('image/')).slice(0,8);
   if(!arr.length)return;
+  const targetRoom=room,targetNote=currentNote().id;
   for(const file of arr){
-   try{const src=await compressNoteImage(file);insertAtRich(imageNode(src),point);point=null;}
+   try{const src=await compressNoteImage(file);if(room!==targetRoom||tab!=='notes'||noteMode!=='documents'||currentNote().id!==targetNote)return;insertAtRich(imageNode(src),point);point=null;}
    catch(error){status(error.message||'Falha ao inserir imagem.');}
   }
  }
@@ -995,7 +1080,8 @@ export function mountGmShield(options){
   if(!editor)return;
   const value=sanitizeRich(editor.innerHTML);
   if(value.length>570000){status('Limite de imagens da anotação atingido. Exclua ou reduza uma imagem.');return;}
-  generalSaveTimer=setTimeout(()=>{if(room===currentRoom&&ready)updateGeneralNote({richHtml:value,body:'' ,image:''});},950);
+  Object.assign(currentNote(),{richHtml:value,body:'',image:''});
+  generalSaveTimer=setTimeout(()=>{generalSaveTimer=null;if(room===currentRoom&&ready)store();},950);
  }
  function gmSectionHeader(kind){
   return '<div class="nex-gm-section-head"><div><h4>'+labels[kind]+'</h4><small>'+state[kind].length+' registros</small></div>'+
@@ -1037,7 +1123,7 @@ export function mountGmShield(options){
   if(selectedSheet&&!state[selectedSheet.kind]?.some(entry=>entry.id===selectedSheet.id))selectedSheet=null;
   try{
    const userId=getContext().uid;
-   if(userId)sessionStorage.setItem('nex_gm_navigation_v1:'+userId+':'+room,JSON.stringify({tab,sheet:selectedSheet?{kind:selectedSheet.kind,id:selectedSheet.id}:null}));
+   if(userId)sessionStorage.setItem('nex_gm_navigation_v1:'+userId+':'+room,JSON.stringify({tab,noteId:activeNoteId,noteMode,sheet:selectedSheet?{kind:selectedSheet.kind,id:selectedSheet.id}:null}));
   }catch(error){}
   const current=tab==='npcs'&&showNpcImport?homebrewOptions():tab==='threats'&&showThreatImport?threatPicker():(selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes')));
   const topThreatHeader=tab==='threats'&&!showThreatImport&&!selectedSheet?gmSectionHeader('threats'):'';
@@ -1051,6 +1137,7 @@ export function mountGmShield(options){
    if(host&&host.contains(root)&&host.scrollTop>0)host.scrollTop=0;
   }
   refreshMasterStatus();
+  if(tab==='notes')applyNoteSearch();
   if(tab==='threats'&&showThreatImport){const frame=$('[data-gm-threat-picker]');if(frame)frame.addEventListener('load',syncThreatPicker,{once:true});}
   // As cartas de elemento substituem os retratos nos cartões de ameaças.
  }
@@ -1393,7 +1480,7 @@ export function mountGmShield(options){
    return;
   }
 
-  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;showNpcImport=false;showThreatImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
+  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;flushNoteSave();showNpcImport=false;showThreatImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.hasAttribute('data-gm-close-sheet')){discardNpcDraft();selectedSheet=null;npcInlineEditing=false;render();return;}
   if(btn.dataset.gmOpenSheet){
@@ -1441,6 +1528,29 @@ export function mountGmShield(options){
 
   }
  });
+ root.addEventListener('click',event=>{const btn=event.target.closest('[data-wiki-action]');if(btn){event.preventDefault();wikiAction(btn);}});
+ root.addEventListener('change',event=>{
+  if(event.target.matches('[data-wiki-folder]')){flushNoteSave();currentNote().noteFolder=event.target.value;store();render();}
+  if(event.target.matches('[data-wiki-title]')){
+   flushNoteSave();const n=currentNote(),title=event.target.value.trim().slice(0,110);
+   if(!title||state.notes.some(v=>v.id!==n.id&&v.title.toLocaleLowerCase('pt-BR')===title.toLocaleLowerCase('pt-BR'))){event.target.value=n.title;status('Escolha um título único.');return;}
+   n.title=title;store();render();
+  }
+ });
+ root.addEventListener('input',event=>{if(event.target.matches('[data-wiki-search]')){noteSearch=event.target.value.slice(0,100);applyNoteSearch();}});
+ root.addEventListener('focusout',event=>{if(event.target.matches('[data-gm-rich-note]'))flushNoteSave();});
+ root.addEventListener('pointerdown',event=>{
+  const grip=event.target.closest('[data-wiki-grip]');if(!grip||event.button!==0)return;
+  const node=grip.closest('[data-wiki-node]'),p=boardLayout().find(v=>v.n.id===node.dataset.wikiNode);if(!p)return;
+  boardDrag={node,n:p.n,x:p.x,y:p.y,sx:event.clientX,sy:event.clientY,pointer:event.pointerId};grip.setPointerCapture(event.pointerId);event.preventDefault();
+ });
+ root.addEventListener('pointermove',event=>{
+  const d=boardDrag;if(!d||event.pointerId!==d.pointer)return;
+  const board=d.node.closest('[data-wiki-board]');if(!board)return;
+  d.n.noteX=Math.max(0,Math.min(board.clientWidth-170,d.x+event.clientX-d.sx));d.n.noteY=Math.max(0,Math.min(board.clientHeight-64,d.y+event.clientY-d.sy));
+  d.node.style.left=d.n.noteX+'px';d.node.style.top=d.n.noteY+'px';const svg=$('[data-wiki-edges]');if(svg)svg.innerHTML=boardEdges(boardLayout());
+ });
+ for(const type of ['pointerup','pointercancel'])root.addEventListener(type,event=>{if(boardDrag&&boardDrag.pointer===event.pointerId){boardDrag=null;store();}});
  root.addEventListener('keydown',event=>{
   const input=event.target.closest('[data-gm-npc-hp-input]');if(!input)return;
   if(event.key==='Enter'){event.preventDefault();finishNpcHpEdit(input,true);}
