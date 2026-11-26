@@ -3181,23 +3181,50 @@ document.addEventListener('click',function(event){
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261122playerBrightness1';
-import {mountGmShield} from './d20x-gm-shield.js?v=20261126campaignArchive2';
+import {mountGmShield} from './d20x-gm-shield.js?v=20261126browserHistory';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
 const show=(id,on)=>$(id).classList.toggle('hide',!on);
 // Session navigation is scoped to the logged-in account and browser tab.
 const NEX_NAV_KEY='nex_campaign_navigation_v1';
-let nexNavRestoring=false, nexPendingTabletopRestore='', nexNavUserId=null;
+let nexNavRestoring=false, nexPendingTabletopRestore='', nexNavUserId=null, d20xCampaignHistoryRestoring=false;
 function nexReadNavigation(){
  try{return JSON.parse(sessionStorage.getItem(NEX_NAV_KEY)||'null');}catch(error){return null;}
 }
-function nexSaveNavigation(campaignId,section){
+function d20xCampaignVisible(){
+  try{return window.parent===window||!window.frameElement?.closest('#campaignPanel')?.classList.contains('hide');}catch(error){return true;}
+ }
+ function d20xRecordCampaign(route,replace=false){
+  if(nexNavRestoring||d20xCampaignHistoryRestoring||!nexNavUserId||!d20xCampaignVisible())return;
+  const current=history.state?.d20xCampaign;
+  route={...route,uid:nexNavUserId};
+  try{
+   if(current?.uid!==nexNavUserId){
+    const baseline={uid:nexNavUserId,campaignId:'',section:'list',menuTab:'',menuOpen:false,shield:null};
+    history.replaceState({...history.state,d20xCampaign:baseline},'');
+    if(JSON.stringify(baseline)!==JSON.stringify(route))history.pushState({...history.state,d20xCampaign:route},'');
+   }else if(JSON.stringify(current)!==JSON.stringify(route)){
+    if(replace)history.replaceState({...history.state,d20xCampaign:route},'');
+    else history.pushState({...history.state,d20xCampaign:route},'');
+   }
+  }catch(error){console.warn('D20X: histórico de campanha indisponível',error);}
+ }
+ function d20xRecordShield(shield){
+  const previous=history.state?.d20xCampaign;
+  if(!previous||previous.campaignId!==roomId||!gm||!d20xCampaignVisible())return;
+  const panel=document.getElementById('roomMasterPanel');
+  if(!panel||panel.classList.contains('hide')||!(previous.section==='master'||(previous.section==='tabletop'&&previous.menuOpen&&previous.menuTab==='master')))return;
+  d20xRecordCampaign({...previous,shield},!previous.shield);
+ }
+ function nexSaveNavigation(campaignId,section){
  if(nexNavRestoring||!nexNavUserId)return;
  try{
   const last=nexReadNavigation();
   const menuTab=last?.uid===nexNavUserId&&last.campaignId===campaignId?last.menuTab:null;
   sessionStorage.setItem(NEX_NAV_KEY,JSON.stringify({uid:nexNavUserId,campaignId:campaignId||'',section:section||'characters',menuTab}));
+  const previous=history.state?.d20xCampaign,same=previous?.uid===nexNavUserId&&previous.campaignId===(campaignId||'')&&previous.section===(section||'characters');
+  d20xRecordCampaign(same?previous:{uid:nexNavUserId,campaignId:campaignId||'',section:section||'characters',menuTab:'',menuOpen:false,shield:null});
  }catch(error){}
 }
 const notice=msg=>$('notice').textContent=msg||'';
@@ -3924,7 +3951,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   show('roomManagePanel',section==='players'&&gm);
  }
  gmShield=mountGmShield({
-  root:$('nexGmShieldRoot'),db,doc,onSnapshot,setDoc,
+  root:$('nexGmShieldRoot'),db,doc,onSnapshot,setDoc,onHistoryRoute:d20xRecordShield,
   getContext:()=>({roomId,gm,uid}),
   openTabletop:()=>roomSection('tabletop'),
   revealToChat:(message,campaignId)=>{
@@ -4553,8 +4580,35 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    openVttSheet(button.dataset.vttOpenSheet);
   });
   // Refresh the role-sensitive buttons whenever the Art tab is opened.
-  mainMenuToggle.addEventListener('click',()=>updateMenu(mainMenu.hidden));
-  mainClose.addEventListener('click',()=>updateMenu(false));
+  function recordVttMenu(){
+    const current=history.state?.d20xCampaign;
+    if(!current||current.campaignId!==roomId||current.section!=='tabletop')return;
+    const menuTab=menuTabs.find(btn=>btn.getAttribute('aria-pressed')==='true')?.dataset.nexMainTab||'';
+    const menuOpen=!mainMenu.hidden;
+    d20xRecordCampaign({...current,menuTab,menuOpen,shield:menuOpen&&menuTab==='master'&&gm?gmShield?.historyRoute?.()||null:null});
+   }
+   mainMenuToggle.addEventListener('click',()=>{updateMenu(mainMenu.hidden);recordVttMenu();});
+   mainClose.addEventListener('click',()=>{updateMenu(false);recordVttMenu();});
+   menuTabs.forEach(btn=>btn.addEventListener('click',recordVttMenu));
+   window.addEventListener('popstate',async event=>{
+    const target=event.state?.d20xCampaign;
+    if(!target||target.uid!==uid||!d20xCampaignVisible())return;
+    d20xCampaignHistoryRestoring=true;
+    try{
+     if(!target.campaignId){
+      clearRoom();if(target.section==='create')openCreate();else libraryMode('list');return;
+     }
+     if(roomId!==target.campaignId)await enterRoom(target.campaignId,target.section);
+     if(roomId!==target.campaignId)return;
+     roomSection(target.section);
+     if(target.section==='tabletop'&&!$('roomTabletopPanel').classList.contains('hide')){
+      if(['art','chat','sheets','master'].includes(target.menuTab))showMainTab(target.menuTab);
+      updateMenu(!!target.menuOpen);
+     }
+     if(target.shield&&gm)gmShield?.restoreHistoryRoute?.(target.shield);
+    }catch(error){console.warn('D20X: falha ao restaurar navegação',error);notice('Não foi possível voltar à tela anterior.');}
+    finally{d20xCampaignHistoryRestoring=false;}
+   });
 
   // O atalho de convites foi removido da interface; não interromper o módulo.
   $('nexVttMenuInvites')?.addEventListener('click',()=>{updateMenu(false);roomSection('invites');});
