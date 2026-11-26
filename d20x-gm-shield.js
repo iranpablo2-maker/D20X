@@ -324,11 +324,11 @@ export function mountGmShield(options){
  function entityCard(kind,x){
   const title=escape(x.title||'Sem nome'),pic=safeImage(x.image);
   const isThreat=kind==='threats',art=isThreat?threatElementArt(x):'';
-  const thumb=isThreat?(art?'<img src="'+escape(art)+'" alt="" loading="lazy" decoding="async">':''):(pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?'));
-  const noCover=isThreat&&!art;
+  const thumb=pic?'<img src="'+escape(pic)+'" alt="'+title+'">':escape((x.title||'?').trim().charAt(0).toUpperCase()||'?');
   const key=escape(x.id);
-  return '<article class="nex-gm-entity-card"'+(noCover?' style="grid-template-columns:minmax(0,1fr)"':'')+'>'+
-   (noCover?'':'<div class="nex-gm-entity-cover">'+thumb+'</div>')+
+  const threatStyle=isThreat?' style="grid-template-columns:minmax(0,1fr);'+(art?'background-image:linear-gradient(90deg,rgba(12,9,12,.48),rgba(12,9,12,.28)),url(&quot;'+escape(art)+'&quot;);background-size:cover;background-position:center;background-repeat:no-repeat;':'')+'"':'';
+  return '<article class="nex-gm-entity-card"'+threatStyle+'>'+
+   (isThreat?'':'<div class="nex-gm-entity-cover">'+thumb+'</div>')+
    '<div class="nex-gm-entity-body"><div class="nex-gm-entity-top"><strong>'+title+'</strong>'+
    '<details class="nex-gm-entity-settings"><summary aria-label="Configurações da ficha" title="Configurações">⚙</summary>'+
    '<div class="nex-gm-entity-settings-actions"><button type="button" data-gm-edit="'+kind+':'+key+'">Editar</button>'+
