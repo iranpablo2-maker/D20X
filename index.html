@@ -2212,10 +2212,10 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 <header class="topbar"><div class="topinner"><button type="button" id="n17MenuToggle" class="n17-menu-button" aria-expanded="false" aria-controls="n17Drawer" aria-label="Abrir menu">☰</button><button type="button" class="brand" id="nexBrandHome" aria-label="Voltar ao menu principal" title="Voltar ao menu principal"><img src="./d20x-logo.svg?v=1" alt="" width="44" height="44" style="display:block;object-fit:contain;border:0;background:#000;border-radius:6px"><span><h1>D20X</h1><span class="subtitle">PLATAFORMA UNIVERSAL DE RPG</span></span></button><div class="actions"><button type="button" id="nexAccountOpen" class="btn sm" style="display:inline-flex!important;align-items:center;justify-content:center;background:#8c2534;color:white;border:1px solid #c64657;border-radius:7px;min-height:36px;padding:6px 12px;font-weight:750;white-space:nowrap">Conta D20X</button><button class="btn sm" id="menuHeaderButton" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">⌂ Menu principal</button><button class="btn sm" id="newChar" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">＋ Nova ficha</button><button class="btn sm" id="importBtn" style="display:none!important" aria-hidden="true" tabindex="-1">Importar</button><button class="btn sm" id="exportBtn" style="display:none!important" aria-hidden="true" tabindex="-1">↓ Exportar</button><input type="file" id="fileInput" accept="application/json,.json" hidden><span id="n17SaveIndicator" hidden aria-hidden="true"></span></div></div></header>
 <nav class="nex-ref-nav" aria-label="Navegação principal">
  <div class="nex-ref-nav-inner">
-  <button type="button" data-nexnav="agents">Personagens</button>
+  <button type="button" data-nexnav="systems">Sistemas</button><button type="button" data-nexnav="agents">Personagens de Ordem</button>
   <button type="button" data-nexnav="campaigns">Campanhas</button>
-  <button type="button" data-nexnav="threats">Ameaças</button>
-  <button type="button" data-nexnav="homebrew">Homebrew</button>
+  <button type="button" data-nexnav="threats">Ameaças de Ordem</button>
+  <button type="button" data-nexnav="homebrew">Homebrew de Ordem</button>
   
     
  </div>
@@ -2235,13 +2235,27 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 </aside>
 
 <section id="mainMenu" aria-label="Menu principal D20X">
- <div class="home-hero"><div class="home-eyebrow">PLATAFORMA DE PERSONAGENS</div><img src="./d20x-logo.svg?v=1" alt="D20X" width="96" height="96" style="display:block;object-fit:contain;margin:8px 0 12px"><p>Organize personagens, crie campanhas e jogue RPG de mesa em um único lugar.</p><div class="actions"><button class="home-action" type="button" id="menuNew">＋ Criar personagem</button><button class="home-action secondary" type="button" id="menuContinue" style="display:none!important" hidden tabindex="-1" aria-hidden="true">Abrir ficha atual →</button></div></div>
- 
-
+ <div id="d20xSystemHub">
+ <div class="d20x-hub-hero"><div class="d20x-hub-intro"><span class="d20x-hub-kicker">PLATAFORMA UNIVERSAL DE RPG</span><h2>Seu próximo universo<br>começa aqui.</h2><p>Escolha um sistema para criar personagens e organizar suas aventuras.</p></div><img src="./d20x-logo.svg?v=1" alt="D20X" width="120" height="120"></div>
+ <div class="d20x-hub-heading"><h2>Sistemas de RPG</h2><span>Escolha seu sistema</span></div>
+ <div class="d20x-system-cards">
+ <button type="button" class="d20x-system-card d20x-system-ordem" data-d20x-hub="ordem"><span class="d20x-system-icon" aria-hidden="true">◇</span><span class="d20x-system-status">AUTOMATIZADO</span><strong>Ordem Paranormal</strong><small>Personagens, ameaças, homebrew e campanhas.</small><span class="d20x-system-enter">Acessar sistema →</span></button>
+ <button type="button" class="d20x-system-card d20x-system-fantasy" data-d20x-hub="D&D 5e"><span class="d20x-system-icon" aria-hidden="true">♜</span><span class="d20x-system-status">FICHA MANUAL</span><strong>D&amp;D 5e</strong><small>Crie e organize personagens de fantasia.</small><span class="d20x-system-enter">Acessar sistema →</span></button>
+ <button type="button" class="d20x-system-card d20x-system-tormenta" data-d20x-hub="Tormenta20"><span class="d20x-system-icon" aria-hidden="true">✦</span><span class="d20x-system-status">FICHA MANUAL</span><strong>Tormenta20</strong><small>Gerencie personagens com campos editáveis.</small><span class="d20x-system-enter">Acessar sistema →</span></button>
+ <button type="button" class="d20x-system-card d20x-system-cthulhu" data-d20x-hub="Call of Cthulhu"><span class="d20x-system-icon" aria-hidden="true">◎</span><span class="d20x-system-status">FICHA MANUAL</span><strong>Call of Cthulhu</strong><small>Organize investigadores e suas anotações.</small><span class="d20x-system-enter">Acessar sistema →</span></button>
+ <button type="button" class="d20x-system-card d20x-system-pathfinder" data-d20x-hub="Pathfinder 2e"><span class="d20x-system-icon" aria-hidden="true">✧</span><span class="d20x-system-status">FICHA MANUAL</span><strong>Pathfinder 2e</strong><small>Monte fichas personalizadas de aventureiros.</small><span class="d20x-system-enter">Acessar sistema →</span></button>
+ <button type="button" class="d20x-system-card d20x-system-custom" data-d20x-hub="Personalizado"><span class="d20x-system-icon" aria-hidden="true">＋</span><span class="d20x-system-status">FICHA MANUAL</span><strong>Sistema personalizado</strong><small>Crie seus próprios atributos e recursos.</small><span class="d20x-system-enter">Acessar sistema →</span></button>
+ </div>
+ <div class="d20x-hub-heading"><h2>Mesas virtuais</h2></div>
+ <button type="button" class="d20x-hub-campaign" data-home="campaigns"><span class="d20x-system-icon" aria-hidden="true">◎</span><span><strong>Campanhas e Tabletop</strong><small>Abra suas mesas e use o Escudo do Mestre. Integração atual: Ordem Paranormal.</small></span><span aria-hidden="true">→</span></button>
+ </div>
+ <div id="d20xOrdemWorkspace" hidden><button type="button" class="btn sm" data-d20x-hub="home">← Todos os sistemas</button>
+ <div class="home-hero d20x-ordem-hero"><div class="home-eyebrow">SISTEMA DE RPG</div><h2>Ordem Paranormal</h2><p>Gerencie personagens e campanhas com as automações já disponíveis no D20X.</p><div class="actions"><button class="home-action" type="button" id="menuNew">＋ Criar personagem</button><button class="home-action secondary" type="button" id="menuContinue" style="display:none!important" hidden tabindex="-1" aria-hidden="true">Abrir ficha atual →</button></div></div>
  <div class="home-section-heading"><h2>Central de operações</h2></div>
- <div class="home-grid"><button class="home-tile" data-home="agents"><span class="symbol">♙</span><strong>Meus personagens</strong><small>Visualize, abra e gerencie fichas de personagens.</small></button><button class="home-tile" data-home="new"><span class="symbol">＋</span><strong>Criar personagem</strong><small>Escolha o sistema de RPG da sua ficha.</small></button><button class="home-tile" data-home="campaigns"><span class="symbol">◎</span><strong>Campanhas</strong><small>Crie mesas, convide amigos e acompanhe as fichas na mesma campanha.</small></button><button class="home-tile" data-home="threats"><span class="symbol">◈</span><strong>Ameaças</strong><small>Consulte criaturas por livro e elemento.</small></button><button class="home-tile" data-home="homebrew"><span class="symbol">✧</span><strong>Homebrew</strong><small>Crie e edite origens personalizadas na biblioteca independente.</small></button></div>
+ <div class="home-grid"><button class="home-tile" data-home="agents"><span class="symbol">♙</span><strong>Meus personagens</strong><small>Visualize, abra e gerencie fichas de personagens.</small></button><button class="home-tile" data-home="new"><span class="symbol">＋</span><strong>Criar personagem</strong><small>Crie uma ficha de Ordem Paranormal.</small></button><button class="home-tile" data-home="campaigns"><span class="symbol">◎</span><strong>Campanhas</strong><small>Crie mesas, convide amigos e acompanhe as fichas na mesma campanha.</small></button><button class="home-tile" data-home="threats"><span class="symbol">◈</span><strong>Ameaças</strong><small>Consulte criaturas por livro e elemento.</small></button><button class="home-tile" data-home="homebrew"><span class="symbol">✧</span><strong>Homebrew</strong><small>Crie e edite origens personalizadas na biblioteca independente.</small></button></div>
  <div class="home-section-heading" id="agentsHeading"><h2>Personagens registrados</h2><div class="home-toolbar"><button class="btn sm" id="menuBackup" style="display:none!important" aria-hidden="true" tabindex="-1">↓ Exportar ficha atual</button><button class="btn sm" id="menuImport" style="display:none!important" aria-hidden="true" tabindex="-1">↑ Importar ficha</button></div></div>
  <div id="menuAgents" class="home-card-list"></div>
+ </div>
  <footer style="margin:24px 0 4px;text-align:center;font-size:11px;color:#89919c"><a href="./licenca-d20x.html" style="color:inherit">Direitos e privacidade</a></footer>
 </section>
 <section id="agentsPanel" class="hide agents-panel" aria-label="Personagens salvos">
@@ -3265,7 +3279,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
      let previousNavigation=null,restoredScreen='home';
      try{
        previousNavigation=JSON.parse(sessionStorage.getItem('nex_navigation_screen_v1')||'null');
-       if(previousNavigation&&['home','agents','campaigns','threats','sheet','homebrew','wizard'].includes(previousNavigation.screen))
+       if(previousNavigation&&['home','ordem','agents','campaigns','threats','sheet','homebrew','wizard'].includes(previousNavigation.screen))
          restoredScreen=previousNavigation.screen;
        const savedId=String(previousNavigation?.agentId||'');
        const savedAgent=agents.find(a=>a.id===savedId);
@@ -3518,7 +3532,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  }
  window.addEventListener('popstate',event=>{
   const route=event.state?.d20xScreen;
-  if(!storageReady||!route||!['home','agents','campaigns','threats','sheet','wizard','homebrew'].includes(route.screen))return;
+  if(!storageReady||!route||!['home','ordem','agents','campaigns','threats','sheet','wizard','homebrew'].includes(route.screen))return;
   d20xHistoryRestoring=true;
   try{
    if(route.screen==='sheet'){
@@ -3535,13 +3549,15 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  function visible(which){
   d20xRecordScreen(which);
   // Session-only navigation: never store private sheet contents or credentials.
-  if(storageReady&&['home','agents','campaigns','threats','sheet','wizard','homebrew'].includes(which)){
+  if(storageReady&&['home','ordem','agents','campaigns','threats','sheet','wizard','homebrew'].includes(which)){
     try{sessionStorage.setItem('nex_navigation_screen_v1',JSON.stringify({screen:which,agentId:which==='sheet'?active:null,scrollY:0}));}catch(error){}
   }
   const tabletop=$('campaignPanel')?.classList.contains('nex-tabletop-expanded');
   const sheetOverlay=which==='sheet'&&tabletop;
   if(nexCampaignLiveEdit&&which!=='sheet')finishCampaignLiveEdit();
-  $('mainMenu').classList.toggle('hide',which!=='home');
+  $('mainMenu').classList.toggle('hide',which!=='home'&&which!=='ordem');
+  $('d20xSystemHub').hidden=which!=='home';$('d20xOrdemWorkspace').hidden=which!=='ordem';
+  document.body.dataset.d20xScreen=which;
   $('agentsPanel').classList.toggle('hide',which!=='agents');
   $('campaignPanel').classList.toggle('hide',which!=='campaigns'&&!sheetOverlay);
   $('threatsPanel').classList.toggle('hide',which!=='threats');
@@ -3824,6 +3840,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   if(!agents.some(a=>a.id===id))return;persist();active=id;state=normalize(JSON.parse(JSON.stringify(agents.find(a=>a.id===id).data)));visible('sheet');try{rehydrate();}catch(err){console.error(err);renderFields();renderStats();}save();}
 
  function showHome(){persist();renderAgents();visible('home');}
+ function showOrdem(){persist();renderAgents();visible('ordem');}
  function showAgents(){persist();renderAgents();visible('agents');}
  function showHomebrew(){persist();state.homebrew=globalHomebrew();nex12Ensure();nex12RenderHomebrew();visible('homebrew');}
  window.addEventListener('nex:open-homebrew-npc',()=>showHomebrew());
@@ -4316,6 +4333,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
 
  $('menuHeaderButton').onclick=showHome;
  $('nexBrandHome').onclick=showHome;
+ document.querySelectorAll('[data-d20x-hub]').forEach(btn=>btn.addEventListener('click',()=>{const key=btn.dataset.d20xHub;if(key==='home')showHome();else if(key==='ordem')showOrdem();else location.href='./fichas-universais.html?system='+encodeURIComponent(key);}));
  $('menuContinue').onclick=()=>{rehydrate();visible('sheet');};
  $('menuNew').onclick=createAgent;
  $('menuBackup').onclick=()=>$('exportBtn').click();
@@ -4340,7 +4358,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  // Preserve compatibility with V1.2's original new-sheet and JSON import controls.
  $('newChar').addEventListener('click',e=>{e.preventDefault();e.stopImmediatePropagation();createAgent();},true);
  $('fileInput').addEventListener('change',()=>{setTimeout(()=>{try{rehydrate();persist();renderAgents();toast('Ficha importada para o personagem atual.');}catch(err){console.error('Erro após importar',err);toast('Confira o arquivo importado.');}},200);});
- window.NEX17={openHome:showHome,openAgents:showAgents,openAgent,openSharedReadOnlySheet,openEditableCampaignSheet,createAgent,openSheet:()=>{rehydrate();visible('sheet');},openCampaigns:()=>{
+ window.NEX17={openHome:showHome,openOrdem:showOrdem,openAgents:showAgents,openAgent,openSharedReadOnlySheet,openEditableCampaignSheet,createAgent,openSheet:()=>{rehydrate();visible('sheet');},openCampaigns:()=>{
   renderCampaigns();
   visible('campaigns');
   // A aba superior Campanhas sempre retorna à lista, mesmo com sala aberta.
@@ -5638,7 +5656,8 @@ update();
   const action=button.dataset.nexnav;
   const app=window.NEX17;
   if(!app)return;
-  if(action==='agents'){app.openAgents();}
+  if(action==='systems'){app.openHome();}
+   if(action==='agents'){app.openAgents();}
   if(action==='campaigns')app.openCampaigns();
   if(action==='threats')app.openThreats();
   if(action==='homebrew')app.openHomebrew();
@@ -6786,5 +6805,38 @@ body.nex-vtt-sheet-overlay.nex-character-roll-toast-active #nexAttributeRollPopu
 </style>
 
 
-<style>#nexSystemPicker{color:#f5edef;background:#171416;border:1px solid #6b3941;border-radius:12px;width:min(650px,calc(100% - 24px));max-height:85vh;overflow:auto;padding:20px}#nexSystemPicker::backdrop{background:#000b}#nexSystemPicker .nex-system-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:16px}#nexSystemPicker .nex-system-grid button{display:grid;text-align:left;gap:6px;padding:14px;background:#241c20;color:#f5edef;border:1px solid #67434a;border-radius:8px}#nexSystemPicker button:hover{border-color:#ff8595}#nexSystemPicker small{color:#c5b2b8;font-weight:400}#nexSystemPicker h2{font-size:17px}</style><dialog id="nexSystemPicker" aria-labelledby="nexSystemTitle"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h2 id="nexSystemTitle">Escolha o sistema de RPG</h2><button class="btn" id="nexSystemClose" type="button" aria-label="Fechar">×</button></div><div class="nex-system-grid"><button type="button" data-nex-system="ordem"><strong>Ordem Paranormal</strong><small>Ficha existente · automações atuais</small></button><button type="button" data-nex-system="D&D 5e"><strong>D&amp;D 5e</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Tormenta20"><strong>Tormenta20</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Call of Cthulhu"><strong>Call of Cthulhu</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Pathfinder 2e"><strong>Pathfinder 2e</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Personalizado"><strong>Sistema personalizado</strong><small>Campos editáveis e regras próprias</small></button></div><p class="hint" style="margin-top:12px">Os novos sistemas usam fichas manuais locais; ainda não possuem automação ou integração com campanhas.</p></dialog><script>(()=>{const d=document.getElementById('nexSystemPicker');let origin=null,bypass=false;document.addEventListener('click',e=>{const target=e.target.closest?.('#menuNew,#agentsCreate,[data-home="new"]');if(!target||bypass)return;e.preventDefault();e.stopImmediatePropagation();origin=target;if(!d.open)d.showModal();},true);document.getElementById('nexSystemClose').onclick=()=>d.close();d.addEventListener('click',e=>{const target=e.target.closest?.('[data-nex-system]');if(!target)return;const value=target.dataset.nexSystem;d.close();if(value==='ordem'){if(!origin)return;bypass=true;try{origin.click();}finally{bypass=false;}}else location.href='./fichas-universais.html?system='+encodeURIComponent(value);});})();</script>
+<style>#nexSystemPicker{color:#f5edef;background:#171416;border:1px solid #6b3941;border-radius:12px;width:min(650px,calc(100% - 24px));max-height:85vh;overflow:auto;padding:20px}#nexSystemPicker::backdrop{background:#000b}#nexSystemPicker .nex-system-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:16px}#nexSystemPicker .nex-system-grid button{display:grid;text-align:left;gap:6px;padding:14px;background:#241c20;color:#f5edef;border:1px solid #67434a;border-radius:8px}#nexSystemPicker button:hover{border-color:#ff8595}#nexSystemPicker small{color:#c5b2b8;font-weight:400}#nexSystemPicker h2{font-size:17px}</style><dialog id="nexSystemPicker" aria-labelledby="nexSystemTitle"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h2 id="nexSystemTitle">Escolha o sistema de RPG</h2><button class="btn" id="nexSystemClose" type="button" aria-label="Fechar">×</button></div><div class="nex-system-grid"><button type="button" data-nex-system="ordem"><strong>Ordem Paranormal</strong><small>Ficha existente · automações atuais</small></button><button type="button" data-nex-system="D&D 5e"><strong>D&amp;D 5e</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Tormenta20"><strong>Tormenta20</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Call of Cthulhu"><strong>Call of Cthulhu</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Pathfinder 2e"><strong>Pathfinder 2e</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Personalizado"><strong>Sistema personalizado</strong><small>Campos editáveis e regras próprias</small></button></div><p class="hint" style="margin-top:12px">Os novos sistemas usam fichas manuais locais; ainda não possuem automação ou integração com campanhas.</p></dialog><script>(()=>{const d=document.getElementById('nexSystemPicker');let origin=null,bypass=false;document.addEventListener('click',e=>{const target=e.target.closest?.('#menuNew,#agentsCreate,[data-home="new"]');if(!target||bypass||document.body.dataset.d20xScreen==='ordem')return;e.preventDefault();e.stopImmediatePropagation();origin=target;if(!d.open)d.showModal();},true);document.getElementById('nexSystemClose').onclick=()=>d.close();d.addEventListener('click',e=>{const target=e.target.closest?.('[data-nex-system]');if(!target)return;const value=target.dataset.nexSystem;d.close();if(value==='ordem'){if(!origin)return;bypass=true;try{origin.click();}finally{bypass=false;}}else location.href='./fichas-universais.html?system='+encodeURIComponent(value);});})();</script>
+<style id="d20x-multisystem-hub">
+#d20xSystemHub[hidden],#d20xOrdemWorkspace[hidden]{display:none!important}
+#mainMenu .d20x-hub-hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:clamp(22px,4vw,44px);border:1px solid #43262e;border-radius:14px;background:radial-gradient(ellipse at 95% 10%,#4b1824 0%,#161014 52%,#0b0a0d 100%);overflow:hidden}
+#mainMenu .d20x-hub-hero img{flex:none;width:clamp(72px,14vw,145px);height:auto;filter:drop-shadow(0 0 22px #a6374e66)}
+#mainMenu .d20x-hub-kicker{font-size:10px;letter-spacing:.17em;color:#f28a9d;font-weight:800}
+#mainMenu .d20x-hub-hero h2{font-size:clamp(26px,4.3vw,48px);line-height:1.12;color:#fff;margin:14px 0 10px;letter-spacing:-.025em}
+#mainMenu .d20x-hub-hero p{color:#c1b6bf;max-width:560px;font-size:14px;line-height:1.55;margin:0}
+#mainMenu .d20x-hub-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:26px 0 12px}
+#mainMenu .d20x-hub-heading h2{color:#f6eff2;font-size:19px;margin:0}
+#mainMenu .d20x-hub-heading>span{color:#a99ba3;font-size:12px}
+#mainMenu .d20x-system-cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#mainMenu .d20x-system-card{--accent:#cf6478;--glow:#47212e;display:grid;grid-template-columns:1fr auto;align-items:start;gap:10px;text-align:left;min-width:0;min-height:190px;padding:18px;background:linear-gradient(145deg,var(--glow),#121014 75%);border:1px solid #48363d;border-radius:10px;color:white;cursor:pointer}
+#mainMenu .d20x-system-card:hover,#mainMenu .d20x-system-card:focus-visible{border-color:var(--accent);outline-offset:2px}
+#mainMenu .d20x-system-card strong,#mainMenu .d20x-system-card small,#mainMenu .d20x-system-enter{grid-column:1/-1}
+#mainMenu .d20x-system-card strong{font-size:16px;line-height:1.25}
+#mainMenu .d20x-system-card small{font-size:12px;color:#c4b9c1;line-height:1.5}
+#mainMenu .d20x-system-icon{width:40px;height:40px;border:1px solid var(--accent,#b64e63);border-radius:8px;display:grid;place-items:center;color:var(--accent,#e36e85);font-size:25px;background:#10101499}
+#mainMenu .d20x-system-status{color:var(--accent);font-size:9px;letter-spacing:.06em;font-weight:750;padding-top:4px;text-align:right}
+#mainMenu .d20x-system-enter{color:var(--accent);font-size:11px;font-weight:750;margin-top:auto}
+#mainMenu .d20x-system-fantasy{--accent:#e9b974;--glow:#3d291b}
+#mainMenu .d20x-system-tormenta{--accent:#e48476;--glow:#43221d}
+#mainMenu .d20x-system-cthulhu{--accent:#91c5a2;--glow:#19372e}
+#mainMenu .d20x-system-pathfinder{--accent:#91aadd;--glow:#222b47}
+#mainMenu .d20x-system-custom{--accent:#c5acdf;--glow:#32243d}
+#mainMenu .d20x-hub-campaign{display:flex;align-items:center;gap:14px;text-align:left;width:100%;padding:16px;border:1px solid #51323b;border-radius:10px;background:#191216;color:#fff;cursor:pointer}
+#mainMenu .d20x-hub-campaign>span:nth-child(2){flex:1;min-width:0}
+#mainMenu .d20x-hub-campaign strong,#mainMenu .d20x-hub-campaign small{display:block}
+#mainMenu .d20x-hub-campaign small{color:#c3b6bd;margin-top:5px;font-size:12px;line-height:1.45}
+#mainMenu .d20x-hub-campaign:hover{border-color:#d06a7d}
+#mainMenu .d20x-ordem-hero{margin-top:12px}
+@media(max-width:800px){#mainMenu .d20x-system-cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:420px){#mainMenu .d20x-system-cards{grid-template-columns:minmax(0,1fr)}#mainMenu .d20x-system-card{min-height:150px}#mainMenu .d20x-hub-hero{gap:10px}#mainMenu .d20x-hub-hero img{width:65px}#mainMenu .d20x-hub-hero p{font-size:12px}}
+</style>
 </body></html>
