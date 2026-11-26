@@ -168,7 +168,7 @@ h2{font-size:18px;font-weight:600;margin:22px 0 9px}.skills{display:grid;gap:6px
 <div class="shell">
 <nav class="threat-sheet-brand"><span class="brand">N E X</span></nav>
 <div class="card" id="screen" hidden>
-<header class="hero" id="hero"><div class="portrait-switch"><div class="portrait" id="portrait" aria-label="Retrato"></div><button id="formSwitch" class="form-switch" type="button" hidden aria-label="Mostrar outra forma">Mostrar outra ficha</button></div><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div></div></header>
+<header class="hero" id="hero"><div><div class="eyebrow" id="source"></div><h1 id="name"></h1><div id="kind" class="muted"></div><div class="tags"><span id="element"></span><span id="vdBadge"></span></div><button id="formSwitch" class="form-switch" type="button" hidden aria-label="Mostrar outra forma" style="margin-top:12px">Mostrar outra ficha</button></div></header>
 <section class="hp" id="hpBar" hidden aria-label="Vida da ameaça">
  <div class="nex-threat-vitals-head"><strong class="nex-threat-vitals-title">VIDA</strong></div>
  <div class="nex-threat-hp-track" id="hpTrack" role="progressbar" aria-label="Pontos de vida restantes" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
@@ -432,97 +432,6 @@ function render(){
  $("hero").style.setProperty("--art","linear-gradient(90deg,rgba(10,7,10,.2),rgba(10,7,10,.6)),url('"+(images[threat.element]||images.Medo)+"')");
  $("name").textContent=threat.name;$("source").textContent=threat.source;$("element").textContent=threat.element;
  $("kind").textContent=[d.variant?"Variação de criatura":threat.category||"Criatura",d.size].filter(Boolean).join(" · ");$("vdBadge").textContent="VD "+n(d.vd);
- const noRealityPortrait=baseThreat.element==="Realidade"&&(baseThreat.source==="Livro Básico"||baseThreat.source==="Sobrevivendo ao Horror");
- document.querySelector(".portrait-switch").hidden=noRealityPortrait;
- const portrait=$("portrait"), official=threatIllustration(baseThreat);
- const photoKey=baseThreat.source+"::"+baseThreat.name;
- const pairedImage=window.NEX_FEVEREIRO_FORM_IMAGES?.[photoKey]?.[currentForm];
- const archiveFirst=window.NEX_ARQUIVOS_FOTOS_CONFIRMADAS||{};
- const archiveSecond=window.NEX_ARQUIVOS_FOTOS_LOTE2||{};
- const isFirst=Object.prototype.hasOwnProperty.call(archiveFirst,photoKey)&&!!window.NEX_ARQUIVOS_ATLAS;
- const isSecond=!isFirst&&Object.prototype.hasOwnProperty.call(archiveSecond,photoKey)&&!!window.NEX_ARQUIVOS_ATLAS_2;
- const atlasIndex=isFirst?archiveFirst[photoKey]:isSecond?archiveSecond[photoKey]:null;
- const atlasSource=isFirst?window.NEX_ARQUIVOS_ATLAS:isSecond?window.NEX_ARQUIVOS_ATLAS_2:null;
- portrait.style.backgroundImage="";
- portrait.style.backgroundSize="cover";
- portrait.style.backgroundPosition="center";
- portrait.replaceChildren();
- portrait.textContent="";
- let thumbnail=null;
- if(atlasIndex!==null && atlasSource){
-  // A montagem tem baixa resolução: nunca ampliar o recorte até 144 px.
-  const col=atlasIndex%4,row=Math.floor(atlasIndex/4);
-  thumbnail=document.createElement("div");
-  thumbnail.setAttribute("aria-hidden","true");
-  thumbnail.style.cssText='width:104px;height:104px;max-width:100%;max-height:100%;flex:0 0 auto;background-repeat:no-repeat;background-color:#21151a;border-radius:7px;background-size:400% 500%;background-position:'+(col*100/3)+'% '+(row*25)+'%;background-image:url("'+atlasSource+'")';
-  portrait.appendChild(thumbnail);
- }
- if(official){
-  const tag=document.createElement("img");
-  tag.src=official;
-  tag.alt="Arte principal de "+threat.name;
-  tag.loading="lazy";
-  tag.decoding="async";
-  tag.style.cssText="width:100%;height:100%;object-fit:contain;position:absolute;inset:0;border-radius:8px;background:#1a1117;opacity:0";
-  tag.onload=()=>{tag.style.opacity="1";if(thumbnail)thumbnail.hidden=true;};
-  tag.onerror=()=>{tag.style.opacity='0'};
-  portrait.appendChild(tag);
-  if(window.NEX_ARQUIVOS_ZIP_IMAGE_URL && photoKey.startsWith('Arquivos Secretos')){
-   window.NEX_ARQUIVOS_ZIP_IMAGE_URL(photoKey).then(url=>{
-    if(!url||!tag.isConnected)return;
-    tag.onload=()=>{tag.style.opacity='1';if(thumbnail)thumbnail.hidden=true;};
-    tag.src=url;
-   }).catch(error=>console.warn('Retrato da ameaça indisponível:',photoKey,error));
-  }
- }
- if(pairedImage){
-  const face=document.createElement("img");
-  face.alt="Retrato de "+threat.name;
-  face.decoding="async";
-  face.loading="lazy";
-  face.style.cssText="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#130d11;border-radius:8px;opacity:0;transition:opacity .15s";
-  const reveal=()=>{if(!face.isConnected)return;face.style.opacity="1";if(thumbnail)thumbnail.hidden=true;};
-  face.onload=reveal;
-  face.onerror=()=>{
-   if(!window.NEX_FEVEREIRO_FORM_IMAGE_URL)return;
-   window.NEX_FEVEREIRO_FORM_IMAGE_URL(photoKey,currentForm).then(url=>{
-    if(!url||!face.isConnected)return;
-    face.onload=reveal;
-    face.onerror=()=>face.remove();
-    face.src=url;
-   }).catch(()=>face.remove());
-  };
-  portrait.appendChild(face);
-  face.src=pairedImage+"?v=20261114faces3";
- }
- // Arte do pacote de 20 imagens enviado pelo usuário: prevalece sobre retratos anteriores.
- if(window.NEX_UPLOADED_THREAT_IMAGE_URL){
-  const uploadedKey=currentForm==="alternativa"&&baseThreat.name==="Raziel"&&baseThreat.source==="Arquivos Secretos — Julho"
-   ?"Arquivos Secretos — Julho::O Verdadeiro Raziel":photoKey;
-  if((window.NEX_UPLOADED_THREAT_IMAGES||{})[uploadedKey]){
-   const uploaded=document.createElement("img");
-   uploaded.alt="Retrato de "+threat.name;
-   uploaded.loading="lazy";
-   uploaded.decoding="async";
-   uploaded.style.cssText="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#160e12;border-radius:8px;opacity:0";
-   portrait.appendChild(uploaded);
-   window.NEX_UPLOADED_THREAT_IMAGE_URL(uploadedKey).then(url=>{
-    if(!url||!uploaded.isConnected)return;
-    uploaded.onload=()=>{uploaded.style.opacity="1";if(thumbnail)thumbnail.hidden=true};
-    uploaded.src=url;
-   }).catch(error=>console.warn("Retrato enviado indisponível:",uploadedKey,error));
-  }
- }
- // Retratos dos quatro últimos personagens, conferidos no PDF de março.
- const finalIndex=(window.NEX_FINAL_FOUR_POSITIONS||{})[photoKey];
- if(finalIndex!==undefined&&window.NEX_FINAL_FOUR_ATLAS){
-  const last=document.createElement("div");
-  last.setAttribute("role","img");
-  last.setAttribute("aria-label","Retrato de "+threat.name);
-  last.style.cssText="position:absolute;inset:0;border-radius:8px;background-image:url("+window.NEX_FINAL_FOUR_ATLAS+");background-size:200% 200%;background-position:"+(finalIndex%2?"100%":"0%")+" "+(finalIndex>=2?"100%":"0%")+";background-repeat:no-repeat";
-  portrait.appendChild(last);
-  if(thumbnail)thumbnail.hidden=true;
- }
  // Testes com a indicação "(menor)" rolam dados de desvantagem, mantendo o menor.
  const rollRows=items=>Array.isArray(items)?items.filter(v=>Array.isArray(v)&&hasValue(v[0])&&hasValue(v[1])).map(v=>{
   const expression=String(v[1]);
