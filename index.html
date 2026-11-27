@@ -2373,7 +2373,7 @@ body[data-d20x-screen="home"] [data-nexnav="systems"],body[data-d20x-screen="ord
  <div class="home-section-heading"><h2>Campanhas</h2><span class="home-tag">MESAS E PERSONAGENS</span></div>
  <p class="muted" style="margin:4px 0 16px">Crie sua campanha, autorize jogadores e acompanhe as fichas na mesma sala. Todos os participantes podem visualizar; somente o dono e o mestre podem editar.</p><div class="d20x-section-system-tabs" role="group" aria-label="Sistema de RPG"><button type="button" data-section-system="0" aria-pressed="true">Ordem Paranormal</button><button type="button" data-section-system="1" aria-pressed="false">Assimilação</button><button type="button" data-section-system="2" aria-pressed="false">Sacramento</button></div><div class="d20x-section-unavailable" hidden role="status"></div>
  <div class="nex-campaign-integrated" aria-label="Área de campanhas online">
-  <iframe id="nexCampaignRoomFrame" title="Campanhas online do D20X" src="./multiplayer.html?integrado=1&v=20261127localshared2" data-src="./multiplayer.html?integrado=1&v=20261127localshared2" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen" allowfullscreen></iframe>
+  <iframe id="nexCampaignRoomFrame" title="Campanhas online do D20X" src="./multiplayer.html?integrado=1&v=20261127localsheetroll1" data-src="./multiplayer.html?integrado=1&v=20261127localsheetroll1" loading="eager" referrerpolicy="strict-origin-when-cross-origin" allow="fullscreen" allowfullscreen></iframe>
  </div>
  <details class="nex-campaign-legacy">
   <summary>Campanhas salvas neste dispositivo <span class="muted">(modo local anterior)</span></summary>
@@ -3128,6 +3128,11 @@ function logResult(label,expression,rolls,total){
  if(document.body.classList.contains('nex-vtt-sheet-overlay')&&screen&&!screen.classList.contains('hide')){
   try{if(window.NEX_DICE_UI?.showResult?.({title:label,expression,detail:rolls,total}))document.body.classList.add('nex-character-roll-toast-active');}
   catch(error){console.warn('NEX: falha ao mostrar rolagem no Tabletop',error);}
+  if(nexCampaignLiveEdit?.sheetId&&!window.NEX_SHARED_PREVIEW_RENDERING&&Number.isFinite(Number(total))){
+   const frame=document.getElementById('nexCampaignRoomFrame');
+   try{frame?.contentWindow?.postMessage({type:'nex-campaign-sheet-roll',sheetId:nexCampaignLiveEdit.sheetId,rollId:crypto.randomUUID(),title:String(label||'Rolagem').slice(0,90),expression:String(expression||'').slice(0,180),detail:String(rolls||'').slice(0,450),total:Number(total)},location.origin);}
+   catch(error){console.warn('D20X: resultado não enviado à mesa',error);}
+  }
  }
 }
 function dice(expr,label,extra=0){const clean=String(expr).replace(/\s/g,'').toLowerCase();if(!/^[+-]?(?:\d*d\d+|\d+)(?:[+-](?:\d*d\d+|\d+))*$/.test(clean)||clean.length>90){toast('Expressão inválida. Use, por exemplo, 2d6+3.');return;}const tokens=clean.match(/[+-]?(?:\d*d\d+|\d+)/g)||[];let total=extra;let parts=[];let rolled=0,luckUsed=false;for(let token of tokens){const sign=token.startsWith('-')?-1:1;const core=token.replace(/^[+-]/,'');if(core.includes('d')){let [count,faces]=core.split('d').map(Number);if(!count)count=1;if(count>50||faces>1000||faces<2||count<1||rolled+count>70){toast('Limite: 50 dados por termo, até d1000.');return;}let results=[];for(let j=0;j<count;j++){const rand=new Uint32Array(1);crypto.getRandomValues(rand);let value=rand[0]%faces+1;if(!luckUsed&&value===1&&state.nexAutoChoices?.luckEnabled&&nexHasSheetPower('Afortunado')&&(faces!==20||nexPowerAffinity('Afortunado'))){crypto.getRandomValues(rand);value=rand[0]%faces+1;luckUsed=true;}results.push(value);total+=sign*value;}rolled+=count;parts.push(`${sign<0?'-':''}[${results.join(', ')}]`);}else{total+=sign*Number(core);parts.push(token);}}if(extra)parts.push(`bônus ${extra>=0?'+':''}${extra}`);logResult(label,clean+(extra?(extra>=0?'+':'')+extra:''),parts.join(' '),total);}
@@ -8048,6 +8053,10 @@ body > #nexVttSheetClose[hidden]{display:none!important}
       if(msg.sheet&&typeof msg.sheet==='object'&&msg.sheetId&&typeof window.NEX17?.openEditableCampaignSheet==='function'){
         window.NEX17.openEditableCampaignSheet(msg.sheet,{sheetId:msg.sheetId,name:msg.name});
       }
+      return;
+    }
+    if(msg.type==='nex-campaign-sheet-roll-result'){
+      if(msg.ok!==true){const node=document.createElement('div');node.textContent='Resultado não compartilhado: '+String(msg.error||'verifique a conexão').slice(0,160);node.setAttribute('role','status');node.style.cssText='position:fixed;left:12px;bottom:12px;max-width:calc(100vw - 24px);padding:10px;background:#351c25;color:#fff;border:1px solid #b85c70;border-radius:6px;z-index:2147483001';document.body.append(node);setTimeout(()=>node.remove(),6000);}
       return;
     }
     if(msg.type==='nex-campaign-local-sheet-state'){
