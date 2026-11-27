@@ -3505,8 +3505,8 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
        await dbPut(candidate);
        if(latestSnapshot===candidate){
          const marker=document.getElementById('nex29SheetSaveIndicator');
-         if(marker&&!window.NEX_ACCOUNT_USER){marker.textContent='● Cópia temporária no navegador';marker.style.color='#e5bf79';}
-         if(!window.NEX_ACCOUNT_USER)showStorageStatus(true,'Cópia temporária no navegador');
+         if(marker){marker.textContent='● Salvo neste dispositivo';marker.style.color='#84d6a2';}
+         showStorageStatus(true,'Salvo neste dispositivo');
        }
      }while(writeRequested);
    }catch(e){console.error('Falha ao gravar no IndexedDB',e);if(!storageOK)showStorageStatus(false,'Nenhum armazenamento confirmado — exporte um backup');}
@@ -3575,7 +3575,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
      document.dispatchEvent(new Event('nex51-ready'));
      if(db){
        // Wait for the IndexedDB transaction before claiming the second copy succeeded.
-       if(storageOK&&!window.NEX_ACCOUNT_USER)showStorageStatus(true,'Cópia temporária no navegador · pronta para migração');
+       if(storageOK&&!window.NEX_ACCOUNT_USER)showStorageStatus(true,'Dados disponíveis neste navegador');
      }else if(!storageOK){
        showStorageStatus(false,'Armazenamento deste navegador indisponível — exporte backup JSON');
      }
@@ -3673,13 +3673,13 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    const status=document.getElementById('nex29SheetSaveIndicator');
    if(status){
     const loggedIn=!!window.NEX_ACCOUNT_USER;
-    status.textContent=loggedIn?'◌ Aguardando sincronização com a conta D20X':localSaved?'● Cópia temporária neste navegador':'⚠ Entre na conta D20X';
-    status.style.color=loggedIn?'#e5bf79':localSaved?'#e5bf79':'#ff9a9f';
+    status.textContent=localSaved?'● Salvo neste dispositivo':saving?'◌ Salvando no banco local':'⚠ Armazenamento indisponível';
+    status.style.color=localSaved?'#84d6a2':saving?'#e5bf79':'#ff9a9f';
    }
-   showStorageStatus(localSaved||saving,window.NEX_ACCOUNT_USER?'Aguardando confirmação do salvamento na conta D20X':localSaved?'Cópia temporária no navegador · entre na conta D20X':'Entre na sua conta D20X para salvar');
+   showStorageStatus(localSaved||saving,localSaved?'Salvo neste dispositivo':saving?'Salvando no banco local':'Armazenamento indisponível — exporte um backup');
    if(show){
-     if(window.NEX_ACCOUNT_USER)toast('Enviando alterações para a conta D20X…');
-     else toast('Entre na sua conta D20X para salvar na nuvem.');
+     if(localSaved)toast('Salvo neste dispositivo.');
+     else toast(saving?'Salvando no banco local…':'Não foi possível salvar. Exporte um backup.');
    }
    return localSaved||saving;
  }
@@ -3701,7 +3701,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
     return true;
    }
    if(!window.NEX_ACCOUNT_USER||!window.NEX_ACCOUNT_SYNC_READY){
-    if(show)toast('Entre na conta D20X e aguarde a sincronização.');
+    if(show)toast('Entre na conta D20X e aguarde o carregamento local.');
     return false;
    }
    if(show)captureDisplayedFields();
@@ -3859,6 +3859,17 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  }
  window.NEX_AUTO_BRIDGE={
    ready:()=>storageReady,
+   confirmLocalSave:async()=>{
+     if(!storageReady||!db)throw Error('IndexedDB necessário para concluir a migração');
+     if(!persist())throw Error('Não foi possível persistir a coleção');
+     const snapshot=createSnapshot();
+     await dbPut(snapshot);
+     const saved=await dbGet();
+     if(!saved||JSON.stringify(saved.agents)!==JSON.stringify(snapshot.agents)||JSON.stringify(saved.campaigns)!==JSON.stringify(snapshot.campaigns))throw Error('Verificação local falhou');
+     // A biblioteca global usa seu armazenamento local existente.
+     if(JSON.stringify(globalHomebrew())!==JSON.stringify(JSON.parse(localStorage.getItem(HB_KEY)||'[]')))throw Error('Biblioteca local não confirmada');
+     return true;
+   },
    // Ao entrar, a conta decide quais fichas ficam visíveis. Não misturar personagens entre contas.
    replaceAccountAgents:(records,removed=[])=>{
      if(!storageReady)throw new Error('Armazenamento ainda não carregado');
@@ -4112,7 +4123,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
  function openAgent(id){
   if(nexCampaignLiveEdit)finishCampaignLiveEdit();
   if(!window.NEX_ACCOUNT_USER){toast('Entre na sua conta D20X para abrir esta ficha.');return;}
-  if(!window.NEX_ACCOUNT_SYNC_READY){toast('Carregando seus personagens da nuvem.');return;}
+  if(!window.NEX_ACCOUNT_SYNC_READY){toast('Carregando seus personagens locais.');return;}
   if(!agents.some(a=>a.id===id))return;persist();active=id;state=normalize(JSON.parse(JSON.stringify(agents.find(a=>a.id===id).data)));visible('sheet');try{rehydrate();}catch(err){console.error(err);renderFields();renderStats();}save();}
 
  function showHome(){persist();renderAgents();visible('home');}
@@ -8206,7 +8217,7 @@ body > #nexVttSheetClose[hidden]{display:none!important}
 
 <script src="d20x-defense-selectors-safe.js?v=20261112readonly3"></script>
 <script src="./firebase-config.js?v=20261112accounts1"></script>
-<script type="module" src="./d20x-account-sync.js?v=20261125d20x1"></script>
+<script type="module" src="./d20x-account-sync.js?v=20261127localfirst1"></script>
 <script type="module" src="./d20x-homebrew-share.js?v=20261115share6"></script>
 <script>
 window.addEventListener('nex-cloud-sync-state',event=>{
@@ -8214,8 +8225,8 @@ window.addEventListener('nex-cloud-sync-state',event=>{
  if(detail.uid!==window.NEX_ACCOUNT_USER?.uid)return;
  const marker=document.getElementById('nex29SheetSaveIndicator');
  const small=document.getElementById('n17SaveIndicator');
- const ok=detail.state==='saved';
- const message=ok?'● Salvo na conta D20X':'⚠ Sem sincronização · cópia temporária';
+ const ok=detail.state==='local';
+ const message=ok?'● Armazenamento local ativo':'⚠ Importação local não confirmada';
  if(marker){marker.textContent=message;marker.style.color=ok?'#84d6a2':'#ff9a9f';}
  if(small)small.textContent=message;
 });
