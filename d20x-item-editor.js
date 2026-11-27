@@ -415,8 +415,27 @@ function close(){
 function descriptionText(s){
  return safe(s).replace(/\*\*(.+?)\*\*/gs,'<strong style="color:#e44855">$1</strong>').replace(/__(.+?)__/gs,'<u>$1</u>').replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g,'<em>$1</em>');
 }
+// Consumíveis de combate: usa os valores do catálogo de RPG mesmo em fichas antigas.
+const combatConsumableNames=new Set(['granada de fragmentacao','granada incendiaria','granada de atordoamento','granada de fumaca']);
+function combatConsumable(item){
+ if(!item||!combatConsumableNames.has(norm(item.name).trim()))return null;
+ const model=lookup(item);
+ if(!model||Number(item.quantity??1)<=0)return null;
+ const expression=String(stat(model,'Dano')||'').trim();
+ const damage=/^\d+d\d+$/i.test(expression)?expression:'';
+ return {damage,type:String(stat(model,'Tipo')||''),effect:String(window.NEX_ITEM_DESCRIBE?.(model)||model.description||''),name:item.name};
+}
 function card(item,expanded=false){
  const d=detail(item),weapon=d.category==='Arma',id=safe(item.id);
+ const consumable=combatConsumable(item);
+ if(consumable){
+  const short=consumable.damage?'<span>Dano: <b>'+safe(consumable.damage)+' '+safe(consumable.type)+'</b></span>':'<span>Efeito: <b>Sem dano direto</b></span>';
+  return '<details class="nex-item-card-new nex-ref-weapon" data-item-id="'+id+'"'+(expanded?' open':'')+'>'+
+    '<summary class="nex-ref-heading"><span class="nex-item-chevron" aria-hidden="true">⌄</span><span class="nex-ref-titleblock"><strong class="nex-ref-name">'+safe(d.name)+'</strong><span class="nex-ref-damage">'+short+'</span></span></summary>'+
+    '<label class="nex-item-equipped-label nex-ref-equip" title="Exibir no Combate"><input type="checkbox" data-nex-item-equipped="'+id+'" aria-label="Exibir '+safe(d.name)+' no Combate" '+(item.equipped?'checked':'')+'></label>'+
+    '<div class="nex-ref-body"><div class="nex-ref-subtitle">Consumível de combate · RPG</div><div class="nex-ref-fields">'+[['Categoria',d.tier],['Espaços',d.spaces],['Quantidade',d.quantity]].map(x=>'<div><span>'+safe(x[0])+':</span> <b>'+safe(x[1])+'</b></div>').join('')+'</div>'+
+    '<p class="nex-ref-description">'+descriptionText(consumable.effect)+'</p><div class="nex-ref-actions"><button type="button" data-nex-item-remove="'+id+'" class="nex-item-remove">Remover</button><button type="button" data-nex-item-edit="'+id+'" class="nex-item-edit">Editar</button></div></div></details>';
+ }
  const critical=String(d.critical||'').trim(),multi=String(d.multiplier||'').trim();
  const critText=critical+(multi?' ×'+multi:'');
  const quick=weapon?[['Dano',d.damage||'—'],['Crítico',critText||'—']]:[['Categoria',d.tier||'—'],['Espaços',d.spaces]];
@@ -501,7 +520,7 @@ document.addEventListener('change',event=>{
   toast(check.required?'Exige proficiência: '+check.required+'.':'Proficiência da arma não cadastrada.');
   return;
  }
- if(category!=='Arma'&&category!=='Proteção'&&window.NEX_ITEM_MODS?.typeOf(detail(item))!=='accessory'){checkbox.checked=false;return;}
+ if(!combatConsumable(item)&&category!=='Arma'&&category!=='Proteção'&&window.NEX_ITEM_MODS?.typeOf(detail(item))!=='accessory'){checkbox.checked=false;return;}
  item.equipped=checkbox.checked;
  renderAttacks();
  if(typeof renderStats==='function')renderStats();
@@ -587,9 +606,19 @@ renderAttacks=function(){
  const result=previousRenderAttacks.apply(this,arguments);
  const list=by('attacksList');
  if(!list)return result;
- const items=(state.items||[]).filter(item=>item.equipped===true && detail(item).category==='Arma');
+ const items=(state.items||[]).filter(item=>item.equipped===true && (combatConsumable(item)||detail(item).category==='Arma'));
  if(!items.length)return result;
  const cards=items.map(item=>{
+  const c=combatConsumable(item);
+  if(c){
+   const id=safe(item.id),collapsed=!collapsedWeapons.has(String(item.id)),action=c.damage?'Rolar dano':'Ver efeito';
+   return '<article class="nex-combat-equipped" data-equipped-weapon="'+id+'"><div class="nex-combat-weapon">'+
+    '<button type="button" class="nex-combat-weapon-toggle" data-nex-weapon-toggle="'+id+'" aria-expanded="'+(!collapsed)+'" aria-label="Detalhes de '+safe(c.name)+'">'+(collapsed?'⌄':'⌃')+'</button>'+
+    '<div class="nex-combat-weapon-main"><strong class="nex-combat-weapon-name">'+safe(c.name)+'</strong></div>'+
+    '<button type="button" class="nex-combat-die-button" data-nex-weapon-roll="'+id+'" aria-label="'+action+' de '+safe(c.name)+'" title="'+action+'">'+(c.damage?weaponDieSvg:'<span aria-hidden="true">✦</span>')+'</button></div>'+
+    '<div class="nex-combat-weapon-details" '+(collapsed?'hidden':'')+'><div class="nex-combat-weapon-summary">'+(c.damage?'Dano: <b>'+safe(c.damage)+' '+safe(c.type)+'</b>':'Efeito sem dano direto')+'</div><div>'+safe(c.effect)+'</div>'+
+    '<button type="button" class="nex-combat-weapon-remove" data-nex-weapon-remove="'+id+'">Remover</button></div></article>';
+  }
   const w=weaponData(item),d=w.d,id=safe(item.id),bonus=w.bonus,damage=String(d.damage||'').trim();
   const collapsed=!collapsedWeapons.has(String(item.id));
   return '<article class="nex-combat-equipped" data-equipped-weapon="'+id+'">'+
@@ -649,7 +678,7 @@ document.addEventListener('click',e=>{
   renderInventory();
   renderAttacks();
   save();
-  toast('Ataque removido do Combate. A arma permanece no inventário.');
+  toast('Item removido do Combate. Permanece no inventário.');
   return;
  }
  const secondaryButton=e.target.closest('[data-nex-secondary-roll]');
@@ -678,7 +707,22 @@ document.addEventListener('click',e=>{
  }
  e.preventDefault();
  const item=find(button.dataset.nexWeaponRoll);
- if(!item||!item.equipped||detail(item).category!=='Arma')return;
+ if(!item||!item.equipped)return;
+ const c=combatConsumable(item);
+ if(c){
+  const roll=c.damage?weaponDice(c.damage,1):null;
+  if(c.damage&&!roll){toast('Fórmula de dano de RPG inválida.');return;}
+  weaponRollPanel.innerHTML='<div class="nex-weapon-roll-head"><strong>'+safe(c.name)+'</strong><button type="button" data-close-weapon-popup aria-label="Fechar resultado">×</button></div>'+
+    (roll?'<div class="nex-weapon-roll-stats"><span class="nex-weapon-roll-hex"></span><div class="nex-weapon-roll-column"><div class="nex-weapon-roll-value">'+safe(roll.total)+'</div><div class="nex-weapon-roll-label">DANO DE RPG</div></div></div><div class="nex-weapon-roll-detail">'+safe(c.type)+' · '+safe(roll.expression)+': '+safe(roll.detail)+'</div>':'<div class="nex-weapon-roll-detail"><b>EFEITO</b></div>')+
+    '<div class="nex-weapon-roll-detail">'+safe(c.effect)+'</div>';
+  weaponRollPanel.hidden=false;
+  const rect=button.getBoundingClientRect(),width=310;
+  weaponRollPanel.style.left=Math.max(8,Math.min(innerWidth-width-8,rect.left-100))+'px';
+  weaponRollPanel.style.top=Math.max(8,Math.min(innerHeight-weaponRollPanel.offsetHeight-8,rect.bottom+9))+'px';
+  if(roll&&typeof logResult==='function')logResult(c.name+' — dano de RPG',roll.expression,roll.detail,roll.total);
+  return;
+ }
+ if(detail(item).category!=='Arma')return;
  const w=weaponData(item);
  const rolls=Array.from({length:w.dieCount},weaponD20);
  const natural=w.value===0?Math.min(...rolls):Math.max(...rolls);
