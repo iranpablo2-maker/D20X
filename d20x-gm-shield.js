@@ -104,17 +104,20 @@ export function mountGmShield(options){
   }
  }
  function status(message){saveStatus=message;refreshMasterStatus();}
+ const isOrdemCampaign=()=> (getContext().system||'Ordem Paranormal')==='Ordem Paranormal';
  function readHomebrews(){
+  if(!isOrdemCampaign()){homebrew=[];return;}
   // Mesmo tombstone usado pelo editor Homebrew: fichas apagadas nunca são importáveis.
   try{
    const key='nex_homebrew_advanced_v2051';
    const stored=JSON.parse(localStorage.getItem(key)||'[]');
    const removed=JSON.parse(localStorage.getItem(key+'_deleted_ids_v1')||'[]');
    const deleted=new Set(Array.isArray(removed)?removed.filter(id=>typeof id==='string'):[]);
-   homebrew=Array.isArray(stored)?stored.filter(x=>x&&x.type==='npc'&&x.id&&x.name&&!deleted.has(String(x.id))).slice(0,150):[];
+   homebrew=Array.isArray(stored)?stored.filter(x=>x&&x.type==='npc'&&(x.systemName||x.system||'Ordem Paranormal')===(getContext().system||'Ordem Paranormal')&&x.id&&x.name&&!deleted.has(String(x.id))).slice(0,150):[];
   }catch(error){homebrew=[];console.warn('NEX: falha ao atualizar lista de NPCs Homebrew',error);}
  }
  async function readThreats(){
+  if(!isOrdemCampaign())return;
   if(threatCatalog.length)return;
   try{
    const response=await fetch('./ameacas.html',{cache:'force-cache'});
@@ -1151,10 +1154,11 @@ export function mountGmShield(options){
    const userId=getContext().uid;
    if(userId)sessionStorage.setItem('nex_gm_navigation_v1:'+userId+':'+room,JSON.stringify({tab,noteId:activeNoteId,noteMode,sheet:selectedSheet?{kind:selectedSheet.kind,id:selectedSheet.id}:null}));
   }catch(error){}
-  const current=tab==='npcs'&&showNpcImport?homebrewOptions():tab==='threats'&&showThreatImport?threatPicker():(selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes')));
-  const topThreatHeader=tab==='threats'&&!showThreatImport&&!selectedSheet?gmSectionHeader('threats'):'';
+  const unsupported=!isOrdemCampaign()&&['npcs','threats'].includes(tab);
+  const current=unsupported?'<p class="room-note">A biblioteca de '+escape(getContext().system)+' ainda não está disponível.</p>':tab==='npcs'&&showNpcImport?homebrewOptions():tab==='threats'&&showThreatImport?threatPicker():(selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes')));
+  const topThreatHeader=!unsupported&&tab==='threats'&&!showThreatImport&&!selectedSheet?gmSectionHeader('threats'):'';
   root.innerHTML=menu()+topThreatHeader+'<div class="nex-gm-status" data-gm-status role="status"></div>'+
-   renderFavourites()+'<div class="nex-gm-content">'+current+'</div>'+
+   (isOrdemCampaign()?renderFavourites():'')+'<div class="nex-gm-content">'+current+'</div>'+
    '';
   // Corrigir scroll persistente do Menu Principal: a mini ficha nova
   // precisa começar na barra de VIDA, não nas abas ou atributos.
@@ -1346,6 +1350,7 @@ export function mountGmShield(options){
  });
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
+  if(!isOrdemCampaign()&&['npcs','threats'].includes(tab)&&!btn.dataset.gmTab)return;
   if(btn.dataset.gmRetrySave){void store();return;}
   if(btn.dataset.gmDiscardSave){
    if(!window.confirm('Descartar apenas as alterações locais não enviadas e voltar aos dados salvos na campanha?'))return;
