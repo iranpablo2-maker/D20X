@@ -4949,16 +4949,7 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
 }
 window.NEX_DETAILED_DESCRIPTION=nexDetailedDescription;
 /* Notas locais de consulta: não são incluídas em fichas, campanhas ou catálogos compartilhados. */
-window.NEX_LOCAL_RULE_NOTE=function(key,escapeText){
- const id='d20x_local_rule_note_v1:'+encodeURIComponent(String(key));
- let value='';try{value=localStorage.getItem(id)||'';}catch{}
- return '<details style="margin-top:10px"><summary style="cursor:pointer">Minha anotação de mesa</summary><label style="display:block;margin-top:8px;font-size:12px">Somente neste navegador; visível a quem usar o mesmo perfil do navegador.</label><textarea data-d20x-local-rule-note="'+escapeText(id)+'" rows="3" maxlength="2000" style="width:100%;box-sizing:border-box;margin-top:6px;resize:vertical" placeholder="Escreva sua própria anotação...">'+escapeText(value)+'</textarea><small data-d20x-note-status aria-live="polite"></small></details>';
-};
-document.addEventListener('input',event=>{
- const field=event.target.closest?.('textarea[data-d20x-local-rule-note]');if(!field)return;
- const status=field.parentElement.querySelector('[data-d20x-note-status]');
- try{if(field.value)localStorage.setItem(field.dataset.d20xLocalRuleNote,field.value);else localStorage.removeItem(field.dataset.d20xLocalRuleNote);if(status)status.textContent='Salva neste navegador.';}catch{if(status)status.textContent='Não foi possível salvar neste navegador.';}
-});
+window.NEX_LOCAL_RULE_NOTE=function(){return '';};
 
 function abilityRecords(){
    const entries=[];
