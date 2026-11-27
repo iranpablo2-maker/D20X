@@ -16,7 +16,7 @@ A cena do Tabletop usa IndexedDB no dispositivo do mestre e WebRTC para distribu
 
 ## Limitações / próximos pontos a validar
 
-Campanhas multiplayer, membros, convites, fichas compartilhadas, atribuições, PV/PE/SAN e efeitos entre fichas ainda usam os documentos do Firestore. Esta etapa não desativa essas rotas, para preservar permissões e compatibilidade. Publicação da branch principal depende de validação real. A migração não é replicação automática entre dispositivos. Uma origem de preview diferente tem armazenamento local diferente do site de produção. Não limpar os dados do navegador nem apagar as coleções antigas.
+A branch experimental já implementa o estado operacional das fichas compartilhadas (edições, PV/PE/SAN e efeitos) no IndexedDB do mestre, com solicitações e distribuição por WebRTC. O cadastro inicial das fichas, campanhas multiplayer, membros, convites, atribuições e permissões ainda dependem do Firestore; cópias remotas anteriores não são removidas. Em caso de desconexão, uma solicitação pendente é rejeitada, e o jogador deve conferir o estado após reconectar antes de repetir uma alteração, pois ela pode ter sido salva pelo mestre. Essa implementação ainda requer testes reais de persistência, permissões e reconexão. Publicação da branch principal depende de validação real. A migração não é replicação automática entre dispositivos. Uma origem de preview diferente tem armazenamento local diferente do site de produção. Não limpar os dados do navegador nem apagar as coleções antigas.
 
 ## Teste de aceitação
 
