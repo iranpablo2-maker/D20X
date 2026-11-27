@@ -8,7 +8,7 @@ window.NEX_SAH={
         "Percepção"
       ],
       "ability": "Companheiro Animal",
-      "description": "Origem de personagem; a habilidade associada é Companheiro Animal. Perícias: Adestramento, Percepção. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror.",
+      "description": "Registre o animal aliado na campanha. A ficha não gerencia automaticamente os benefícios de perícia associados ao companheiro nem sua progressão.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -30,7 +30,7 @@ window.NEX_SAH={
         "Profissão"
       ],
       "ability": "Fome do Outro Lado",
-      "description": "Origem de personagem; a habilidade associada é Fome do Outro Lado. Perícias: Ocultismo, Profissão. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror.",
+      "description": "Recurso de preparação de refeições paranormais no interlúdio. Registre o resultado do preparo e os efeitos temporários acordados na mesa; a origem não aplica resistência permanente.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -41,7 +41,7 @@ window.NEX_SAH={
         "Tecnologia"
       ],
       "ability": "Poder da Amizade",
-      "description": "Origem de personagem; a habilidade associada é Poder da Amizade. Perícias: Atualidades, Tecnologia. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror.",
+      "description": "No D20X, a opção de melhor amigo presente e visível acrescenta +2 aos testes de perícia. Desative a condição quando o amigo não estiver próximo e visível.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -96,7 +96,7 @@ window.NEX_SAH={
         "Ocultismo"
       ],
       "ability": "Conhecimento Oculto",
-      "description": "Origem de personagem; a habilidade associada é Conhecimento Oculto. Perícias: Investigação, Ocultismo. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror.",
+      "description": "Use Ocultismo para investigar indícios de uma criatura. Registre o alvo identificado nas anotações; a ficha não aplica automaticamente o benefício específico contra esse alvo.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -118,7 +118,7 @@ window.NEX_SAH={
         "Vontade"
       ],
       "ability": "Invenção Paranormal",
-      "description": "Origem de personagem; a habilidade associada é Invenção Paranormal. Perícias: Profissão, Vontade. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror.",
+      "description": "Registre o dispositivo ficcional e o ritual básico associado. O D20X ainda não automatiza seu acionamento, suas falhas ou sua manutenção no interlúdio.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -129,7 +129,7 @@ window.NEX_SAH={
         "Religião"
       ],
       "ability": "A Culpa é das Estrelas",
-      "description": "Origem de personagem; a habilidade associada é A Culpa é das Estrelas. Perícias: Ocultismo, Religião. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror.",
+      "description": "Registre o resultado de sorte escolhido e a ativação no início da cena. A ficha não acompanha automaticamente o dado de sorte nem os bônus temporários.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -295,7 +295,7 @@ window.NEX_SAH={
       ],
       [
         "Leitura Fria",
-        "Poder de Especialista. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+        "Recurso de interação no interlúdio para interpretar uma pessoa observada. Registre perguntas e eventuais PE temporários; a ficha não resolve a interação automaticamente."
       ],
       [
         "Mãos Firmes",
@@ -341,11 +341,11 @@ window.NEX_SAH={
       ],
       [
         "Sentido Premonitório",
-        "Poder de Ocultista. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+        "Recurso de antecipação em cenas fora de combate. A ficha não acompanha automaticamente seu custo de preparação ou manutenção por rodada."
       ],
       [
         "Sincronia Paranormal",
-        "Poder de Ocultista. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+        "Recurso de vínculo entre aliados. Registre os participantes e a duração do efeito; os benefícios em testes mentais e seus custos ainda não são automatizados."
       ],
       [
         "Traçado Conjuratório",
