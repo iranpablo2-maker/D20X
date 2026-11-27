@@ -2795,14 +2795,14 @@ function nexB100WeaponEffects(item,d){
  const unarmed=/^(desarmado|ataque desarmado|golpe desarmado)$/i.test(String(d.name||item.name||'').trim());
  const skill=state.skills?.Tática||{};
  let margin=(nexHasSheetPower('Golpe de Sorte')?1:0)+(melee&&nexTrailIs('Combatente','Guerreiro',10)?2:0)+(favorite&&nexTrailIs('Combatente','Aniquilador',99)?2:0)+(aimed?2:0)+(selected?.letais===2?5:selected?.letais===1?2:0);
- const intuitive=ranged&&nexHasSheetPower('Tiro Intuitivo')&&Boolean(R['b189:Tiro Intuitivo']);
+ const intuitive=ranged&&nexHasSheetPower('Tiro Intuitivo')&&Boolean(R['b189:Tiro Intuitivo']),intuitiveEnhanced=intuitive&&R['b189:Tiro Intuitivo']?.enhanced===true;
  const unarmedBuff=unarmed&&nexHasSheetPower('Ácido Corrosivo')&&S['b189:Ácido Corrosivo'];
  const improvised=nexHasSheetPower('Especialista em Armas Improvisadas')&&/improvisad/i.test(String(d.kind||'')+' '+String(d.name||item.name||''));
- const multiplier=(nexPowerAffinity('Golpe de Sorte')?1:0)+(selected?.destruidores||0)+(intuitive?1:0);
+ const multiplier=(nexPowerAffinity('Golpe de Sorte')?1:0)+(selected?.destruidores||0)+(intuitiveEnhanced?1:0);
  if(intuitive)margin+=2;
  const extraDice=(improvised?1:0)+(melee&&nexHasSheetPower('Golpe Pesado')?1:0)+(favorite&&nexTrailIs('Combatente','Aniquilador',99)?1:0);
  const flatDamage=(unarmedBuff?(nexPowerAffinity('Ácido Corrosivo')?10:5):0)+(item.nexB189Instrument&&nexHasSheetPower('Instrumento Elétrico de Combate')?nexB150Attribute('pre'):0)+(firearm&&nexHasSheetPower('Balística Avançada')?2:0)+(!firearm&&tactical&&(melee||ranged)&&nexHasSheetPower('Ninja Urbano')?2:0)+(ranged&&nexHasSheetPower('Tiro Certeiro')?Math.max(0,Number(state.attributes?.agi)||0):0)+(firearm&&nexTrailIs('Combatente','Incursor',10)?Number(skill.training||0)+Number(skill.other||0)+nexOfficialGrantedSkillBonus('Tática',skill.training)+nexOfficialSkillBonus('Tática'):0);
- return {margin,multiplier,extraDice,flatDamage,attackBonus:unarmedBuff?(nexPowerAffinity('Ácido Corrosivo')?4:2):0,intuitive,skillOverride:item.nexB189Instrument&&nexHasSheetPower('Instrumento Elétrico de Combate')?'Artes':'',penalty:(nexHasSheetPower('Combate Defensivo')&&R.b100Defensive?1:0)+(nexHasSheetPower('Combater com Duas Armas')&&R['b189:Combater com Duas Armas']?1:0),unarmedDice:unarmed&&nexHasSheetPower('Artista Marcial')?(nex>=70?'1d10':nex>=35?'1d8':'1d6'):'',maxCritical:firearm&&nexTrailIs('Especialista','Atirador de Elite',99),sneakDice:sneak?(nex>=99?4:nex>=65?3:nex>=40?2:1)*(S.b189Prepared&&nexTrailIs('Especialista','Infiltrador',65)?2:1):0,ignoreRD:(selected?.perfurantes?selected.perfurantes*5:0)+(intuitive?10:0),wide:selected?.amplo||0,aimed:Boolean(aimed),favoriteChoice:Boolean(selected),sneak:Boolean(sneak),melee};
+ return {margin,multiplier,extraDice,flatDamage,attackBonus:unarmedBuff?(nexPowerAffinity('Ácido Corrosivo')?4:2):0,intuitive,skillOverride:item.nexB189Instrument&&nexHasSheetPower('Instrumento Elétrico de Combate')?'Artes':'',penalty:(nexHasSheetPower('Combate Defensivo')&&R.b100Defensive?1:0)+(nexHasSheetPower('Combater com Duas Armas')&&R['b189:Combater com Duas Armas']?1:0),unarmedDice:unarmed&&nexHasSheetPower('Artista Marcial')?(nex>=70?'1d10':nex>=35?'1d8':'1d6'):'',maxCritical:firearm&&nexTrailIs('Especialista','Atirador de Elite',99),sneakDice:sneak?(nex>=99?4:nex>=65?3:nex>=40?2:1)*(S.b189Prepared&&nexTrailIs('Especialista','Infiltrador',65)?2:1):0,ignoreRD:(selected?.perfurantes?selected.perfurantes*5:0)+(intuitiveEnhanced?10:0),wide:selected?.amplo||0,aimed:Boolean(aimed),favoriteChoice:Boolean(selected),sneak:Boolean(sneak),melee};
 }
 window.NEX_B100_WEAPON=nexB100WeaponEffects;
 // Efeitos numéricos de avatares sobrenaturais do RPG, sem alterar os campos-base.
@@ -5615,9 +5615,9 @@ function abilityRecords(){
   if(s.sceneDice)return aff+box(act(S[key]?'Rolar efeito elegível':'Ativar efeito de RPG · '+s.cost+' PE'),note);
   if(s.instrument)return aff+box(act('Vincular item paranormal fictício',Boolean((state.items||[]).find(i=>i.nexB189Instrument))), 'Cria somente um registro de equipamento no inventário do RPG.');
   if(s.passive)return box('', 'O bônus de dado é calculado quando o item está classificado como improvisado na ficha.');
-  if(s.interlude)return box(act('Rolar reserva de recursos de jogo',!!state.nexAutoInterludeUses?.[key])+btn('novoInterludio','Novo interlúdio'), 'Reserva abstrata: '+Number(state.nexAutoInterludeUses?.[key]||0)+'. Não altera automaticamente os itens.');
+  if(s.interlude)return box(act('Rolar reserva de recursos de jogo',Object.prototype.hasOwnProperty.call(state.nexAutoInterludeUses||{},key))+btn('novoInterludio','Novo interlúdio'), 'Reserva abstrata: '+Number(state.nexAutoInterludeUses?.[key]||0)+'. Não altera automaticamente os itens.');
   if(s.defense)return box(act('Preparar Defesa temporária · '+s.cost+' PE',!!R[key])+btn('b189End','Encerrar efeito'), 'Bônus de +5 Defesa até resolver o evento elegível ou iniciar nova rodada.');
-  if(s.critical)return box(act('Preparar modificador de crítico · '+s.cost+' PE',!!R[key]),'Aplica ao próximo teste de item elegível confirmado na mesa.');
+  if(s.critical)return box(sel('Modificador de jogo',[['0','Bônus básico · 0 PE'],['2','Bônus aprimorado · 2 PE']])+act('Preparar modificador de crítico',!!R[key]),'Aplica ao próximo teste elegível confirmado na mesa.');
   if(s.record)return box(act('Registrar efeito confirmado · '+s.cost+' PE'),note+' Condições e efeitos não numéricos continuam manuais.');
   return box(num('Valor de jogo definido pela mesa',0,999,0)+act('Registrar resultado'), 'O catálogo não permite determinar automaticamente todas as condições. Registra apenas o valor confirmado, sem modificar recursos.');
  }
@@ -5968,15 +5968,15 @@ function abilityRecords(){
        else if(s.dice){if(!valid(nums[0],2,100)||!yes()||!pe(s.cost))return;const rolls=Array.from({length:s.dice},()=>roll(nums[0]));record(rolls.reduce((v,x)=>v+x,0),rolls.join(', '));}
        else if(s.extra){if(!valid(nums[0],1,20)||!yes()||!pe(nums[0]*2))return;record(1,'Ação de RPG registrada');}
        else if(s.opposed){const dt=s.dt?10+maxValues().peLimit+nexB150Attribute(s.dt):nums[1];if(!valid(nums[0],0,150)||!valid(dt,0,150)||!yes()||!pe(s.cost))return;record(nums[0],(nums[0]>=dt?'Teste atingiu o valor':'Teste abaixo do valor')+' · '+dt);}
-       else if(s.prepare){if(R[mark]||S.b189Prepared||!yes()||!pe(s.cost))return;set('nexAutoRoundUses',mark,true);set('nexAutoSceneUses','b189Prepared',true);record(1,'Bônus de RPG preparado');}
-       else if(s.dtBonus){if(!valid(nums[0],0,150)||!yes())return;const mult=n==='Fogo Amigo'&&nexHasSheetPower('Perito em Explosivos')?2:1;record(nums[0]+mult*nexB150Attribute('int'),'DT de jogo calculada');}
+       else if(s.prepare){if(R[mark]||S.b189Prepared||!yes()||!pe(s.cost))return;set('nexAutoRoundUses',mark,true);set('nexAutoSceneUses','b189Prepared',2);record(1,'Bônus de RPG preparado');}
+       else if(s.dtBonus){if(!valid(nums[0],0,150)||!yes())return;const mult=n==='Fogo Amigo'&&nexHasDirectPower('Perito em Explosivos')?2:1;record(nums[0]+mult*nexB150Attribute('int'),'DT de jogo calculada');}
        else if(s.mission){if(M[mark]||!yes())return;const level=Number(state.nex),total=level>=99?4:level>=65?3:level>=40?2:1;set('nexAutoMissionUses',mark,total);record(total,'Reserva de recursos fictícios');}
        else if(s.resourceToken){if(!yes()||!pe(s.cost))return;set('nexAutoSceneUses',mark,Number(S[mark]||0)+1);record(1,'Recurso abstrato do RPG registrado');}
        else if(s.sceneToggle){if(!S[mark]&&(!yes()||!pe(s.cost)))return;set('nexAutoSceneUses',mark,!S[mark]);record(S[mark]?0:1);}
        else if(s.sceneDice){if(!S[mark]){if(!yes()||!pe(s.cost))return;set('nexAutoSceneUses',mark,true);record(1);}else{if(!yes())return;const rolls=Array.from({length:nexPowerAffinity(n)?2:1},()=>roll(10));record(rolls.reduce((v,x)=>v+x,0),rolls.join(', '));}}
-       else if(s.instrument){if((state.items||[]).some(i=>i.nexB189Instrument)||!yes())return;const id='b189-instrument-'+Date.now();state.items=[...(state.items||[]),{id,name:'Instrumento paranormal',category:'Arma',quantity:1,spaces:2,equipped:false,nexB189Instrument:true,nexInfo:{name:'Instrumento paranormal',category:'Arma',kind:'Paranormal',proficiency:'Tática',tier:'II',spaces:2,damage:'2d8',critical:'20',multiplier:'2',damageType:'Energia',range:'Curto'}}];record(1,'Item fictício vinculado');}
-       else if(s.interlude){if(I[mark]||!yes())return;const rolls=Array.from({length:nexB150Attribute('int')},()=>roll(6)),total=rolls.reduce((v,x)=>v+x,0);set('nexAutoInterludeUses',mark,total);record(total,'Reserva abstrata · '+rolls.join(', '));}
-       else if(s.defense||s.critical){if(R[mark]||!yes()||!pe(s.cost))return;set('nexAutoRoundUses',mark,true);record(1,'Modificador de ficha preparado');}
+       else if(s.instrument){if((state.items||[]).some(i=>i.nexB189Instrument)||!yes())return;const id='b189-instrument-'+Date.now();state.items=[...(state.items||[]),{id,name:'Instrumento Elétrico de Combate',category:'Arma',quantity:1,spaces:2,equipped:false,nexB189Instrument:true,nexInfo:{name:'Instrumento Elétrico de Combate',category:'Arma',kind:'Paranormal',proficiency:'Armas Táticas',wield:'Duas mãos',tier:'II',spaces:2,damage:'2d8',critical:'20',multiplier:'2',damageType:'Energia',range:'Curto'}}];record(1,'Item fictício vinculado');}
+       else if(s.interlude){if(Object.prototype.hasOwnProperty.call(I,mark)||!yes())return;const rolls=Array.from({length:nexB150Attribute('int')},()=>roll(6)),total=rolls.reduce((v,x)=>v+x,0);set('nexAutoInterludeUses',mark,total);record(total,'Reserva abstrata · '+rolls.join(', '));}
+       else if(s.defense||s.critical){const cost=s.critical?Number(select):s.cost;if(s.critical&&!['0','2'].includes(select)||R[mark]||!yes()||!pe(cost))return;set('nexAutoRoundUses',mark,s.critical?{enhanced:cost===2}:true);record(1,'Modificador de ficha preparado');}
        else if(s.record){if(!yes()||!pe(s.cost))return;record(1);}
        else if(s.manual){if(!valid(nums[0],0,999)||!yes())return;record(nums[0],'Valor confirmado pela mesa');}
        else return;
@@ -6186,7 +6186,7 @@ function abilityRecords(){
        }else return;
        save();renderStats();return;
      }
-     if(key==='novaRodada'){state.nexAutoRoundUses={};if(typeof renderAttacks==='function')queueMicrotask(renderAttacks);if(state.nexAutoSceneUses?.sangueVivo&&(Number(state.pvCurrent)<=0||Number(state.pvCurrent)>Math.floor(maxValues().pv/2)))state.nexAutoSceneUses.sangueVivo=false;}
+     if(key==='novaRodada'){if(state.nexAutoSceneUses?.b189Prepared)state.nexAutoSceneUses.b189Prepared=Math.max(0,Number(state.nexAutoSceneUses.b189Prepared)-1);state.nexAutoRoundUses={};if(typeof renderAttacks==='function')queueMicrotask(renderAttacks);if(state.nexAutoSceneUses?.sangueVivo&&(Number(state.pvCurrent)<=0||Number(state.pvCurrent)>Math.floor(maxValues().pv/2)))state.nexAutoSceneUses.sangueVivo=false;}
      else if(key==='profeciaTemp'){
        if(state.origin!=='Profetizado'||!confirm('O mestre confirmou o acontecimento previsto?'))return;
        nexAbilityTempGrant('pe',2,true);state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),profeciaTemp:true};logResult('Luta ou Fuga','PE temporários','Premonição confirmada',2);
