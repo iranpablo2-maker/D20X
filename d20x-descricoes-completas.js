@@ -77,12 +77,13 @@ function describe(item){
  const verified=verifiedParanormal.find(([pattern])=>pattern.test(key));
  if(verified)return verified[1];
  const manualText=manual.get(key);
- if(manualText)return manualText;
+ if(manualText&&!/^Recurso ficcional de jogo\./i.test(manualText))return manualText;
  const specific=extra.get(key);
  if(specific&&!generic.test(specific))return specific;
  // Não reutilizar prosa de origem desconhecida como descrição oficial.
  // A ficha conserva os campos mecânicos já cadastrados separadamente.
- return narrative(item)+' Consulte a publicação de referência para efeitos específicos não indicados na ficha.';
+ const fields=(Array.isArray(item.stats)?item.stats:[]).filter(x=>Array.isArray(x)&&x.length>=2&&/^(?:efeito|bônus|bonus|custo|duração|duracao|execução|execucao|requisito|teste|ativação|ativacao|uso|redução de dano)$/i.test(String(x[0]).trim())&&String(x[1]??'').trim()).map(([label,value])=>String(label)+': '+String(value));
+ return narrative(item)+(fields.length?' '+fields.join(' · ')+'.':' Efeito especial não cadastrado separadamente.');
 }
 for(const collection of collections){
  for(const item of collection){
