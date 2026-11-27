@@ -5260,7 +5260,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     roomMembers=snapshot.docs.map(d=>({id:d.id,...d.data()}));
     if(gm){const allowed=snapshot.metadata.fromCache?[]:roomMembers.map(m=>m.uid||m.id);sharedTransport?.setAllowedPeers?.(allowed);for(const p of sharedPeers)if(!allowed.includes(p))sharedPeers.delete(p);}
     drawMembers();renderQuota();renderSlotManagement();if(gm)for(const p of sharedPeers)sharedPeer(p);
-    if(gm)for(const m of roomMembers)ensurePlayerIndex(id,m.uid).catch(error=>console.warn('Índice do jogador',error));
+    if(gm&&!snapshot.metadata.fromCache)for(const m of roomMembers)ensurePlayerIndex(id,m.uid).catch(error=>console.warn('Índice do jogador',error));
   },e=>{if(roomId!==id)return;if(gm){sharedTransport?.setAllowedPeers?.([]);sharedPeers.clear();}notice('Não foi possível carregar participantes: '+e.message);}));
   unsubs.push(onSnapshot(collection(db,'campaigns',id,'sheets'),snapshot=>{
     publicSheets=snapshot.docs.map(d=>({id:d.id,...d.data(),isHidden:false}));if(!gm){for(const key of Object.keys(sharedRecords)){const sheet=publicSheets.find(sh=>sharedKey(sh.id)===key);if(!sheet||!canEditSharedSheet(sheet,uid,roomData?.gmUid)||sharedRecords[key].identity!==sharedSheetIdentity(sheet))delete sharedRecords[key];}}refreshRoomSheets();if(gm){void sharedImportCatalog().then(()=>{if(roomId===id)for(const p of sharedPeers)sharedPeer(p);}).catch(error=>notice('Importação local: '+String(error.message||error)));}else sharedRequestMissing();
