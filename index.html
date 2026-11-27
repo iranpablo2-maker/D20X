@@ -2875,15 +2875,16 @@ function nexOfficialResistances(){
  return result;
 }
 window.NEX_OFFICIAL_RESISTANCES=nexOfficialResistances;
+function nexSceneTacticalBonus(){return nexHasSheetPower('Sentido Tático')&&state.nexAutoSceneUses?.sentidoTatico?Math.max(0,Number(state.attributes?.int)||0):0;}
 function nexOfficialSkillBonus(name){
  const b=nexOfficialPassiveBonuses();
  const gatuno=state.class==='Especialista'&&state.trailByClass?.Especialista==='Infiltrador'&&Number(state.nex)>=40&&['Atletismo','Crime'].includes(name)?5:0;
  return (name==='Percepção'?b.perception:0)+(['Diplomacia','Intimidação','Intuição'].includes(name)?b.social:0)+
   (['Fortitude','Reflexos','Vontade'].includes(name)?b.precognition+b.defensiveReflexes:0)+
-  (name==='Fortitude'?b.bonusFortitude:0)+(name==='Vontade'?b.bonusVontade+b.originProfetizado:0)+
+  (name==='Fortitude'?b.bonusFortitude+(nexHasSheetPower('Adaptação Climática')?2:0):0)+(name==='Vontade'?b.bonusVontade+b.originProfetizado:0)+
   (name==='Diplomacia'?b.originDiplomata:0)+(name==='Intuição'?b.bonusIntuicao:0)+
   (state.origin==='Experimento'&&state.nexAutoChoices?.experimentoSkill===name?b.originExperimento:0)+
-  b.originColegial+gatuno+(name==='Furtividade'?b.furtividade:0);
+  b.originColegial+gatuno+(name==='Furtividade'?b.furtividade:0)+(['Fortitude','Reflexos','Vontade'].includes(name)?nexSceneTacticalBonus():0)+(state.origin==='Amigo dos Animais'&&state.nexAutoChoices?.animalSkill===name?2:0);
 }
 function nexRitualAdjustMaxSan(resourceMax){
  const lost=Math.max(0,Math.floor(Number(state.ritualToolkit?.permanentSanLoss)||0));
@@ -2896,7 +2897,7 @@ function save(show=false){try{localStorage.setItem(KEY,JSON.stringify(state));if
 function toast(msg){const el=$('toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2800);}
 function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function nexItemBonuses(){return window.NEX_ITEM_MODS?.equippedBonuses?.(state.items)||{defense:0,presence:0,damageReduction:0,skills:{}};}
-function renderStats(){const m=maxValues();for(const key of ['pv','pe','san']){let field=key==='san'?'sanCurrent':key+'Current';const v=clamp(int(state[field]),0,m[key]);state[field]=v;$(key+'NowText').textContent=v;$(key+'MaxText').textContent=m[key];$(key+'Bar').style.width=(m[key]?100*v/m[key]:0)+'%';const resourceBox=$(field)?.closest('.n193-resource-bar');if(resourceBox)resourceBox.style.setProperty('--nex-resource-fill',(m[key]?100*v/m[key]:0)+'%');const inp=$(field);if(document.activeElement!==inp)inp.value=v;inp.max=m[key];} const peLimit=$('peLimit'); if(peLimit) peLimit.textContent=m.peLimit; const peNotice=$('peTurnNoticeValue');if(peNotice){const base=m.peLimit;const universitario=state.origin==='Universitário';const actionBonus=nexOfficialActionPeBonus();const displayed=base+(universitario?1:0)+actionBonus;peNotice.textContent=String(displayed);const detail=$('peTurnNoticeDetail');if(detail)detail.textContent='NEX '+state.nex+'%: '+base+' PE base'+(universitario?' + 1 PE da origem Universitário':'')+(actionBonus?' + '+actionBonus+' PE de Encarar a Morte em cena de ação':'')+'.';} $('defense').value=10+int(state.attributes.agi)+int(state.defenseBonus)+nexItemBonuses().defense+(nexHomebrewBonuses().defesa||0)+nexOfficialPassiveBonuses().defensiveReflexes+nexOfficialPassiveBonuses().precognition+nexOfficialPassiveBonuses().originDefense+(nexOfficialInquebravelActive(m.pv)?5:0); $('defense').title='Inclui +'+nexItemBonuses().defense+' de itens equipados'; $('attributeBudget').textContent='Pontos distribuídos: '+(Object.values(state.attributes).reduce((a,b)=>a+int(b),0)-5)+' / 4 (NEX inicial)'; const rulesStatus=$('rulesStatus'); if(rulesStatus) rulesStatus.textContent=int(state.nex)===0?'Regra opcional: Mundano (NEX 0%)':state.autoRules===false?'Regras personalizadas':'Regras do livro v1.3'; const od=$('originDescription'); if(od) od.innerHTML=state.origin==='Ex-Militar'?'<strong>Veterano de Combate.</strong> Você recebe +1 ponto de vida (PV) para cada 5% de NEX. Além disso, seus ataques causam +2 pontos de dano.<br><br><span class="muted">Bônus atual: +'+m.bonus+' PV máximos e +2 de dano.</span>':'<strong>Origem personalizada.</strong> Nenhum bônus automático configurado para esta origem. Use os campos de regras para ajustar sua ficha.';}
+function renderStats(){const m=maxValues();for(const key of ['pv','pe','san']){let field=key==='san'?'sanCurrent':key+'Current';const v=clamp(int(state[field]),0,m[key]);state[field]=v;$(key+'NowText').textContent=v;$(key+'MaxText').textContent=m[key];$(key+'Bar').style.width=(m[key]?100*v/m[key]:0)+'%';const resourceBox=$(field)?.closest('.n193-resource-bar');if(resourceBox)resourceBox.style.setProperty('--nex-resource-fill',(m[key]?100*v/m[key]:0)+'%');const inp=$(field);if(document.activeElement!==inp)inp.value=v;inp.max=m[key];} const peLimit=$('peLimit'); if(peLimit) peLimit.textContent=m.peLimit; const peNotice=$('peTurnNoticeValue');if(peNotice){const base=m.peLimit;const universitario=state.origin==='Universitário';const actionBonus=nexOfficialActionPeBonus();const displayed=base+(universitario?1:0)+actionBonus;peNotice.textContent=String(displayed);const detail=$('peTurnNoticeDetail');if(detail)detail.textContent='NEX '+state.nex+'%: '+base+' PE base'+(universitario?' + 1 PE da origem Universitário':'')+(actionBonus?' + '+actionBonus+' PE de Encarar a Morte em cena de ação':'')+'.';} $('defense').value=10+int(state.attributes.agi)+int(state.defenseBonus)+nexItemBonuses().defense+(nexHomebrewBonuses().defesa||0)+nexOfficialPassiveBonuses().defensiveReflexes+nexOfficialPassiveBonuses().precognition+nexOfficialPassiveBonuses().originDefense+nexSceneTacticalBonus()+(nexOfficialInquebravelActive(m.pv)?5:0); $('defense').title='Inclui +'+nexItemBonuses().defense+' de itens equipados'; $('attributeBudget').textContent='Pontos distribuídos: '+(Object.values(state.attributes).reduce((a,b)=>a+int(b),0)-5)+' / 4 (NEX inicial)'; const rulesStatus=$('rulesStatus'); if(rulesStatus) rulesStatus.textContent=int(state.nex)===0?'Regra opcional: Mundano (NEX 0%)':state.autoRules===false?'Regras personalizadas':'Regras do livro v1.3'; const od=$('originDescription'); if(od) od.innerHTML=state.origin==='Ex-Militar'?'<strong>Veterano de Combate.</strong> Você recebe +1 ponto de vida (PV) para cada 5% de NEX. Além disso, seus ataques causam +2 pontos de dano.<br><br><span class="muted">Bônus atual: +'+m.bonus+' PV máximos e +2 de dano.</span>':'<strong>Origem personalizada.</strong> Nenhum bônus automático configurado para esta origem. Use os campos de regras para ajustar sua ficha.';}
 
 function renderAttributes(){
  const editing=document.getElementById('attributes')?.classList.contains('nex-attrs-editing')||false;
@@ -4606,7 +4607,7 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
    const skill=state.skills[name]||{attr,training:0};
    const training=int(skill.training),other=int(skill.other),official=nexOfficialPassiveBonuses();
    const effectiveAttr=name==='Vontade'&&official.rational?'int':(skill.attr||attr);
-   const resistance=['Fortitude','Reflexos','Vontade'].includes(name)?official.defensiveReflexes:0;
+   const resistance=0; // Reflexos Defensivos já está em nexOfficialSkillBonus.
    const total=training+other+(nexItemBonuses().skills[name]||0)+(nexHomebrewBonuses().pericia||0)+(nexHomebrewBonuses()[({Iniciativa:'iniciativa',Fortitude:'fortitude',Reflexos:'reflexos',Vontade:'vontade'})[name]]||0)+resistance+(name==='Iniciativa'?official.initiative:0)+nexOfficialSkillBonus(name)+nexOfficialGrantedSkillBonus(name,training);
    return `<div class="nexv16-skill-row ${training>0||nexOfficialGrantedSkillBonus(name,training)>=5?'trained':''}">
      <div class="nexv16-skill-name">
@@ -5050,9 +5051,15 @@ function abilityRecords(){
  function nexAutoActivationSpec(a){
    const origin=String(a.source||'');
    if(a.homebrew||/homebrew/i.test(origin))return null;
+   if(a.name==='Perito'&&origin==='Classe: Especialista')return {id:'perito',name:a.name,cost:2,bonus:0,bonusDie:6,mode:'perito',note:'Versão básica: 1d6 adicional no teste da perícia escolhida. A progressão do dado ainda exige ajuste.'};
+   if(a.name==='Atraente')return {id:'atraente',name:a.name,cost:0,bonus:5,mode:'atraente',note:'Somente nas interações elegíveis confirmadas pelo mestre.'};
+   if(a.name==='Adepto do Escuro')return {id:'adeptoEscuro',name:a.name,cost:0,bonus:2,mode:'investigacao',note:'Somente em penumbra.'};
+   if(a.name==='Mãos Firmes')return {id:'maosFirmes',name:a.name,cost:2,bonus:0,extraDice:1,mode:'furtividade',note:'Somente em testes discretos elegíveis.'};
+   if(a.name==='Na Trilha Certa')return {id:'naTrilhaCerta',name:a.name,cost:1,bonus:0,extraDice:1,mode:'any',note:'Ative após encontrar uma pista. O acúmulo de usos consecutivos ainda é manual.'};
+   if(a.name==='Conhecimento Prático'&&/^Trilha: Bibliotecário/.test(origin)&&!nexHasSheetPower('Conhecimento Aplicado'))return {id:'conhecimentoPratico',name:a.name,cost:2,bonus:0,mode:'nonattack',attributeOverride:'int'};
    if(a.name==='Hacker')return {id:'hacker',name:a.name,cost:0,bonus:5,mode:'tecnologia',note:'Somente em testes de invasão de sistemas fictícios do RPG.'};
    if(a.name==='Nerd')return {id:'nerd',name:a.name,cost:2,bonus:0,mode:'atualidades',onceScene:true,note:'Atualidades DT 20; o mestre informa o resultado narrativo.'};
-   if(a.name==='Conhecimento Aplicado')return {id:'conhecimentoAplicado',name:a.name,cost:2,bonus:0,mode:'nonattack',attributeOverride:'int',note:'Usa Intelecto no próximo teste escolhido.'};
+   if(a.name==='Conhecimento Aplicado')return {id:'conhecimentoAplicado',name:a.name,cost:state.class==='Especialista'&&state.trailByClass?.Especialista==='Bibliotecário'&&Number(state.nex)>=10?1:2,bonus:0,mode:'nonattack',attributeOverride:'int',note:'Usa Intelecto no próximo teste escolhido.'};
    if(a.name==='Identificação Paranormal')return {id:'identificacaoParanormal',name:a.name,cost:0,bonus:10,mode:'ocultismo',note:'Apenas para identificar criaturas, objetos ou rituais no jogo.'};
    if(a.name==='Envolto em Mistério')return {id:'envoltoMisterio',name:a.name,cost:0,bonus:5,mode:'misterio',note:'Somente quando o mestre confirmar a condição.'};
    if(a.name==='Intuição Paranormal')return {id:'intuicaoParanormal',name:a.name,cost:0,bonus:Math.max(0,Number(state.attributes?.int)||0),mode:'any',note:'Para facilitar investigação usando Intelecto.'};
@@ -5086,6 +5093,9 @@ function abilityRecords(){
    return SKILL_DATA.filter(([name,baseAttr])=>{
      const skill=state.skills?.[name];
      const attr=skill?.attr||baseAttr;
+     if(spec.mode==='perito')return !['Luta','Pontaria'].includes(name)&&Number(skill?.training||0)>0&&[state.nexAutoChoices?.peritoSkill1,state.nexAutoChoices?.peritoSkill2].includes(name);
+     if(spec.mode==='atraente')return ['Artes','Diplomacia','Enganação','Intimidação'].includes(name);
+     if(spec.mode==='furtividade')return name==='Furtividade';
      if(spec.mode==='tecnologia')return name==='Tecnologia';
      if(spec.mode==='atualidades')return name==='Atualidades';
      if(spec.mode==='nonattack')return !['Luta','Pontaria'].includes(name);
@@ -5124,6 +5134,7 @@ function abilityRecords(){
  }
  function nexExtraSceneAction(a){
    if(a.homebrew||/homebrew/i.test(a.source))return null;
+   if(a.name==='Sentido Tático')return {id:'sentidoTatico',name:a.name,cost:2,label:'Intelecto na Defesa e resistências até o fim da cena'};
    if(a.name==='Surto Temporal')return {id:'surtoTemporal',name:a.name,cost:3,label:'Ação padrão adicional'};
    if(a.name==='Guiado pelo Paranormal')return {id:'guiadoParanormal',name:a.name,cost:2,label:'Ação adicional de investigação'};
    if(a.name==='Incansável')return {id:'incansavel',name:a.name,cost:2,label:'Ação de investigação com Força ou Agilidade'};
@@ -5131,10 +5142,19 @@ function abilityRecords(){
    if(a.name==='Movimento Tático')return {id:'movimentoTatico',name:a.name,cost:1,label:'Benefício de deslocamento até o fim do turno',repeat:true};
    return null;
  }
+ function nexPeritoActivationControl(a){
+   const spec=nexAutoActivationSpec(a),opts=nexAutoTargetSkills(spec),pending=state.nexAutoPending,active=pending?.id===spec?.id;
+   return '<div class="nex-auto-effect"><label>Próximo teste <select data-nex-auto-skill>'+opts.map(n=>'<option value="'+escape(n)+'">'+escape(n)+'</option>').join('')+'</select></label>'+(active?'<button type="button" class="btn sm" data-nex-auto-cancel>Cancelar e devolver PE</button>':'<button type="button" class="btn sm primary" data-nex-auto-activate="perito" '+(pending||opts.length===0||Number(state.peCurrent)<2?'disabled':'')+'>Ativar +1d6 · 2 PE</button>')+'</div>';
+ }
  function nexOfficialAbilityControls(a){
    if(a.homebrew||/homebrew/i.test(a.source))return '';
    const affinityNames=['Potencial Aprimorado','Sangue de Ferro','Resistir a Elemento','Encarar a Morte'];
    const affinityControl=affinityNames.includes(a.name)&&Number(state.nex)>=50?'<div class="nex-auto-effect"><label><input type="checkbox" data-nex-auto-affinity="'+escape(a.name)+'" '+(nexPowerAffinity(a.name)?'checked':'')+'> Benefício de afinidade adquirido</label><small>Marque somente se este benefício foi adquirido conforme a mesa.</small></div>':'';
+   if(a.name==='Perito'&&a.source==='Classe: Especialista'){
+     const eligible=SKILL_DATA.map(x=>x[0]).filter(n=>!['Luta','Pontaria'].includes(n)&&Number(state.skills?.[n]?.training||0)>0);
+     const selects=['peritoSkill1','peritoSkill2'].map((key,i)=>'<label>Perícia '+(i+1)+' <select data-nex-auto-origin-choice="'+key+'"><option value="">Selecione</option>'+eligible.map(n=>'<option value="'+escape(n)+'" '+(state.nexAutoChoices?.[key]===n?'selected':'')+'>'+escape(n)+'</option>').join('')+'</select></label>').join('');
+     return '<div class="nex-auto-effect">'+selects+'<small>Selecione duas perícias treinadas distintas. A rolagem usa o efeito básico de Perito.</small></div>'+nexPeritoActivationControl(a);
+   }
    if(a.name==='Especialista em Elemento'||a.name==='Mestre em Elemento'){
      const selected=String(state.nexAutoChoices?.ritualElement||'');
      return '<div class="nex-auto-effect"><label>Elemento escolhido <select data-nex-auto-origin-choice="ritualElement"><option value="">Selecione</option>'+['Sangue','Morte','Conhecimento','Energia'].map(e=>'<option value="'+escape(e)+'" '+(e===selected?'selected':'')+'>'+escape(e)+'</option>').join('')+'</select></label><small>Especialista: +2 à DT do elemento; Mestre: −1 PE no mesmo elemento, se possuir ambos.</small></div>';
@@ -5165,6 +5185,7 @@ function abilityRecords(){
      return '<div class="nex-auto-effect"><button type="button" class="btn sm primary" data-nex-auto-scene-action="'+escape(sceneAction.id)+'" '+(used||Number(state.peCurrent)<sceneAction.cost?'disabled':'')+'>'+escape(used?'Já utilizada nesta cena':'Ativar · '+sceneAction.cost+' PE')+'</button><small>'+escape(sceneAction.label)+(sceneAction.repeat?' · confirme a condição de uso.':' · uma vez por cena.')+' A ação é resolvida na mesa.</small></div>';
    }
    const originChoices={
+     'Origem: Amigo dos Animais':{key:'animalSkill',label:'Perícia beneficiada pelo companheiro presente',options:SKILL_DATA.map(x=>x[0])},
      'Origem: Exorcizado':{key:'exorcizadoElement',label:'Elemento protegido',options:['Sangue','Morte','Conhecimento','Energia']},
      'Origem: Experimento':{key:'experimentoSkill',label:'Perícia física beneficiada',
        options:SKILL_DATA.filter(([name,attr])=>['agi','for','vig'].includes(state.skills?.[name]?.attr||attr)).map(x=>x[0])},
@@ -5304,7 +5325,7 @@ function abilityRecords(){
    state[field]=Math.max(0,Number(state[field])-cost);
    state.nexAutoPending={id:spec.id,name:spec.name,skill:spec.mode==='attack'?'':target,
      kind:spec.mode==='attack'?'attack':'skill',attackBonus,damageBonus,used:false,
-     bonus:spec.bonus,cost,replaceWith:spec.replaceWith||'',attributeOverride:spec.attributeOverride||'',onceScene:!!spec.onceScene,
+     bonus:spec.bonus,extraDice:spec.extraDice||0,bonusDie:spec.bonusDie||0,cost,replaceWith:spec.replaceWith||'',attributeOverride:spec.attributeOverride||'',onceScene:!!spec.onceScene,
      source:spec.id,resource:spec.resource||'pe'};
    save();renderStats();toast('Efeito preparado: '+spec.name+'.');
  });
@@ -5317,7 +5338,10 @@ function abilityRecords(){
        exorcizadoElement:['Sangue','Morte','Conhecimento','Energia'],
        resistElement:['Sangue','Morte','Conhecimento','Energia'],
        ritualElement:['Sangue','Morte','Conhecimento','Energia'],
-       favoriteRitual:(state.rituals||[]).map(r=>String(r.id)), 
+       favoriteRitual:(state.rituals||[]).map(r=>String(r.id)),
+       animalSkill:SKILL_DATA.map(x=>x[0]),
+       peritoSkill1:SKILL_DATA.map(x=>x[0]).filter(n=>!['Luta','Pontaria'].includes(n)&&Number(state.skills?.[n]?.training||0)>0&&n!==state.nexAutoChoices?.peritoSkill2),
+       peritoSkill2:SKILL_DATA.map(x=>x[0]).filter(n=>!['Luta','Pontaria'].includes(n)&&Number(state.skills?.[n]?.training||0)>0&&n!==state.nexAutoChoices?.peritoSkill1), 
        experimentoSkill:SKILL_DATA.filter(([name,attr])=>['agi','for','vig'].includes(state.skills?.[name]?.attr||attr)).map(x=>x[0]),
        colegialNear:['false','true']
      };
@@ -5362,7 +5386,7 @@ function abilityRecords(){
    return Object.prototype.hasOwnProperty.call(alias,raw)?alias[raw]:0;
  }
  function isBackpack(i){return /^(mochila|mochila militar)$/i.test(String(i?.name||'').trim())&&Number(i?.quantity)>0;}
- function capacity(){const force=Math.max(0,Number(state.attributes.for)||0);const bonus=typeof nexOfficialPassiveBonuses==='function'?nexOfficialPassiveBonuses().extraLoadAttributes:0;return (force+bonus+nexOfficialPassiveBonuses().bonusLoad===0?2:5*(force+bonus+nexOfficialPassiveBonuses().bonusLoad))+((state.items||[]).some(isBackpack)?2:0)+(nexHomebrewBonuses().carga||0);}
+ function capacity(){const force=Math.max(0,Number(state.attributes.for)||0);const bonus=typeof nexOfficialPassiveBonuses==='function'?nexOfficialPassiveBonuses().extraLoadAttributes:0;return (force+bonus+nexOfficialPassiveBonuses().bonusLoad===0?2:5*(force+bonus+nexOfficialPassiveBonuses().bonusLoad))+((state.items||[]).some(isBackpack)?2:0)+(nexHomebrewBonuses().carga||0)+(nexHasSheetPower('Mochileiro')?5:0);}
  function spacesUsed(){return (state.items||[]).reduce((sum,i)=>sum+Math.max(0,Number(i.quantity)||0)*Math.max(0,Number(i.spaces??1)||0),0);}
  function categoryUsed(tier,omitId=null){
    return (state.items||[]).reduce((sum,i)=>sum+(String(i.id)===String(omitId)||itemTier(i)!==tier?0:Math.max(0,Math.trunc(Number(i.quantity)||0))),0);
@@ -5505,22 +5529,25 @@ function abilityRecords(){
    const hb=nexHomebrewBonuses();
    const specific=({Iniciativa:'iniciativa',Fortitude:'fortitude',Reflexos:'reflexos',Vontade:'vontade'})[calculationName];
    const official=nexOfficialPassiveBonuses();
-   const resistance=['Fortitude','Reflexos','Vontade'].includes(calculationName)?official.defensiveReflexes:0;
+   const resistance=0; // Reflexos Defensivos já está em nexOfficialSkillBonus.
    const training=int(skill.training),others=int(skill.other)+(nexItemBonuses().skills[calculationName]||0)+(hb.pericia||0)+(specific?(hb[specific]||0):0)+resistance+(calculationName==='Iniciativa'?official.initiative:0)+nexOfficialSkillBonus(calculationName)+nexOfficialGrantedSkillBonus(calculationName,training)+Number(pending?.bonus||0);
    const attr=pending?.attributeOverride|| (calculationName==='Vontade'&&official.rational?'int':(skill.attr in state.attributes?skill.attr:definition[1]));
    const count=clamp(int(state.attributes[attr])+(attr==='pre'?nexItemBonuses().presence:0),0,9);
 
-   const extraDice=nexOfficialExtraSkillDie(calculationName);
+   const firstImpression=nexHasSheetPower('Primeira Impressão')&&['Diplomacia','Enganação','Intimidação','Intuição'].includes(calculationName)&&!state.nexAutoSceneUses?.firstImpression;
+   const extraDice=nexOfficialExtraSkillDie(calculationName)+Number(pending?.extraDice||0)+(firstImpression?2:0);
    const pool=count+extraDice;
    const rolls=Array.from({length:pool===0?2:pool},rollDie20);
    const chosen=pool===0?Math.min(...rolls):Math.max(...rolls);
-   const bonus=training+others;
+   const bonusRoll=pending?.bonusDie?(()=>{const v=new Uint32Array(1);crypto.getRandomValues(v);return v[0]%pending.bonusDie+1;})():0;
+   const bonus=training+others+bonusRoll;
    const result=chosen+bonus;
    const expression=pool===0?'2d20 (menor)':pool+'d20 (maior)';
-   const detail='['+rolls.join(', ')+'] → '+chosen+(bonus<0?' − ':' + ')+Math.abs(bonus)+' · '+(ATTRIBUTE_NAMES[attr]||attr)+' '+count+' · Treino '+training+' · Outros '+others+(pending?' · Habilidade: '+pending.name:'');
+   const detail='['+rolls.join(', ')+'] → '+chosen+(bonus<0?' − ':' + ')+Math.abs(bonus)+' · '+(ATTRIBUTE_NAMES[attr]||attr)+' '+count+' · Treino '+training+' · Outros '+others+(bonusRoll?' · Dado de habilidade: '+bonusRoll:'')+(pending?' · Habilidade: '+pending.name:'')+(firstImpression?' · Primeira Impressão':'');
    const label=pending?.replaceWith?name+' (usando '+calculationName+')':name;
    logResult(label,expression+(bonus>=0?' + ':' - ')+Math.abs(bonus),'['+rolls.join(', ')+'] → '+chosen,result);
    show(button,label,expression,detail,result,false,chosen);
+   if(firstImpression){state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),firstImpression:true};save();}
    if(pending){
      state.nexAutoPending=null;
      if(pending.onceScene){state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),[pending.id]:true};}
