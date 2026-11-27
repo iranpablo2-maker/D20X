@@ -3184,7 +3184,7 @@ document.addEventListener('click',function(event){
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127localshared1';
-import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared1';
+import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared2';
 import {mountGmShield} from './d20x-gm-shield.js?v=20261127systemIsolation1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -3292,7 +3292,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   try{
    const checked=sheetRecord(sharedSheetData(sheet,record),record.revision);
    sharedRecords={...sharedRecords,[sharedKey(sheet.id)]:checked};
-   refreshRoomSheets();
+   refreshRoomSheets();sharedNotifyEditor(sheet.id,checked);
   }catch(error){notice('Ficha recebida inválida: '+String(error.message||error));}
  }
  function sharedMasterWork(work){
@@ -3349,7 +3349,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    if(!valid())throw Error('Campanha alterada durante o salvamento');
    sharedRecords=next;
    refreshRoomSheets();
-   sharedBroadcast(catalog);
+   sharedBroadcast(catalog);sharedNotifyEditor(catalog.id,record);
    return {id:catalog.id,record};
   });
  }
@@ -3363,6 +3363,25 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   return result;
  }
  function sharedRemember(sheet,data){sharedBaselines.set(sheet.id,JSON.parse(JSON.stringify(data)));}
+ function sharedNotifyEditor(id,record){
+  if(window.parent===window||!sharedBaselines.has(id)||!record?.fullSheet)return;
+  const sheet=sharedLookup(id);
+  if(!sheet||!canEditSharedSheet(sheet,uid,roomData?.gmUid))return;
+  const baseline=sharedBaselines.get(id),full=record.fullSheet,fields={};
+  for(const key of ['pvCurrent','peCurrent','sanCurrent'])if(Number.isFinite(full[key]))fields[key]={before:baseline[key],after:full[key]};
+  window.parent.postMessage({type:'nex-campaign-local-sheet-state',sheetId:id,fields,effects:vttAbilityEffects(full)},location.origin);
+ }
+ window.addEventListener('message',event=>{
+  if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='nex-campaign-local-baseline')return;
+  const msg=event.data,baseline=sharedBaselines.get(msg.sheetId),sheet=sharedLookup(msg.sheetId);
+  if(!baseline||!sheet||!canEditSharedSheet(sheet,uid,roomData?.gmUid))return;
+  const full=sharedCurrent(sheet).fullSheet;
+  for(const key of ['pvCurrent','peCurrent','sanCurrent']){
+   const value=msg.accepted?.[key];
+   if(Number.isFinite(value)&&value===full?.[key])baseline[key]=value;
+  }
+ });
+
  function sharedReset(){
   sharedStore=null;sharedRecords={};sharedTransport=null;sharedReady=false;sharedPeers=new Set();sharedBaselines.clear();sharedReads.clear();
   sharedQueue=Promise.resolve();sharedEditorQueue=Promise.resolve();
@@ -5242,7 +5261,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    const changes=sharedEditDiff(baseline,data);
    if(changes.length)await sharedSubmit({kind:'edit',id:msg.sheetId,changes});
    if(roomId!==campaign||uid!==owner)throw Error('Campanha alterada');
-   sharedBaselines.set(msg.sheetId,data);
+   const accepted=sharedBaselines.get(msg.sheetId);
+   if(accepted)for(const change of changes){if(change.remove)delete accepted[change.key];else accepted[change.key]=change.after;}
   });
   sharedEditorQueue=task.catch(()=>{});
   try{await task;answer(true);}catch(error){answer(false,error?.message||'Falha na gravação local');}
