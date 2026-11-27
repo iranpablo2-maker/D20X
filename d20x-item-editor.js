@@ -423,7 +423,7 @@ function descriptionText(s){
  return safe(s).replace(/\*\*(.+?)\*\*/gs,'<strong style="color:#e44855">$1</strong>').replace(/__(.+?)__/gs,'<u>$1</u>').replace(/(?<!\*)\*([^*\n]+)\*(?!\*)/g,'<em>$1</em>');
 }
 // Consumíveis de combate: usa os valores do catálogo de RPG mesmo em fichas antigas.
-const combatConsumableNames=new Set(['granada de fragmentacao','granada incendiaria','granada de atordoamento','granada de fumaca']);
+const combatConsumableNames=new Set(['granada de fragmentacao','granada incendiaria','granada de atordoamento','granada de fumaca','granada de gas sonifero','granada de pem']);
 function combatConsumable(item){
  if(!item||!combatConsumableNames.has(norm(item.name).trim()))return null;
  const model=lookup(item);
