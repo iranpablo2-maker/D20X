@@ -1627,6 +1627,20 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    scene.combatLog=[...(scene.combatLog||[]),{id:'evt-'+crypto.randomUUID(),label:String(label).slice(0,150),at:Date.now()}].slice(-40);
    renderCombatDock();save();
  }
+ // Dados públicos: o mestre gera o resultado e registra no histórico da cena.
+ function rollPublicDice(request,actor){
+   if(!gm||disposed||!remoteReady)throw Error('A mesa do mestre ainda não está pronta.');
+   const count=request?.count,sides=request?.sides;
+   if(!Number.isInteger(count)||count<1||count>20||![4,6,8,10,12,20,100].includes(sides))throw Error('Dados inválidos.');
+   const name=actor===uid?'Mestre':shared?.memberName?.(actor);
+   if(typeof name!=='string'||!name.trim())throw Error('Participante não autorizado.');
+   const max=2**32-2**32%sides,random=new Uint32Array(1);
+   const values=Array.from({length:count},()=>{do{crypto.getRandomValues(random);}while(random[0]>=max);return 1+random[0]%sides;});
+   const label=('Dados · '+name.slice(0,22)+' · '+count+'d'+sides+': '+values.join('+')+' = '+values.reduce((a,b)=>a+b,0)).slice(0,150);
+   combatEntry(label);
+   vttLog.hidden=false;vttLog.textContent=label;
+   return {label,values};
+ }
  function renderCombatDock(){
    if(!combatDock||combatDock.hidden)return;
    combatDock.replaceChildren();
@@ -1744,6 +1758,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      const order=make('div','nex-vtt-combat-initiative');
      order.append(make('strong','','Iniciativa · Rodada '+(scene.initiativeRound||1)));
      order.append(make('p','',scene.turns.join(' → ')||'Aguardando iniciativa do mestre.'));
+     for(const entry of scene.initiativeRolls||[])order.append(make('p','',entry.name+': '+entry.roll+(entry.bonus>=0?' + ':' - ')+Math.abs(entry.bonus)+' = '+entry.total));
      body.append(order);
      const info=make('p','nex-vtt-combat-stat','Os jogadores acompanham os resultados; somente o mestre pode aplicar efeitos aos tokens por aqui.');
      body.append(info);
@@ -1901,7 +1916,21 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    if(section==='dice'){
      const die=document.createElement('select');for(const sides of [4,6,8,10,12,20,100]){const o=document.createElement('option');o.value=sides;o.textContent='d'+sides;die.append(o);}die.value='20';control('Dado ',die);
      const qty=document.createElement('input');qty.type='number';qty.min=1;qty.max=20;qty.value=1;control('Quantidade ',qty);
-     btn('Rolar',()=>{const count=Math.max(1,Math.min(20,Number(qty.value)||1)),sides=Number(die.value);const values=Array.from({length:count},()=>Math.floor(Math.random()*sides)+1);vttLog.hidden=false;vttLog.textContent=count+'d'+sides+': '+values.join(' + ')+' = '+values.reduce((a,b)=>a+b,0);});
+     const publicRoll=btn('Rolar para a mesa',async()=>{
+       const request={kind:'table-dice',count:Math.max(1,Math.min(20,Math.trunc(Number(qty.value)||1))),sides:Number(die.value)};
+       publicRoll.disabled=true;
+       try{
+        const result=gm?rollPublicDice(request,uid):await peerMedia?.requestShared?.(request);
+        if(!result||typeof result.label!=='string')throw Error('Conecte-se ao mestre para rolar.');
+        if(!disposed){vttLog.hidden=false;vttLog.textContent=result.label;}
+       }catch(error){if(!disposed)message('Rolagem não confirmada: '+String(error.message||error).slice(0,120));}
+       finally{publicRoll.disabled=false;}
+     });
+     if(gm)btn('Rolar em segredo',()=>{
+       const count=Math.max(1,Math.min(20,Math.trunc(Number(qty.value)||1))),sides=Number(die.value);
+       const values=Array.from({length:count},()=>Math.floor(Math.random()*sides)+1);
+       vttLog.hidden=false;vttLog.textContent='Secreto · '+count+'d'+sides+': '+values.join(' + ')+' = '+values.reduce((a,b)=>a+b,0);
+     });
    }
    if(section==='turn'){
      const text=document.createElement('span');text.textContent='Iniciativa: '+(scene.turns.join(' → ')||'vazia');vttOptions.append(text);
@@ -1960,6 +1989,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   const ok=peerMedia?.sendChat?.(event.detail.text,event.detail.name||'Jogador');
   window.dispatchEvent(new CustomEvent('nex:vtt-chat-send-result',{detail:{campaignId,ok:!!ok}}));
  });
+ let receivedPublicScene=false;
  peerMedia=mountNexPeerMedia({
   db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,root:liveRoot,
   getAudioStream:()=>localAudioCleanup.getStream?.()||null,
@@ -1967,7 +1997,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   getScene:()=>gm?networkScene():null,
   onSharedPeer:player=>{if(!disposed)shared?.onPeer?.(player);},
   onSharedState:record=>{if(!disposed)shared?.onState?.(record);},
-  onSharedRequest:(request,player)=>{if(disposed||!shared?.onRequest)throw Error('Mesa indisponível');return shared.onRequest(request,player);},
+  onSharedRequest:(request,player)=>{if(disposed||!shared?.onRequest)throw Error('Mesa indisponível');if(request?.kind==='table-dice')return rollPublicDice(request,player);return shared.onRequest(request,player);},
   onTokenAction:({action,id,sourceId,variation})=>{
    if(!gm||disposed||!remoteReady)return;
    const token=scene.tokens.find(t=>t.id===id);
@@ -2007,7 +2037,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   },
   onScene:data=>{
    if(gm||disposed||!data||!Array.isArray(data.tokens))return;
-   scene=validScene(data);remoteReady=true;mediaFailed.clear();render();emitMapState();if(vttOptions.dataset.section==='clues'&&!vttOptions.hidden){vttOptions.hidden=true;vttOpen('clues');}
+   const previousIds=new Set((scene.combatLog||[]).map(x=>x.id));
+   const wasSynced=receivedPublicScene;
+   scene=validScene(data);receivedPublicScene=true;remoteReady=true;mediaFailed.clear();render();emitMapState();
+   if(wasSynced){const latest=[...scene.combatLog].reverse().find(x=>!previousIds.has(x.id)&&x.label.startsWith('Dados · '));if(latest){vttLog.hidden=false;vttLog.textContent=latest.label;}}
+   if(['clues','turn'].includes(vttOptions.dataset.section)&&!vttOptions.hidden){const section=vttOptions.dataset.section;vttOptions.hidden=true;vttOpen(section);}
    message('Mesa sincronizada com o mestre por conexão direta.');
   },
   getPreview:async src=>{
@@ -2037,7 +2071,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    return mediaMemory.get(src)||await mediaCache.read(src);
   },
   onConnected:()=>{mediaFailed.clear();if(!disposed)render();},
-  onDisconnected:()=>{if(!disposed)render();}
+  onDisconnected:()=>{receivedPublicScene=false;if(!disposed)render();}
  });
  shared?.bind?.({request:request=>peerMedia?.requestShared?peerMedia.requestShared(request):Promise.reject(Error('WebRTC indisponível')),send:(player,record)=>peerMedia?.sendSharedState?peerMedia.sendSharedState(player,record):Promise.reject(Error('WebRTC indisponível'))});
  // Apenas a primeira abertura do mestre lê o documento antigo para migração.
