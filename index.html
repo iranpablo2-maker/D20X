@@ -5602,7 +5602,7 @@ function abilityRecords(){
   const R=state.nexAutoRoundUses||{},S=state.nexAutoSceneUses||{},M=state.nexAutoMissionUses||{},key='b189:'+n;
   const box=(html,note)=>'<div class="nex-auto-effect">'+html+'<small>'+escape(note)+'</small></div>';
   const act=(label,disabled=false)=>btn('b189Action',label,disabled),note='Confirme a condição da regra de RPG com o mestre. O registro não aplica efeitos a outra ficha.';
-  if(s.skill)return box(sel('Perícia',s.skill.map(v=>[v,v]))+(s.offset?num('Modificador elegível confirmado pelo mestre',0,20,0):'')+act('Preparar próximo teste · '+s.cost+' PE',!!state.nexAutoPending)+nexBatchCancelControl('b189Action'),note);
+  if(s.skill)return box(sel('Perícia',s.skill.map(v=>[v,v]))+(s.offset?num('Modificador elegível confirmado pelo mestre',0,20,0):'')+(s.skill.some(v=>['Luta','Pontaria'].includes(v))?'<label><input type="checkbox" data-nex-b189-equipment> Aplicar em rolagem de equipamento elegível</label>':'')+act('Preparar próximo teste · '+s.cost+' PE',!!state.nexAutoPending)+nexBatchCancelControl(key),note);
   if(s.toggle)return box(act(R[key]?'Encerrar modo de RPG':'Ativar modo de RPG'), 'Modificador de −1d20 na rolagem de perícias de ataque até a próxima rodada.');
   if(s.dice)return box(num('Faces do dado do efeito de RPG',2,100,6)+act('Rolar dados adicionais · '+s.cost+' PE'),note);
   if(s.extra)return box(num('Quantidade de ações já registradas no turno',1,20,1)+act('Registrar ação adicional'), 'O custo é calculado pela quantidade informada. A condição de acerto e o limite de PE dependem da mesa.');
@@ -5947,7 +5947,7 @@ function abilityRecords(){
    if(!activate&&!cancel&&!nextScene&&!sceneAction&&!motivate&&!paramedic&&!newSession&&!resourceAction)return;
    event.preventDefault();
    if(newSession){state.nexAutoSessionUses={};save();renderStats();return;}
-   if(nextScene){state.nexAutoTaticaReserve=0;state.items=(state.items||[]).filter(i=>!i.nexAbilityTemporary);if(typeof renderInventory==='function')renderInventory();nexExpireAbilityTemps();if(state.nexAutoChoices?.b100Chef)state.nexAutoChoices.b100Chef.remaining=Math.max(0,Number(state.nexAutoChoices.b100Chef.remaining||0)-1);state.nexAutoSceneUses={};state.nexAutoRoundUses={};state.nexAutoChoices={...(state.nexAutoChoices||{}),insideTrace:false,chaseScene:false,absorverOutro:false};save();renderStats();if(typeof renderAttacks==='function')renderAttacks();return;}
+   if(nextScene){const pending=state.nexAutoPending;if(pending){if(!pending.used){const type=pending.resource==='san'?'san':'pe',field=type==='san'?'sanCurrent':'peCurrent';state[field]=Math.min(maxValues()[type],Math.max(0,Number(state[field])||0)+Math.max(0,Number(pending.cost)||0));}state.nexAutoPending=null;}state.nexAutoTaticaReserve=0;state.items=(state.items||[]).filter(i=>!i.nexAbilityTemporary);if(typeof renderInventory==='function')renderInventory();nexExpireAbilityTemps();if(state.nexAutoChoices?.b100Chef)state.nexAutoChoices.b100Chef.remaining=Math.max(0,Number(state.nexAutoChoices.b100Chef.remaining||0)-1);state.nexAutoSceneUses={};state.nexAutoRoundUses={};state.nexAutoChoices={...(state.nexAutoChoices||{}),insideTrace:false,chaseScene:false,absorverOutro:false};save();renderStats();if(typeof renderAttacks==='function')renderAttacks();return;}
    if(resourceAction){
      const key=resourceAction.dataset.nexAutoResource,box=resourceAction.closest('.nex-auto-effect');
      const roll=faces=>{const v=new Uint32Array(1);crypto.getRandomValues(v);return v[0]%faces+1;};
@@ -5963,7 +5963,7 @@ function abilityRecords(){
        if(key==='b189End'){if(!s.defense)return;set('nexAutoRoundUses',mark,false);}
        else if(s.skill){
         if(state.nexAutoPending||!s.skill.includes(select)||s.offset&&!valid(nums[0],0,20)||!yes()||!pe(s.cost))return;
-        state.nexAutoPending={id:key,name:n,skill:select,kind:'skill',cost:s.cost,resource:'pe',bonus:s.offset?nums[0]:(s.bonus||0),replaceWith:s.replaceWith||'',used:false};
+        state.nexAutoPending={id:mark,name:n,skill:select,kind:'skill',cost:s.cost,resource:'pe',bonus:s.offset?nums[0]:(s.bonus||0),replaceWith:s.replaceWith||'',equipmentEligible:['Luta','Pontaria'].includes(select)&&!!box.querySelector('[data-nex-b189-equipment]')?.checked,used:false};
        }else if(s.toggle){if(!R[mark]&&!yes())return;set('nexAutoRoundUses',mark,!R[mark]);record(R[mark]?0:1);}
        else if(s.dice){if(!valid(nums[0],2,100)||!yes()||!pe(s.cost))return;const rolls=Array.from({length:s.dice},()=>roll(nums[0]));record(rolls.reduce((v,x)=>v+x,0),rolls.join(', '));}
        else if(s.extra){if(!valid(nums[0],1,20)||!yes()||!pe(nums[0]*2))return;record(1,'Ação de RPG registrada');}
@@ -6737,7 +6737,7 @@ function abilityRecords(){
 
    const firstImpression=nexHasSheetPower('Primeira Impressão')&&['Diplomacia','Enganação','Intimidação','Intuição'].includes(calculationName)&&!state.nexAutoSceneUses?.firstImpression;
    const caosActive=nexHasSheetPower('Valer-se do Caos')&&Number.isInteger(state.nexAutoChoices?.caosDT);const caosDT=state.nexAutoChoices?.caosDT;
-   const paranoiaSkill=nexHasSheetPower('Paranoia Defensiva')&&state.nexAutoSceneUses?.paranoiaSkill;if(paranoiaSkill)others+=5;
+   const paranoiaSkill=nexHasSheetPower('Paranoia Defensiva')&&state.nexAutoSceneUses?.paranoiaSkill;if(paranoiaSkill===true||paranoiaSkill===calculationName)others+=5;
    const extraDice=nexOfficialExtraSkillDie(calculationName)+Number(pending?.extraDice||0)+(firstImpression?2:0)-(state.origin==='Experimento'&&calculationName==='Diplomacia'?1:0);
    const pool=count+extraDice;
    const rolls=Array.from({length:pool<=0?2-pool:pool},rollDie20);
@@ -6748,7 +6748,7 @@ function abilityRecords(){
    const bonus=training+others+bonusRoll;
    const result=chosen+bonus;
    state.nexLastSkillRoll={name,rolls:[...rolls,...(caosActive?[caosRoll]:[])],lower:pool<=0,bonus,used:{}};
-   if(paranoiaSkill)state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),paranoiaSkill:false};
+   if(paranoiaSkill===true||paranoiaSkill===calculationName)state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),paranoiaSkill:false};
    if(caosActive){const risk=nexPowerAffinity('Valer-se do Caos')?2:5;delete state.nexAutoChoices.caosDT;logResult('Valer-se do Caos','Dado adicional','Resultado separado',caosRoll);if(result<caosDT||caosRoll<=risk){const v=new Uint32Array(1);crypto.getRandomValues(v);const loss=v[0]%4+1;state.sanCurrent=Math.max(0,Number(state.sanCurrent||0)-loss);logResult('Valer-se do Caos','1d4 SAN','Custo de RPG',loss);}}
    const expression=pool<=0?(2-pool)+'d20 (menor)':pool+'d20 (maior)';
    const detail='['+rolls.join(', ')+'] → '+chosen+(bonus<0?' − ':' + ')+Math.abs(bonus)+' · '+(ATTRIBUTE_NAMES[attr]||attr)+' '+count+' · Treino '+training+' · Outros '+others+(bonusRoll?' · Dado de habilidade: '+bonusRoll:'')+(pending?' · Habilidade: '+pending.name:'')+(firstImpression?' · Primeira Impressão':'');
