@@ -2785,8 +2785,8 @@ function nexB100HeavyProtection(){return nexHasSheetPower('Tanque de Guerra')&&(
 function nexB100Defense(){return nexB100HeavyProtection()+(nexHasSheetPower('Combate Defensivo')&&state.nexAutoRoundUses?.b100Defensive?5:0);}
 function nexB100Arsenal(){return state.origin==='Treinado pela Hell Hunters'?(state.nexAutoChoices?.b100Arsenal==='distance'?['Pontaria','Reflexos']:state.nexAutoChoices?.b100Arsenal==='melee'?['Luta','Fortitude']:[]):[];}
 function nexB100WeaponEffects(item,d){
- const melee=/corpo a corpo/i.test(String(d.kind||'')),distance=/disparo|fogo|dist[aâ]ncia|arremesso/i.test(String(d.kind||'')),firearm=/fogo/i.test(String(d.kind||'')),ranged=distance&&!melee;
- const favorite=state.class==='Combatente'&&state.trailByClass?.Combatente==='Aniquilador'&&Number(state.nex)>=10&&String(state.nexAutoChoices?.favoriteItem||'')===String(item.id);
+ const melee=/corpo\s*a\s*corpo|desarmado/i.test(String(d.kind||''))||/^(desarmado|ataque desarmado|golpe desarmado)$/i.test(String(d.name||item.name||'').trim()),distance=/disparo|fogo|dist[aâ]ncia|arremesso/i.test(String(d.kind||'')),firearm=/fogo/i.test(String(d.kind||'')),ranged=distance&&!melee;
+ const favorite=nexTrailIs('Combatente','Aniquilador',10)&&String(state.nexAutoChoices?.favoriteItem||'')===String(item.id);
  const nex=Number(state.nex)||0,R=state.nexAutoRoundUses||{},S=state.nexAutoSceneUses||{};
  const selected=R.b100FavoriteOptions?.item===String(item.id)&&favorite?R.b100FavoriteOptions:null;
  const aimed=R.b100Aim?.item===String(item.id)&&nexTrailIs('Especialista','Atirador de Elite',40);
@@ -2794,9 +2794,9 @@ function nexB100WeaponEffects(item,d){
  const tactical=/t[aá]tic/i.test(String(d.proficiency||''));
  const unarmed=/^(desarmado|ataque desarmado|golpe desarmado)$/i.test(String(d.name||item.name||'').trim());
  const skill=state.skills?.Tática||{};
- let margin=(nexHasSheetPower('Golpe de Sorte')?1:0)+(melee&&nexTrailIs('Combatente','Guerreiro',10)?2:0)+(favorite&&nex>=99?2:0)+(aimed?2:0)+(selected?.letais===2?5:selected?.letais===1?2:0);
+ let margin=(nexHasSheetPower('Golpe de Sorte')?1:0)+(melee&&nexTrailIs('Combatente','Guerreiro',10)?2:0)+(favorite&&nexTrailIs('Combatente','Aniquilador',99)?2:0)+(aimed?2:0)+(selected?.letais===2?5:selected?.letais===1?2:0);
  const multiplier=(nexPowerAffinity('Golpe de Sorte')?1:0)+(selected?.destruidores||0);
- const extraDice=(melee&&nexHasSheetPower('Golpe Pesado')?1:0)+(favorite&&nex>=99?1:0);
+ const extraDice=(melee&&nexHasSheetPower('Golpe Pesado')?1:0)+(favorite&&nexTrailIs('Combatente','Aniquilador',99)?1:0);
  const flatDamage=(firearm&&nexHasSheetPower('Balística Avançada')?2:0)+(!firearm&&tactical&&(melee||ranged)&&nexHasSheetPower('Ninja Urbano')?2:0)+(ranged&&nexHasSheetPower('Tiro Certeiro')?Math.max(0,Number(state.attributes?.agi)||0):0)+(firearm&&nexTrailIs('Combatente','Incursor',10)?Number(skill.training||0)+Number(skill.other||0)+nexOfficialGrantedSkillBonus('Tática',skill.training)+nexOfficialSkillBonus('Tática'):0);
  return {margin,multiplier,extraDice,flatDamage,penalty:nexHasSheetPower('Combate Defensivo')&&R.b100Defensive?1:0,unarmedDice:unarmed&&nexHasSheetPower('Artista Marcial')?(nex>=70?'1d10':nex>=35?'1d8':'1d6'):'',maxCritical:firearm&&nexTrailIs('Especialista','Atirador de Elite',99),sneakDice:sneak?(nex>=99?4:nex>=65?3:nex>=40?2:1):0,ignoreRD:selected?.perfurantes?selected.perfurantes*5:0,wide:selected?.amplo||0,aimed:Boolean(aimed),favoriteChoice:Boolean(selected),sneak:Boolean(sneak),melee};
 }
@@ -5478,7 +5478,7 @@ function abilityRecords(){
    if(name==='Dead Man Switch')return aff+box(choice('Perícia emprestada',skills.filter(([n])=>Number(state.skills?.[n]?.training||0)>=5))+action('Registrar graduação elegível'),'O resultado é exibido para o aliado. Não sobrescreve outra ficha.');
    if(name==='Arte da Música Macabra')return box(choice('Benefício de RPG',[['dano','+5 dano'],['margem','+2 margem'],['teste','+5 teste'],['alcance','+9m alcance']])+action('Registrar benefício · 2 PE'),'Seleção numérica para o próximo efeito elegível do aliado.');
    if(name==='Combate Defensivo')return box(action(R.b100Defensive?'Encerrar postura':'Ativar postura de RPG'),'Defesa +5 e modificador de dados −1 até nova rodada. Aplica à ficha e à rolagem de item equipado.');
-   if(name==='Disparo Letal'||name==='Ataque Furtivo')return box(choice('Item equipado do RPG',items())+action('Preparar próximo teste · 1 PE',!items().length||!!R[name==='Disparo Letal'?'b100Aim':'b100Sneak']),'Confirme a condição prevista no jogo. O efeito é consumido na próxima rolagem do item.');
+   if(name==='Disparo Letal'||name==='Ataque Furtivo')return box(choice('Item equipado do RPG',items())+action('Preparar próximo teste · 1 PE',!items().length||!!R[name==='Disparo Letal'?'b100Aim':'b100Sneak']||name==='Ataque Furtivo'&&!!R['b100:Ataque Furtivo']),'Confirme a condição prevista no jogo. O efeito é consumido na próxima rolagem do item.');
    if(name==='Técnica Secreta'||name==='Técnica Sublime'){
      const options=name==='Técnica Secreta'?[['amplo','Amplo'],['destruidor','Destruidor']]:[['amplo','Amplo'],['destruidor','Destruidor'],['letal','Letal'],['perfurante','Perfurante']];
      return box(choice('Primeiro efeito',options)+ '<label>Segundo efeito opcional <select data-b100-second><option value="">Nenhum</option>'+options.map(([k,v])=>'<option value="'+k+'">'+v+'</option>').join('')+'</select></label>'+action('Preparar efeito da favorita',!!R.b100FavoriteOptions||!C.favoriteItem),'Cada efeito custa 2 PE. Os modificadores numéricos são usados no próximo teste do item favorito; efeitos em outros alvos ficam com o mestre.');
@@ -5800,7 +5800,7 @@ function abilityRecords(){
      if(Object.prototype.hasOwnProperty.call(NEX_OFFICIAL_GRANTED_SKILLS,a.name))return `Poder automático: treino em ${NEX_OFFICIAL_GRANTED_SKILLS[a.name]} ou +2 se já houver treinamento.`;
      return '';
    };
-   $id('n16AbilityList').innerHTML=(Object.values(state.nexAutoRoundUses||{}).some(Boolean)?'<div class="nex-auto-effect"><button type="button" class="btn sm" data-nex-auto-resource="novaRodada">Nova rodada · reiniciar usos</button></div>':'')+(Object.values(state.nexAutoSessionUses||{}).some(Boolean)?'<button type="button" class="btn sm" data-nex-auto-new-session>Nova sessão · reiniciar usos</button>':'')+((Object.keys(state.nexAutoSceneUses||{}).some(k=>state.nexAutoSceneUses[k])||Object.values(state.nexAutoRoundUses||{}).some(Boolean)||state.nexAutoChoices?.chaseScene)?'<button type="button" class="btn sm" data-nex-auto-new-scene>Nova cena · reiniciar habilidades por cena</button>':'')+(records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry" data-nex-ability-id="${escape(a.name+"|"+a.source)}" ${opened.has(a.name+"|"+a.source)?"open":""}><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div style="white-space:pre-line">${escape(nexDetailedDescription(a.name,a.detail,a.source,{homebrew:a.homebrew===true}))}${nexActivationDescription(a)?'\n\n'+escape(nexActivationDescription(a)):''}</div>${nexOfficialAbilityControls(a)}${window.NEX_LOCAL_RULE_NOTE('habilidade:'+a.source+'|'+a.name,escape)}${a.id?`<div class="actions" style="margin-top:12px"><button type="button" class="btn sm" data-n16-remove-${a.removeKind==='power'?'power':'ability'}="${escape(a.id)}">Remover habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>');
+   $id('n16AbilityList').innerHTML=(Object.values(state.nexAutoRoundUses||{}).some(Boolean)?'<div class="nex-auto-effect"><button type="button" class="btn sm" data-nex-auto-resource="novaRodada">Nova rodada · reiniciar usos</button></div>':'')+(Object.values(state.nexAutoSessionUses||{}).some(Boolean)?'<button type="button" class="btn sm" data-nex-auto-new-session>Nova sessão · reiniciar usos</button>':'')+((Object.keys(state.nexAutoSceneUses||{}).some(k=>state.nexAutoSceneUses[k])||Object.values(state.nexAutoRoundUses||{}).some(Boolean)||state.nexAutoChoices?.chaseScene||Number(state.nexAutoChoices?.b100Chef?.remaining)>0)?'<button type="button" class="btn sm" data-nex-auto-new-scene>Nova cena · reiniciar habilidades por cena</button>':'')+(records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry" data-nex-ability-id="${escape(a.name+"|"+a.source)}" ${opened.has(a.name+"|"+a.source)?"open":""}><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div style="white-space:pre-line">${escape(nexDetailedDescription(a.name,a.detail,a.source,{homebrew:a.homebrew===true}))}${nexActivationDescription(a)?'\n\n'+escape(nexActivationDescription(a)):''}</div>${nexOfficialAbilityControls(a)}${window.NEX_LOCAL_RULE_NOTE('habilidade:'+a.source+'|'+a.name,escape)}${a.id?`<div class="actions" style="margin-top:12px"><button type="button" class="btn sm" data-n16-remove-${a.removeKind==='power'?'power':'ability'}="${escape(a.id)}">Remover habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>');
  }
 
  document.addEventListener('click',event=>{
@@ -5813,7 +5813,7 @@ function abilityRecords(){
    if(!activate&&!cancel&&!nextScene&&!sceneAction&&!motivate&&!paramedic&&!newSession&&!resourceAction)return;
    event.preventDefault();
    if(newSession){state.nexAutoSessionUses={};save();renderStats();return;}
-   if(nextScene){state.items=(state.items||[]).filter(i=>!i.nexAbilityTemporary);if(typeof renderInventory==='function')renderInventory();nexExpireAbilityTemps();if(state.nexAutoChoices?.b100Chef)state.nexAutoChoices.b100Chef.remaining=Math.max(0,Number(state.nexAutoChoices.b100Chef.remaining||0)-1);state.nexAutoSceneUses={};state.nexAutoRoundUses={};state.nexAutoChoices={...(state.nexAutoChoices||{}),insideTrace:false,chaseScene:false,absorverOutro:false};save();renderStats();return;}
+   if(nextScene){state.items=(state.items||[]).filter(i=>!i.nexAbilityTemporary);if(typeof renderInventory==='function')renderInventory();nexExpireAbilityTemps();if(state.nexAutoChoices?.b100Chef)state.nexAutoChoices.b100Chef.remaining=Math.max(0,Number(state.nexAutoChoices.b100Chef.remaining||0)-1);state.nexAutoSceneUses={};state.nexAutoRoundUses={};state.nexAutoChoices={...(state.nexAutoChoices||{}),insideTrace:false,chaseScene:false,absorverOutro:false};save();renderStats();if(typeof renderAttacks==='function')renderAttacks();return;}
    if(resourceAction){
      const key=resourceAction.dataset.nexAutoResource,box=resourceAction.closest('.nex-auto-effect');
      const roll=faces=>{const v=new Uint32Array(1);crypto.getRandomValues(v);return v[0]%faces+1;};
@@ -5871,7 +5871,7 @@ function abilityRecords(){
        else if(name==='Arte da Música Macabra'){const values={dano:5,margem:2,teste:5,alcance:9};if(!Object.hasOwn(values,select)||!confirmed()||!pay(2))return;record('Benefício selecionado: '+select,values[select]);}
        else if(name==='Combate Defensivo'){set('nexAutoRoundUses','b100Defensive',!R.b100Defensive);record('Postura de RPG',R.b100Defensive?0:5);}
        else if(name==='Disparo Letal'||name==='Ataque Furtivo'){
-         const k=name==='Disparo Letal'?'b100Aim':'b100Sneak';if(R[k]||!(state.items||[]).some(i=>i.equipped&&i.category==='Arma'&&String(i.id)===select)||!confirmed()||!pay(1))return;set('nexAutoRoundUses',k,{item:select});
+         const k=name==='Disparo Letal'?'b100Aim':'b100Sneak';if(R[k]||name==='Ataque Furtivo'&&R['b100:Ataque Furtivo']||!(state.items||[]).some(i=>i.equipped&&i.category==='Arma'&&String(i.id)===select)||!confirmed()||!pay(1))return;set('nexAutoRoundUses',k,{item:select});
        }else if(name==='Técnica Secreta'||name==='Técnica Sublime'){
          const selected=[select,box.querySelector('[data-b100-second]')?.value].filter(Boolean),allowed=name==='Técnica Secreta'?['amplo','destruidor']:['amplo','destruidor','letal','perfurante'];
          if(R.b100FavoriteOptions||!C.favoriteItem||!selected.length||selected.some(x=>!allowed.includes(x))||!confirmed()||!pay(2*selected.length))return;
@@ -5965,7 +5965,7 @@ function abilityRecords(){
        }else return;
        save();renderStats();return;
      }
-     if(key==='novaRodada'){state.nexAutoRoundUses={};if(state.nexAutoSceneUses?.sangueVivo&&(Number(state.pvCurrent)<=0||Number(state.pvCurrent)>Math.floor(maxValues().pv/2)))state.nexAutoSceneUses.sangueVivo=false;}
+     if(key==='novaRodada'){state.nexAutoRoundUses={};if(typeof renderAttacks==='function')queueMicrotask(renderAttacks);if(state.nexAutoSceneUses?.sangueVivo&&(Number(state.pvCurrent)<=0||Number(state.pvCurrent)>Math.floor(maxValues().pv/2)))state.nexAutoSceneUses.sangueVivo=false;}
      else if(key==='profeciaTemp'){
        if(state.origin!=='Profetizado'||!confirm('O mestre confirmou o acontecimento previsto?'))return;
        nexAbilityTempGrant('pe',2,true);state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),profeciaTemp:true};logResult('Luta ou Fuga','PE temporários','Premonição confirmada',2);
