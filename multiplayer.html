@@ -5101,10 +5101,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
  async function ensurePlayerIndex(campaignId,memberUid){
   if(!gm||!campaignId||!memberUid)return;
-  const owner=uid,ref=doc(db,'users',memberUid,'joinedCampaigns',campaignId),existing=await getDoc(ref);
-  if(!gm||uid!==owner||roomId!==campaignId)return;
-  if(existing.exists()&&existing.data().gmUid===owner&&existing.data().campaignId===campaignId)return;
-  await setDoc(ref,{campaignId,gmUid:owner,joinedAt:serverTimestamp()},{merge:true});
+  const owner=uid;
+  await setDoc(doc(db,'users',memberUid,'joinedCampaigns',campaignId),{campaignId,gmUid:owner,joinedAt:serverTimestamp()},{merge:true});
  }
  $('leaveCampaign').onclick=()=>run(async()=>{
   if(!roomId||gm)return;
