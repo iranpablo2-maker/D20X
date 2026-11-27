@@ -96,7 +96,7 @@ function metadata(record){
  if(official){resolved.guide=guide||usefulRitualText(match.description)||'';if(!usefulRitualText(resolved.note))resolved.note=resolved.guide;}
  return resolved;
 }
-function ritualDT(){const limit=Math.max(0,Number(maxValues().peLimit)||0);const pre=Math.max(0,Number(state.attributes?.pre)||0);return 10+limit+pre+(Number(state.ritualDtBonus)||0);}
+function ritualDT(){const limit=Math.max(0,Number(maxValues().peLimit)||0);const pre=Math.max(0,Number(state.attributes?.pre)||0);return 10+limit+pre+(Number(state.ritualDtBonus)||0)+(state.class==='Ocultista'&&state.trailByClass?.Ocultista==='Graduado'&&Number(state.nex)>=65?5:0);}
 for(const child of [...root.children]){if(child!==list)child.hidden=true;}
 const controls=document.createElement('div');controls.id='nexRitualsControls';
 controls.innerHTML='<div class="nex-ritual-top"><button class="btn primary" type="button" id="nexRitualAddButton">Adicionar</button><div class="nex-ritual-dt">DT DE RITUAIS <output id="nexRitualDT">—</output></div></div><div class="nex-ritual-bottom"><button type="button" class="btn" id="nexRitualNewButton">Novo Ritual</button><label>Bônus de DT <input type="number" id="nexRitualDTBonus" min="-50" max="50" step="1" value="0"></label></div><p class="nex-ritual-hint">DT = 10 + limite de PE por turno + Presença + bônus. O teste de Custo do Paranormal usa outra DT.</p>';
