@@ -428,9 +428,10 @@ function combatConsumable(item){
  if(!item||!combatConsumableNames.has(norm(item.name).trim()))return null;
  const model=lookup(item);
  if(!model||Number(item.quantity??1)<=0)return null;
- const expression=String(stat(model,'Dano')||'').trim();
+ const isPem=norm(item.name).trim()==='granada de pem';
+ const expression=isPem?'6d6':String(stat(model,'Dano')||'').trim();
  const damage=/^\d+d\d+$/i.test(expression)?expression:'';
- return {damage,type:String(stat(model,'Tipo')||''),effect:String(window.NEX_ITEM_DESCRIBE?.(model)||model.description||''),name:item.name};
+ return {damage,type:isPem?'Impacto (somente criaturas de Energia)':String(stat(model,'Tipo')||''),effect:String(window.NEX_ITEM_DESCRIBE?.(model)||model.description||''),name:item.name};
 }
 function card(item,expanded=false){
  const d=detail(item),weapon=d.category==='Arma',id=safe(item.id);
