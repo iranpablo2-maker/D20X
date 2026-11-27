@@ -13,7 +13,7 @@ const id=()=>('rt'+Date.now().toString(36)+Math.random().toString(36).slice(2,9)
 const baseCost={1:1,2:3,3:6,4:10};
 const maxCost=99;
 const isOccultist=()=>state.class==='Ocultista';
-const PE_LIMIT=()=>Math.max(0,(Number(maxValues().peLimit)||0)+(state.origin==='Universitário'?1:0));
+const PE_LIMIT=()=>Math.max(0,(Number(maxValues().peLimit)||0)+(state.origin==='Universitário'?1:0)+(typeof nexRitualCastingLimitBonus==='function'?nexRitualCastingLimitBonus():0));
 const availableTurnPE=()=>PE_LIMIT(); // sem controle manual de turnos: limite é verificado em cada conjuração
 const permittedCircle=()=>typeof nex12RitualAllowed==='function'?Number(nex12RitualAllowed())||0:0;
 let view='conjurar',query='',element='',circle='',source='',typeFilter='Todos';
@@ -81,7 +81,7 @@ function enhancePrice(text){
 function hasEnhance(text){return Boolean(text&&!/^(Não consta|N[aã]o possui|Sem aprimoramento)/i.test(String(text).trim()));}
 function finalPrice(r,version,additional){
  const d=info(r),v=version==='Discente'?d.discente:version==='Verdadeiro'?d.verdadeiro:'';
- return Math.max(0,(baseCost[Number(r.circle)]||1)+Math.max(0,Number(r.extra)||0)+(enhancePrice(v)||0)+Math.max(0,Number(additional)||0));
+ return Math.max(1,(baseCost[Number(r.circle)]||1)+Math.max(0,Number(r.extra)||0)+(enhancePrice(v)||0)+Math.max(0,Number(additional)||0)-(typeof nexRitualPowerReduction==='function'?nexRitualPowerReduction(r,d):0));
 }
 function effectSettings(r,version){
  const d=info(r),key=signature(r),preset=window.NEX_RITUAL_EFFECTS?.[key]||{};
@@ -135,8 +135,9 @@ function occultismRoll(cost,bonus){
  const total=chosen+training+bonus,dt=20+cost;
  return {rolls,chosen,training,bonus,total,dt,passed:total>=dt,shortfall:Math.max(0,dt-total),attr};
 }
-function targetRitualDT(){
- return 10+(Number(maxValues().peLimit)||0)+(Number(state.attributes?.pre)||0)+(Number(state.ritualDtBonus)||0)+(state.class==='Ocultista'&&state.trailByClass?.Ocultista==='Graduado'&&Number(state.nex)>=65?5:0);
+function targetRitualDT(r){
+ if(!r&&castingId)r=learned().find(x=>String(x.id)===String(castingId));
+ return 10+(Number(maxValues().peLimit)||0)+(Number(state.attributes?.pre)||0)+(Number(state.ritualDtBonus)||0)+(state.class==='Ocultista'&&state.trailByClass?.Ocultista==='Graduado'&&Number(state.nex)>=65?5:0)+(typeof nexRitualElementDT==='function'?nexRitualElementDT(r):0);
 }
 function applyCastSanity(element,version,cost,check){
  const fear=norm(element)==='medo';
@@ -181,6 +182,8 @@ function computeEffect(fields){
  if(['Dano','Dano + Cura'].includes(fields.type)){
   result.damage=rollSimpleDice(fields.damageDice);
   if(!result.damage)return null;
+  const bonus=typeof nexRitualPotentBonus==='function'?nexRitualPotentBonus():0;
+  if(bonus){result.damage.total+=bonus;result.damage.expression+=' + '+bonus+' (Ritual Potente)';}
  }
  if(['Cura','Dano + Cura'].includes(fields.type)){
   if(fields.type==='Dano + Cura'&&fields.healFromDamage){
@@ -188,6 +191,8 @@ function computeEffect(fields){
   }else{
    result.healing=fields.healDice?rollSimpleDice(fields.healDice):{expression:'Conforme efeito do ritual',rolls:[],bonus:0,total:'—'};
    if(!result.healing)return null;
+   const bonus=typeof nexRitualPotentBonus==='function'?nexRitualPotentBonus():0;
+   if(bonus&&typeof result.healing.total==='number'){result.healing.total+=bonus;result.healing.expression+=' + '+bonus+' (Ritual Potente)';}
   }
  }
  return result;
@@ -371,7 +376,7 @@ function quickDamageRoll(rid,version='Normal'){
  const result={r,d,v:version,total:cost};
  state.peCurrent=Math.max(0,pe()-cost);
  kit().turnSpent+=cost;
- addHistory('Conjuração',{name:r.name,ritualId:String(r.id),version,cost,peAfter:pe(),to:check,effect,sanLoss:sanity.lost,permanentSanLoss:sanity.permanent,targetDT:targetRitualDT()});
+ addHistory('Conjuração',{name:r.name,ritualId:String(r.id),version,cost,peAfter:pe(),to:check,effect,sanLoss:sanity.lost,permanentSanLoss:sanity.permanent,targetDT:targetRitualDT(r)});
  update();
  castingId='';
  modal.classList.add('nex-tk-result-compact');
@@ -486,7 +491,7 @@ function castingResultHTML(m,check,sanity,effect){
  if(effect.damage)rows.push('<p><strong>Dano:</strong> '+esc(effect.damage.expression)+' → ['+esc(effect.damage.rolls.join(', '))+'] = '+effect.damage.total+'</p>');
  if(effect.healing)rows.push('<p><strong>Cura:</strong> '+esc(effect.healing.expression)+' = '+effect.healing.total+' (não aplicada automaticamente ao alvo)</p>');
  if(effect.type==='Buff')rows.push('<p><strong>Suporte/Buff:</strong> '+(effect.buff?'Bônus rolado: +'+esc(effect.buff.total)+' ('+esc(effect.buff.expression)+' → ['+esc(effect.buff.rolls.join(', '))+']). ':'')+esc(effect.buffText||'Consultar ritual')+'</p>');
- rows.push('<p><strong>DT de resistência do alvo:</strong> '+targetRitualDT()+' (quando aplicável).</p>');
+ rows.push('<p><strong>DT de resistência do alvo:</strong> '+targetRitualDT(m.r)+' (quando aplicável).</p>');
  rows.push('<p class="tk-sub">Falhar no Teste de Ocultismo não impede a conjuração básica, mas pode causar perda de Sanidade. Confira os efeitos e resistências com o mestre.</p>');
  const infoRows=rows.join('')+renderResistanceRoll(m.r);
  const details=info(m.r);
@@ -547,7 +552,7 @@ function confirmCast(){
  state.peCurrent=Math.max(0,pe()-total);
  kit().turnSpent+=total;
  kit().effectConfigs[signature(r)+'|'+v]=fields;
- addHistory('Conjuração',{name:r.name,ritualId:String(r.id),version:v,cost:total,peAfter:pe(),to:check,effect,sanLoss:sanity.lost,permanentSanLoss:sanity.permanent,targetDT:targetRitualDT()});
+ addHistory('Conjuração',{name:r.name,ritualId:String(r.id),version:v,cost:total,peAfter:pe(),to:check,effect,sanLoss:sanity.lost,permanentSanLoss:sanity.permanent,targetDT:targetRitualDT(r)});
  if(active){
   kit().active.unshift({id:id(),ritualId:String(r.id),name:r.name,version:v,duration:d.duration||'',upkeep,rounds:0,at:new Date().toISOString()});
   if(kit().active.length>60)kit().active.length=60;
