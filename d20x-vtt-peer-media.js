@@ -204,6 +204,7 @@ export function mountNexPeerMedia({
  function teardown(){
   if(reconnectTimer){clearTimeout(reconnectTimer);reconnectTimer=null;}
   cleanupPending('Transmissao interrompida');
+  for(const p of sharedPending.values())p.finish(Error('Conexão interrompida. Reconecte e confira a ficha antes de repetir uma alteração.'));
   if(unsubPeers){unsubPeers();unsubPeers=null;}
   if(unsubOwn){unsubOwn();unsubOwn=null;}
   try{joinPeer?.channel?.close();joinPeer?.pc?.close();}catch(_){}
@@ -228,7 +229,7 @@ export function mountNexPeerMedia({
   channel.binaryType='arraybuffer';
   channel.bufferedAmountLowThreshold=128*1024;
   channel.onopen=()=>{
-   if(destroyed)return;
+   if(destroyed||(!gm&&joinPeer!==peer)||(gm&&remotePeers.get(peer.uid)!==peer))return;
    peer.open=true;
    if(!gm)reconnectAttempts=0;
    if(gm){say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');queueScene(peer,++sceneRevision,getScene());if(chatHistory.length)channel.send(JSON.stringify({type:'chat-history',items:chatHistory}));onSharedPeer(peer.uid);}
@@ -240,8 +241,9 @@ export function mountNexPeerMedia({
   };
   channel.onclose=()=>{
    peer.open=false;
-   if(destroyed)return;
+   if(destroyed||(!gm&&joinPeer!==peer)||(gm&&remotePeers.get(peer.uid)!==peer))return;
    if(!gm){
+    for(const p of sharedPending.values())p.finish(Error('Mestre desconectado. Confira a ficha após reconectar antes de repetir uma alteração.'));
     window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:false}}));
     cleanupPending('O mestre desconectou');say('Conexao ao mestre encerrada.');onDisconnected();
     scheduleReconnect(peer.session,peer);
@@ -251,6 +253,7 @@ export function mountNexPeerMedia({
   channel.onerror=()=>{if(!destroyed)say('Problema de conexao direta. Algumas redes precisam de um servidor TURN.');};
   peer.queue=Promise.resolve();
   channel.onmessage=event=>{
+   if(destroyed||(!gm&&joinPeer!==peer)||(gm&&remotePeers.get(peer.uid)!==peer))return;
    if(typeof event.data==='string'){
     let msg;
     try{msg=JSON.parse(event.data);}catch(_){return;}
@@ -352,13 +355,13 @@ export function mountNexPeerMedia({
    }
    await pc.setLocalDescription(await pc.createAnswer());
    await waitIce(pc);
-   if(!hosting||activeSession!==sess||destroyed){pc.close();return;}
+   if(!hosting||activeSession!==sess||destroyed||remotePeers.get(peerId)!==peer){pc.close();return;}
    const answer=pc.localDescription?.sdp;
    if(!answer)throw Error('Resposta de conexao vazia');
    await setDoc(doc(db,'campaigns',campaignId,'vttLivePeers',peerId),{answer},{merge:true});
   }catch(error){
    if(!destroyed)say('Falha ao conectar jogador: '+String(error.message).slice(0,100));
-   pc.close();remotePeers.delete(peerId);
+   pc.close();if(remotePeers.get(peerId)===peer)remotePeers.delete(peerId);
   }
  }
  function watchPeers(){
@@ -432,7 +435,7 @@ export function mountNexPeerMedia({
    if(!offer)throw Error('Nao foi possivel criar a conexao');
    unsubOwn=onSnapshot(ownRef,docSnap=>{
     const data=docSnap.data();
-    if(data?.session===sess&&data.answer&&pc.signalingState==='have-local-offer'){
+    if(!destroyed&&joinPeer===peer&&data?.session===sess&&data.offer===offer&&data.answer&&pc.signalingState==='have-local-offer'){
      void pc.setRemoteDescription({type:'answer',sdp:data.answer}).catch(error=>say('Erro de sinalizacao: '+error.message));
     }
    },err=>say('Sem acesso ao sinal da sessao: '+String(err.message).slice(0,100)));
