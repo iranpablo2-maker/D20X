@@ -4915,8 +4915,9 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
  const key=String(name||'').trim();
  const isHomebrew=/homebrew/i.test(from)||extra.homebrew===true;
  if(isHomebrew)return String(detail||'').trim();
- const original=String((!isHomebrew&&NEX_POWER_DETAILS[key]&&(/paranormal/i.test(from)||!from&&!extra.originName&&!extra.trail&&!extra.classPower)?NEX_POWER_DETAILS[key]:detail)||'').trim();
- const originName=extra.originName||(from.startsWith('Origem: ')?from.slice(8).split(' · ')[0]:'');
+  const originName=extra.originName||(from.startsWith('Origem: ')?from.slice(8).split(' · ')[0]:'');
+ const liveOrigin=[...(window.NEX_SAH?.origins||[]),...(window.NEX_ARQUIVOS?.origins||[])].find(x=>x.name===originName&&x.ability===key);
+ const original=String(liveOrigin?.description||(!isHomebrew&&NEX_POWER_DETAILS[key]&&(/paranormal/i.test(from)||!from&&!extra.originName&&!extra.trail&&!extra.classPower)?NEX_POWER_DETAILS[key]:detail)||'').trim();
  const guidance=extra.classPower&&detail?'':NEX_ABILITY_EXPLANATIONS[String(name||'').trim()]||NEX_ABILITY_EXPLANATIONS[originName]||'';
  const genericDescription=/^(?:Opção de (?:jogo registrada|personagem|progressão)|Habilidade de .+Use os recursos|Habilidade de progressão|Poder de .+Consulte a publicação|Origem de personagem|Recurso (?:ficcional de jogo|de jogo)|Consulte a publicação|Habilidade concedida por esta origem|Descrição (?:não cadastrada|indisponível))/i.test(original)||/(?:Confira os campos mecânicos|Consulte a publicação para (?:as condições|custo|condições))/i.test(original);
  const usefulGuidance=guidance&&!/consulte (?:o livro|a publicação)/i.test(guidance);
@@ -5022,7 +5023,7 @@ function abilityRecords(){
    for(const a of state.n16.abilities){
      const saved=String(a.description||'');
      const latest=currentOfficialDescription(a);
-     entries.push({name:a.name,source:a.source||'Personalizada',detail:latest.length>saved.length?latest:saved||'Sem descrição.',id:a.id});
+     entries.push({name:a.name,source:a.source||'Personalizada',detail:latest||saved||'Sem descrição.',id:a.id});
    }
    return entries;
  }
