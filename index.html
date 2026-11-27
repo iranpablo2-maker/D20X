@@ -2829,10 +2829,16 @@ function nexOfficialPassiveBonuses(){
   furtividade:active('Espreitar da Besta')?5:0
  };
 }
+function nexFocusRecords(){
+ const rows=[...(state.powers||[]),...(state.n16?.abilities||[])].filter(p=>p?.name==='Foco em Perícia'&&!p.homebrew&&!String(p.catalogKey||'').startsWith('homebrew:')&&!String(p.source||'').includes('Homebrew'));
+ return rows.map((p,i)=>({key:String(p.id||'legacy-'+i),p})).filter((r,i,all)=>all.findIndex(x=>x.key===r.key)===i);
+}
+function nexFocusSelectedSkills(){
+ const picks=state.nexAutoChoices?.focoPericiaById||{},rows=nexFocusRecords();
+ return [...new Set(rows.map((r,i)=>picks[r.key]??(i===0?state.nexAutoChoices?.focoPericia:'')).filter(Boolean))];
+}
 function nexOfficialExtraSkillDie(name){
- const selected=String(state.nexAutoChoices?.focoPericia||'');
- const has=[...(state.powers||[]),...(state.n16?.abilities||[])].some(p=>p?.name==='Foco em Perícia');
- const focus=has&&selected===name&&name!=='Luta'&&name!=='Pontaria'&&Number(state.skills?.[name]?.training||0)>0?1:0;
+ const focus=nexFocusSelectedSkills().includes(name)&&name!=='Luta'&&name!=='Pontaria'&&Number(state.skills?.[name]?.training||0)>0?1:0;
  const speech=state.class==='Especialista'&&state.trailByClass?.Especialista==='Negociador'&&Number(state.nex)>=40?Math.min(Number(state.nex)>=65?2:1,Math.max(0,Number(state.nexAutoSceneUses?.motivatorDice)||0)):0;
  return focus+speech+(nexTrailIs('Ocultista','Possuído',40)&&state.nexAutoRoundUses?.sombras&&['Acrobacia','Atletismo','Furtividade'].includes(name)?1:0)+(name==='Religião'&&nexTrailIs('Ocultista','Exorcista',40)&&Number(state.skills?.[name]?.training||0)>=10?1:0);
 }
@@ -5357,6 +5363,9 @@ function abilityRecords(){
    const numInput=(label,min,max,val)=>'<label>'+escape(label)+' <input data-nex-auto-resource-kind type="number" min="'+min+'" max="'+max+'" value="'+val+'"></label>';
    const selector=(label,options,selected='')=>'<label>'+escape(label)+' <select data-nex-auto-resource-kind>'+options.map(v=>'<option value="'+escape(String(v[0]))+'" '+(String(v[0])===String(selected)?'selected':'')+'>'+escape(v[1])+'</option>').join('')+'</select></label>';
    const skillOpts=SKILL_DATA.map(([n])=>[n,n]);
+   if(a.source==='Origem: Cosplayer')return nexBatchSkillControl(a)+'<div class="nex-auto-effect"><label>Perícia relacionada à fantasia <select data-nex-auto-skill>'+skillOpts.map(([n])=>'<option>'+escape(n)+'</option>').join('')+'</select></label>'+makeButton('cosplayBonus','Preparar +2 no teste',!!state.nexAutoPending)+'<small>Somente se a mesa confirmar a relação com o figurino.</small></div>';
+   if(a.source==='Origem: Repórter Investigativo')return nexBatchSkillControl(a)+'<div class="nex-auto-effect">'+makeButton('reporterPersuadir','Preparar Diplomacia com Investigação',!!state.nexAutoPending)+'<small>Somente para persuasão e mudança de atitude no RPG.</small></div>';
+   if(a.source==='Origem: Psicólogo')return nexBatchSkillControl(a)+'<div class="nex-auto-effect"><label>Resistência elegível <select data-nex-auto-skill>'+['Fortitude','Reflexos','Vontade'].map(n=>'<option>'+n+'</option>').join('')+'</select></label>'+makeButton('psicologoResistir','Preparar repetição usando Profissão · 2 PE',!!state.nexAutoPending||!!state.nexAutoRoundUses?.psicologoResistir||Number(state.peCurrent)<2)+'<small>Somente após falhar em resistência mental da própria ficha.</small></div>';
    // Controles adicionais: somente recursos e dados da ficha de RPG.
    if(a.name==='Luta ou Fuga'&&a.source==='Origem: Profetizado')return '<div class="nex-auto-effect">'+makeButton('profeciaTemp','Confirmar premonição · +2 PE temporários')+'<small>Use somente quando o mestre confirmar o acontecimento previsto. Expira no fim da cena.</small></div>';
    if(a.name==='Turno Invertido'&&a.source==='Origem: Funcionário de Beira de Estrada')return '<div class="nex-auto-effect">'+makeButton('turnoDescanso','Registrar descanso sem gastar ação',!!state.nexAutoMissionUses?.turnoDescanso)+' '+makeButton('novaMissao','Nova missão')+'<small>Uma vez por missão; aplique as condições de descanso aprovadas pela mesa.</small></div>'+nexBatchSkillControl(a);
@@ -5486,7 +5495,7 @@ function abilityRecords(){
    const sceneAction=nexExtraSceneAction(a);
    if(sceneAction){
      const used=!sceneAction.repeat&&!!state[sceneAction.period==='round'?'nexAutoRoundUses':'nexAutoSceneUses']?.[sceneAction.id];
-     return '<div class="nex-auto-effect"><button type="button" class="btn sm primary" data-nex-auto-scene-action="'+escape(sceneAction.id)+'" '+(used||Number(state.peCurrent)<sceneAction.cost?'disabled':'')+'>'+escape(used?'Já utilizada nesta cena':'Ativar · '+sceneAction.cost+' PE')+'</button><small>'+escape(sceneAction.label)+(sceneAction.repeat?' · confirme a condição de uso.':sceneAction.period==='round'?' · uma vez por rodada.':' · uma vez por cena.')+' A ação é resolvida na mesa.</small></div>'+(a.name==='Deixe os Sussurros Guiarem'&&used?'<div class="nex-auto-effect"><label>Teste de investigação <select data-nex-auto-skill>'+SKILL_DATA.map(([n])=>'<option value="'+escape(n)+'">'+escape(n)+'</option>').join('')+'</select></label><button type="button" class="btn sm" data-nex-auto-activate="sussurrosTeste" '+(state.nexAutoPending?'disabled':'')+'>Preparar +2</button> <button type="button" class="btn sm" data-nex-auto-resource="sussurrosFalha">Registrar falha · −1 SAN</button></div>':'')+(a.name==='Traçado Conjuratório'&&used?'<div class="nex-auto-effect"><label>Dentro do símbolo <select data-nex-auto-origin-choice="insideTrace"><option value="false">Não</option><option value="true" '+(state.nexAutoChoices?.insideTrace?'selected':'')+'>Sim</option></select></label></div>':'');
+     return affinityControl+'<div class="nex-auto-effect"><button type="button" class="btn sm primary" data-nex-auto-scene-action="'+escape(sceneAction.id)+'" '+(used||Number(state.peCurrent)<sceneAction.cost?'disabled':'')+'>'+escape(used?'Já utilizada neste período':'Ativar · '+sceneAction.cost+' PE')+'</button><small>'+escape(sceneAction.label)+(sceneAction.repeat?' · confirme a condição de uso.':sceneAction.period==='round'?' · uma vez por rodada.':' · uma vez por cena.')+' A ação é resolvida na mesa.</small></div>'+(a.name==='Deixe os Sussurros Guiarem'&&used?'<div class="nex-auto-effect"><label>Teste de investigação <select data-nex-auto-skill>'+SKILL_DATA.map(([n])=>'<option value="'+escape(n)+'">'+escape(n)+'</option>').join('')+'</select></label><button type="button" class="btn sm" data-nex-auto-activate="sussurrosTeste" '+(state.nexAutoPending?'disabled':'')+'>Preparar +2</button> <button type="button" class="btn sm" data-nex-auto-resource="sussurrosFalha">Registrar falha · −1 SAN</button></div>':'')+(a.name==='Traçado Conjuratório'&&used?'<div class="nex-auto-effect"><label>Dentro do símbolo <select data-nex-auto-origin-choice="insideTrace"><option value="false">Não</option><option value="true" '+(state.nexAutoChoices?.insideTrace?'selected':'')+'>Sim</option></select></label></div>':'');
    }
    const originChoices={
      'Origem: Amigo dos Animais':{key:'animalSkill',label:'Perícia beneficiada pelo companheiro presente',options:SKILL_DATA.map(x=>x[0])},
@@ -5504,9 +5513,10 @@ function abilityRecords(){
        '</select></label><small>Esta escolha controla somente os efeitos da origem atualmente selecionada.</small></div>';
    }
    if(a.name==='Foco em Perícia'){
-     const selected=String(state.nexAutoChoices?.focoPericia||'');
-     const opts=SKILL_DATA.map(x=>x[0]).filter(name=>!['Luta','Pontaria'].includes(name)&&Number(state.skills?.[name]?.training||0)>=5);
-     return '<div class="nex-auto-effect"><label>Perícia do dado adicional <select data-nex-auto-focus aria-label="Perícia escolhida para Foco em Perícia"><option value="">Escolher perícia</option>'+
+     const rows=nexFocusRecords(),key=String(a.id||rows[0]?.key||''),picks=state.nexAutoChoices?.focoPericiaById||{},selected=String(picks[key]??(rows[0]?.key===key?state.nexAutoChoices?.focoPericia||'':''));
+     const already=nexFocusSelectedSkills().filter(n=>n!==selected);
+     const opts=SKILL_DATA.map(x=>x[0]).filter(name=>!['Luta','Pontaria',...already].includes(name)&&Number(state.skills?.[name]?.training||0)>=5);
+     return '<div class="nex-auto-effect"><label>Perícia do dado adicional <select data-nex-auto-focus="'+escape(key)+'" aria-label="Perícia escolhida para Foco em Perícia"><option value="">Escolher perícia</option>'+
         opts.map(name=>'<option value="'+escape(name)+'" '+(name===selected?'selected':'')+'>'+escape(name)+'</option>').join('')+
         '</select></label><small>Dado extra aplicado automaticamente nos testes da perícia escolhida.</small></div>';
    }
@@ -5606,10 +5616,15 @@ function abilityRecords(){
    if(resourceAction){
      const key=resourceAction.dataset.nexAutoResource,box=resourceAction.closest('.nex-auto-effect');
      const roll=faces=>{const v=new Uint32Array(1);crypto.getRandomValues(v);return v[0]%faces+1;};
-     if(key==='novaRodada'){state.nexAutoRoundUses={};if(state.nexAutoSceneUses?.sangueVivo&&Number(state.pvCurrent)>Math.floor(maxValues().pv/2))state.nexAutoSceneUses.sangueVivo=false;}
+     if(key==='novaRodada'){state.nexAutoRoundUses={};if(state.nexAutoSceneUses?.sangueVivo&&(Number(state.pvCurrent)<=0||Number(state.pvCurrent)>Math.floor(maxValues().pv/2)))state.nexAutoSceneUses.sangueVivo=false;}
      else if(key==='profeciaTemp'){
        if(state.origin!=='Profetizado'||!confirm('O mestre confirmou o acontecimento previsto?'))return;
        nexAbilityTempGrant('pe',2,true);state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),profeciaTemp:true};logResult('Luta ou Fuga','PE temporários','Premonição confirmada',2);
+     }else if(['cosplayBonus','reporterPersuadir','psicologoResistir'].includes(key)){
+       const cfg={cosplayBonus:['Cosplayer','Não é Fantasia, É Cosplay!',0,2,''],reporterPersuadir:['Repórter Investigativo','Encontrar a Verdade',0,0,'Investigação'],psicologoResistir:['Psicólogo','Terapia',2,0,'Profissão']}[key];
+       const skill=key==='reporterPersuadir'?'Diplomacia':box.querySelector('[data-nex-auto-skill]')?.value;
+       if(state.origin!==cfg[0]||state.nexAutoPending||!state.skills?.[skill]||Number(state.peCurrent)<cfg[2]||(key==='psicologoResistir'&&(!['Fortitude','Reflexos','Vontade'].includes(skill)||state.nexAutoRoundUses?.psicologoResistir||!confirm('Confirme a falha na resistência mental elegível.'))))return;
+       state.peCurrent-=cfg[2];state.nexAutoPending={id:key,name:cfg[1],skill,kind:'skill',bonus:cfg[3],cost:cfg[2],resource:'pe',replaceWith:cfg[4],used:false};
      }else if(key==='turnoDescanso'){
        if(state.origin!=='Funcionário de Beira de Estrada'||state.nexAutoMissionUses?.turnoDescanso)return;
        state.nexAutoMissionUses={...(state.nexAutoMissionUses||{}),turnoDescanso:true};logResult('Turno Invertido','Interlúdio','Descanso sem gastar ação registrado',1);
@@ -5963,9 +5978,11 @@ function abilityRecords(){
      return;
    }
    if(!event.target.matches('[data-nex-auto-focus]'))return;
-   const value=event.target.value;
-   const eligible=SKILL_DATA.some(([name])=>name===value&&name!=='Luta'&&name!=='Pontaria'&&Number(state.skills?.[name]?.training||0)>=5);
-   state.nexAutoChoices={...(state.nexAutoChoices||{}),focoPericia:eligible?value:''};
+   const value=event.target.value,key=event.target.dataset.nexAutoFocus,rows=nexFocusRecords(),picks=state.nexAutoChoices?.focoPericiaById||{};
+   if(!rows.some(r=>r.key===key))return;
+   const other=rows.filter(r=>r.key!==key).map(r=>picks[r.key]??(rows[0]?.key===r.key?state.nexAutoChoices?.focoPericia:''));
+   const eligible=SKILL_DATA.some(([name])=>name===value&&!['Luta','Pontaria',...other].includes(name)&&Number(state.skills?.[name]?.training||0)>=5);
+   state.nexAutoChoices={...(state.nexAutoChoices||{}),focoPericiaById:{...picks,[key]:eligible?value:''}};
    save();renderStats();
  });
 
@@ -6171,6 +6188,7 @@ function abilityRecords(){
    if(calculationName==='Iniciativa'&&nexHasSheetPower('Proativo')&&rolls.some(n=>n>=19)){toast('Proativo: ação adicional no primeiro turno do RPG.');logResult('Proativo','Iniciativa','Benefício registrado',1);}
    if(pending?.id==='improvisarComponentes')toast(result>=15?'DT 15 atingida; confirme os componentes com o mestre.':'DT 15 não atingida.');
    if(pending){
+     if(pending.id==='psicologoResistir')state.nexAutoRoundUses={...(state.nexAutoRoundUses||{}),psicologoResistir:true};
      if(pending.id==='anteciparVitalidade')state.nexAutoChoices={...(state.nexAutoChoices||{}),vitalityCharges:Number(state.nexAutoChoices?.vitalityCharges||0)+1};
      state.nexAutoPending=null;
      if(pending.onceScene){state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),[pending.id]:true};}
