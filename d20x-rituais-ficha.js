@@ -182,13 +182,13 @@ function render(){
  $('nexRitualDTBonus').value=String(Number(state.ritualDtBonus)||0);
  if(!can){list.innerHTML='<p class="nex-ritual-hint">Acesso a rituais depende de classe ou habilidade específica.</p>';refreshCasting();return;}
  list.innerHTML=(state.rituals||[]).length?state.rituals.map(r=>{
-  const d=metadata(r),cost=(costByCircle[Number(r.circle)]||1)+Math.max(0,Number(r.extra)||0);
+  const d=metadata(r),cost=Math.max(1,(costByCircle[Number(r.circle)]||1)+Math.max(0,Number(r.extra)||0)-(typeof nexRitualPowerReduction==='function'?nexRitualPowerReduction(r,d):0));
   const blocked=state.class==='Ocultista'&&Number(r.circle)>circleAccess();
   return '<article class="nex-ritual-card" data-ritual-element="'+esc(String(r.element||'Conhecimento').trim())+'"><details><summary><span class="nex-ritual-arrow">⌃</span>'+nexRitualArtHTML(r)+'<strong>'+esc(r.name)+'</strong></summary>'+
    '<div class="nex-ritual-detail"><div class="nex-ritual-pill nex-ritual-'+esc(r.element)+'">'+esc(r.element).toUpperCase()+' '+esc(r.circle)+'</div>'+
    '<p class="nex-ritual-summary">'+esc(d.guide||d.note||d.description||'Efeito específico não cadastrado; os parâmetros disponíveis estão abaixo.')+'</p>'+
    '<p class="nex-ritual-params">'+ritualParamLine(d)+'</p>'+
-   '<div class="nex-ritual-params" style="margin:8px 0">'+ritualMechanicalLine(d,cost)+'</div>'+
+   '<div class="nex-ritual-params" style="margin:8px 0">'+ritualMechanicalLine(d,cost)+'<span style="display:block"><b>DT:</b> '+(ritualDT()+(typeof nexRitualElementDT==='function'?nexRitualElementDT(r):0))+'</span></div>'+
    (window.NEX_LOCAL_RULE_NOTE?.('ritual:'+String(r.catalogKey||r.id||r.name),esc)||'')+
    (d.resistance?'<p class="nex-ritual-resistance">'+lines('Resistência',d.resistance)+'</p>':'')+
    (d.summaryKind?'<small class="nex-ritual-summary-kind">'+esc(d.summaryKind)+'</small>':'')+
