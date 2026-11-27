@@ -14,7 +14,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "perturbacao|conhecimento|1": {
-    "description": "Ritual de conhecimento (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Interfere na percepção e nas ações de um alvo por meio do Conhecimento.",
     "kind": "Suporte"
   },
   "ouvir os sussurros|conhecimento|1": {
@@ -26,7 +26,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "terceiro olho|conhecimento|1": {
-    "description": "Ritual de conhecimento (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Ajuda a perceber presenças e manifestações paranormais ocultas.",
     "kind": "Suporte"
   },
   "amaldicoar arma|energia|1": {
@@ -42,11 +42,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "eletrocussao|energia|1": {
-    "description": "Ritual de energia (1º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Canaliza Energia na forma de uma descarga elétrica contra um alvo.",
     "kind": "Dano"
   },
   "embaralhar|energia|1": {
-    "description": "Ritual de energia (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Produz duplicatas ilusórias que tornam mais difícil atingir o conjurador.",
     "kind": "Suporte"
   },
   "luz|energia|1": {
@@ -82,7 +82,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "nuvem de cinzas|morte|1": {
-    "description": "Ritual de morte (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Cria uma cortina de cinzas que prejudica a visibilidade.",
     "kind": "Suporte"
   },
   "amaldicoar arma|sangue|1": {
@@ -94,7 +94,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "armadura de sangue|sangue|1": {
-    "description": "Ritual de sangue (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Reveste o corpo com uma proteção paranormal de Sangue.",
     "kind": "Suporte"
   },
   "corpo adaptado|sangue|1": {
@@ -106,7 +106,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "fortalecimento sensorial|sangue|1": {
-    "description": "Ritual de sangue (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Intensifica temporariamente os sentidos do personagem.",
     "kind": "Suporte"
   },
   "odio incontrolavel|sangue|1": {
@@ -122,15 +122,15 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "deteccao de ameacas|conhecimento|2": {
-    "description": "Ritual de conhecimento (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Auxilia a perceber perigos e intenções hostis próximos.",
     "kind": "Suporte"
   },
   "esconder dos olhos|conhecimento|2": {
-    "description": "Ritual de conhecimento (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Oculta uma presença da percepção comum.",
     "kind": "Suporte"
   },
   "invadir mente|conhecimento|2": {
-    "description": "Ritual de conhecimento (2º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Atinge a mente de um alvo com uma influência paranormal.",
     "kind": "Dano"
   },
   "localizacao|conhecimento|2": {
@@ -138,11 +138,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "chamas do caos|energia|2": {
-    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Manipula o fogo por meio de Energia paranormal.",
     "kind": "Suporte"
   },
   "contencao fantasmagorica|energia|2": {
-    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Cria um efeito de Energia que restringe a movimentação.",
     "kind": "Suporte"
   },
   "dissonancia acustica|energia|2": {
@@ -150,11 +150,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "sopro do caos|energia|2": {
-    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Provoca manifestações imprevisíveis de Energia sobre o ambiente.",
     "kind": "Suporte"
   },
   "tela de ruido|energia|2": {
-    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Cria uma proteção reativa de Energia contra impactos.",
     "kind": "Suporte"
   },
   "desacelerar impacto|morte|2": {
@@ -162,7 +162,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "eco espiral|morte|2": {
-    "description": "Ritual de morte (2º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Reproduz consequências passadas de um efeito ligado à Morte.",
     "kind": "Dano"
   },
   "paradoxo|morte|2": {
@@ -170,7 +170,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "miasma entropico|morte|2": {
-    "description": "Ritual de morte (2º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Espalha uma presença de Morte associada à deterioração.",
     "kind": "Dano"
   },
   "velocidade mortal|morte|2": {
@@ -218,11 +218,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "videncia|conhecimento|3": {
-    "description": "Ritual de conhecimento (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Revela informações além das disponíveis pelos sentidos comuns.",
     "kind": "Suporte"
   },
   "convocacao instantanea|energia|3": {
-    "description": "Ritual de energia (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Transporta para perto um objeto ou recurso previamente vinculado.",
     "kind": "Suporte"
   },
   "salto fantasma|energia|3": {
@@ -230,11 +230,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "transfigurar agua|energia|3": {
-    "description": "Ritual de energia (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Transforma temporariamente as propriedades da água.",
     "kind": "Suporte"
   },
   "transfigurar terra|energia|3": {
-    "description": "Ritual de energia (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Transforma temporariamente as propriedades da terra e das rochas.",
     "kind": "Suporte"
   },
   "ancora temporal|morte|3": {
@@ -246,11 +246,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "tentaculos de lodo|morte|3": {
-    "description": "Ritual de morte (3º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Manifesta tentáculos de substância paranormal para atingir ou restringir.",
     "kind": "Dano"
   },
   "zerar entropia|morte|3": {
-    "description": "Ritual de morte (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Interfere na degradação ou na passagem do tempo de um alvo.",
     "kind": "Suporte"
   },
   "ferver sangue|sangue|3": {
@@ -258,7 +258,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "forma monstruosa|sangue|3": {
-    "description": "Ritual de sangue (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Transforma temporariamente a forma física do conjurador.",
     "kind": "Suporte"
   },
   "purgatorio|sangue|3": {
@@ -282,7 +282,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "possessao|conhecimento|4": {
-    "description": "Ritual de conhecimento (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Permite interferir no controle de outro corpo por meio do Conhecimento.",
     "kind": "Suporte"
   },
   "alterar destino|energia|4": {
@@ -294,19 +294,19 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "teletransporte|energia|4": {
-    "description": "Ritual de energia (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Desloca instantaneamente um alvo entre posições.",
     "kind": "Suporte"
   },
   "convocar o algoz|morte|4": {
-    "description": "Ritual de morte (4º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Manifesta uma entidade vinculada à Morte.",
     "kind": "Dano"
   },
   "distorcao temporal|morte|4": {
-    "description": "Ritual de morte (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Altera a percepção ou passagem do tempo em determinada região.",
     "kind": "Suporte"
   },
   "fim inevitavel|morte|4": {
-    "description": "Ritual de morte (4º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Manifesta a influência definitiva e implacável da Morte.",
     "kind": "Dano"
   },
   "capturar o coracao|sangue|4": {
@@ -314,7 +314,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "involucro de carne|sangue|4": {
-    "description": "Ritual de sangue (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Forma uma proteção ou estrutura de carne paranormal.",
     "kind": "Suporte"
   },
   "vinculo de sangue|sangue|4": {
@@ -334,7 +334,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "medo tangivel|medo|4": {
-    "description": "Ritual de medo (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Dá forma perceptível a manifestações de Medo.",
     "kind": "Suporte"
   },
   "presenca do medo|medo|4": {
