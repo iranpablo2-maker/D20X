@@ -2824,7 +2824,9 @@ function nexOfficialPassiveBonuses(){
 function nexOfficialExtraSkillDie(name){
  const selected=String(state.nexAutoChoices?.focoPericia||'');
  const has=[...(state.powers||[]),...(state.n16?.abilities||[])].some(p=>p?.name==='Foco em Perícia');
- return has&&selected===name&&name!=='Luta'&&name!=='Pontaria'&&Number(state.skills?.[name]?.training||0)>0?1:0;
+ const focus=has&&selected===name&&name!=='Luta'&&name!=='Pontaria'&&Number(state.skills?.[name]?.training||0)>0?1:0;
+ const speech=state.class==='Especialista'&&state.trailByClass?.Especialista==='Negociador'&&Number(state.nex)>=40?Math.min(Number(state.nex)>=65?2:1,Math.max(0,Number(state.nexAutoSceneUses?.motivatorDice)||0)):0;
+ return focus+speech;
 }
 /* Resistencias automaticas separadas das resistencias manuais para nao duplicar efeitos ao salvar. */
 function nexOfficialInquebravelActive(maxPv){
@@ -2836,6 +2838,22 @@ function nexHasSheetPower(name){
  return [...(state.n16?.abilities||[]),...(state.powers||[])].some(p=>p?.name===name&&!String(p.catalogKey||'').startsWith('homebrew:')&&!p.homebrew);
 }
 function nexPowerAffinity(name){return nexHasSheetPower(name)&&Number(state.nex)>=50&&state.nexAutoChoices?.powerAffinity?.[name]===true;}
+function nexRitualPowerReduction(r,d){
+ let reduction=0;
+ const element=String(r?.element||d?.element||'').trim();
+ const choices=state.nexAutoChoices||{};
+ if(nexHasSheetPower('Mestre em Elemento')&&nexHasSheetPower('Especialista em Elemento')&&choices.ritualElement===element)reduction++;
+ if(nexHasSheetPower('Ritual Predileto')&&choices.favoriteRitual===String(r?.id))reduction++;
+ if(nexHasSheetPower('Tatuagem Ritualística')&&/pessoal/i.test(String(d?.range||r?.range||''))&&/^(você|voce|o conjurador|si mesmo)$/i.test(String(d?.target||r?.target||'').trim()))reduction++;
+ return reduction;
+}
+function nexRitualElementDT(r){
+ return nexHasSheetPower('Especialista em Elemento')&&state.nexAutoChoices?.ritualElement===String(r?.element||'').trim()?2:0;
+}
+function nexRitualCastingLimitBonus(){
+ return nexOfficialActionPeBonus()+(state.class==='Ocultista'&&state.trailByClass?.Ocultista==='Intuitivo'&&Number(state.nex)>=40?Math.max(0,Number(state.attributes?.pre)||0):0);
+}
+function nexRitualPotentBonus(){return nexHasSheetPower('Ritual Potente')?Math.max(0,Number(state.attributes?.int)||0):0;}
 function nexOfficialActionPeBonus(){return nexHasSheetPower('Encarar a Morte')&&state.nexAutoChoices?.actionScene===true?(nexPowerAffinity('Encarar a Morte')?3:1):0;}
 function nexOfficialResistances(){
  const result=[];
@@ -5032,6 +5050,7 @@ function abilityRecords(){
  function nexAutoActivationSpec(a){
    const origin=String(a.source||'');
    if(a.homebrew||/homebrew/i.test(origin))return null;
+   if(a.name==='Hacker')return {id:'hacker',name:a.name,cost:0,bonus:5,mode:'tecnologia',note:'Somente em testes de invasão de sistemas fictícios do RPG.'};
    if(a.name==='Nerd')return {id:'nerd',name:a.name,cost:2,bonus:0,mode:'atualidades',onceScene:true,note:'Atualidades DT 20; o mestre informa o resultado narrativo.'};
    if(a.name==='Conhecimento Aplicado')return {id:'conhecimentoAplicado',name:a.name,cost:2,bonus:0,mode:'nonattack',attributeOverride:'int',note:'Usa Intelecto no próximo teste escolhido.'};
    if(a.name==='Identificação Paranormal')return {id:'identificacaoParanormal',name:a.name,cost:0,bonus:10,mode:'ocultismo',note:'Apenas para identificar criaturas, objetos ou rituais no jogo.'};
@@ -5067,6 +5086,7 @@ function abilityRecords(){
    return SKILL_DATA.filter(([name,baseAttr])=>{
      const skill=state.skills?.[name];
      const attr=skill?.attr||baseAttr;
+     if(spec.mode==='tecnologia')return name==='Tecnologia';
      if(spec.mode==='atualidades')return name==='Atualidades';
      if(spec.mode==='nonattack')return !['Luta','Pontaria'].includes(name);
      if(spec.mode==='misterio')return ['Enganação','Intimidação'].includes(name);
@@ -5115,6 +5135,22 @@ function abilityRecords(){
    if(a.homebrew||/homebrew/i.test(a.source))return '';
    const affinityNames=['Potencial Aprimorado','Sangue de Ferro','Resistir a Elemento','Encarar a Morte'];
    const affinityControl=affinityNames.includes(a.name)&&Number(state.nex)>=50?'<div class="nex-auto-effect"><label><input type="checkbox" data-nex-auto-affinity="'+escape(a.name)+'" '+(nexPowerAffinity(a.name)?'checked':'')+'> Benefício de afinidade adquirido</label><small>Marque somente se este benefício foi adquirido conforme a mesa.</small></div>':'';
+   if(a.name==='Especialista em Elemento'||a.name==='Mestre em Elemento'){
+     const selected=String(state.nexAutoChoices?.ritualElement||'');
+     return '<div class="nex-auto-effect"><label>Elemento escolhido <select data-nex-auto-origin-choice="ritualElement"><option value="">Selecione</option>'+['Sangue','Morte','Conhecimento','Energia'].map(e=>'<option value="'+escape(e)+'" '+(e===selected?'selected':'')+'>'+escape(e)+'</option>').join('')+'</select></label><small>Especialista: +2 à DT do elemento; Mestre: −1 PE no mesmo elemento, se possuir ambos.</small></div>';
+   }
+   if(a.name==='Ritual Predileto'){
+     const selected=String(state.nexAutoChoices?.favoriteRitual||'');
+     return '<div class="nex-auto-effect"><label>Ritual escolhido <select data-nex-auto-origin-choice="favoriteRitual"><option value="">Selecione</option>'+ (state.rituals||[]).map(r=>'<option value="'+escape(String(r.id))+'" '+(String(r.id)===selected?'selected':'')+'>'+escape(r.name)+'</option>').join('')+'</select></label><small>−1 PE no ritual escolhido.</small></div>';
+   }
+   if(a.name==='Discurso Motivador'&&/^Trilha: Negociador/.test(a.source)){
+     const active=Number(state.nexAutoSceneUses?.motivatorDice)||0;
+     return '<div class="nex-auto-effect"><button type="button" class="btn sm" data-nex-auto-motivate="1" '+(active||Number(state.peCurrent)<4?'disabled':'')+'>Ativar +1d20 · 4 PE</button> '+(Number(state.nex)>=65?'<button type="button" class="btn sm" data-nex-auto-motivate="2" '+(active||Number(state.peCurrent)<8?'disabled':'')+'>Ativar +2d20 · 8 PE</button>':'')+'<small>'+(active?'Ativo: +'+active+'d20 até o fim da cena.':'Aplica o benefício nesta ficha; aliados são resolvidos separadamente.')+'</small></div>';
+   }
+   if(a.name==='Paramédico'&&/^Trilha: Médico de Campo/.test(a.source)){
+     const max=Number(state.nex)>=99?5:Number(state.nex)>=65?4:Number(state.nex)>=40?3:2;
+     return '<div class="nex-auto-effect"><label>Cura <select data-nex-auto-paramedic-dice>'+Array.from({length:max-1},(_,i)=>'<option value="'+(i+2)+'">'+(i+2)+'d10 · '+(i+2)+' PE</option>').join('')+'</select></label><button type="button" class="btn sm" data-nex-auto-paramedic>Rolar cura</button><label><input type="checkbox" data-nex-auto-paramedic-self> Aplicar na própria ficha</label><small>Confirme kit, treinamento e alvo elegível conforme a mesa. Sem seleção, apenas registra a cura.</small></div>';
+   }
    if(a.name==='Potencial Aprimorado'||a.name==='Sangue de Ferro')return affinityControl;
    if(a.name==='Resistir a Elemento'){
      const selected=String(state.nexAutoChoices?.resistElement||'');
@@ -5236,9 +5272,12 @@ function abilityRecords(){
    const cancel=event.target.closest('[data-nex-auto-cancel]');
    const nextScene=event.target.closest('[data-nex-auto-new-scene]');
    const sceneAction=event.target.closest('[data-nex-auto-scene-action]');
-   if(!activate&&!cancel&&!nextScene&&!sceneAction)return;
+   const motivate=event.target.closest('[data-nex-auto-motivate]');const paramedic=event.target.closest('[data-nex-auto-paramedic]');
+   if(!activate&&!cancel&&!nextScene&&!sceneAction&&!motivate&&!paramedic)return;
    event.preventDefault();
    if(nextScene){state.nexAutoSceneUses={};save();renderStats();return;}
+   if(motivate){const n=Number(motivate.dataset.nexAutoMotivate);if(state.class!=='Especialista'||state.trailByClass?.Especialista!=='Negociador'||Number(state.nex)<40||![1,2].includes(n)||(n===2&&Number(state.nex)<65)||state.nexAutoSceneUses?.motivatorDice||Number(state.peCurrent)<4*n)return;state.peCurrent-=4*n;state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),motivatorDice:n};save();renderStats();return;}
+   if(paramedic){const n=Number(paramedic.closest('.nex-auto-effect')?.querySelector('[data-nex-auto-paramedic-dice]')?.value);const max=Number(state.nex)>=99?5:Number(state.nex)>=65?4:Number(state.nex)>=40?3:2;if(state.class!=='Especialista'||state.trailByClass?.Especialista!=='Médico de Campo'||Number(state.nex)<10||!Number.isInteger(n)||n<2||n>max||Number(state.peCurrent)<n)return toast('PE insuficientes ou opção inválida.');const rolls=Array.from({length:n},()=>{const v=new Uint32Array(1);crypto.getRandomValues(v);return v[0]%10+1;});const extra=state.origin==='Agente de Saúde'?Math.max(0,Number(state.attributes?.int)||0):0;const total=rolls.reduce((a,b)=>a+b,extra);state.peCurrent-=n;if(paramedic.closest('.nex-auto-effect')?.querySelector('[data-nex-auto-paramedic-self]')?.checked)state.pvCurrent=Math.min(maxValues().pv,Number(state.pvCurrent||0)+total);logResult('Paramédico — Cura',n+'d10'+(extra?'+'+extra:''),rolls.join(', '),total);save();renderStats();toast('Cura rolada: '+total+' PV.');return;}
    if(sceneAction){const spec=abilityRecords().map(nexExtraSceneAction).find(x=>x?.id===sceneAction.dataset.nexAutoSceneAction);if(!spec||(!spec.repeat&&state.nexAutoSceneUses?.[spec.id])||Number(state.peCurrent)<spec.cost)return;state.peCurrent-=spec.cost;if(!spec.repeat)state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),[spec.id]:true};save();renderStats();toast(spec.label+' concedida.');return;}
    if(cancel){
      const pending=state.nexAutoPending;
@@ -5277,6 +5316,8 @@ function abilityRecords(){
      const allowed={
        exorcizadoElement:['Sangue','Morte','Conhecimento','Energia'],
        resistElement:['Sangue','Morte','Conhecimento','Energia'],
+       ritualElement:['Sangue','Morte','Conhecimento','Energia'],
+       favoriteRitual:(state.rituals||[]).map(r=>String(r.id)), 
        experimentoSkill:SKILL_DATA.filter(([name,attr])=>['agi','for','vig'].includes(state.skills?.[name]?.attr||attr)).map(x=>x[0]),
        colegialNear:['false','true']
      };
@@ -5469,12 +5510,13 @@ function abilityRecords(){
    const attr=pending?.attributeOverride|| (calculationName==='Vontade'&&official.rational?'int':(skill.attr in state.attributes?skill.attr:definition[1]));
    const count=clamp(int(state.attributes[attr])+(attr==='pre'?nexItemBonuses().presence:0),0,9);
 
-   const extraDice=count>0?nexOfficialExtraSkillDie(calculationName):0;
-   const rolls=Array.from({length:count===0?2:count+extraDice},rollDie20);
-   const chosen=count===0?Math.min(...rolls):Math.max(...rolls);
+   const extraDice=nexOfficialExtraSkillDie(calculationName);
+   const pool=count+extraDice;
+   const rolls=Array.from({length:pool===0?2:pool},rollDie20);
+   const chosen=pool===0?Math.min(...rolls):Math.max(...rolls);
    const bonus=training+others;
    const result=chosen+bonus;
-   const expression=count===0?'2d20 (menor)':(count+extraDice)+'d20 (maior)';
+   const expression=pool===0?'2d20 (menor)':pool+'d20 (maior)';
    const detail='['+rolls.join(', ')+'] → '+chosen+(bonus<0?' − ':' + ')+Math.abs(bonus)+' · '+(ATTRIBUTE_NAMES[attr]||attr)+' '+count+' · Treino '+training+' · Outros '+others+(pending?' · Habilidade: '+pending.name:'');
    const label=pending?.replaceWith?name+' (usando '+calculationName+')':name;
    logResult(label,expression+(bonus>=0?' + ':' - ')+Math.abs(bonus),'['+rolls.join(', ')+'] → '+chosen,result);
