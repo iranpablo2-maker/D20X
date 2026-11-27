@@ -477,7 +477,7 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "PADRÃO",
         "name": "BEIJO GÉLIDO",
-        "effect": "Consulte a publicação de referência para condições e efeito integral; os dados numéricos cadastrados permanecem na ficha."
+        "effect": "Efeito paranormal de Energia que causa dano e impõe lento ao personagem; Fortitude DT 20 reduz o dano."
       },
       {
         "type": "MOVIMENTO",
@@ -634,7 +634,7 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "COMPLETA",
         "name": "BOCARRA TORTURADORA",
-        "effect": "Consulte a publicação de referência para condições e efeito integral; os dados numéricos cadastrados permanecem na ficha."
+        "effect": "Ação completa sobre um alvo já agarrado; mantém essa condição, estabelece cobertura e aplica dano recorrente de jogo."
       },
       {
         "type": "COMPLETA",
@@ -730,7 +730,7 @@ window.NEX_THREAT_DETAILS={
         "type": "COMPLETA",
         "name": "ENGOLIR",
         "test": "4d20+30",
-        "effect": "Consulte a publicação de referência para condições e efeito integral; os dados numéricos cadastrados permanecem na ficha."
+        "effect": "Se começa o turno com um alvo agarrado, realiza nova manobra; o sucesso aprisiona o personagem, enquanto a falha o libera."
       },
       {
         "type": "COMPLETA",
@@ -1124,7 +1124,7 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "name": "O sino",
-        "effect": "Consulte a publicação de referência para condições e efeito integral; os dados numéricos cadastrados permanecem na ficha."
+        "effect": "A manifestação sonora pode impedir que o personagem se afaste da criatura até o fim da cena; repete-se no início de seus turnos."
       },
       {
         "name": "Frenesi de Sangue",
@@ -1186,7 +1186,8 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "PADRÃO",
-        "name": "RITUAL"
+        "name": "RITUAL",
+        "effect": "Possui Armadura de Sangue para aumentar a Defesa e Esfolar Discente para resolver dano paranormal de área."
       }
     ]
   },
@@ -1244,7 +1245,8 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "PADRÃO",
-        "name": "RITUAL"
+        "name": "RITUAL",
+        "effect": "Suas conjurações abrangem Descarnar Discente, Esfolar Discente, Transfusão Vital e Armadura de Sangue Discente; incluem dano, recuperação de aliados e proteção."
       }
     ]
   },
@@ -1302,11 +1304,13 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "PADRÃO",
-        "name": "RITUAL"
+        "name": "RITUAL",
+        "effect": "Pode empregar Descarnar, Esfolar, Hemofagia, Transfusão Vital, Vomitar Pestes e Armadura de Sangue nas versões especificadas em sua ficha de origem."
       },
       {
         "type": "LIVRE",
-        "name": "RITUAIS ACELERADOS"
+        "name": "RITUAIS ACELERADOS",
+        "effect": "Uma vez por rodada, pode transformar uma conjuração cuja execução seja ação completa ou menor em ação livre."
       }
     ]
   },
@@ -1374,7 +1378,8 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "PADRÃO",
-        "name": "RITUAL"
+        "name": "RITUAL",
+        "effect": "Repertório de Conhecimento e Sangue: invisibilidade, duplicação sobrenatural, ampliação dos sentidos, leitura de auras e alteração fictícia da aparência."
       }
     ]
   },
@@ -1430,11 +1435,13 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "COMPLETA",
-        "name": "SURRA BRUTAL"
+        "name": "SURRA BRUTAL",
+        "effect": "Realiza dois ataques de RPG, mas perde 5 de Defesa até o próximo turno."
       },
       {
         "type": "COMPLETA",
-        "name": "TROCAÇÃO JUSTA"
+        "name": "TROCAÇÃO JUSTA",
+        "effect": "Desafio de combate com escolha do personagem entre revidar e adotar uma resolução defensiva."
       }
     ]
   },
@@ -1494,7 +1501,8 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "PADRÃO",
-        "name": "ENGOLIR METAL"
+        "name": "ENGOLIR METAL",
+        "effect": "Manifestação fictícia que consome um objeto metálico, custa PV e fortalece testes de Força e Agilidade."
       }
     ]
   },
@@ -1544,7 +1552,8 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "COMPLETA",
-        "name": "ARROGÂNCIA"
+        "name": "ARROGÂNCIA",
+        "effect": "Influência paranormal que afeta a capacidade de decisão do personagem; Vontade DT 25 resiste."
       }
     ]
   },
@@ -1706,11 +1715,13 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "LIVRE",
         "name": "AGARRÃO",
-        "test": "3d20+7"
+        "test": "3d20+7",
+        "effect": "Depois de acertar o ataque correspondente, pode tentar a manobra Agarrar."
       },
       {
         "type": "COMPLETA",
-        "name": "PENAS AFIADAS"
+        "name": "PENAS AFIADAS",
+        "effect": "Manifestação sobrenatural de penas que causa dano em área no tabuleiro."
       }
     ]
   },
@@ -1765,15 +1776,18 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "LIVRE",
         "name": "AGARRÃO",
-        "test": "4d20+12"
+        "test": "4d20+12",
+        "effect": "Após acertar o ataque correspondente, pode tentar Agarrar com seu teste próprio."
       },
       {
         "type": "MOVIMENTO",
-        "name": "MASTIGAR"
+        "name": "MASTIGAR",
+        "effect": "Aplica dano de Sangue a um ser que já está agarrado; Fortitude DT 23 reduz."
       },
       {
         "type": "COMPLETA",
-        "name": "PENAS AFIADAS"
+        "name": "PENAS AFIADAS",
+        "effect": "Ação completa que resolve uma manifestação de penas sobrenaturais contra personagens na área."
       }
     ]
   },
@@ -1816,7 +1830,8 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "MOVIMENTO",
-        "name": "PULO DO GATO"
+        "name": "PULO DO GATO",
+        "effect": "Ao usar seu salto de jogo e atacar no mesmo turno, recebe dado adicional de dano; a execução pode mudar contra alvo desprevenido."
       }
     ]
   },
@@ -1867,11 +1882,13 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "MOVIMENTO",
-        "name": "PULO DO FELINO"
+        "name": "PULO DO FELINO",
+        "effect": "O salto acrescenta +1d8 ao dano se a criatura usar a ação Agredir correspondente no mesmo turno."
       },
       {
         "type": "PADRÃO",
-        "name": "CHICOTADA PERFURANTE"
+        "name": "CHICOTADA PERFURANTE",
+        "effect": "Aplica dano de Sangue, deslocamento forçado e caído a um alvo no cenário."
       }
     ]
   },
@@ -1922,15 +1939,18 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "MOVIMENTO",
-        "name": "PULO DO FELINO"
+        "name": "PULO DO FELINO",
+        "effect": "O salto pode acrescentar +2d8 ao dano de seu ataque no mesmo turno."
       },
       {
         "type": "PADRÃO",
-        "name": "BOCA DA LOUCURA"
+        "name": "BOCA DA LOUCURA",
+        "effect": "Reflexos DT 23 evita um efeito de agarrado e dano paranormal físico e mental."
       },
       {
         "type": "PADRÃO",
-        "name": "CHICOTADA PERFURANTE"
+        "name": "CHICOTADA PERFURANTE",
+        "effect": "Efeito de Sangue que provoca deslocamento forçado e as condições caído e sangrando."
       }
     ]
   },
@@ -2007,19 +2027,23 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "REVIDAR"
+        "name": "REVIDAR",
+        "effect": "Uma vez por rodada, pode reagir com um ataque de jogo quando um ataque contra ele erra."
       },
       {
         "type": "LIVRE",
-        "name": "GOLPE"
+        "name": "GOLPE",
+        "effect": "Uma vez por rodada, recebe +5 no teste de ataque e no dano da ação correspondente."
       },
       {
         "type": "PADRÃO",
-        "name": "INTENÇÃO ASSASSINA"
+        "name": "INTENÇÃO ASSASSINA",
+        "effect": "Ativa a forma alternativa Mutilador Noturno, com ficha própria."
       },
       {
         "type": "PADRÃO",
-        "name": "PREDADOR DE SANGUE"
+        "name": "PREDADOR DE SANGUE",
+        "effect": "Poder sobrenatural de identificação por odor que concede um dado adicional a testes relacionados ao alvo."
       }
     ]
   },
@@ -2070,19 +2094,23 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "IMPLOSÃO ATMOSFÉRICA"
+        "name": "IMPLOSÃO ATMOSFÉRICA",
+        "effect": "Uma vez por rodada, um acerto contra alvo agarrado acrescenta dano de Energia e pode causar atordoamento; Fortitude DT 24 evita a condição."
       },
       {
         "type": "LIVRE",
-        "name": "GOLPES DE JAULA"
+        "name": "GOLPES DE JAULA",
+        "effect": "Uma vez por rodada, após acertar, pode realizar ataque adicional ou manobra de combate de RPG."
       },
       {
         "type": "PADRÃO",
-        "name": "INTENÇÃO ASSASSINA"
+        "name": "INTENÇÃO ASSASSINA",
+        "effect": "Encerra a forma Colosso e retorna à ficha Dalmo Magno; exige descanso antes de uma nova ativação."
       },
       {
         "type": "REAÇÃO",
-        "name": "CAMPO DE PRESSÃO"
+        "name": "CAMPO DE PRESSÃO",
+        "effect": "Uma vez por rodada, pode reagir ao dano recebendo RD 15 contra esse efeito."
       }
     ]
   },
@@ -2149,27 +2177,33 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "ESQUIVA TÁTICA"
+        "name": "ESQUIVA TÁTICA",
+        "effect": "Uma vez por rodada, recebe +10 de Defesa como reação a um ataque."
       },
       {
         "type": "REAÇÃO",
-        "name": "PERITO"
+        "name": "PERITO",
+        "effect": "Uma vez por rodada, soma 1d8 ao resultado de um teste de perícia treinada."
       },
       {
         "type": "LIVRE",
-        "name": "ASSASSINATO FURTIVO"
+        "name": "ASSASSINATO FURTIVO",
+        "effect": "Uma vez por rodada, causa +3d8 de dano de RPG contra alvo desprevenido ou flanqueado."
       },
       {
         "type": "LIVRE",
-        "name": "PUNHAL X"
+        "name": "PUNHAL X",
+        "effect": "Uma vez por rodada, pode impor desprevenido durante o ataque e, em caso de dano, cegueira temporária conforme o limite da cena."
       },
       {
         "type": "PADRÃO",
-        "name": "INTENÇÃO ASSASSINA"
+        "name": "INTENÇÃO ASSASSINA",
+        "effect": "Ativa a forma alternativa X, representada por outra ficha."
       },
       {
         "type": "COMPLETA",
-        "name": "ZONA DOS SUSSURROS"
+        "name": "ZONA DOS SUSSURROS",
+        "effect": "Estabelece uma zona fictícia em que recebe bônus de ataque e de movimentação furtiva previstos na ficha; há limite de três zonas."
       }
     ]
   },
@@ -2258,19 +2292,23 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "GUARDIÃO"
+        "name": "GUARDIÃO",
+        "effect": "Uma vez por rodada, se estiver próximo de Escarlata, pode receber um dano que seria dirigido a ela."
       },
       {
         "type": "PADRÃO",
-        "name": "ERGUER MAÇA"
+        "name": "ERGUER MAÇA",
+        "effect": "Ação preparatória de RPG necessária para habilitar Golpe Arrasador."
       },
       {
         "type": "PADRÃO",
-        "name": "GOLPE ARRASADOR"
+        "name": "GOLPE ARRASADOR",
+        "effect": "Ação de dano de perfuração que depende de Erguer Maça; Fortitude DT 21 reduz o resultado."
       },
       {
         "type": "COMPLETA",
-        "name": "ESMAGAR OSSOS"
+        "name": "ESMAGAR OSSOS",
+        "effect": "Ação completa de combate fictício que causa dano e pode impor fraco; Reflexos DT 21 reduz o efeito."
       }
     ]
   },
@@ -2330,15 +2368,18 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "ACELERAR"
+        "name": "ACELERAR",
+        "effect": "Uma vez por rodada, recebe +5 de Defesa e nos testes de resistência contra o efeito que motivou a reação."
       },
       {
         "type": "PADRÃO",
-        "name": "GRANADA FLAMEJANTE"
+        "name": "GRANADA FLAMEJANTE",
+        "effect": "Efeito fictício de dano de fogo em área; Reflexos DT 21 reduz e evita a condição em chamas."
       },
       {
         "type": "COMPLETA",
-        "name": "INVESTIDA COM LANÇA"
+        "name": "INVESTIDA COM LANÇA",
+        "effect": "Ação completa de combate de RPG que oferece ao alvo uma escolha de resistência."
       }
     ]
   },
@@ -2576,11 +2617,13 @@ window.NEX_THREAT_DETAILS={
     "actions": [
       {
         "type": "MOVIMENTO",
-        "name": "SALTAR"
+        "name": "SALTAR",
+        "effect": "Teletransporta-se sobrenaturalmente para um aparelho eletrônico no cenário; o alcance varia conforme a forma do Simulacro."
       },
       {
         "type": "PADRÃO",
-        "name": "PERTURBAÇÃO DIGITAL"
+        "name": "PERTURBAÇÃO DIGITAL",
+        "effect": "Influência paranormal sobre a percepção e as experiências digitais de um personagem dentro da narrativa."
       }
     ]
   },
@@ -2671,11 +2714,13 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "MOVIMENTO",
-        "name": "DISPARADA ERRANTE"
+        "name": "DISPARADA ERRANTE",
+        "effect": "Percorre o dobro do deslocamento e deve passar em Acrobacia DT 20 para evitar caído."
       },
       {
         "type": "PADRÃO",
-        "name": "GUINCHO GUTURAL"
+        "name": "GUINCHO GUTURAL",
+        "effect": "Manifestação sonora de Conhecimento e Energia que causa dano em área; Hospedeiros e Alheios são imunes."
       }
     ]
   },
@@ -2734,19 +2779,23 @@ window.NEX_THREAT_DETAILS={
     "actions": [
       {
         "type": "MOVIMENTO",
-        "name": "CONTORCER PERTURBADOR"
+        "name": "CONTORCER PERTURBADOR",
+        "effect": "Durante a movimentação, manifesta uma perturbação sobrenatural que causa dano mental ao alvo."
       },
       {
         "type": "PADRÃO",
-        "name": "GUINCHO GUTURAL"
+        "name": "GUINCHO GUTURAL",
+        "effect": "Efeito sonoro de área com dano misto de Conhecimento e Energia; Hospedeiros e Alheios são imunes."
       },
       {
         "type": "COMPLETA",
-        "name": "INCUBAR"
+        "name": "INCUBAR",
+        "effect": "Poder parasitário ficcional de uso diário que reduz SAN máxima do hospedeiro; o número de manifestações é limitado."
       },
       {
         "type": "COMPLETA",
-        "name": "INVESTIDA SUFOCANTE"
+        "name": "INVESTIDA SUFOCANTE",
+        "effect": "Deslocamento especial de RPG seguido de uma tentativa de Agarrar um personagem ou animal do cenário."
       }
     ]
   },
@@ -2810,15 +2859,18 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "MOVIMENTO",
-        "name": "CINTILAÇÃO ESTELAR"
+        "name": "CINTILAÇÃO ESTELAR",
+        "effect": "Uma vez por rodada, se não estiver agarrado, teletransporta-se para espaço livre próximo."
       },
       {
         "type": "PADRÃO",
-        "name": "ACIONAR EXPLOSÃO"
+        "name": "ACIONAR EXPLOSÃO",
+        "effect": "Poder sobrenatural que produz um efeito de dano de área conforme as regras do objeto no cenário fictício."
       },
       {
         "type": "PADRÃO",
-        "name": "CHAMA VIRIDENTE"
+        "name": "CHAMA VIRIDENTE",
+        "effect": "Manifestação de fogo paranormal que causa dano e pode impor em chamas; Reflexos DT 21 reduz o efeito."
       }
     ]
   },
@@ -2917,7 +2969,8 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "MOVIMENTO",
-        "name": "ASSUMIR FORMA MONSTRUOSA"
+        "name": "ASSUMIR FORMA MONSTRUOSA",
+        "effect": "Revela sua natureza sobrenatural e passa a utilizar a forma monstruosa correspondente."
       }
     ]
   },
@@ -3012,16 +3065,19 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "PROTEGER"
+        "name": "PROTEGER",
+        "effect": "Uma vez por rodada, pode receber um efeito negativo que atingiria um aliado adjacente."
       },
       {
         "type": "LIVRE",
         "name": "ESPECIALISTA EM MANOBRAS",
-        "test": "2d20+12"
+        "test": "2d20+12",
+        "effect": "Uma vez por rodada, após um acerto desarmado, pode tentar uma manobra de combate como ação livre."
       },
       {
         "type": "MOVIMENTO",
-        "name": "ASSUMIR FORMA"
+        "name": "ASSUMIR FORMA",
+        "effect": "Revela sua forma sobrenatural, conforme a ficha alternativa do Doppelganger."
       }
     ]
   },
@@ -3128,23 +3184,28 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "Movimento",
-        "name": "Assumir Forma Monstruosa"
+        "name": "Assumir Forma Monstruosa",
+        "effect": "Revela a forma alternativa da criatura quando ameaçado."
       },
       {
         "type": "Padrão",
-        "name": "Ritual — Enfeitiçar (normal ou discente)"
+        "name": "Ritual — Enfeitiçar (normal ou discente)",
+        "effect": "Torna o alvo prestativo ou, na versão discente, sugere uma ação conforme os limites da narrativa; Vontade resiste."
       },
       {
         "type": "Padrão",
-        "name": "Ritual — Invadir Mente (discente)"
+        "name": "Ritual — Invadir Mente (discente)",
+        "effect": "Escolhe entre efeito de dano mental paranormal e ligação telepática."
       },
       {
         "type": "Padrão",
-        "name": "Ritual — Perturbação (discente)"
+        "name": "Ritual — Perturbação (discente)",
+        "effect": "Impõe uma ordem sobrenatural por uma rodada; Vontade pode impedir o efeito."
       },
       {
         "type": "Padrão",
-        "name": "Ritual — Tela de Ruído (discente)"
+        "name": "Ritual — Tela de Ruído (discente)",
+        "effect": "Recebe 60 PV temporários aplicáveis aos tipos físicos de dano previstos pelo ritual durante a cena."
       }
     ],
     "abilities": [
@@ -3219,23 +3280,28 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "LIVRE",
         "name": "AGARRÃO CORROSIVO",
-        "test": "2d20+17"
+        "test": "2d20+17",
+        "effect": "Uma vez por rodada, após acertar seu toque paranormal, pode tentar Agarrar; o alvo sofre dano químico de jogo."
       },
       {
         "type": "LIVRE",
-        "name": "RASTRO PESTILENTO"
+        "name": "RASTRO PESTILENTO",
+        "effect": "Ao mover-se, deixa uma zona paranormal de efeito químico que dura uma rodada."
       },
       {
         "type": "MOVIMENTO",
-        "name": "RASTRO DESLIZANTE"
+        "name": "RASTRO DESLIZANTE",
+        "effect": "Move-se em linha reta no tabuleiro por até duas vezes seu deslocamento."
       },
       {
         "type": "PADRÃO",
-        "name": "FUMOCINESE"
+        "name": "FUMOCINESE",
+        "effect": "Altera sobrenaturalmente uma área de fumaça, produzindo um efeito mental de jogo nos personagens presentes."
       },
       {
         "type": "PADRÃO",
-        "name": "TELECINESE DE PLASMA"
+        "name": "TELECINESE DE PLASMA",
+        "effect": "Manipula sobrenaturalmente um alvo elegível e permite deslocá-lo em rodadas subsequentes."
       }
     ]
   },
@@ -3291,11 +3357,13 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "MOVIMENTO",
-        "name": "TELETRANSPORTE PSICÔNICO"
+        "name": "TELETRANSPORTE PSICÔNICO",
+        "effect": "Enquanto incorpóreo e invisível, teletransporta-se para um espaço desocupado dentro de seu alcance."
       },
       {
         "type": "PADRÃO",
-        "name": "MANIPULAÇÃO PSICÔNICA"
+        "name": "MANIPULAÇÃO PSICÔNICA",
+        "effect": "Poder mental paranormal com opções de efeito sobre um personagem, incluindo dano mental."
       }
     ]
   },
@@ -3365,15 +3433,18 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "REENCONTRO"
+        "name": "REENCONTRO",
+        "effect": "Quando chega a zero PV, desencadeia um efeito de dano de área da ficha; Reflexos DT 15 reduz."
       },
       {
         "type": "MOVIMENTO",
-        "name": "COORDENAR EQUIPE"
+        "name": "COORDENAR EQUIPE",
+        "effect": "Oferece +5 a um teste de aliado no turno seguinte quando este segue uma instrução pertinente."
       },
       {
         "type": "PADRÃO",
-        "name": "RECURSOS HUMANOS"
+        "name": "RECURSOS HUMANOS",
+        "effect": "Ação narrativa de efeito de área que envolve a perda de um aliado NPC; resolve-se pelas regras da ficha."
       }
     ]
   },
@@ -3453,19 +3524,23 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "ATIRAR E FATIAR"
+        "name": "ATIRAR E FATIAR",
+        "effect": "Ao combinar dois tipos de ataque de RPG contra o mesmo alvo na rodada, recebe um dado adicional de dano no ataque correspondente."
       },
       {
         "type": "REAÇÃO",
-        "name": "COICE"
+        "name": "COICE",
+        "effect": "O ataque especial também reduz os PV da prótese fictícia em metade do dano causado."
       },
       {
         "type": "REAÇÃO",
-        "name": "DEFESA IMPROVISADA"
+        "name": "DEFESA IMPROVISADA",
+        "effect": "Uma vez por rodada, redireciona o dano de um ataque para os PV de sua prótese."
       },
       {
         "type": "PADRÃO",
-        "name": "REPARO NA HORA"
+        "name": "REPARO NA HORA",
+        "effect": "Recupera 10 PV da prótese fictícia por meio da ação de reparo."
       }
     ]
   },
@@ -3531,7 +3606,8 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "SEDAR"
+        "name": "SEDAR",
+        "effect": "Um acerto do ataque correspondente pode impor a condição esmorecido, exclusivamente como efeito de RPG."
       }
     ]
   },
@@ -3593,11 +3669,13 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "VENENO NA SERINGA"
+        "name": "VENENO NA SERINGA",
+        "effect": "Efeito fictício de perda recorrente de PV por rodadas; Fortitude DT 15 reduz sua duração."
       },
       {
         "type": "PADRÃO",
-        "name": "DOSE EXPERIMENTAL"
+        "name": "DOSE EXPERIMENTAL",
+        "effect": "Efeito de área de jogo que pode impor enjoado e fraco; Fortitude DT 15 evita."
       }
     ]
   },
@@ -3664,7 +3742,8 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "PADRÃO",
         "name": "AGREDIR — INJETAR",
-        "test": "1d20+5"
+        "test": "1d20+5",
+        "effect": "Ataque corpo a corpo de RPG com o teste cadastrado e efeito de veneno fictício; os detalhes dependem da regra de condição correspondente."
       }
     ]
   },
@@ -3744,11 +3823,13 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "SOU MAIS IMPORTANTE"
+        "name": "SOU MAIS IMPORTANTE",
+        "effect": "Uma vez por rodada, pode redirecionar um efeito negativo para um subalterno elegível na cena."
       },
       {
         "type": "PADRÃO",
-        "name": "CHAMAR REFORÇOS"
+        "name": "CHAMAR REFORÇOS",
+        "effect": "Uma vez por cena, acrescenta 1d4+1 seguranças da Panacea à iniciativa imediatamente após o NPC."
       }
     ]
   },
@@ -3815,17 +3896,20 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "LIVRE",
         "name": "AGARRAR",
-        "test": "3d20+10"
+        "test": "3d20+10",
+        "effect": "Após um acerto de pancada, pode tentar a manobra Agarrar com o teste da ficha."
       },
       {
         "type": "MOVIMENTO",
         "name": "DERRUBAR",
-        "test": "3d20+10"
+        "test": "3d20+10",
+        "effect": "Pode tentar a manobra Derrubar contra alvo já agarrado, mantendo a condição anterior."
       },
       {
         "type": "MOVIMENTO",
         "name": "IMOBILIZAR",
-        "test": "3d20+10"
+        "test": "3d20+10",
+        "effect": "Contra alvo agarrado e caído, pode tentar uma manobra para impor paralisado, conforme as regras de RPG."
       }
     ]
   },
@@ -3882,11 +3966,13 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "LIVRE",
-        "name": "INFECÇÃO"
+        "name": "INFECÇÃO",
+        "effect": "O dano dos ataques indicados pode aplicar a doença fictícia do Infecticídio; Fortitude DT 14 evita e concede imunidade pela cena."
       },
       {
         "type": "LIVRE",
-        "name": "RICOCHETE"
+        "name": "RICOCHETE",
+        "effect": "Ao acertar a ação correspondente, pode realizar um deslocamento adicional no tabuleiro."
       }
     ]
   },
@@ -3937,11 +4023,13 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "type": "REAÇÃO",
-        "name": "FRENESI ELETRÔNICO"
+        "name": "FRENESI ELETRÔNICO",
+        "effect": "Reage à manifestação de Energia ou ao uso de um recurso eletrônico próximo, realizando deslocamento paranormal e um efeito de jogo."
       },
       {
         "type": "LIVRE",
-        "name": "INFECÇÃO DE EQUIPAMENTO"
+        "name": "INFECÇÃO DE EQUIPAMENTO",
+        "effect": "Após o dano correspondente, uma rolagem de 1d100 pode transformar equipamento do personagem em item amaldiçoado de Energia."
       }
     ]
   },
@@ -3986,23 +4074,28 @@ window.NEX_THREAT_DETAILS={
     "actions": [
       {
         "type": "MOVIMENTO",
-        "name": "SEQUESTRAR SINAL"
+        "name": "SEQUESTRAR SINAL",
+        "effect": "Teletransporta-se sobrenaturalmente para espaço em alcance médio junto de um aparelho eletrônico do cenário."
       },
       {
         "type": "PADRÃO",
-        "name": "GLITCH"
+        "name": "GLITCH",
+        "effect": "Distorção paranormal que obriga os seres afetados a testar novamente contra a presença perturbadora da criatura."
       },
       {
         "type": "PADRÃO",
-        "name": "RODAR SIMULAÇÃO"
+        "name": "RODAR SIMULAÇÃO",
+        "effect": "Troca os valores do maior e do menor atributo de um ser para fins de testes durante a cena; Vontade pode evitar."
       },
       {
         "type": "COMPLETA",
-        "name": "IMERGIR"
+        "name": "IMERGIR",
+        "effect": "Avança um estágio da doença fictícia do Infecticídio e aplica dano de Energia, sujeito à resistência."
       },
       {
         "type": "COMPLETA",
-        "name": "SEQUESTRO DE ATENÇÃO"
+        "name": "SEQUESTRO DE ATENÇÃO",
+        "effect": "Manifestação hipnótica paranormal que restringe as ações de personagens infectados; Vontade DT 35 resiste."
       }
     ]
   },
@@ -4054,15 +4147,18 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "LIVRE",
         "name": "MASTIGAR",
-        "test": "3d20+20"
+        "test": "3d20+20",
+        "effect": "Após acertar a ação correspondente, pode tentar Agarrar um alvo Grande ou menor."
       },
       {
         "type": "MOVIMENTO",
-        "name": "SOFRIMENTO DURADOURO"
+        "name": "SOFRIMENTO DURADOURO",
+        "effect": "Efeito temporal de Morte que recupera parte dos PV atuais do alvo, mas diminui seus PV máximos."
       },
       {
         "type": "COMPLETA",
-        "name": "GIRO DE CAUDA"
+        "name": "GIRO DE CAUDA",
+        "effect": "Ação de área contra seres adjacentes que causa dano de impacto e pode impor caído; Reflexos DT 28 reduz o efeito."
       }
     ]
   },
