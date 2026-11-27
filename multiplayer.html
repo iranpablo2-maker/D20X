@@ -3311,7 +3311,29 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    info.append(name,meta);button.append(info);list.append(button);
   }
   if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent=gm?'Nenhuma ficha disponível nesta campanha.':'Nenhuma ficha atribuída a você.';list.append(note);}
+  if(gm&&allowed.length)appendVttAbilityEffects(list,allowed);
   renderVttMiniSheet();
+ }
+ // Aplicação explícita de resultados numéricos de habilidades: somente o mestre.
+ function appendVttAbilityEffects(list,allowed){
+  const targets=allowed.filter(sh=>campaignSheetSystem(sh)==='Ordem Paranormal');
+  if(!targets.length)return;
+  const panel=document.createElement('details');panel.className='nex-vtt-sheet-note';panel.style.cssText='padding:8px;border:1px solid currentColor;border-radius:7px';
+  const summary=document.createElement('summary');summary.textContent='Aplicar efeito de habilidade a outra ficha';panel.append(summary);
+  const makeField=(title,control)=>{const label=document.createElement('label');label.style.cssText='display:grid;gap:4px;margin:8px 0';label.textContent=title;label.append(control);panel.append(label);return control;};
+  const target=makeField('Personagem que recebe o efeito',document.createElement('select'));
+  const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Selecione a ficha';target.append(placeholder);
+  for(const sh of targets){const opt=document.createElement('option');opt.value=sh.id;opt.textContent=String(sh.name||'Personagem');target.append(opt);}
+  const resource=makeField('Recurso',document.createElement('select'));for(const [value,label] of [['pv','PV'],['pe','PE'],['san','SAN']]){const opt=document.createElement('option');opt.value=value;opt.textContent=label;resource.append(opt);}
+  const value=makeField('Variação do recurso (+/-)',document.createElement('input'));value.type='number';value.min='-999';value.max='999';value.step='1';value.value='0';
+  const apply=document.createElement('button');apply.type='button';apply.textContent='Aplicar efeito confirmado';panel.append(apply);
+  const hint=document.createElement('p');hint.textContent='O mestre informa o resultado da habilidade. A ficha selecionada é atualizada pela transação de campanha.';panel.append(hint);
+  apply.addEventListener('click',async()=>{const id=target.value,field=resource.value,amount=Number(value.value),sh=roomSheets.find(x=>x.id===id);
+   if(!gm||!roomId||!sh||campaignSheetSystem(sh)!=='Ordem Paranormal'||!['pv','pe','san'].includes(field)||!Number.isInteger(amount)||amount===0||Math.abs(amount)>999){notice('Selecione uma ficha e informe uma variação válida.');return;}
+   if(!confirm('Aplicar '+(amount>0?'+':'')+amount+' '+field.toUpperCase()+' em '+String(sh.name||'Personagem')+'?'))return;
+   apply.disabled=true;try{await updateVttSheetResource(id,field,amount,'delta');notice('Efeito aplicado à ficha selecionada.');value.value='0';}catch(error){notice('Não foi possível aplicar o efeito: '+String(error.message||error));}finally{apply.disabled=false;}
+  });
+  list.append(panel);
  }
  function openManualCampaignSheet(sheet){const data=sheet.fullSheet||{},body=$('nexCampaignSheetBody');$('nexCampaignSheetTitle').textContent=sheet.name||'Personagem';body.replaceChildren();const add=(label,value)=>{const p=document.createElement('p'),b=document.createElement('strong');b.textContent=label+': ';p.append(b,document.createTextNode(String(value??'')));p.style.whiteSpace='pre-wrap';body.append(p);};add('Sistema',campaignSheetSystem(sheet));add('Conceito',data.concept);for(const f of (Array.isArray(data.fields)?data.fields:[]))add(f.label,f.value);for(const [label,key] of [['Perícias e habilidades','skills'],['Inventário','inventory'],['História e anotações','notes']])if(data[key])add(label,data[key]);$('nexCampaignSheetDialog').showModal();}
  function openVttSheet(id){
