@@ -29,3 +29,10 @@ A branch experimental já implementa o estado operacional das fichas compartilha
 7. Mantenha a versão principal disponível até a validação de todos os cenários.
 
 Sem TURN, algumas redes não conseguem estabelecer WebRTC direto. Não há garantia de conectividade universal.
+
+## Dados e iniciativa no Tabletop
+
+- O rolador público da barra de ferramentas solicita ao mestre a geração dos dados via WebRTC; a solicitação aceita somente membros atuais da campanha, 1–20 dados e faces d4/d6/d8/d10/d12/d20/d100. O histórico da cena é salvo no IndexedDB do mestre e distribuído por WebRTC.
+- O mestre possui uma opção de rolagem secreta, sem histórico compartilhado. Os jogadores acompanham a ordem, rodada e pontuações de iniciativa existentes no estado da cena.
+- Testar com dois dispositivos: rolar publicamente como mestre e jogador, verificar histórico nos dois, recarregar a mesa do mestre, confirmar iniciativa e histórico, e testar uma queda de conexão durante uma rolagem. Uma confirmação de resultado não garante persistência se houver falha do banco local.
+- As rolagens de dentro das fichas completas e a correção das regras de iniciativa por sistema ainda precisam de revisão separada. Não publicar em produção sem testes.
