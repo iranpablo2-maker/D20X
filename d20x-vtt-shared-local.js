@@ -23,6 +23,7 @@ export function sheetRecord(sheet,revision){
  const values={};
  for(const field of RESOURCE_FIELDS)values[field]=Math.max(0,Math.min(9999,Math.trunc(Number(sheet.fullSheet?.[field+'Current']??sheet[field])||0)));
  if(typeof sheet.name==='string')values.name=sheet.name.slice(0,100);
+ if(typeof sheet.notes==='string')values.notes=sheet.notes.slice(0,3000);
  if(Number.isFinite(Number(sheet.nex)))values.nex=Math.max(0,Math.min(99,Math.trunc(Number(sheet.nex))));
  const fullSheet=sheet.fullSheet&&typeof sheet.fullSheet==='object'&&!Array.isArray(sheet.fullSheet)?clone(sheet.fullSheet):null;
  if(JSON.stringify(fullSheet).length>450000)throw Error('Ficha excede limite local de compartilhamento');
@@ -39,7 +40,9 @@ export function mergeSharedEdit(sheet,changes){
   if(change.remove)delete full[key];else full[key]=clone(change.after);
  }
  if(JSON.stringify(full).length>450000)throw Error('Ficha excede limite local de compartilhamento');
- return {...sheet,fullSheet:full,name:String(full.name||sheet.name||'Personagem').slice(0,100),nex:Number(full.nex??sheet.nex)||0};
+ let next={...sheet,fullSheet:full,name:String(full.name||sheet.name||'Personagem').slice(0,100),nex:Number(full.nex??sheet.nex)||0};
+ for(const field of RESOURCE_FIELDS){if(changes.some(c=>c.key===field+'Current')){const value=full[field+'Current'];if(typeof value!=='number'||!Number.isFinite(value))throw Error('Recurso inválido');next=resourceChange(next,field,value,'set');}}
+ return next;
 }
 export function sharedEditDiff(before,after){
  const keys=new Set([...Object.keys(before||{}),...Object.keys(after||{})]);
