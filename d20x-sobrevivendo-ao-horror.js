@@ -610,13 +610,13 @@ window.NEX_SAH={
       "name": "Antecipar Vitalidade",
       "element": "Morte",
       "prerequisite": "",
-      "description": "Opção de personagem · Morte. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Em um teste, acrescente 1d20 e marque uma carga, até o limite de VIG. Com cargas, dormir no interlúdio remove uma carga em vez de recuperar PV. Afinidade: +2 no limite e remoção de duas cargas ao dormir."
     },
     {
       "name": "Aura de Pavor",
       "element": "Morte",
       "prerequisite": "",
-      "description": "Opção de personagem · Morte. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Ação de movimento e 2 PE: aplique apavorado a uma pessoa ou animal em alcance médio, sem exigir contato visual. Vontade (DT PRE) troca a condição por abalado. Encerra ao fim da cena, fora do alcance ou ao trocar de alvo. Limite de uma aplicação por alvo ao dia. Afinidade: DT +5 e seleção de alvos no alcance."
     },
     {
       "name": "Absorver Conhecimento",
