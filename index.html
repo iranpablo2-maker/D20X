@@ -5391,7 +5391,7 @@ function abilityRecords(){
    return '<div class="nex-auto-effect"><label>Próximo teste <select data-nex-auto-skill>'+opts.map(n=>'<option value="'+escape(n)+'">'+escape(n)+'</option>').join('')+'</select></label>'+(active?'<button type="button" class="btn sm" data-nex-auto-cancel>Cancelar e devolver PE</button>':'<button type="button" class="btn sm primary" data-nex-auto-activate="perito" '+(pending||opts.length===0||Number(state.peCurrent)<2?'disabled':'')+'>Ativar +1d6 · 2 PE</button>')+'</div>';
  }
  function nexBatchCancelControl(key){
-   return state.nexAutoPending?.id===key?'<button type="button" class="btn sm" data-nex-auto-cancel>Cancelar efeito preparado</button>':'';
+   return (state.nexAutoPending?.id===key||(key.startsWith('b189:')&&state.nexAutoPending?.id==='b189Action'&&state.nexAutoPending?.name===key.slice(5)))?'<button type="button" class="btn sm" data-nex-auto-cancel>Cancelar efeito preparado</button>':'';
  }
  function nexBatchSkillControl(a){
    const spec=nexAutoActivationSpec(a);if(!spec)return '';
@@ -5578,7 +5578,7 @@ function abilityRecords(){
    'Cai Dentro':{cost:1,opposed:true,dt:'vig'},
    'Assassinar':{cost:3,prepare:true},
    'Resgate':{manual:true},
-   'Apego Angustiado':{manual:true},
+   'Apego Angustiado':{roundResource:true},
    'Perito em Explosivos':{dtBonus:true},
    'Fogo Amigo':{dtBonus:true},
    'Meus Bebês':{mission:true},
@@ -5616,6 +5616,7 @@ function abilityRecords(){
   if(s.instrument)return aff+box(act('Vincular item paranormal fictício',Boolean((state.items||[]).find(i=>i.nexB189Instrument))), 'Cria somente um registro de equipamento no inventário do RPG.');
   if(s.passive)return box('', 'O bônus de dado é calculado quando o item está classificado como improvisado na ficha.');
   if(s.interlude)return box(act('Rolar reserva de recursos de jogo',Object.prototype.hasOwnProperty.call(state.nexAutoInterludeUses||{},key))+btn('novoInterludio','Novo interlúdio'), 'Reserva abstrata: '+Number(state.nexAutoInterludeUses?.[key]||0)+'. Não altera automaticamente os itens.');
+  if(s.roundResource)return box(num('Custo de SAN indicado pela regra',1,Math.max(1,Number(state.sanCurrent)||0),1)+act('Registrar custo nesta rodada',!!R[key]||Number(state.sanCurrent)<1)+btn('novaRodada','Nova rodada'), 'Confirme a condição e o custo com o mestre. A ficha desconta SAN uma única vez nesta rodada.');
   if(s.defense)return box(act('Preparar Defesa temporária · '+s.cost+' PE',!!R[key])+btn('b189End','Encerrar efeito'), 'Bônus de +5 Defesa até resolver o evento elegível ou iniciar nova rodada.');
   if(s.critical)return box(sel('Modificador de jogo',[['0','Bônus básico · 0 PE'],['2','Bônus aprimorado · 2 PE']])+act('Preparar modificador de crítico',!!R[key]),'Aplica ao próximo teste elegível confirmado na mesa.');
   if(s.record)return box(act('Registrar efeito confirmado · '+s.cost+' PE'),note+' Condições e efeitos não numéricos continuam manuais.');
@@ -5977,6 +5978,7 @@ function abilityRecords(){
        else if(s.instrument){if((state.items||[]).some(i=>i.nexB189Instrument)||!yes())return;const id='b189-instrument-'+Date.now();state.items=[...(state.items||[]),{id,name:'Instrumento Elétrico de Combate',category:'Arma',quantity:1,spaces:2,equipped:false,nexB189Instrument:true,nexInfo:{name:'Instrumento Elétrico de Combate',category:'Arma',kind:'Paranormal',proficiency:'Armas Táticas',wield:'Duas mãos',tier:'II',spaces:2,damage:'2d8',critical:'20',multiplier:'2',damageType:'Energia',range:'Curto'}}];record(1,'Item fictício vinculado');}
        else if(s.interlude){if(Object.prototype.hasOwnProperty.call(I,mark)||!yes())return;const rolls=Array.from({length:nexB150Attribute('int')},()=>roll(6)),total=rolls.reduce((v,x)=>v+x,0);set('nexAutoInterludeUses',mark,total);record(total,'Reserva abstrata · '+rolls.join(', '));}
        else if(s.defense||s.critical){const cost=s.critical?Number(select):s.cost;if(s.critical&&!['0','2'].includes(select)||R[mark]||!yes()||!pe(cost))return;set('nexAutoRoundUses',mark,s.critical?{enhanced:cost===2}:true);record(1,'Modificador de ficha preparado');}
+       else if(s.roundResource){const cost=nums[0];if(R[mark]||!valid(cost,1,Number(state.sanCurrent)||0)||!yes())return;state.sanCurrent=Number(state.sanCurrent)-cost;set('nexAutoRoundUses',mark,true);record(cost,'SAN descontada nesta rodada');}
        else if(s.record){if(!yes()||!pe(s.cost))return;record(1);}
        else if(s.manual){if(!valid(nums[0],0,999)||!yes())return;record(nums[0],'Valor confirmado pela mesa');}
        else return;
@@ -7632,7 +7634,7 @@ const PARANORMAL=[
 <script src="d20x-descricoes-completas.js?v=20261127descricoesSAH12"></script>
 <script src="d20x-item-catalog.js?v=20261127descricao8"></script>
 <script src="d20x-item-modifiers.js?v=20261125pdfdefense1"></script>
-<script src="d20x-item-editor.js?v=20261127abilityBatch189"></script>
+<script src="d20x-item-editor.js?v=20261127abilityAudit1"></script>
 <!-- Sincronização em nuvem desativada a pedido do proprietário: mantém salvamento local. -->
 
 <style id="nex-v2059-attribute-roll-skill-picker">
