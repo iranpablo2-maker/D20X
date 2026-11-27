@@ -3157,7 +3157,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
  </section>
 </section>
 </main>
-<script>window.NEX_CAMPAIGN_UI_VERSION="20261127campaignsystem2";</script>
+<script>window.NEX_CAMPAIGN_UI_VERSION="20261127campaignsystem3";</script>
 <script src="./firebase-config.js?v=20261112"></script>
 <script>
 window.addEventListener('error',function(event){
@@ -3244,7 +3244,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  let portraitSyncBusy=false;
  let extraSlotRequests=[],slotPending=false;
  let publicSheets=[],privateSheets=[];
- function refreshRoomSheets(){roomSheets=gm?[...publicSheets,...privateSheets]:publicSheets.slice();drawSheets();drawMembers();renderQuota();renderSlotManagement();renderVttSheets();window.dispatchEvent(new Event('nex:campaign-sheets-updated'));if(publicSheets.length)syncOwnCharacterPhotos();}
+ function campaignSheetSystem(sheet){return sheet?.fullSheet?.systemName||sheet?.fullSheet?.system||'Ordem Paranormal';}
+ function currentCampaignSystem(){return roomData?.system||'Ordem Paranormal';}
+ function refreshRoomSheets(){roomSheets=(gm?[...publicSheets,...privateSheets]:publicSheets.slice()).filter(sheet=>campaignSheetSystem(sheet)===currentCampaignSystem());drawSheets();drawMembers();renderQuota();renderSlotManagement();renderVttSheets();window.dispatchEvent(new Event('nex:campaign-sheets-updated'));if(publicSheets.length)syncOwnCharacterPhotos();}
  let activeVttMiniSheetId=null;
  function vttStatValue(sheet,keys){
   const sources=[sheet.fullSheet,sheet].filter(x=>x&&typeof x==='object');
@@ -3310,9 +3312,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent=gm?'Nenhuma ficha disponível nesta campanha.':'Nenhuma ficha atribuída a você.';list.append(note);}
   renderVttMiniSheet();
  }
+ function openManualCampaignSheet(sheet){const data=sheet.fullSheet||{},body=$('nexCampaignSheetBody');$('nexCampaignSheetTitle').textContent=sheet.name||'Personagem';body.replaceChildren();const add=(label,value)=>{const p=document.createElement('p'),b=document.createElement('strong');b.textContent=label+': ';p.append(b,document.createTextNode(String(value??'')));p.style.whiteSpace='pre-wrap';body.append(p);};add('Sistema',campaignSheetSystem(sheet));add('Conceito',data.concept);for(const f of (Array.isArray(data.fields)?data.fields:[]))add(f.label,f.value);for(const [label,key] of [['Perícias e habilidades','skills'],['Inventário','inventory'],['História e anotações','notes']])if(data[key])add(label,data[key]);$('nexCampaignSheetDialog').showModal();}
  function openVttSheet(id){
   const sheet=roomSheets.find(item=>item.id===id);
   if(!sheet||(!gm&&(sheet.isHidden||!assignedTo(sheet,uid))))return;
+  if(campaignSheetSystem(sheet)!=='Ordem Paranormal'){openManualCampaignSheet(sheet);return;}
   if(window.parent===window){
    notice('Abra a campanha dentro do D20X para usar a ficha completa no Tabletop.');
    return;
@@ -3367,7 +3371,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    const requestId='nex-'+(++bridgeSeq);
    const timeout=setTimeout(()=>{pendingBridge.delete(requestId);reject(Error('A ficha não respondeu. Abra novamente a aba Campanhas.'));},8000);
    pendingBridge.set(requestId,{resolve,reject,timeout});
-   window.parent.postMessage({type,requestId,agentId},location.origin);
+   window.parent.postMessage({type,requestId,agentId,system:currentCampaignSystem()},location.origin);
   });
  }
  window.addEventListener('message',event=>{
@@ -3498,7 +3502,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  try{
   const response=await requestNex('nex-agent-list-request');
   if(!response.ready){grid.textContent='As fichas ainda estão carregando.';return;}
-  const agents=response.agents||[];
+  const agents=(response.agents||[]).filter(a=>(a.system||'Ordem Paranormal')===currentCampaignSystem());
   renderQuota();
   select.innerHTML='<option value="">Escolha um personagem</option>'+agents.map(a=>'<option value="'+escape(a.id)+'">'+escape(a.name)+'</option>').join('');
   grid.innerHTML=agents.length?agents.map(a=>{
@@ -3602,6 +3606,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const agent=result.agent;
   if(!agent||agent.id!==agentId||!agent.data)throw Error('Ficha não encontrada neste dispositivo. Sincronize sua conta.');
   const data=agent.data,serialized=JSON.stringify(data);
+  if((data.systemName||data.system||'Ordem Paranormal')!==currentCampaignSystem())throw Error('Esta ficha pertence a outro sistema.');
   if(serialized.length>450000)throw Error('Ficha acima do limite de compartilhamento (450 KB).');
   // Um registro por ficha e por dono: evita duplicações ao atualizar.
   const already=roomSheets.find(sheet=>sheet.ownerUid===uid&&sheet.linkedAgentId===agentId);
@@ -5126,6 +5131,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const button=e.target.closest('[data-open-campaign-sheet]');if(!button)return;
   const sheet=roomSheets.find(item=>item.id===button.dataset.openCampaignSheet);
   if(!sheet)return;
+  if(campaignSheetSystem(sheet)!=='Ordem Paranormal'){openManualCampaignSheet(sheet);return;}
   if(sheet.ownerUid===uid&&sheet.linkedAgentId&&(!sheet.controllerUid||sheet.controllerUid===uid)){
    if(window.parent!==window){
     window.parent.postMessage({type:'nex-campaign-open-agent',agentId:sheet.linkedAgentId},location.origin);
@@ -5175,6 +5181,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
  $('newSheet').addEventListener('click',()=>{
   if(!roomId)return;
+  if(currentCampaignSystem()!=='Ordem Paranormal'){notice('Use Adicionar Personagens para vincular uma ficha do sistema da campanha.');return;}
   editing=null;$('sheetForm').reset();$('sheetFormTitle').textContent='Nova ficha da campanha';
   show('sheetOwnerWrap',gm);
   if(gm)drawMembers();
