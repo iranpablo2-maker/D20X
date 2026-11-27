@@ -860,7 +860,7 @@ window.NEX_SAH={
       "name": "Singularidade Temporal",
       "circle": 4,
       "element": "Morte",
-      "description": "Morte • 4º círculo. Acelera drasticamente o envelhecimento e a degradação de um objeto não paranormal; o efeito depende do tipo de material e da avaliação do mestre."
+      "description": "Ritual instantâneo de Morte que envelhece sobrenaturalmente um objeto não paranormal Médio em alcance curto. O mestre define a deterioração possível para aquele material: o objeto pode ficar danificado (−5 nos testes em que é usado), ser destruído ou não sofrer alteração. Se estiver em uso, seu portador pode protegê-lo com Fortitude. Discente (+5 PE) aceita objeto Grande; verdadeiro (+10 PE), Enorme."
     },
     {
       "name": "Desfazer Sinapses",
