@@ -477,7 +477,7 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "PADRÃO",
         "name": "BEIJO GÉLIDO",
-        "effect": "Alvo em alcance corpo a corpo recebe 6d6 Energia e lento; Fortitude DT 20 reduz dano à metade. Se reduzido a 0 PV, recebe petrificado sobrenatural (barreira de 20 PV, RD 20/fogo) e a criatura recupera 20 PV. Destruir a barreira reduz 10 PV do Uivar; consequências adicionais ficam a cargo da resolução ficcional do encontro."
+        "effect": "Consulte a publicação de referência para condições e efeito integral; os dados numéricos cadastrados permanecem na ficha."
       },
       {
         "type": "MOVIMENTO",
@@ -634,7 +634,7 @@ window.NEX_THREAT_DETAILS={
       {
         "type": "COMPLETA",
         "name": "BOCARRA TORTURADORA",
-        "effect": "Contra alvo agarrado: mantém agarrado, com cobertura recíproca e 1d12+10 Sangue no início dos turnos da criatura. Escapa por teste oposto de agarrar/Acrobacia ou ao causar 25 de dano; apenas um alvo. Outros podem libertá-lo com teste oposto. A 0 PV, aplicam-se as consequências especiais do encontro; a resolução final concede 25 PV à criatura e pode provocar 4d8 mental nos observadores, Vontade DT 25 reduz à metade."
+        "effect": "Consulte a publicação de referência para condições e efeito integral; os dados numéricos cadastrados permanecem na ficha."
       },
       {
         "type": "COMPLETA",
@@ -730,7 +730,7 @@ window.NEX_THREAT_DETAILS={
         "type": "COMPLETA",
         "name": "ENGOLIR",
         "test": "4d20+30",
-        "effect": "Contra alvo agarrado no início do turno, teste oposto 4d20+30; falha libera o alvo. Sucesso aplica agarrado, cego e cobertura total recíproca, com 2d10 Sangue + 2d10 perfuração por turno da criatura. Escapa por agarrar/Acrobacia opostos ou 30 de dano; auxílio externo exige Percepção DT 25. Limite de um alvo."
+        "effect": "Consulte a publicação de referência para condições e efeito integral; os dados numéricos cadastrados permanecem na ficha."
       },
       {
         "type": "COMPLETA",
@@ -1124,7 +1124,7 @@ window.NEX_THREAT_DETAILS={
       },
       {
         "name": "O sino",
-        "effect": "Pessoas em alcance extremo capazes de ouvir ficam pasmas por uma rodada; Vontade DT 40 evita e concede imunidade pela cena. Se falhar e tiver Entrado no Quadro, não pode se afastar da criatura pela cena. Repete no começo dos turnos da criatura."
+        "effect": "Consulte a publicação de referência para condições e efeito integral; os dados numéricos cadastrados permanecem na ficha."
       },
       {
         "name": "Frenesi de Sangue",
