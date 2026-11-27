@@ -3183,7 +3183,7 @@ document.addEventListener('click',function(event){
 <script src="./d20x-ritual-guides.js?v=20261127descricao4"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127gmroll1';
+import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127homebrewmanual1';
 import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared2';
 import {mountGmShield} from './d20x-gm-shield.js?v=20261127homebrewmanual1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
@@ -3555,6 +3555,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    if(roomId!==campaign||uid!==actor||!sharedCanAccess(sharedLookup(sheet.id),actor))return;
    const expression=formula.value.trim();
    if(!/^[+-]?(?:\d{0,2}d(?:100|20|12|10|8|6|4))(?:[+-](?:\d{0,2}d(?:100|20|12|10|8|6|4)|\d{1,3}))*$/i.test(expression)){rollStatus.textContent='Informe uma expressão de dados válida, sem espaços.';return;}
+   if(mode.value!=='sum'&&!/^\d{0,2}d20(?:[+-]\d{1,3})?$/i.test(expression)){rollStatus.textContent='Maior/menor d20 exige um único grupo de d20 e bônus opcional.';return;}
    const opts={title:'Rolagem manual',expression,pool:mode.value!=='sum',low:mode.value==='low'};
    const result=window.NEX_DICE_UI?.roll?.(opts);if(!result){rollStatus.textContent='Expressão inválida.';return;}
    rollStatus.textContent='Resultado: '+result.total;
