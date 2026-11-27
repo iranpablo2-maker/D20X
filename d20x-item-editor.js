@@ -754,10 +754,12 @@ document.addEventListener('click',e=>{
  if(hasEnergy&&Number(state.peCurrent||0)<2){toast('Energética exige 2 PE disponíveis.');return;}
  const pending=state.nexAutoPending,rollId='equipped:'+String(item.id);
  const pendingMatches=pending?.kind==='attack'&&(!pending.targetAttackId||pending.targetAttackId===rollId);
+ const pendingSkillMatches=pending?.kind==='skill'&&pending.equipmentEligible===true&&pending.skill===w.skillName&&!pending.replaceWith;
+ const preparedSkill=pendingSkillMatches?Number(pending.bonus||0):0;
  const scale=pendingMatches&&pending.id==='ataqueEspecial'&&w.effects.melee&&typeof nexTrailIs==='function'&&nexTrailIs('Combatente','Guerreiro',99)?2:1;
  const preparedAttack=pendingMatches?scale*(Number(pending.attackBonus??(pending.attackTarget==='attack'?pending.bonus:0))||0):0;
  const preparedDamage=pendingMatches?scale*(Number(pending.damageBonus??(pending.attackTarget==='damage'?pending.bonus:0))||0):0;
- const attack=natural+w.bonus+(hasEnergy?5:0)+preparedAttack;
+ const attack=natural+w.bonus+(hasEnergy?5:0)+preparedAttack+preparedSkill;
  const critical=natural>=w.threshold;
  const secondaryExpression=String(w.d.secondary||'').trim().replace(/\s+/g,'');
  const hasSecondary=secondaryExpression!==''&&!/^(?:—|-)$/i.test(secondaryExpression);
@@ -775,11 +777,11 @@ document.addEventListener('click',e=>{
  const sneak=w.effects.sneakDice?weaponDice(w.effects.sneakDice+'d6',1):null;
  if(sneak){damage.total+=sneak.total;damage.detail+=' + '+sneak.detail;}
  const totalDamage=damage.total+(secondary?secondary.total:0)+(extra?extra.total:0)+(curseExtra?curseExtra.total:0)+originBonus+itemBonus;
- const attackBonus=w.bonus+(hasEnergy?5:0)+preparedAttack;
+ const attackBonus=w.bonus+(hasEnergy?5:0)+preparedAttack+preparedSkill;
  const detailAttack=rolls.join(', ')+' → '+natural+' '+(attackBonus>=0?'+ ':'− ')+Math.abs(attackBonus);
  const damageDetail=damage.detail+(originBonus?' + bônus '+originBonus:'')+(itemBonus?' + melhoria '+itemBonus:'');
  const secondaryDetail=secondary?secondary.detail:'';
- if(pendingMatches)state.nexAutoPending=null;
+ if(pendingMatches||pendingSkillMatches)state.nexAutoPending=null;
  if(w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak||w.effects.intuitive){
   const r={...(state.nexAutoRoundUses||{})};
   if(w.effects.aimed)delete r.b100Aim;
@@ -788,7 +790,7 @@ document.addEventListener('click',e=>{
   if(w.effects.intuitive)delete r['b189:Tiro Intuitivo'];
   state.nexAutoRoundUses=r;
  }
- if(pendingMatches||w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak||w.effects.intuitive){save();queueMicrotask(()=>{if(typeof renderStats==='function')renderStats();if(typeof renderAttacks==='function')renderAttacks();});}
+ if(pendingMatches||pendingSkillMatches||w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak||w.effects.intuitive){save();queueMicrotask(()=>{if(typeof renderStats==='function')renderStats();if(typeof renderAttacks==='function')renderAttacks();});}
  if(hasEnergy){
   state.peCurrent=Math.max(0,Number(state.peCurrent||0)-2);
   const energyCheckbox=button.closest('.nex-combat-equipped')?.querySelector('[data-nex-energy-active]');
