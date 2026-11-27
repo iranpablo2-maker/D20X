@@ -7,7 +7,7 @@ window.NEX_ARQUIVOS={
         "Ocultismo"
       ],
       "ability": "Mácula Ritualística",
-      "description": "Treina Ocultismo e Fortitude (Sangue), Vontade (Morte ou Conhecimento) ou Reflexos (Energia), conforme o elemento escolhido. Aprende um ritual de 1º círculo desse elemento, fora do limite de conhecidos. Uma vez por cena, pode conjurá-lo sem custo básico de PE, pagando aprimoramentos normalmente. Sofre −1d20 em resistências a efeitos do mesmo elemento.",
+      "description": "Origem de personagem; a habilidade associada é Mácula Ritualística. Perícias: Ocultismo. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro/2026 · p. 43.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 43",
       "month": "Janeiro",
       "page": 43,
@@ -46,7 +46,7 @@ window.NEX_ARQUIVOS={
         "Tecnologia"
       ],
       "ability": "Registrar o Paranormal",
-      "description": "Treina Enganação e Tecnologia. Uma vez por cena, ação padrão e 2 PE registram criatura ou ritual conjurado na cena. Recebe +5 em testes de presença perturbadora de criaturas previamente registradas. Uma ação de interlúdio permite memorizar um ritual registrado até o próximo interlúdio. Círculos disponíveis conforme NEX: 1º em 5%, 2º em 25%, 3º em 55%, 4º em 85%.",
+      "description": "Origem de personagem; a habilidade associada é Registrar o Paranormal. Perícias: Enganação, Tecnologia. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Abril/2026 · p. 64.",
       "source": "Arquivos Secretos · Abril/2026 · p. 64",
       "month": "Abril",
       "page": 64,
@@ -218,7 +218,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Janeiro",
       "page": 46,
-      "description": "Treinamento em Crime ou +2 se já treinado. Na mecânica de fuga do RPG em ambiente fechado, Crime DT 20 identifica saída; na fuga, +1 ação de movimento no primeiro turno e +2 Defesa até sair. Sem saída identificável, +2 Defesa enquanto permanecer no local. Exige Agi 2.",
+      "description": "Opção de personagem · Geral. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro/2026 · p. 46.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 46"
     },
     {
@@ -250,7 +250,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Fevereiro",
       "page": 75,
-      "description": "Aprenda uma habilidade de trilha de Ocultista cujo NEX necessário já tenha atingido. Dependências de habilidades anteriores continuam válidas. Pode adquirir até três vezes. Requisitos: Int 3, Ocultismo treinado e capacidade de conjurar rituais.",
+      "description": "Opção de personagem · Ocultista. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Fevereiro/2026 · p. 74.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 74"
     },
     {
@@ -290,7 +290,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Fevereiro",
       "page": 87,
-      "description": "Mecânica de combate do RPG: ação completa e 3 PE resolvem três ataques desarmados contra o mesmo alvo; as rolagens verificam apenas críticos, sem comparar à Defesa. Some o dano como uma fonte única; Fortitude DT For reduz à metade. Exige For 2, Luta treinada e Artista Marcial.",
+      "description": "Opção de personagem · Combatente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Fevereiro/2026 · p. 86.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 86"
     },
     {
@@ -298,7 +298,7 @@ window.NEX_ARQUIVOS={
       "category": "Combatente",
       "month": "Março",
       "page": 108,
-      "description": "Reação e 2 PE permitem assumir ataque ou habilidade de alvo único destinado a aliado adjacente. Se ataque não vencer a Defesa ou habilidade não produzir efeito completo, recupera 1 SAN. Pode adquirir novamente para alcance curto. Exige Ataque Especial e Casca Grossa.",
+      "description": "Opção de personagem · Combatente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Março/2026 · p. 108.",
       "source": "Arquivos Secretos · Março/2026 · p. 108"
     },
     {
@@ -322,7 +322,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Março",
       "page": 108,
-      "description": "Mecânica de RPG: agredir com duas armas, pelo menos uma leve, permite um ataque com cada, com −1d20 nos ataques até próximo turno. Se já possui Combater com Duas Armas, elimina essa penalidade e permite duas armas de uma mão. Exige For 2 ou Agi 2 e Luta treinada.",
+      "description": "Opção de personagem · Geral. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Março/2026 · p. 108.",
       "source": "Arquivos Secretos · Março/2026 · p. 108"
     },
     {
@@ -370,7 +370,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Abril",
       "page": 66,
-      "description": "Ao entrar em área de Membrana danificada ou pior, pode aceitar o efeito: perde 1d6 SAN e troca entre si os atributos-chave de dois pares de perícias. Exclui perícias que exigem treinamento que não possui. Termina ao sair da área; nova aceitação apenas no dia seguinte.",
+      "description": "Opção de personagem · Ocultista. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Abril/2026 · p. 66.",
       "source": "Arquivos Secretos · Abril/2026 · p. 66"
     },
     {
@@ -386,7 +386,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Abril",
       "page": 67,
-      "description": "Escolha equipamento que passa a ocupar zero espaços enquanto guardado. Ao empunhá-lo, há 25% de chance de deslocamento sobrenatural para ponto em alcance curto definido pelo mestre. Se destruído ou consumido, escolha outro. Afinidade: até três equipamentos.",
+      "description": "Opção de personagem · Paranormal. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Abril/2026 · p. 67.",
       "source": "Arquivos Secretos · Abril/2026 · p. 67"
     },
     {
@@ -442,7 +442,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Maio",
       "page": 62,
-      "description": "Comunicação telepática ficcional com outros portadores do poder a até 90m, detectando sua localização nesse raio. Cada outro portador dentro do raio concede +2 em resistência contra efeitos negativos da comunicação dos Alheios. Requer conexão com o Sino de Transmissão.",
+      "description": "Opção de personagem · Paranormal. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Maio/2026 · p. 62.",
       "source": "Arquivos Secretos · Maio/2026 · p. 62"
     },
     {
@@ -506,7 +506,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Junho",
       "page": 71,
-      "description": "Reação, 2 PE, uma vez por rodada: contra dano de munição, RD 20 e projétil destruído; contra dano de arma corpo a corpo, RD 10 e o equipamento sofre 10 de dano químico sobrenatural. A RD não se aplica a Energia. Exige Morte 2. Afinidade: múltiplos usos por rodada e dano químico 20.",
+      "description": "Opção de personagem · Paranormal. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Junho/2026 · p. 71.",
       "source": "Arquivos Secretos · Junho/2026 · p. 71"
     },
     {
@@ -514,7 +514,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Janeiro",
       "page": 44,
-      "description": "Com regra opcional Reter Ritual, reação altera duração para cena quando alvo de efeito negativo sai da linha de efeito. Ao receber condição que interromperia retenção, reação e 1 PE por ritual alteram sua duração para cena. Exige Int 2 e conjuração de 1º círculo.",
+      "description": "Opção de personagem · Ocultista. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro/2026 · p. 44.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 44"
     },
     {
@@ -522,7 +522,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Janeiro",
       "page": 46,
-      "description": "Regra de personagem: expor uma marca física ou psicológica relevante à história, como ação de movimento, ativa +1d8 de dano do mesmo tipo e −1d20 em Vontade e testes que exigem calma. Outra pessoa pode desencadear o efeito narrativamente. Até fim da cena. Requer cicatrizes na história.",
+      "description": "Opção de personagem · Geral. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro/2026 · p. 46.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 46"
     },
     {
@@ -546,7 +546,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Março",
       "page": 109,
-      "description": "Antes da missão ou no interlúdio, transforma um instrumento musical conhecido em equipamento sobrenatural de uso exclusivo: tático de Energia, duas mãos, categoria II, 2 espaços, alcance curto, ataque por Artes, dano 2d8 Energia + Pre, crítico 20/×2. Se quebrar, pode substituir por outro; se o personagem morrer, quebra. Interações com outras habilidades dependem do mestre. Afinidade: alvos escolhidos em alcance curto.",
+      "description": "Opção de personagem · Paranormal. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Março/2026 · p. 109.",
       "source": "Arquivos Secretos · Março/2026 · p. 109"
     },
     {
@@ -610,7 +610,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Maio",
       "page": 57,
-      "description": "Enquanto machucado, escolha alvo em alcance médio e uma perícia treinada; ele recebe seu grau de treinamento até você recuperar PV acima da metade ou morrer. Afinidade: até três alvos e duas perícias; se o personagem morrer, os últimos alvos mantêm os benefícios até fim da missão.",
+      "description": "Opção de personagem · Paranormal. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Maio/2026 · p. 57.",
       "source": "Arquivos Secretos · Maio/2026 · p. 57"
     },
     {
@@ -634,7 +634,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Junho",
       "page": 68,
-      "description": "Na ficha, itens de cura ou PV temporários aplicados pelo personagem recebem +1d8 PV no efeito. +5 em Medicina para aplicar tratamento; sucesso concede +10, em vez de +5, no próximo teste de Fortitude do paciente contra doença ou veneno. Exige Especialista em Emergências.",
+      "description": "Opção de personagem · Geral. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Junho/2026 · p. 68.",
       "source": "Arquivos Secretos · Junho/2026 · p. 68"
     },
     {
@@ -642,7 +642,7 @@ window.NEX_ARQUIVOS={
       "category": "Ocultista",
       "month": "Junho",
       "page": 69,
-      "description": "Escolha elemento. Ao conjurar ritual dele, 1 PE acrescenta efeito para um alvo, inclusive o próprio conjurador: Sangue, aliado +2d4 Sangue no dano, inimigo debilitado; Morte, aliado 3d8+3 PV temporários, inimigo enjoado; Conhecimento, aliado +2 em perícias, inimigo esmorecido; Energia, aliado +6m em todos deslocamentos, inimigo desprevenido. Bônus duram a cena; condições, uma rodada e ignoram imunidades. Exige Mestre em Elemento correspondente e NEX 60%.",
+      "description": "Opção de personagem · Ocultista. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Junho/2026 · p. 69.",
       "source": "Arquivos Secretos · Junho/2026 · p. 69"
     },
     {
@@ -666,7 +666,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Junho",
       "page": 71,
-      "description": "2 PE criam área paranormal de raio 9m centrada no personagem até fim da cena. Seres na área, exceto conjurador e criaturas de Morte, sofrem 3d6 Morte e lento; Fortitude com DT pelo maior atributo reduz dano à metade e evita condição por uma rodada. Afinidade: 6d6 e enredado em vez de lento.",
+      "description": "Opção de personagem · Paranormal. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Junho/2026 · p. 71.",
       "source": "Arquivos Secretos · Junho/2026 · p. 71"
     },
     {
@@ -674,7 +674,7 @@ window.NEX_ARQUIVOS={
       "category": "Paranormal",
       "month": "Junho",
       "page": 71,
-      "description": "Ação completa e 2 PE criam marcador sobrenatural na ficha, válido por um dia, limite de um. Reação e 3 PE consomem a marca e restauram os dados físicos e mentais da ficha ao estado salvo, apagando memórias posteriores. Aplica alquebrado e frustrado até fim da cena, pasmo por 1d4+1 rodadas. Exige Energia 2. Afinidade: validade de um ano.",
+      "description": "Opção de personagem · Paranormal. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Junho/2026 · p. 71.",
       "source": "Arquivos Secretos · Junho/2026 · p. 71"
     },
     {
@@ -709,7 +709,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 39,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
-      "description": "Mecânica de combate do RPG: antes do resultado de ataque corpo a corpo contra o personagem, reação especial de defesa e 2 PE permitem contra-ataque. +5 Defesa contra o ataque; se errar, +5 no teste de contra-ataque. Exige Agi 2 e Luta treinada."
+      "description": "Opção de personagem · Combatente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Setembro/2026 · v1.1 · p. 39."
     },
     {
       "name": "Tiro Intuitivo",
@@ -727,7 +727,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 39,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 39",
-      "description": "Uma vez por interlúdio, planeje uma cena futura aprovada pelo mestre e teste Tática DT 25. Sucesso concede três d6 de tática, mais um por cada 5 acima da DT. Durante a cena planejada, reação permite gastar quaisquer dados acumulados para somar ao teste, dano ou cura de você ou aliado que participou do planejamento, independentemente da distância. Dados restantes expiram no próximo interlúdio. Exige Int 1 e Tática veterana."
+      "description": "Opção de personagem · Combatente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Setembro/2026 · v1.1 · p. 39."
     }
   ],
   "items": [
@@ -736,7 +736,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Janeiro",
       "page": 54,
-      "description": "Escolha um elemento exceto Medo. Enquanto vestido, sinaliza a presença de criatura correspondente em alcance longo, mesmo através de obstáculos. Sinal: Sangue, gotas vermelhas; Morte, fumaça; Conhecimento, luz dourada; Energia, mudanças de cor. Categoria II; 1 espaço.",
+      "description": "Recurso de jogo · Itens Amaldiçoados. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro/2026 · p. 54.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 54"
     },
     {
@@ -760,7 +760,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Março",
       "page": 113,
-      "description": "Artefato sobrenatural, categoria III, 1 espaço. Empunhado, ação padrão e 2 PE afetam até dois alvos em alcance curto com paralisado; Reflexos DT Pre evita. Correntes fictícias: Defesa 10, RD 10, 20 PV. Recarga de 24 horas; correntes anteriores desaparecem quando volta a estar disponível.",
+      "description": "Recurso de jogo · Itens Amaldiçoados. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Março/2026 · p. 113.",
       "source": "Arquivos Secretos · Março/2026 · p. 113",
       "tier": "III",
       "spaces": 1
@@ -780,7 +780,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Março",
       "page": 114,
-      "description": "Conjunto ficcional de Sangue, categoria III, 2 espaços. Maça tática de uma mão: 2d4 perfuração + 1d6 Sangue, crítico 20/×3. Florete tático ágil de uma mão: 1d6 perfuração + 2d4 Sangue, crítico 18/×2. O dano elemental é multiplicado no crítico. Com ambos empunhados, uma ação padrão permite um ataque de cada. Reação e 2 PE assumem ataque destinado a aliado em alcance curto; se a origem está em alcance corpo a corpo, mais 2 PE permitem ataque de maça.",
+      "description": "Recurso de jogo · Itens Amaldiçoados. Espaços: 2. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Março/2026 · p. 114.",
       "source": "Arquivos Secretos · Março/2026 · p. 114",
       "tier": "III",
       "spaces": 2
@@ -790,7 +790,7 @@ window.NEX_ARQUIVOS={
       "section": "Proteções",
       "month": "Março",
       "page": 115,
-      "description": "Proteção pesada de Sangue, categoria III, 0 espaços, sem exigência de proficiência. Defesa +10, aumentando 1 por semana até +20. RD 5 contra balístico, impacto e perfuração; RD Sangue 10; vulnerabilidade a Morte. Primeiro contato: Vontade contra DT determinada por 6d6, falha força equipar. Equipada: Fortitude DT 6d6, falha permite controle paranormal pelo mestre, sucesso impede controle. Remoção exige resolução sobrenatural da maldição; testes repetidos após uma semana ou nova missão, o que ocorrer primeiro.",
+      "description": "Recurso de jogo · Proteções. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Março/2026 · p. 115.",
       "source": "Arquivos Secretos · Março/2026 · p. 115"
     },
     {
@@ -828,7 +828,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Maio",
       "page": 61,
-      "description": "Consumível sobrenatural fictício, categoria II, 1 espaço. Ação de movimento ativa até fim da cena +4 nos testes de ataque e dano corpo a corpo. Impede ações que exigem concentração, como Furtividade e conjuração. Encerra se terminar uma rodada sem atacar nem ser alvo de ação hostil.",
+      "description": "Recurso de jogo · Itens Amaldiçoados. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Maio/2026 · p. 61.",
       "source": "Arquivos Secretos · Maio/2026 · p. 61",
       "tier": "II",
       "spaces": 1
@@ -838,7 +838,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Maio",
       "page": 61,
-      "description": "Equipamento amaldiçoado de Energia, categoria II, 2 espaços. Na ficha, treinamento em Acrobacia, Atletismo ou Pilotagem concede +3m deslocamento enquanto usado como transporte. Como arma improvisada: 1d12 impacto, duas mãos, crítico ×2. Como escudo: +5 Defesa. Modificações e maldições tratam o item como proteção.",
+      "description": "Recurso de jogo · Itens Amaldiçoados. Espaços: 2. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Maio/2026 · p. 61.",
       "source": "Arquivos Secretos · Maio/2026 · p. 61",
       "tier": "II",
       "spaces": 2
@@ -928,7 +928,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Fevereiro",
       "page": 74,
-      "description": "Vestimenta paranormal, categoria III, 1 espaço, não consumida. Uma vez por cena, gera reserva de três d6. Ao conjurar, pode gastar um dado como ação livre para somar ao dano, à cura ou à DT. Limite de um dado por ritual; dados restantes expiram no fim da cena.",
+      "description": "Recurso de jogo · Itens Amaldiçoados. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Fevereiro/2026 · p. 74.",
       "source": "Arquivos Secretos · Fevereiro/2026 · p. 74",
       "tier": "III",
       "spaces": 1
@@ -938,7 +938,7 @@ window.NEX_ARQUIVOS={
       "section": "Geral",
       "month": "Junho",
       "page": 73,
-      "description": "Item medicinal exclusivamente de RPG, categoria I, 1 espaço. Ação padrão; próprio personagem ou ser adjacente; concede 2d8+2 PV temporários, +3m deslocamento e +2 em testes de For, Agi e Vig até fim da cena. Depois aplica fatigado por uma cena. Conta como medicamento.",
+      "description": "Recurso de jogo · Geral. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Junho/2026 · p. 73.",
       "source": "Arquivos Secretos · Junho/2026 · p. 73",
       "tier": "I",
       "spaces": 1
@@ -948,7 +948,7 @@ window.NEX_ARQUIVOS={
       "section": "Armas",
       "month": "Junho",
       "page": 73,
-      "description": "Equipamento ficcional de categoria III, 2 espaços. Estatísticas do RPG: pesado, duas mãos, alcance curto, 6d6 frio, crítico 20/×2. A resolução de área utiliza um teste contra Defesa dos alvos; atingidos ficam enredados até ação padrão, com Fortitude DT Agi reduzindo para lento. Consome a categoria de munição combustível da ficha.",
+      "description": "Recurso de jogo · Armas. Espaços: 2. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Junho/2026 · p. 73.",
       "source": "Arquivos Secretos · Junho/2026 · p. 73",
       "tier": "III",
       "spaces": 2
@@ -961,7 +961,7 @@ window.NEX_ARQUIVOS={
       "source": "Arquivos Secretos · Julho/2026 · p. 78",
       "category": "I",
       "spaces": 2,
-      "description": "Artefato paranormal de categoria I, 2 espaços. Um vestígio de criatura ativa indicação sobrenatural de caminho até ela ou último local em que esteve. O trajeto indicado é sempre perigoso. Dura dez minutos, após os quais consome o vestígio e não pode localizar a mesma criatura novamente."
+      "description": "Recurso de jogo · Itens Amaldiçoados. Categoria: I. Espaços: 2. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Julho/2026 · p. 78."
     },
     {
       "name": "Cajado da Cruz de Sangue",
@@ -971,7 +971,7 @@ window.NEX_ARQUIVOS={
       "source": "Arquivos Secretos · Julho/2026 · p. 78",
       "category": "III",
       "spaces": 2,
-      "description": "Arma ficcional simples, ágil, duas mãos, categoria III, 2 espaços. Dano 1d12 corte, crítico 20/×2; conta como uma mão e leve para Combater com Duas Armas. Para ocultista que conhece ritual de Sangue: −1 PE no custo de rituais e poderes de Sangue, +1 nas DT e um dado extra do mesmo tipo no dano."
+      "description": "Recurso de jogo · Armas. Categoria: III. Espaços: 2. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Julho/2026 · p. 78."
     },
     {
       "name": "Pé de Coelho",
@@ -991,7 +991,7 @@ window.NEX_ARQUIVOS={
       "source": "Arquivos Secretos · Julho/2026 · p. 79",
       "category": "I",
       "spaces": 1,
-      "description": "Barreira sobrenatural de categoria I, 1 espaço. Possui três usos em aberturas ou um uso circular. Criatura de Energia com VD até 80 testa Vontade DT 20 para atravessar: sucesso permite passagem e aplica fatigado; falha impede passagem e aplica enjoado. Condições duram a cena."
+      "description": "Recurso de jogo · Itens Amaldiçoados. Categoria: I. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Julho/2026 · p. 79."
     },
     {
       "name": "Combustível de Sangue",
@@ -1006,7 +1006,7 @@ window.NEX_ARQUIVOS={
       "section": "Armas",
       "month": "Janeiro",
       "page": 55,
-      "description": "Arma ficcional de Sangue, categoria IV, 2 espaços, tática de duas mãos. Dano 2d10 impacto + 2d12 Sangue, crítico 20/×4; a parcela adicional não multiplica sem regra expressa. Empunhar ou atacar custa 1d6 PV na ficha. Crítico: Fortitude DT For evita fraco até cuidados prolongados em interlúdio; repetição da condição aplica debilitado.",
+      "description": "Recurso de jogo · Armas. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro/2026 · p. 55.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 55"
     },
     {
@@ -1077,7 +1077,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 43,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 43",
-      "description": "Estatísticas exclusivamente do RPG: categoria III, 3 espaços, tática de duas mãos; 2d10 balístico, crítico 19/×3, alcance médio, balas longas. Ataque Furtivo permitido em alcance médio; teste em dobro do alcance sofre −5 em vez de −1d20. Na ação mirar, veterano em Pontaria recebe +5 na margem de ameaça.",
+      "description": "Recurso de jogo · Armas. Espaços: 3. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Setembro/2026 · v1.1 · p. 43.",
       "subtitle": "Arma tática · Disparo · Duas mãos",
       "stats": [
         [
@@ -1114,7 +1114,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 44,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 44",
-      "description": "Aliado especial do RPG de categoria III, 2 espaços com o conjunto; controle isolado, zero. Escolha modalidade de aliado drone. Permite testes de Investigação e Percepção por câmera e testes de operação por Pilotagem ou Tecnologia. No modo padrão, ação livre de controle e benefícios de aliado ao personagem selecionado; não recebe ficha própria. A regra opcional de Drones Complexos usa ficha e modificações específicas.",
+      "description": "Recurso de jogo · Geral. Espaços: 2. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Setembro/2026 · v1.1 · p. 44.",
       "stats": [
         [
           "Tipo de item",
@@ -1134,7 +1134,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 50,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 50",
-      "description": "Proteção pesada de uma mão, categoria II, 2 espaços. Defesa +2, RD balístico 10. Ação de movimento concede cobertura leve ao portador e seres Médios ou menores atrás dele até se deslocar. Iluminação em cone de 9m; ação de movimento aplica ofuscado por uma rodada a um ser em alcance curto, uma vez por alvo na cena.",
+      "description": "Recurso de jogo · Proteções. Espaços: 2. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Setembro/2026 · v1.1 · p. 50.",
       "stats": [
         [
           "Proficiência",
@@ -1264,7 +1264,7 @@ window.NEX_ARQUIVOS={
       "month": "Setembro",
       "page": 52,
       "source": "Arquivos Secretos · Setembro/2026 · v1.1 · p. 52",
-      "description": "Estatísticas do RPG: categoria II, 1 espaço, simples de uma mão; 2d6 elétrico, crítico 20/×3, alcance curto. Acerto aplica atordoado por uma rodada, Fortitude DT Agi evita, uma vez por alvo na cena, salvo decisão da mesa. Munição: dardos condutores.",
+      "description": "Recurso de jogo · Armas. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Setembro/2026 · v1.1 · p. 52.",
       "subtitle": "Arma simples · Disparo · Uma mão",
       "stats": [
         [
@@ -1468,18 +1468,18 @@ window.NEX_ARQUIVOS={
         ],
         [
           "Compreensão de Maldições",
-          "NEX 40% — uma ação de interlúdio e 3 PE permitem estudar item amaldiçoado com Ocultismo DT 10 + 5 por categoria. Falha custa 2d4+2 SAN e impede nova tentativa no item. Sucesso custa 1d4+1 SAN e consome o item: se contém ritual, aprende-o sem contar no limite; caso contrário, transfere maldições a outro item ou marcador paranormal de personagem voluntário adjacente ou próprio. Limite de um marcador por pessoa, removível por ação de interlúdio."
+          "Habilidade de progressão da trilha Maledictólogo. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Reproduzir Maldição",
-          "NEX 65% — memorize uma maldição conhecida por uma ação de interlúdio e 3 PE. Para aplicá-la a outro item, use outra ação de interlúdio, 3 PE e Ocultismo DT 10 + 5 por categoria. Falha custa 2d8+2 SAN; sucesso custa 1d8+1 SAN e concede a maldição até fim da missão. Respeita categoria máxima IV."
+          "Habilidade de progressão da trilha Maledictólogo. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Maldição Suprema",
           "NEX 99% — para Reproduzir Maldição, considera o item três categorias abaixo da real, até o limite final IV."
         ]
       ],
-      "description": "Trilha de Ocultista voltada ao estudo e manipulação de objetos amaldiçoados. No NEX 10%, pode gastar 1 PE para receber +1d10 em identificação de itens ou rituais. No NEX 40%, pode estudar um item durante interlúdio, gastando 3 PE e fazendo Ocultismo contra DT definida pela categoria: um sucesso pode permitir aprender um ritual armazenado ou transferir uma maldição, com perda de Sanidade e consumo do item. No NEX 65%, memoriza maldições e pode aplicá-las temporariamente a outros itens por testes e custos. No NEX 99%, reduz em três categorias o valor efetivo usado para calcular a reprodução de uma maldição."
+      "description": "Opção de progressão de Ocultista. As etapas são registradas separadamente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro · p. 45."
     },
     {
       "name": "Criptologista do Oculto",
@@ -1514,7 +1514,7 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Meus Bebês",
-          "NEX 10% — treinamento em Profissão (químico), ou +5 se já treinado. Começa missão com um item explosivo autoral de jogo, fora do limite de itens; quantidade aumenta em um aos NEX 40%, 65% e 99%. Usa exclusivamente a mecânica abstrata de fabricação em campo do RPG."
+          "Habilidade de progressão da trilha Granadeiro Blaster. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Fogo Amigo",
@@ -1537,23 +1537,23 @@ window.NEX_ARQUIVOS={
       "month": "Julho",
       "page": 81,
       "source": "Arquivos Secretos · Julho/2026 · p. 81",
-      "description": "Variante da trilha Monstruoso para Especialista, com progressão própria ligada ao elemento escolhido. Requer as regras opcionais e restrições indicadas no suplemento. Consulte as habilidades por NEX, pois os custos, os benefícios e as penalidades dependem do elemento escolhido.",
+      "description": "Opção de progressão de Especialista. As etapas são registradas separadamente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Julho/2026 · p. 81.",
       "stages": [
         [
           "Ser Experimentado",
-          "NEX 10% — Ocultismo treinado ou +2 se já treinado; −2 em Diplomacia, Enganação e Intuição. Escolha elemento, que define afinidade futura. Uma ação completa diária de transformação paranormal fictícia recupera 1d8+1 PV e ativa efeitos até fim do dia; sem ela, aplicam-se condições de privação do RPG. Sangue: tamanho Grande (+2 manobras, −2 Furtividade), soma For aos testes de For e usa For para PE. Morte: 2d6 PV temporários, uma ação padrão adicional por cena, soma Vig aos testes de Vig e usa Vig para PE. Conhecimento: treinamento em duas perícias escolhidas, soma Int aos testes de Int e usa Int para PE. Energia: uma ação livre extra de sacar item por rodada, +6m em deslocamentos, soma Agi aos testes de Agi e usa Agi para PE. A trilha segue progressão opcional de NEX, dobrando exposição na regra de experiência separada."
+          "Habilidade de progressão da trilha Monstruoso — Especialista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Ser Testado",
-          "NEX 40% — penalidade social da trilha passa a −5; transformação diária recupera 2d8+2 PV. Sangue: +1d6 Sangue em ataques e RD 2, podendo reduzir temporariamente Int para obter os mesmos bônus por ponto. Morte: +1 turno de tolerância na condição morrendo e 2d8 PV temporários no início de cada cena, repetindo esses ganhos por ponto de For temporariamente reduzido. Conhecimento: +1d6 em testes de Int e +2 nesses testes por ponto de Agi temporariamente reduzido. Energia: +1d6 ataque e +2 Defesa, mais +1d4 ataque e +2 Defesa por ponto de Vig temporariamente reduzido. Atributos podem chegar a zero; reduções não afetam PV, PE, SAN ou perícias treinadas e não incluem pontos emprestados por efeitos."
+          "Habilidade de progressão da trilha Monstruoso — Especialista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Ser Expurgado",
-          "NEX 65% — Pre −1 permanente; transformação diária recupera 3d8+3 PV e habilita manifestação sobrenatural, inativa sem a transformação. Sangue: For +1, +1d8 em ataque corpo a corpo, dano elemental de Ser Testado passa a d8; uma vez por rodada, 1 PE permite ataque desarmado adicional. Morte: Vig +1; primeiro contato com item e 3 PE permitem causar 50 de dano de Morte ao objeto (resistência de portador pela manobra quebrar) ou obter visão de seu passado por um minuto. Conhecimento: Int +1; ação completa e 3 PE permitem Detecção de Ameaças discente sobre si pela cena ou Mergulho Mental em outro ser por três rodadas, sem sustentação nem resistência, encerrando ao perder contato; alvo resistente exige teste de ataque. Energia: Agi +1; ação de movimento e 2 PE tornam manifestação intangível pela cena, com +5 em testes apropriados a critério do mestre; interlúdio permite acoplar um item de uma mão, liberando a mão na ficha."
+          "Habilidade de progressão da trilha Monstruoso — Especialista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Ser Apavorante",
-          "NEX 99% — Pre −1 permanente; penalidades sociais passam a −10; transformação diária recupera 4d8+4 PV. Sangue: tamanho Enorme (+5 manobras, −5 Furtividade), soma For aos testes de For; +1 For e Vínculo de Sangue. Morte: 4d6 PV temporários e duas ações padrão adicionais por cena; soma Vig a seus testes, +1 Vig e Distorção Temporal. Conhecimento: três perícias em grau expert, soma Int a seus testes, +1 Int e Controle Mental. Energia: três saques livres por rodada, +12m deslocamentos, soma Agi a seus testes, +1 Agi e Teletransporte. Aplicam-se também as consequências narrativas da trilha Monstruoso."
+          "Habilidade de progressão da trilha Monstruoso — Especialista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ]
       ]
     },
@@ -1563,23 +1563,23 @@ window.NEX_ARQUIVOS={
       "month": "Julho",
       "page": 85,
       "source": "Arquivos Secretos · Julho/2026 · p. 85",
-      "description": "Variante da trilha Monstruoso para Ocultista, baseada em marcas e conexão elemental, com progressão e custos próprios do suplemento. Consulte as habilidades por NEX, pois os custos, os benefícios e as penalidades dependem do elemento escolhido.",
+      "description": "Opção de progressão de Ocultista. As etapas são registradas separadamente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Julho/2026 · p. 85.",
       "stages": [
         [
           "Ser Escarificado",
-          "NEX 10% — +2 Ocultismo; −2 Diplomacia, Enganação e Intuição. Escolha elemento (também define afinidade). Uma ação completa diária de manifestação sobrenatural recupera 1d4 PE e ativa benefícios até fim do dia; sem ela, condições de privação do jogo. Sangue: For +1 e For substitui Pre no cálculo de PE e DT de ritual; Morte: equivalente com Vig; Conhecimento: Int; Energia: Agi. A trilha segue progressão opcional de NEX, dobrando exposição se usada experiência separada."
+          "Habilidade de progressão da trilha Monstruoso — Ocultista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Ser Perfurado",
-          "NEX 40% — penalidade social passa a −5; manifestação diária recupera 1d6 PE. Recebe Tatuagem Ritualística, abrangendo todos os rituais registrados do elemento escolhido; se já possui o poder, troca por outro de Ocultista. +5 em concentração desses rituais. Uma vez por cena, pode conjurar um ritual registrado como reação sob as condições correspondentes: Sangue, machucado ou fadiga; Morte, morrendo ou sentidos; Conhecimento, mental ou medo; Energia, paralisia ou sentidos."
+          "Habilidade de progressão da trilha Monstruoso — Ocultista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Ser Rasgado",
-          "NEX 65% — Pre −1 permanente; manifestação diária recupera 1d8 PE; +2 DT de rituais registrados do elemento. Sangue: ao conjurar, movimento e custo ficcional de 2d8+2 PV permitem conceder a aliado adjacente voluntário +1d20 em testes de Agi, For e Vig pela cena, mediante reação dele. Morte: aprende Cicatrização ou reduz custo em 1 PE se já conhece; após conjurar outro ritual de Morte, pode conjurar Cicatrização como movimento. Conhecimento: após conjurar, movimento e 2 PE permitem cinco perguntas sim/não ao mestre sobre alvo ou, se alvo for o próprio conjurador, percepção de seres e objetos ocultos sobrenaturalmente pela cena. Energia: após conjurar, movimento e 3 PE permitem teletransporte de 3m para espaço livre e bônus de Defesa igual ao custo do ritual por uma rodada."
+          "Habilidade de progressão da trilha Monstruoso — Ocultista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Ser Mutilado",
-          "NEX 99% — Pre −1 permanente; penalidade social −10; manifestação diária recupera 1d12 PE. Sangue: For +1; Morte: Vig +1; Conhecimento: Int +1; Energia: Agi +1. Em todos os casos, rituais registrados do elemento dispensam fala, gestos e componentes, e aprende um ritual de 4º círculo desse elemento. Aplicam-se consequências da trilha Monstruoso."
+          "Habilidade de progressão da trilha Monstruoso — Ocultista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ]
       ]
     },
@@ -1618,7 +1618,7 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Companheiro Drone",
-          "NEX 10% — escolhe treinamento em Pilotagem ou Tecnologia, ou +2 se já treinado. Recebe aliado drone de combate tático fora do limite de itens; modificações apenas pela trilha. Uma ação de interlúdio permite reparo ou reposição pela Ordem quando disponível."
+          "Habilidade de progressão da trilha Piloto de Drone. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Drone em Combate",
@@ -1626,11 +1626,11 @@ window.NEX_ARQUIVOS={
         ],
         [
           "Drone em Interlúdio",
-          "NEX 65% — por 3 PE, drone protege descanso do grupo, impedindo interrupções quando possível; caso contrário evita surpresa ou desprevenido. Dormir recupera +2 PV e +2 PE. Mais duas modificações sem categoria (total quatro); custo de proteção do drone cai para 2 PE. Em Drones Complexos, alcance de ajuda passa a longo."
+          "Habilidade de progressão da trilha Piloto de Drone. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ],
         [
           "Drone de Eficiência Máxima",
-          "NEX 99% — ação padrão e 5 PE concedem ajuda simultânea ao piloto e até cinco seres em alcance longo até fim da cena; aliado além de 36m perde ajuda enquanto fora desse limite. Mais três modificações sem categoria (total sete); proteção do drone custa 1 PE."
+          "Habilidade de progressão da trilha Piloto de Drone. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
         ]
       ],
       "description": "Especialista em comandar drones como aliados, tanto em exploração quanto no suporte à equipe."
@@ -1643,7 +1643,7 @@ window.NEX_ARQUIVOS={
       "element": "Energia",
       "month": "Abril",
       "page": 68,
-      "description": "Energia 2. Padrão; curto; duração 24h. Cria duplicata em espaço livre, que repete movimentos simples e uma frase escolhida. O vínculo tem raio de 50 km. Uma reação troca a posição do conjurador e da cópia, custando 2d4 SAN. Termina se a cópia sofrer dano ou o conjurador deixar a área vinculada.\nDiscente (+2 PE, 2º círculo): permanente; ação padrão alterna a visão e audição para a cópia, deixando o conjurador cego, surdo e pasmo enquanto usa o efeito.\nVerdadeiro (+5 PE, 3º círculo): inclui o Discente; permite falar através da cópia e escolher aparência conhecida. Ao trocar de posição, pode encerrar o ritual causando 6d6 de Energia nos seres em alcance curto dos dois pontos (Reflexos metade).",
+      "description": "Ritual de Energia; círculo 2. Função: Suporte. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Abril · p. 68.",
       "ritualType": "Suporte"
     },
     {
@@ -1652,7 +1652,7 @@ window.NEX_ARQUIVOS={
       "element": "Conhecimento",
       "month": "Junho",
       "page": 72,
-      "description": "Conhecimento 1. Padrão; curto; uma pessoa; sustentada; Vontade parcial. No início de cada turno do alvo, falhar na resistência exige repetir o maior dado de cada teste naquele turno. Dois sucessos consecutivos encerram o efeito.\nDiscente (+2 PE, 2º círculo): afeta um ser; além do normal, se falhar, não pode realizar ações hostis contra o conjurador.\nVerdadeiro (+5 PE, 3º círculo e afinidade): Vontade anula; substitui o efeito por repetir o menor dado de cada teste e aceitar o novo resultado. Quando um aliado adjacente é atacado, o alvo usa reação para receber o ataque no lugar dele. Um alvo involuntário pode testar Vontade no início dos turnos.",
+      "description": "Ritual de Conhecimento; círculo 1. Função: Suporte. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Junho · p. 72.",
       "ritualType": "Suporte"
     },
     {
@@ -1662,7 +1662,7 @@ window.NEX_ARQUIVOS={
       "otherElement": "Sangue",
       "month": "Janeiro",
       "page": 48,
-      "description": "Sangue e Conhecimento 2. Completa; toque; uma pessoa; cena; Vontade evita. Na ficção, pode ocupar temporariamente o corpo do alvo, deixando o corpo original inconsciente, ou trocar as consciências. As fichas mantêm atributos mentais e passam a usar os atributos físicos do corpo ocupado, com características inatas a critério do mestre. Na ocupação unilateral, o alvo pode repetir Vontade no começo de seus turnos, ou mais vezes se o mestre permitir; sucesso devolve o controle. Na troca completa, não há nova resistência; termina pela duração ou nova conjuração. A morte de um corpo elimina a consciência que o ocupa; se o corpo original for perdido durante ocupação unilateral, o retorno não é possível.\nDiscente (+3 PE, 2º círculo): curto e um dia; na ocupação unilateral, resistência uma vez ao dia ou à cena, o que ocorrer mais vezes.\nVerdadeiro (+7 PE, 4º círculo e afinidade): médio, permanente; resistência unilateral uma vez ao ano.",
+      "description": "Ritual de Conhecimento; círculo 2. Função: Suporte. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro/2026 · p. 48.",
       "ritualType": "Suporte",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 48"
     },
@@ -1673,7 +1673,7 @@ window.NEX_ARQUIVOS={
       "month": "Julho",
       "page": 76,
       "source": "Arquivos Secretos · Julho/2026 · p. 76",
-      "description": "Sangue 2. Completa; toque; uma pessoa; um dia. Efeito sobrenatural exclusivamente ficcional de transferência de memórias e capacidades. Cada benefício é utilizável uma vez por alvo e dura um dia, exceto recuperação instantânea de PV. A mesma pessoa não pode ser afetada novamente após o término.\nForma básica: Visão +2 em ataque; Audição acesso a um ritual de 1º círculo conhecido pelo alvo; Paladar recupera 3d8+3 PV; Olfato +5 para rastrear um ser ligado ao alvo; Tato concede treinamento em uma perícia conhecida pelo alvo ou +2 se já treinado.\nDiscente (+7 PE, 3º círculo): respectivamente +5, ritual de 2º círculo, 6d8+6 PV, +10, e grau veterano ou +4 se já veterano.\nVerdadeiro (+12 PE, 4º círculo e afinidade): respectivamente +10, ritual de 3º círculo, 9d8+9 PV, +15, e grau expert ou +6 se já expert.",
+      "description": "Ritual de Sangue; círculo 2. Função: Suporte. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Julho/2026 · p. 76.",
       "ritualType": "Suporte"
     }
   ],
