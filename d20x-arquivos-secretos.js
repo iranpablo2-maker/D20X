@@ -1689,7 +1689,7 @@ window.NEX_ARQUIVOS={
       "role": "Proteção de aliados e combate defensivo",
       "kind": "NPC",
       "status": "referência",
-      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+      "description": "Protetor da equipe Hell Hunters, especializado em defender companheiros. Na ficha de RPG: VD 140, Defesa 30 e 200 PV. As habilidades e ações cadastradas ficam na ficha de ameaça correspondente."
     },
     {
       "name": "Karen Brown",
@@ -1702,7 +1702,7 @@ window.NEX_ARQUIVOS={
       "role": "Atiradora de precisão e chefe de Confronto",
       "kind": "NPC",
       "status": "referência",
-      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+      "description": "Integrante da Hell Hunters responsável pela coordenação de confrontos. Na ficha de RPG: VD 160, Defesa 33 e 240 PV. As habilidades e ações cadastradas ficam na ficha de ameaça correspondente."
     },
     {
       "name": "Troy Walker",
@@ -1715,7 +1715,7 @@ window.NEX_ARQUIVOS={
       "role": "Combatente de linha de frente",
       "kind": "NPC",
       "status": "referência",
-      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+      "description": "Integrante da linha de frente da Hell Hunters. Na ficha de RPG: VD 140, Defesa 29 e 180 PV. As habilidades e ações cadastradas ficam na ficha de ameaça correspondente."
     },
     {
       "name": "Roy Stevens",
@@ -1728,7 +1728,7 @@ window.NEX_ARQUIVOS={
       "role": "Médico de campo e suporte",
       "kind": "NPC",
       "status": "referência",
-      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+      "description": "Responsável pelo atendimento e suporte aos integrantes da equipe. Na ficha de RPG: VD 160, Defesa 32 e 250 PV. As habilidades e ações cadastradas ficam na ficha de ameaça correspondente."
     },
     {
       "name": "Stella Green",
@@ -1741,7 +1741,7 @@ window.NEX_ARQUIVOS={
       "role": "Piloto e mecânica",
       "kind": "NPC",
       "status": "referência",
-      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+      "description": "Piloto e mecânica da Hell Hunters. Na ficha de RPG: VD 140, Defesa 29 e 190 PV. As habilidades e ações cadastradas ficam na ficha de ameaça correspondente."
     },
     {
       "name": "Arnold Strolley",
@@ -1754,7 +1754,7 @@ window.NEX_ARQUIVOS={
       "role": "Especialista em engenharia e equipamentos",
       "kind": "NPC",
       "status": "referência",
-      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+      "description": "Especialista da equipe em engenharia e equipamentos. Na ficha de RPG: VD 140, Defesa 30 e 200 PV. As habilidades e ações cadastradas ficam na ficha de ameaça correspondente."
     },
     {
       "name": "Chloe Grey",
@@ -1767,7 +1767,7 @@ window.NEX_ARQUIVOS={
       "role": "Administração, investigação e apoio",
       "kind": "NPC",
       "status": "referência",
-      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+      "description": "Responsável por investigação, administração e apoio à equipe. Na ficha de RPG: VD 140, Defesa 29 e 170 PV. As habilidades e ações cadastradas ficam na ficha de ameaça correspondente."
     },
     {
       "name": "Ryder Staten",
@@ -1780,7 +1780,7 @@ window.NEX_ARQUIVOS={
       "role": "Líder e coordenador do grupo",
       "kind": "NPC",
       "status": "referência",
-      "description": "Ficha de NPC no suplemento; consulte as ações e habilidades no livro."
+      "description": "Líder da Hell Hunters e responsável pela coordenação do grupo. Na ficha de RPG: VD 200, Defesa 34 e 320 PV. As habilidades e ações cadastradas ficam na ficha de ameaça correspondente."
     }
   ]
 };
