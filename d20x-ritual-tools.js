@@ -136,7 +136,7 @@ function occultismRoll(cost,bonus){
  return {rolls,chosen,training,bonus,total,dt,passed:total>=dt,shortfall:Math.max(0,dt-total),attr};
 }
 function targetRitualDT(){
- return 10+(Number(maxValues().peLimit)||0)+(Number(state.attributes?.pre)||0)+(Number(state.ritualDtBonus)||0);
+ return 10+(Number(maxValues().peLimit)||0)+(Number(state.attributes?.pre)||0)+(Number(state.ritualDtBonus)||0)+(state.class==='Ocultista'&&state.trailByClass?.Ocultista==='Graduado'&&Number(state.nex)>=65?5:0);
 }
 function applyCastSanity(element,version,cost,check){
  const fear=norm(element)==='medo';
