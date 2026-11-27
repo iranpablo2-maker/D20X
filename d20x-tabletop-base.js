@@ -1,9 +1,9 @@
 /* D20X Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './d20x-vtt-media-cache.js?v=20261122mp4cache200';
 import {mountNexLocalMusic} from './d20x-vtt-local-music.js?v=20261117hideplaylist4';
-import {mountNexPeerMedia} from './d20x-vtt-peer-media.js?v=20261122mp4peer200';
+import {mountNexPeerMedia} from './d20x-vtt-peer-media.js?v=20261127localshared1';
 import {createVttLocalScene} from './d20x-vtt-local-scene.js?v=20261120commitfix49';
-export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null}){
+export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null,shared=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
  if(!board||!tools)return ()=>{};
  const ref=doc(db,'campaigns',campaignId,'tabletop','state');
@@ -1965,6 +1965,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   getAudioStream:()=>localAudioCleanup.getStream?.()||null,
   onChat:item=>{if(!disposed)window.dispatchEvent(new CustomEvent('nex:vtt-chat-message',{detail:{campaignId,item}}));},
   getScene:()=>gm?networkScene():null,
+  onSharedPeer:player=>{if(!disposed)shared?.onPeer?.(player);},
+  onSharedState:record=>{if(!disposed)shared?.onState?.(record);},
+  onSharedRequest:(request,player)=>{if(disposed||!shared?.onRequest)throw Error('Mesa indisponível');return shared.onRequest(request,player);},
   onTokenAction:({action,id,sourceId,variation})=>{
    if(!gm||disposed||!remoteReady)return;
    const token=scene.tokens.find(t=>t.id===id);
@@ -2036,6 +2039,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   onConnected:()=>{mediaFailed.clear();if(!disposed)render();},
   onDisconnected:()=>{if(!disposed)render();}
  });
+ shared?.bind?.({request:request=>peerMedia?.requestShared?peerMedia.requestShared(request):Promise.reject(Error('WebRTC indisponível')),send:(player,record)=>peerMedia?.sendSharedState?peerMedia.sendSharedState(player,record):Promise.reject(Error('WebRTC indisponível'))});
  // Apenas a primeira abertura do mestre lê o documento antigo para migração.
  // Nenhuma nova posição/configuração de mesa é gravada no Firestore.
  const unsubscribe=()=>{};
