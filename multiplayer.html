@@ -3257,15 +3257,30 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   (actor===roomData?.gmUid||roomMembers.some(member=>(member.uid||member.id)===actor));}
  function sharedSend(player,sheet){
   if(!gm||!sharedReady||!sharedTransport||!sharedCanAccess(sheet,player)||sheet.isHidden)return;
-  const record=sharedRecords[sharedKey(sheet.id)]||sheetRecord(sheet,0);
-  if(record.identity!==sharedSheetIdentity(sheet))return;
-  void sharedTransport.send(player,{id:sheet.id,record}).catch(error=>console.warn('Ficha direta não entregue',error));
+  try{
+   const cached=sharedRecords[sharedKey(sheet.id)],record=cached?.identity===sharedSheetIdentity(sheet)?cached:sheetRecord(sheet,0);
+   void sharedTransport.send(player,{id:sheet.id,record}).catch(error=>console.warn('Ficha direta não entregue',error));
+  }catch(error){console.warn('Ficha direta indisponível',error);}
  }
  function sharedBroadcast(sheet){for(const player of sharedPeers)sharedSend(player,sheet);}
  function sharedPeer(player){
   if(!gm)return;
   sharedPeers.add(player);
   for(const sheet of sharedCatalog())sharedSend(player,sheet);
+ }
+ const sharedReads=new Set();
+ function sharedRequestMissing(){
+  if(gm||!sharedTransport||!vttHostActive)return;
+  const campaign=roomId,actor=uid;
+  for(const sheet of sharedCatalog()){
+   if(!canEditSharedSheet(sheet,actor,roomData?.gmUid)||sheet.isHidden)continue;
+   const key=sharedKey(sheet.id);
+   if(sharedRecords[key]?.identity===sharedSheetIdentity(sheet)||sharedReads.has(key))continue;
+   sharedReads.add(key);
+   void sharedTransport.request({kind:'read',id:sheet.id}).then(result=>{
+    if(roomId===campaign&&uid===actor)sharedIncoming(result);
+   }).catch(error=>{if(roomId===campaign&&uid===actor)console.warn('Ficha direta ainda indisponível',error);}).finally(()=>{if(roomId===campaign&&uid===actor)sharedReads.delete(key);});
+  }
  }
  function sharedIncoming(payload){
   if(gm||!roomId||!payload||typeof payload.id!=='string')return;
@@ -3311,6 +3326,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    const catalog=sharedLookup(request.id);
    if(!catalog||!sharedCanAccess(catalog,actor))throw Error('Sem permissão para editar esta ficha');
    const sheet=sharedCurrent(catalog);
+   if(!transform&&request.kind==='read')return {id:catalog.id,record:sharedRecords[sharedKey(catalog.id)]?.identity===sharedSheetIdentity(catalog)?sharedRecords[sharedKey(catalog.id)]:sheetRecord(catalog,0)};
    let updated;
    if(transform){
     if(actor!==roomData.gmUid)throw Error('Somente o mestre altera efeitos');
@@ -3334,13 +3350,15 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  async function sharedSubmit(request){
   if(gm)return sharedMasterChange(request,uid);
   if(!sharedTransport)throw Error('Abra o Tabletop e conecte-se ao mestre.');
+  const campaign=roomId,actor=uid;
   const result=await sharedTransport.request(request);
-  if(roomId&&result?.id===request.id)sharedIncoming(result);
+  if(roomId!==campaign||uid!==actor)throw Error('Campanha alterada');
+  if(result?.id===request.id)sharedIncoming(result);
   return result;
  }
  function sharedRemember(sheet,data){sharedBaselines.set(sheet.id,JSON.parse(JSON.stringify(data)));}
  function sharedReset(){
-  sharedStore=null;sharedRecords={};sharedTransport=null;sharedReady=false;sharedPeers=new Set();sharedBaselines.clear();
+  sharedStore=null;sharedRecords={};sharedTransport=null;sharedReady=false;sharedPeers=new Set();sharedBaselines.clear();sharedReads.clear();
   sharedQueue=Promise.resolve();sharedEditorQueue=Promise.resolve();
  }
 
@@ -4008,6 +4026,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  window.addEventListener('nex:vtt-session-state',event=>{
   if(!event.detail||event.detail.campaignId!==roomId||gm)return;
   vttHostActive=event.detail.active===true;
+  if(vttHostActive)sharedRequestMissing();else{sharedRecords={};sharedReads.clear();refreshRoomSheets();}
   updateTabletopAccess();
   if(vttHostActive&&nexPendingTabletopRestore===roomId){
     nexPendingTabletopRestore='';
@@ -5099,7 +5118,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     if(gm)for(const m of roomMembers)ensurePlayerIndex(id,m.uid).catch(error=>console.warn('Índice do jogador',error));
   },e=>notice('Não foi possível carregar participantes: '+e.message)));
   unsubs.push(onSnapshot(collection(db,'campaigns',id,'sheets'),snapshot=>{
-    publicSheets=snapshot.docs.map(d=>({id:d.id,...d.data(),isHidden:false}));refreshRoomSheets();if(gm){void sharedImportCatalog().then(()=>{for(const p of sharedPeers)sharedPeer(p);}).catch(error=>notice('Importação local: '+String(error.message||error)));}
+    publicSheets=snapshot.docs.map(d=>({id:d.id,...d.data(),isHidden:false}));if(!gm){for(const key of Object.keys(sharedRecords)){const sheet=publicSheets.find(sh=>sharedKey(sh.id)===key);if(!sheet||!canEditSharedSheet(sheet,uid,roomData?.gmUid)||sharedRecords[key].identity!==sharedSheetIdentity(sheet))delete sharedRecords[key];}}refreshRoomSheets();if(gm){void sharedImportCatalog().then(()=>{if(roomId===id)for(const p of sharedPeers)sharedPeer(p);}).catch(error=>notice('Importação local: '+String(error.message||error)));}else sharedRequestMissing();
   },e=>notice('Não foi possível carregar fichas: '+e.message)));
   if(gm)unsubs.push(onSnapshot(collection(db,'campaigns',id,'privateSheets'),snapshot=>{
     privateSheets=snapshot.docs.map(d=>({id:d.id,...d.data(),isHidden:true}));refreshRoomSheets();void sharedImportCatalog().catch(error=>notice('Importação local: '+String(error.message||error)));
