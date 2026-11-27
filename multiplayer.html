@@ -3185,6 +3185,7 @@ document.addEventListener('click',function(event){
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127homebrewmanual1';
 import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared2';
+import {createCampaignLocalStore} from './d20x-campaign-local.js?v=1';
 import {mountGmShield} from './d20x-gm-shield.js?v=20261127campaignlocal1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocFromServer,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -3240,6 +3241,23 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const app=initializeApp(cfg);auth=getAuth(app);db=getFirestore(app);
  }catch(err){show('setup',true);notice('Configuração Firebase inválida.');throw err;}
  let uid=null,roomId='',gm=false,roomData=null,roomMembers=[],roomSheets=[],roomRequests=[],unsubs=[],editing=null,campaignUnsub=null,myCampaigns=[],privateShield=true,playerCampaigns=[],joinedUnsub=null,inviteUnsub=null,inviteState='checking';
+ let campaignMetaStore=null,campaignMeta=null;
+ const campaignMetaCache=new Map();
+ function cleanCampaignMeta(raw){
+  const name=String(raw?.name||'Campanha').trim().slice(0,100)||'Campanha',description=String(raw?.description||'').slice(0,4000);
+  const cover=typeof raw?.coverUrl==='string'?raw.coverUrl:'';
+  const coverUrl=cover.length<=390000&&(/^(?:data:image\/jpeg;base64,[a-z0-9+/=]+|https:\/\/[^\s<>"']+)$/i.test(cover))?cover:'';
+  return {name,description,coverUrl};
+ }
+ function applyCampaignMeta(value){
+  campaignMeta=cleanCampaignMeta(value);roomData={...roomData,...campaignMeta};
+  campaignMetaCache.set(roomId,campaignMeta);
+  $('roomTitle').textContent=campaignMeta.name;$('roomDescription').textContent=campaignMeta.description;updateRoomCover();renderLibrary();
+ }
+ function sendCampaignMeta(player){
+  if(!gm||!campaignMeta||!sharedTransport||!roomMembers.some(m=>(m.uid||m.id)===player))return;
+  void sharedTransport.send(player,{kind:'campaign-metadata',value:campaignMeta}).catch(error=>console.warn('Metadados diretos indisponíveis',error));
+ }
  let vttHostActive=false;
  let gmShield=null;
  const localPortraits=new Map();
@@ -3266,6 +3284,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function sharedPeer(player){
   if(!gm)return;
   sharedPeers.add(player);
+  sendCampaignMeta(player);
   for(const sheet of sharedCatalog())sharedSend(player,sheet);
  }
  const sharedReads=new Set();
@@ -3283,7 +3302,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }
  }
  function sharedIncoming(payload){
-  if(gm||!roomId||!payload||typeof payload.id!=='string')return;
+  if(gm||!roomId||!payload)return;
+  if(payload.kind==='campaign-metadata'){if(payload.value&&typeof payload.value.name==='string')applyCampaignMeta(payload.value);return;}
+  if(typeof payload.id!=='string')return;
   const sheet=sharedLookup(payload.id),record=payload.record;
   if(!sheet||!canEditSharedSheet(sheet,uid,roomData?.gmUid)||sheet.isHidden||
      !record||record.identity!==sharedSheetIdentity(sheet)||!Number.isSafeInteger(record.revision)||record.revision<0)return;
@@ -3390,7 +3411,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
 
  function sharedReset(){
-  sharedStore=null;sharedRecords={};sharedTransport=null;sharedReady=false;sharedPeers=new Set();sharedBaselines.clear();sharedReads.clear();
+  campaignMetaStore=null;campaignMeta=null;sharedStore=null;sharedRecords={};sharedTransport=null;sharedReady=false;sharedPeers=new Set();sharedBaselines.clear();sharedReads.clear();
   sharedQueue=Promise.resolve();sharedEditorQueue=Promise.resolve();
  }
 
@@ -3849,18 +3870,17 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(!name)throw Error('Nome obrigatório.');
   if(coverUrl && !/^data:image\/jpeg;base64,|^https:\/\//i.test(coverUrl))throw Error('Imagem inválida.');
   if(coverUrl.length>390000)throw Error('Imagem grande demais.');
-  try{
-   await updateDoc(doc(db,'campaigns',roomId),{name,description,coverUrl});
-  }catch(error){
-   if(error?.code==='permission-denied'){
-    $('roomImageSummary').textContent='A imagem foi selecionada, mas o Firebase bloqueou o salvamento. Publique as regras atualizadas do Firestore para permitir a capa.';
-    throw Error('A capa não foi salva porque o Firebase recusou a alteração. Publique as regras atuais do Firestore do D20X.');
-   }
-   throw error;
-  }
-  roomData={...roomData,name,description,coverUrl};
-  $('roomTitle').textContent=name;$('roomDescription').textContent=description;
-  updateRoomCover();$('roomEditConfiguration').hidden=true;notice('Campanha atualizada.');
+  const account=uid,campaign=roomId,store=campaignMetaStore;
+  if(!store||!campaignMeta)throw Error('O armazenamento local da campanha ainda não está pronto.');
+  const next=cleanCampaignMeta({name,description,coverUrl});
+  await store.save(next);
+  if(uid!==account||roomId!==campaign||campaignMetaStore!==store)return;
+  applyCampaignMeta(next);
+  for(const player of sharedPeers)sendCampaignMeta(player);
+  $('roomEditConfiguration').hidden=true;
+  // Somente o título de descoberta continua no índice remoto.
+  try{await updateDoc(doc(db,'campaigns',campaign),{name:next.name});notice('Configuração salva no dispositivo do mestre.');}
+  catch(error){notice('Configuração local salva; o título do convite remoto não foi atualizado.');}
  });
  $('nexRefreshAgents').addEventListener('click',()=>refreshNexAgents());
  $('nexLinkAgent').addEventListener('click',()=>run(async()=>{
@@ -3939,7 +3959,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  window.addEventListener("message",event=>{if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=="d20x-campaign-system")return;const selected=event.data.system;if(!campaignSystems.includes(selected))return;campaignSystemFilter=selected;renderLibrary();});
  function renderLibrary(){
   const all=new Map();
-  for(const c of [...playerCampaigns,...myCampaigns])all.set(c.id,{...all.get(c.id),...c,role:c.gmUid===uid?'Mestre':'Jogador'});
+  for(const c of [...playerCampaigns,...myCampaigns])all.set(c.id,{...all.get(c.id),...c,...campaignMetaCache.get(c.id),role:c.gmUid===uid?'Mestre':'Jogador'});
   const entries=[...all.values()].filter(c=>(c.system||"Ordem Paranormal")===campaignSystemFilter).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
   $('campaignCount').textContent='Campanhas: '+entries.length;
   show('campaignLoading',false);show('campaignEmpty',entries.length===0);
@@ -3957,7 +3977,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function subscribeCampaigns(){
   if(campaignUnsub){campaignUnsub();campaignUnsub=null;}
   if(joinedUnsub){joinedUnsub();joinedUnsub=null;}
-  myCampaigns=[];playerCampaigns=[];
+  myCampaigns=[];playerCampaigns=[];campaignMetaCache.clear();
   $('campaignCards').innerHTML='';
   show('campaignLoading',!!uid);show('campaignEmpty',false);
   $('campaignCount').textContent='Campanhas: 0';
@@ -3966,6 +3986,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   campaignUnsub=onSnapshot(query(collection(db,'campaigns'),where('gmUid','==',account)),snapshot=>{
    if(uid!==account)return;
    myCampaigns=snapshot.docs.map(d=>({id:d.id,...d.data()}));renderLibrary();
+   for(const c of myCampaigns){void createCampaignLocalStore(account,c.id,'metadata').read().then(meta=>{if(uid===account&&meta&&!campaignMetaCache.has(c.id)){campaignMetaCache.set(c.id,cleanCampaignMeta(meta));renderLibrary();}}).catch(error=>console.warn('Metadados locais indisponíveis',error));}
   },error=>{
    show('campaignLoading',false);
    notice('Não foi possível carregar suas campanhas de mestre: '+error.message);
@@ -5169,6 +5190,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const snap=await getDoc(ref);
   if(!snap.exists()){notice('Campanha não encontrada.');return;}
   roomId=id;roomData=snap.data();gm=roomData.gmUid===uid;
+  if(gm){const account=uid,store=createCampaignLocalStore(account,id,'metadata');campaignMetaStore=store;try{let meta=await store.read();if(meta===null){const authoritative=await getDocFromServer(ref);if(!authoritative.exists()||authoritative.data().gmUid!==account)throw Error('Campanha não autorizada');meta=await store.seed(cleanCampaignMeta(authoritative.data()));}if(uid!==account||roomId!==id||campaignMetaStore!==store)return;applyCampaignMeta(meta);}catch(error){notice('Configuração local indisponível: '+String(error.message||error));}}else if(campaignMetaCache.has(id))applyCampaignMeta(campaignMetaCache.get(id));
   window.dispatchEvent(new CustomEvent('nex:vtt-library-role-refresh',{detail:{campaignId:id}}));
   chatReset(id);
   if(!gm)syncOwnMemberProfile(id).catch(error=>console.warn('Perfil do jogador indisponível',error));
