@@ -1479,7 +1479,7 @@ window.NEX_ARQUIVOS={
           "NEX 99% — para Reproduzir Maldição, considera o item três categorias abaixo da real, até o limite final IV."
         ]
       ],
-      "description": "Trilha de Ocultista centrada em identificar, estudar e transferir maldições ficcionais. NEX 10%: identificação; 40%: compreensão; 65%: reprodução; 99%: especialização máxima. Consulte cada habilidade para os custos, testes e limites cadastrados."
+      "description": "Trilha de Ocultista voltada ao estudo de maldições: em NEX 10%, melhora testes de identificação; em 40%, permite analisar e transferir maldições ou aprender rituais de itens; em 65%, possibilita memorizar e reproduzir maldições durante uma missão; em 99%, reduz a categoria considerada para os testes de reprodução."
     },
     {
       "name": "Criptologista do Oculto",
