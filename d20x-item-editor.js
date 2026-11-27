@@ -589,12 +589,12 @@ function weaponCriticalSettings(d){
 function weaponData(item){
  const d=detail(item);
  const distance=/disparo|fogo|dist[aâ]ncia|arremesso/i.test(String(d.kind||''));
- const skillName=distance?'Pontaria':'Luta';
- const skill=state.skills?.[skillName]||{};
- const attribute=['agi','for','int','pre','vig'].includes(skill.attr)?skill.attr:(distance?'agi':'for');
- const value=Math.max(0,Math.min(20,Math.trunc(Number(state.attributes?.[attribute])||0)));
  const effects=typeof window.NEX_B100_WEAPON==='function'?window.NEX_B100_WEAPON(item,d):{};
- const bonus=(Number(skill.training)||0)+(Number(skill.other)||0)+(Number(d.attackBonus)||0)+(typeof nexOfficialGrantedSkillBonus==='function'?nexOfficialGrantedSkillBonus(skillName,skill.training):0)+(typeof nexOfficialSkillBonus==='function'?nexOfficialSkillBonus(skillName):0)+(typeof nexItemBonuses==='function'?Number(nexItemBonuses().skills?.[skillName]||0):0);
+ const skillName=effects.skillOverride||(distance?'Pontaria':'Luta');
+ const skill=state.skills?.[skillName]||{};
+ const attribute=['agi','for','int','pre','vig'].includes(skill.attr)?skill.attr:(skillName==='Artes'?'pre':distance?'agi':'for');
+ const value=Math.max(0,Math.min(20,typeof nexB150Attribute==='function'?nexB150Attribute(attribute):Math.trunc(Number(state.attributes?.[attribute])||0)));
+ const bonus=(Number(skill.training)||0)+(Number(skill.other)||0)+(Number(d.attackBonus)||0)+(Number(effects.attackBonus)||0)+(typeof nexOfficialGrantedSkillBonus==='function'?nexOfficialGrantedSkillBonus(skillName,skill.training):0)+(typeof nexOfficialSkillBonus==='function'?nexOfficialSkillBonus(skillName):0)+(typeof nexItemBonuses==='function'?Number(nexItemBonuses().skills?.[skillName]||0):0);
  const pool=value-(Number(effects.penalty)||0);
  const dieCount=pool<=0?2-pool:pool;
  const {threshold:baseThreshold,multiplier:baseMultiplier}=weaponCriticalSettings(d);
@@ -780,14 +780,15 @@ document.addEventListener('click',e=>{
  const damageDetail=damage.detail+(originBonus?' + bônus '+originBonus:'')+(itemBonus?' + melhoria '+itemBonus:'');
  const secondaryDetail=secondary?secondary.detail:'';
  if(pendingMatches)state.nexAutoPending=null;
- if(w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak){
+ if(w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak||w.effects.intuitive){
   const r={...(state.nexAutoRoundUses||{})};
   if(w.effects.aimed)delete r.b100Aim;
   if(w.effects.favoriteChoice)delete r.b100FavoriteOptions;
-  if(w.effects.sneak){delete r.b100Sneak;r['b100:Ataque Furtivo']=true;}
+  if(w.effects.sneak){delete r.b100Sneak;r['b100:Ataque Furtivo']=true;if(state.nexAutoSceneUses?.b189Prepared){state.nexAutoSceneUses={...state.nexAutoSceneUses,b189Prepared:false};}}
+  if(w.effects.intuitive)delete r['b189:Tiro Intuitivo'];
   state.nexAutoRoundUses=r;
  }
- if(pendingMatches||w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak){save();queueMicrotask(()=>{if(typeof renderStats==='function')renderStats();if(typeof renderAttacks==='function')renderAttacks();});}
+ if(pendingMatches||w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak||w.effects.intuitive){save();queueMicrotask(()=>{if(typeof renderStats==='function')renderStats();if(typeof renderAttacks==='function')renderAttacks();});}
  if(hasEnergy){
   state.peCurrent=Math.max(0,Number(state.peCurrent||0)-2);
   const energyCheckbox=button.closest('.nex-combat-equipped')?.querySelector('[data-nex-energy-active]');
