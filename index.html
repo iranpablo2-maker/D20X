@@ -2255,6 +2255,13 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 #sheetScreen #attributes .attr-pre,#wAttributes .w-art-pre{left:69.2%!important;top:74.1%!important;right:auto!important;bottom:auto!important}
 #sheetScreen #attributes .attr .nex-attr-roll,#sheetScreen #attributes .attr .nex-attr-editor,#wAttributes .wizard-attribute-art .w-art-number input{font-family:Georgia,"Times New Roman",serif!important;font-size:clamp(18px,5vw,28px)!important;line-height:1!important;font-weight:700!important;}
 </style>
+<style id="d20x-compact-trail">
+#n19TrailPanel:not(.hide){display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,1fr);align-items:center;gap:4px 10px;padding:7px 10px;margin-block:6px}
+#n19TrailPanel .n19-trail-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0}
+#n19TrailPanel #n19TrailHint{grid-column:1/-1;grid-row:2;margin:0;font-size:10px;line-height:1.25}
+#n19TrailPanel #n19TrailSelect{grid-column:2;grid-row:1;width:100%;min-width:0;min-height:30px;height:30px;margin:0;padding:4px 8px}
+@media(max-width:380px){#n19TrailPanel:not(.hide){grid-template-columns:1fr}#n19TrailPanel #n19TrailSelect{grid-column:1;grid-row:2}#n19TrailPanel #n19TrailHint{grid-row:3}}
+</style>
 </head><body>
 <script src="d20x-sobrevivendo-ao-horror.js?v=20261125revisao40"></script>
 <script src="d20x-arquivos-secretos.js?v=20261125revisao136"></script>
