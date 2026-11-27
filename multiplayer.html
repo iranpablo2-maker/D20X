@@ -3183,7 +3183,7 @@ document.addEventListener('click',function(event){
 <script src="./d20x-ritual-guides.js?v=20261127descricao4"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127localshared3';
+import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127localdice1';
 import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared2';
 import {mountGmShield} from './d20x-gm-shield.js?v=20261127systemIsolation1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
@@ -4033,7 +4033,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   return sharedSubmit({kind:'resource',id:sheetId,field,amount:Number(amount),mode});
  }
  function subscribeTabletop(id){
-  try{unsubs.push(mountNexTabletop({db,doc,collection,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId:id,uid,gm,getIdToken:()=>auth.currentUser?.getIdToken(),getSheets:()=>roomSheets,updateResource:updateVttSheetResource,shared:{bind:transport=>{if(roomId===id)sharedTransport=transport;},onPeer:player=>{if(roomId===id)sharedPeer(player);},onState:record=>{if(roomId===id)sharedIncoming(record);},onRequest:(request,player)=>{if(roomId!==id)throw Error('Campanha indisponível');return sharedMasterChange(request,player);}},onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
+  try{unsubs.push(mountNexTabletop({db,doc,collection,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId:id,uid,gm,getIdToken:()=>auth.currentUser?.getIdToken(),getSheets:()=>roomSheets,updateResource:updateVttSheetResource,shared:{memberName:player=>{if(roomId!==id||!gm)return null;const member=roomMembers.find(m=>(m.uid||m.id)===player);return member?String(member.name||member.displayName||'Jogador'):null;},bind:transport=>{if(roomId===id)sharedTransport=transport;},onPeer:player=>{if(roomId===id)sharedPeer(player);},onState:record=>{if(roomId===id)sharedIncoming(record);},onRequest:(request,player)=>{if(roomId!==id)throw Error('Campanha indisponível');return sharedMasterChange(request,player);}},onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
   catch(error){console.error('Falha ao iniciar Tabletop',error);$('nexTabletopMessage').textContent='Falha ao iniciar mesa virtual.';}
  }
  const vttUnavailable=document.createElement('p');
