@@ -3033,6 +3033,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
   <section id="roomEditConfiguration" class="campaign-configuration" hidden>
    <h3>Editar campanha</h3>
    <label>Nome da campanha<input id="roomEditName" maxlength="100"></label>
+   <label>Sistema<input id="roomEditSystem" readonly aria-readonly="true" style="opacity:.8;cursor:default" title="O sistema não pode ser alterado após a criação"></label>
    <label>Descrição<textarea id="roomEditDescription" maxlength="3000"></textarea></label>
    <label>Imagem da campanha</label>
    <button type="button" id="roomChooseImage" class="alt">Selecionar Imagem</button>
@@ -3157,7 +3158,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
  </section>
 </section>
 </main>
-<script>window.NEX_CAMPAIGN_UI_VERSION="20261127campaignsystem3";</script>
+<script>window.NEX_CAMPAIGN_UI_VERSION="20261127campaignsystem4";</script>
 <script src="./firebase-config.js?v=20261112"></script>
 <script>
 window.addEventListener('error',function(event){
@@ -3183,7 +3184,7 @@ document.addEventListener('click',function(event){
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
 import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261122playerBrightness1';
-import {mountGmShield} from './d20x-gm-shield.js?v=20261126browserHistory';
+import {mountGmShield} from './d20x-gm-shield.js?v=20261127systemIsolation1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -3244,7 +3245,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  let portraitSyncBusy=false;
  let extraSlotRequests=[],slotPending=false;
  let publicSheets=[],privateSheets=[];
- function campaignSheetSystem(sheet){return sheet?.fullSheet?.systemName||sheet?.fullSheet?.system||'Ordem Paranormal';}
+ function campaignSheetSystem(sheet){return sheet?.fullSheet?.systemName||sheet?.fullSheet?.system||sheet?.systemName||sheet?.system||'Ordem Paranormal';}
  function currentCampaignSystem(){return roomData?.system||'Ordem Paranormal';}
  function refreshRoomSheets(){roomSheets=(gm?[...publicSheets,...privateSheets]:publicSheets.slice()).filter(sheet=>campaignSheetSystem(sheet)===currentCampaignSystem());drawSheets();drawMembers();renderQuota();renderSlotManagement();renderVttSheets();window.dispatchEvent(new Event('nex:campaign-sheets-updated'));if(publicSheets.length)syncOwnCharacterPhotos();}
  let activeVttMiniSheetId=null;
@@ -3502,7 +3503,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  try{
   const response=await requestNex('nex-agent-list-request');
   if(!response.ready){grid.textContent='As fichas ainda estão carregando.';return;}
-  const agents=(response.agents||[]).filter(a=>(a.system||'Ordem Paranormal')===currentCampaignSystem());
+  const agents=(response.agents||[]).filter(a=>(a.systemName||a.system||'Ordem Paranormal')===currentCampaignSystem());
   renderQuota();
   select.innerHTML='<option value="">Escolha um personagem</option>'+agents.map(a=>'<option value="'+escape(a.id)+'">'+escape(a.name)+'</option>').join('');
   grid.innerHTML=agents.length?agents.map(a=>{
@@ -3534,6 +3535,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  function showRoomEditor(){
   if(!gm)return;
   $('roomEditName').value=roomData.name||'';
+  $('roomEditSystem').value=currentCampaignSystem();
   $('roomEditDescription').value=roomData.description||'';
   pendingCoverImage=roomData.coverUrl||'';
   $('roomImageSummary').textContent=pendingCoverImage?'Imagem da campanha selecionada.':'Nenhuma imagem selecionada.';
@@ -3961,7 +3963,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  }
  gmShield=mountGmShield({
   root:$('nexGmShieldRoot'),db,doc,onSnapshot,setDoc,onHistoryRoute:d20xRecordShield,
-  getContext:()=>({roomId,gm,uid}),
+  getContext:()=>({roomId,gm,uid,system:currentCampaignSystem()}),
   openTabletop:()=>roomSection('tabletop'),
   revealToChat:(message,campaignId)=>{
    if(!gm||!vttHostActive||campaignId!==roomId)return false;
