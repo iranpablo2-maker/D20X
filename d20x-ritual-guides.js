@@ -1,6 +1,6 @@
 /* NEX: guias originais, não textos oficiais completos dos livros.
    Para regras integrais, consulte as publicações originais. */
-window.NEX_RITUAL_GUIDES={
+window.NEX_RITUAL_GUIDES= {
   "amaldicoar arma|conhecimento|1": {
     "description": "Ao aprender, selecione um elemento entre Conhecimento, Energia, Morte e Sangue. A arma ou o pacote de munição afetado causa +1d6 de dano do elemento até o fim da cena.",
     "kind": "Suporte"
@@ -26,7 +26,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "terceiro olho|conhecimento|1": {
-    "description": "Ajuda a perceber presenças e manifestações paranormais ocultas.",
+    "description": "Durante a cena, o conjurador percebe auras de origem paranormal a longa distância e reconhece seu elemento e intensidade aproximada. Útil para identificar manifestações, objetos e criaturas sobrenaturais.",
     "kind": "Suporte"
   },
   "amaldicoar arma|energia|1": {
@@ -38,7 +38,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "coincidencia forcada|energia|1": {
-    "description": "Alvo recebe +2 em testes de perícia pela cena.",
+    "description": "Concede +2 nas perícias do ser escolhido até o encerramento da cena. Os aprimoramentos podem beneficiar vários aliados e elevar o modificador.",
     "kind": "Suporte"
   },
   "eletrocussao|energia|1": {
@@ -46,7 +46,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "embaralhar|energia|1": {
-    "description": "Produz duplicatas ilusórias que tornam mais difícil atingir o conjurador.",
+    "description": "Três imagens ilusórias confundem quem consegue enxergá-las. A Defesa recebe +6 inicialmente; a cada ataque errado que elimina uma cópia, o bônus diminui em 2.",
     "kind": "Suporte"
   },
   "luz|energia|1": {
@@ -66,7 +66,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Cura"
   },
   "consumir manancial|morte|1": {
-    "description": "Concede 3d6 PV temporários, que expiram no fim da cena.",
+    "description": "Converte energia temporal do ambiente em uma reserva imediata de 3d6 PV temporários para o conjurador. O saldo restante desaparece quando termina a cena.",
     "kind": "Suporte"
   },
   "decadencia|morte|1": {
@@ -78,11 +78,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "espirais da perdicao|morte|1": {
-    "description": "Alvo sofre −1d20 nos testes de ataque pela cena.",
+    "description": "O personagem afetado perde um d20 em suas rolagens de ataque durante a cena. Os aprimoramentos aumentam a penalidade ou estendem o efeito a outros alvos.",
     "kind": "Suporte"
   },
   "nuvem de cinzas|morte|1": {
-    "description": "Cria uma cortina de cinzas que prejudica a visibilidade.",
+    "description": "Manifesta uma zona de cinzas que bloqueia a visão no cenário. Dentro dela, a distância entre os personagens determina a camuflagem leve ou total; vento pode dispersá-la.",
     "kind": "Suporte"
   },
   "amaldicoar arma|sangue|1": {
@@ -94,7 +94,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "armadura de sangue|sangue|1": {
-    "description": "Reveste o corpo com uma proteção paranormal de Sangue.",
+    "description": "A proteção sobrenatural concede +5 de Defesa durante a cena. O bônus pode combinar-se com outros rituais, mas não com a Defesa concedida por equipamentos.",
     "kind": "Suporte"
   },
   "corpo adaptado|sangue|1": {
@@ -106,7 +106,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "fortalecimento sensorial|sangue|1": {
-    "description": "Intensifica temporariamente os sentidos do personagem.",
+    "description": "Durante a cena, acrescenta um d20 aos testes de Investigação, Luta, Percepção e Pontaria. As versões aprimoradas também oferecem benefícios defensivos.",
     "kind": "Suporte"
   },
   "odio incontrolavel|sangue|1": {
@@ -114,7 +114,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "cineraria|medo|1": {
-    "description": "Rituais conjurados dentro da névoa de raio 6m recebem DT +5.",
+    "description": "Cria uma região de névoa paranormal que eleva em 5 a DT dos rituais lançados dentro dela. As versões aprimoradas modificam o custo ou o dano ritualístico.",
     "kind": "Suporte"
   },
   "aprimorar mente|conhecimento|2": {
@@ -122,11 +122,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "deteccao de ameacas|conhecimento|2": {
-    "description": "Auxilia a perceber perigos e intenções hostis próximos.",
+    "description": "Detecta a presença de perigos em uma área ao redor do conjurador. Quando recebe o alerta, pode gastar uma ação de movimento e testar Percepção (DT 20) para localizar a ameaça no cenário.",
     "kind": "Suporte"
   },
   "esconder dos olhos|conhecimento|2": {
-    "description": "Oculta uma presença da percepção comum.",
+    "description": "Concede invisibilidade e camuflagem total, incluindo o equipamento, por uma rodada. O personagem ganha +15 em Furtividade; uma ação hostil encerra o efeito.",
     "kind": "Suporte"
   },
   "invadir mente|conhecimento|2": {
@@ -154,7 +154,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "tela de ruido|energia|2": {
-    "description": "Cria uma proteção reativa de Energia contra impactos.",
+    "description": "Cria uma reserva de 30 PV temporários aplicável aos tipos de dano físico previstos pelo ritual. Também pode ser conjurado como reação para reduzir um único dano em 15.",
     "kind": "Suporte"
   },
   "desacelerar impacto|morte|2": {
@@ -162,7 +162,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "eco espiral|morte|2": {
-    "description": "Reproduz consequências passadas de um efeito ligado à Morte.",
+    "description": "Registra o dano sofrido pelo alvo ao longo da rodada de concentração e o reproduz como dano de Morte em uma ação posterior. Se a concentração ou a descarga não forem realizadas, o efeito termina; Fortitude reduz o resultado.",
     "kind": "Dano"
   },
   "paradoxo|morte|2": {
@@ -198,7 +198,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Cura"
   },
   "protecao contra rituais|medo|2": {
-    "description": "RD paranormal 5 e +5 em resistências contra rituais e habilidades de criaturas paranormais.",
+    "description": "Oferece RD 5 contra dano paranormal e +5 nas resistências a rituais e poderes de criaturas sobrenaturais durante a cena. Aprimoramentos ampliam a quantidade de beneficiados ou a proteção.",
     "kind": "Suporte"
   },
   "rejeitar nevoa|medo|2": {
@@ -218,11 +218,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "videncia|conhecimento|3": {
-    "description": "Revela informações além das disponíveis pelos sentidos comuns.",
+    "description": "Permite observar e ouvir um ser e suas imediações por meio de uma superfície reflexiva sobrenatural. A duração básica é de cinco rodadas; o alvo pode resistir com Vontade.",
     "kind": "Suporte"
   },
   "convocacao instantanea|energia|3": {
-    "description": "Transporta para perto um objeto ou recurso previamente vinculado.",
+    "description": "Transporta para as mãos do conjurador um objeto previamente vinculado ao ritual, de até dois espaços. Se outro ser estiver com o objeto, Vontade pode impedir o transporte.",
     "kind": "Suporte"
   },
   "salto fantasma|energia|3": {
@@ -230,11 +230,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "transfigurar agua|energia|3": {
-    "description": "Transforma temporariamente as propriedades da água.",
+    "description": "Altera sobrenaturalmente a água ou o gelo em uma área do cenário. O conjurador escolhe a manifestação, que pode modificar o terreno e impor restrições de movimento conforme as regras de jogo.",
     "kind": "Suporte"
   },
   "transfigurar terra|energia|3": {
-    "description": "Transforma temporariamente as propriedades da terra e das rochas.",
+    "description": "Modifica magicamente as propriedades de terra, pedra, lama, argila ou areia em partes do cenário. A opção escolhida pode mudar as condições do terreno e exigir testes de resistência dos personagens.",
     "kind": "Suporte"
   },
   "ancora temporal|morte|3": {
@@ -250,7 +250,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "zerar entropia|morte|3": {
-    "description": "Interfere na degradação ou na passagem do tempo de um alvo.",
+    "description": "Impõe paralisia ao alvo durante a cena; um sucesso na resistência inicial de Vontade substitui a condição por lento. O alvo pode gastar uma ação completa em seu turno para tentar encerrar o efeito.",
     "kind": "Suporte"
   },
   "ferver sangue|sangue|3": {
@@ -258,7 +258,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "forma monstruosa|sangue|3": {
-    "description": "Transforma temporariamente a forma física do conjurador.",
+    "description": "Transforma o conjurador em uma forma sobrenatural de tamanho Grande pela cena. A transformação altera seus valores de combate e impede o uso normal do equipamento, mantendo os bônus que ele concedia.",
     "kind": "Suporte"
   },
   "purgatorio|sangue|3": {
