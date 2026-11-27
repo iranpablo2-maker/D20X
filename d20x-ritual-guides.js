@@ -14,7 +14,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "perturbacao|conhecimento|1": {
-    "description": "No RPG, escolha um comando audível: fugir, aproximar-se, largar itens, sentar ou ficar pasmo. Falha em Vontade obriga o alvo a cumprir o comando no turno seguinte. Largar e sentar são ações livres e restringem a recuperação dos itens ou o ato de levantar até o turno posterior.",
+    "description": "Ritual de conhecimento (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "ouvir os sussurros|conhecimento|1": {
@@ -26,7 +26,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "terceiro olho|conhecimento|1": {
-    "description": "Percebe auras paranormais em alcance longo e distingue seus elementos e intensidade. Auras fracas: 1º círculo ou VD até 80; moderadas: 2º ou 3º círculo ou VD 81–280; poderosas: 4º círculo ou VD a partir de 281. Ação de movimento permite identificar se ser visível em alcance médio possui poderes ou rituais e seus elementos.",
+    "description": "Ritual de conhecimento (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "amaldicoar arma|energia|1": {
@@ -42,11 +42,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "eletrocussao|energia|1": {
-    "description": "Causa 3d6 de eletricidade e vulnerável por uma rodada. Fortitude reduz o dano pela metade e evita a condição; contra eletrônicos, dobra dano e ignora RD.\n\nDiscente: +2 PE: linha de 30m, 6d6 de Energia. Exige 2º círculo.\n\nVerdadeiro: +5 PE: alvos escolhidos, 8d6 de Energia por alvo. Exige 3º círculo.",
+    "description": "Ritual de energia (1º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Dano"
   },
   "embaralhar|energia|1": {
-    "description": "Três duplicatas conferem +6 de Defesa; cada ataque errado elimina uma cópia e reduz o bônus em 2. Só funciona contra quem enxerga as imagens.\n\nDiscente: +2 PE: cinco cópias, Defesa +10. Exige 2º círculo.\n\nVerdadeiro: +5 PE: oito cópias, Defesa +16; ao destruir uma cópia, o atacante fica ofuscado por uma rodada. Exige 3º círculo.",
+    "description": "Ritual de energia (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "luz|energia|1": {
@@ -82,7 +82,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "nuvem de cinzas|morte|1": {
-    "description": "Névoa de raio e altura de 6m: camuflagem leve a 1,5m e total a partir de 3m. Vento forte dispersa em quatro rodadas, vendaval em uma; não funciona submersa.\n\nDiscente: +2 PE: seres escolhidos enxergam através da nuvem. Exige 2º círculo.\n\nVerdadeiro: +5 PE: deslocamento dentro da área passa a 3m e ataques recebem −2. Exige 3º círculo.",
+    "description": "Ritual de morte (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "amaldicoar arma|sangue|1": {
@@ -94,7 +94,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "armadura de sangue|sangue|1": {
-    "description": "Proteção sobrenatural concede +5 de Defesa pela cena; acumula com outros rituais, mas não com equipamento.\n\nDiscente: +5 PE: Defesa +10 e RD 5 contra balístico, corte, impacto e perfuração. Exige 3º círculo.\n\nVerdadeiro: +9 PE: Defesa +15 e RD 10 contra os mesmos tipos. Exige 4º círculo e afinidade.",
+    "description": "Ritual de sangue (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "corpo adaptado|sangue|1": {
@@ -106,7 +106,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "fortalecimento sensorial|sangue|1": {
-    "description": "Concede +1d20 em Investigação, Luta, Percepção e Pontaria pela cena.\n\nDiscente: +2 PE: também impõe −1d20 aos ataques contra o conjurador. Exige 2º círculo.\n\nVerdadeiro: +5 PE: imunidade a surpreendido e desprevenido, Defesa e Reflexos +10, além do efeito normal. Exige 4º círculo e afinidade.",
+    "description": "Ritual de sangue (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "odio incontrolavel|sangue|1": {
@@ -122,15 +122,15 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "deteccao de ameacas|conhecimento|2": {
-    "description": "Percebe perigos em um raio de 18m; ação de movimento e Percepção DT 20 revelam distância e direção.\n\nDiscente: +3 PE: não fica desprevenido contra perigos detectados e recebe +5 para resistir a armadilhas. Exige 3º círculo.\n\nVerdadeiro: +5 PE: efeitos do Discente com duração de um dia. Exige 4º círculo.",
+    "description": "Ritual de conhecimento (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "esconder dos olhos|conhecimento|2": {
-    "description": "Invisibilidade por uma rodada, incluindo equipamento: camuflagem total e +15 em Furtividade. Ataque ou habilidade hostil encerra o efeito. Objetos soltos voltam a ser visíveis; luz e partes de itens além do alcance natural permanecem visíveis.",
+    "description": "Ritual de conhecimento (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "invadir mente|conhecimento|2": {
-    "description": "Escolha rajada mental (6d6 de Conhecimento e atordoado por uma rodada; Vontade reduz dano e evita condição; atordoamento uma vez por alvo por cena) ou elo telepático entre duas pessoas voluntárias durante um dia, independentemente da distância.",
+    "description": "Ritual de conhecimento (2º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Dano"
   },
   "localizacao|conhecimento|2": {
@@ -138,11 +138,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "chamas do caos|energia|2": {
-    "description": "Quatro efeitos de jogo: Chamejar acrescenta 1d6 de fogo ao dano de arma corpo a corpo; Esquentar causa 1d6 de fogo por rodada a objeto e portador, podendo ser encerrado com ação completa; Extinguir apaga chama Grande ou menor e cria fumaça de raio 3m, com camuflagem leve; Modelar move chama Grande ou menor até 9m por ação livre e causa 3d6 de fogo uma vez por rodada por ser atingido.",
+    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "contencao fantasmagorica|energia|2": {
-    "description": "Se falhar em Reflexos, o alvo fica agarrado por três laços. Ação padrão e Atletismo contra a DT destroem um laço, mais um para cada 5 acima da DT. Cada laço possui Defesa 10, PV 10, RD 5 e imunidade a Energia; também afetam incorpóreos. Destruir todos encerra o efeito.",
+    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "dissonancia acustica|energia|2": {
@@ -150,11 +150,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "sopro do caos|energia|2": {
-    "description": "Escolha ascender (alvo Médio, movimento vertical de 6m por ação de movimento, máximo 30m, vulnerável; Fortitude no início do turno encerra), sopro (cone de 4,5m, disputa de empurrar usando Ocultismo, manutenção por ação padrão) ou vento (altera intensidade do vento na área, manutenção por movimento).",
+    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "tela de ruido|energia|2": {
-    "description": "Concede 30 PV temporários exclusivos contra dano balístico, corte, impacto e perfuração. Alternativamente, conjuração como reação fornece RD 15 contra o dano recebido.\n\nDiscente: +3 PE: 60 PV temporários ou RD 30.\n\nVerdadeiro: +7 PE: em alcance curto, envolve um ser ou objeto Enorme ou menor em barreira imóvel impermeável a seres, objetos e dano. Reflexos evita aprisionamento. Exige 4º círculo.",
+    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "desacelerar impacto|morte|2": {
@@ -162,7 +162,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "eco espiral|morte|2": {
-    "description": "No turno após conjurar, use ação padrão para concentrar; no segundo turno, outra ação padrão descarrega o efeito. O alvo sofre dano de Morte igual ao dano recebido durante a rodada de concentração (Fortitude reduz à metade). Se faltar uma das ações, o ritual termina sem efeito.",
+    "description": "Ritual de morte (2º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Dano"
   },
   "paradoxo|morte|2": {
@@ -170,7 +170,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "miasma entropico|morte|2": {
-    "description": "Na área de raio 6m, causa 4d8 químico e enjoado por uma rodada. Fortitude reduz dano pela metade e evita a condição.\n\nDiscente: +3 PE: dano passa a 6d8 de Morte.\n\nVerdadeiro: +7 PE: como Discente, dura três rodadas, repetindo dano a quem inicia o turno na área. Exige 3º círculo.",
+    "description": "Ritual de morte (2º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Dano"
   },
   "velocidade mortal|morte|2": {
@@ -218,11 +218,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "videncia|conhecimento|3": {
-    "description": "Por superfície reflexiva, observa e ouve o alvo e arredores num raio aproximado de 6m. Vontade a cada turno impede a observação; dois sucessos seguidos encerram e conferem imunidade por uma semana. Modificador da resistência conforme conhecimento do alvo: mínimo +10, algum +5, familiar 0, pertence −5, amostra pessoal −10.",
+    "description": "Ritual de conhecimento (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "convocacao instantanea|energia|3": {
-    "description": "Traz à mão um objeto previamente marcado de até dois espaços, de qualquer distância. Se estiver empunhado por outra pessoa, Vontade pode impedir a transferência; nesse caso o conjurador identifica a localização e o portador. Dentro de uma hora, ação de movimento devolve o objeto.",
+    "description": "Ritual de energia (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "salto fantasma|energia|3": {
@@ -230,11 +230,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "transfigurar agua|energia|3": {
-    "description": "Escolha um efeito sobrenatural sobre água mundana: congelar (imobiliza nadadores, Atletismo e ação padrão para escapar), derreter gelo, elevar nível em até 4,5m ou dar +6m à embarcação, evaporar (5d8 de Energia; Fortitude metade), ou baixar nível em até 4,5m (Pilotagem para escapar de redemoinho ficcional).",
+    "description": "Ritual de energia (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "transfigurar terra|energia|3": {
-    "description": "Escolha alteração sobrenatural do terreno: amolecer (terreno difícil ou dano ficcional de 10d6 impacto, Reflexos metade), modelar objetos simples ou cobertura total (RD 8 e 50 PV por 3m), ou solidificar (agarrado, ação padrão e Atletismo contra DT para escapar).",
+    "description": "Ritual de energia (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "ancora temporal|morte|3": {
@@ -246,11 +246,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "tentaculos de lodo|morte|3": {
-    "description": "Cria área de raio 6m de terreno difícil. Na conjuração e início de seus turnos, disputa agarrar usando Ocultismo contra alvos na área; alvos já agarrados sofrem 4d6, metade impacto e metade Morte. Tentáculos imunes a dano.\n\nVerdadeiro: +5 PE: raio 9m e dano 6d6.",
+    "description": "Ritual de morte (3º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Dano"
   },
   "zerar entropia|morte|3": {
-    "description": "Impõe paralisado ao alvo; sucesso em Vontade deixa lento em vez disso. No início de cada turno, uma ação completa permite novo teste para encerrar o efeito.\n\nDiscente: +4 PE: afeta qualquer ser. Exige 4º círculo.\n\nVerdadeiro: +11 PE: afeta seres escolhidos. Exige 4º círculo e afinidade.",
+    "description": "Ritual de morte (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "ferver sangue|sangue|3": {
@@ -258,7 +258,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "forma monstruosa|sangue|3": {
-    "description": "Tamanho Grande, +5 em ataque e dano corpo a corpo e 30 PV temporários. Equipamento indisponível, bônus mantidos. Não fala nem conjura; deve atacar o ser mais próximo ou mover-se em sua direção. Se for aliado, Vontade contra DT do ritual permite escolher outro alvo.",
+    "description": "Ritual de sangue (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "purgatorio|sangue|3": {
@@ -282,7 +282,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "possessao|conhecimento|4": {
-    "description": "Controla corpo do alvo, usando a própria ficha com Agi, For, Vig e deslocamento dele. Vontade bem-sucedida revela tentativa e concede imunidade por um dia. Retorno voluntário como ação livre; se um corpo morrer no jogo, a mente sobrevivente permanece no outro, salvo nova conjuração.",
+    "description": "Ritual de conhecimento (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "alterar destino|energia|4": {
@@ -294,19 +294,19 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "teletransporte|energia|4": {
-    "description": "Transporta até cinco seres voluntários a um destino até 1.000km. Ocultismo DT 25 para lugar familiar, 30 para local visitado ou 35 para local descrito por visitante. Falha leva a destino incorreto ou afastado em até 1d10 × 10km; falha por 5 ou mais impede viagem e causa atordoado por 1d4 rodadas.\n\nVerdadeiro: +5 PE: destino em qualquer ponto da Terra.",
+    "description": "Ritual de energia (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "convocar o algoz|morte|4": {
-    "description": "Manifestação incorpórea imune a dano surge adjacente ao conjurador e se move 12m no fim de cada turno dele em direção ao alvo. Em alcance curto, falha em Vontade causa abalado; adjacente, Fortitude evita redução a 0 PV, mas causa 6d6 de Morte, limitado a 1 PV mínimo. Termina ao deixar o alvo morrendo ou ser dissipado.",
+    "description": "Ritual de morte (4º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Dano"
   },
   "distorcao temporal|morte|4": {
-    "description": "Três rodadas em bolsão temporal próprio. Pode agir, mas não se deslocar nem interagir com seres ou objetos; efeitos externos não o atingem e seus efeitos não atingem o exterior. Efeitos de área ainda ativos voltam a funcionar quando o bolsão termina.",
+    "description": "Ritual de morte (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "fim inevitavel|morte|4": {
-    "description": "Cria vácuo temporal ficcional por quatro rodadas. A cada início de turno do conjurador, seres a até 90m fazem Fortitude; falha deixa caído e desloca 30m em direção ao efeito. Ação de movimento para se apoiar concede +5 na resistência. Contato no início do turno causa 100 de Morte.",
+    "description": "Ritual de morte (4º círculo) · Dano. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Dano"
   },
   "capturar o coracao|sangue|4": {
@@ -314,7 +314,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "involucro de carne|sangue|4": {
-    "description": "Cria cópia ficcional com as mesmas estatísticas e equipamento mundano, mas Int e Pre nulos. Ação de movimento dá ordem executada no fim do turno; alternativamente, controla diretamente a cópia no início do turno. Percepção contra DT identifica a cópia; desaparece com 0 PV ou fora do alcance.",
+    "description": "Ritual de sangue (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "vinculo de sangue|sangue|4": {
@@ -334,7 +334,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Dano"
   },
   "medo tangivel|medo|4": {
-    "description": "Imunidade a atordoado, cego, debilitado, enjoado, envenenado, exausto, fatigado, fraco, lento, ofuscado, paralisado, doenças e venenos. Ignora dano extra de crítico e ataque furtivo; dano balístico, corte, impacto e perfuração não reduz PV abaixo de 1.",
+    "description": "Ritual de medo (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "presenca do medo|medo|4": {
@@ -354,7 +354,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "martirio de sangue|sangue|4": {
-    "description": "Transformação ficcional: faro, visão no escuro, cura acelerada 10, ataque e dano corpo a corpo e Defesa +10, 30 PV temporários. Ataques desarmados recebem um dado adicional e podem causar dano letal de corte, impacto ou perfuração. Impede ações de concentração e impõe −3d20 em testes sociais. Ao final da cena, o personagem torna-se criatura de Sangue sob controle do mestre.",
+    "description": "Ritual de sangue (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "apagar as luzes|morte|1": {
@@ -362,11 +362,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "lingua morta|morte|2": {
-    "description": "Consulta sobrenatural a um cadáver humano na ficção: uma resposta por rodada sustentada, até três rodadas. As respostas dependem do mestre e estado do corpo, sem teste adicional. Encerrar antes do limite desfaz a manifestação; atingir o limite gera um Esqueleto de Lodo.",
+    "description": "Ritual de morte (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "fedor putrido|morte|3": {
-    "description": "Estado sobrenatural: animais se afastam, Diplomacia −3d20, Furtividade +5 e Enganação +10 para fingir-se morto. Visibilidade diminui em 1 enquanto parado nas cenas de furtividade. Não concede imunidade a doenças nem elimina necessidades biológicas. Cada rodada ativa causa 1d4 de Morte ignorando RD.",
+    "description": "Ritual de morte (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "singularidade temporal|morte|4": {
@@ -386,23 +386,23 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "pronunciar sigilo|conhecimento|4": {
-    "description": "Esquecer: atordoado por 1d4+1 rodadas uma vez por cena; Vontade bem-sucedida ou repetição aplica desprevenido por 1d4. Cegar: cego ou ofuscado por 1d4 se resistido. Inexistir: remove temporariamente da cena por 1d4+1 rodadas, ou uma se resistido, uma vez por cena; retorna ao espaço original ou adjacente livre. Criatura pode retornar em ponto escolhido num raio de 18m.",
+    "description": "Ritual de conhecimento (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "overclock|energia|1": {
-    "description": "Após um teste de Tecnologia envolvendo eletrônico, a mesa pode substituir a resolução por um jogo analógico definido pelo mestre; sucesso revela a informação procurada. Independentemente do resultado, o eletrônico fica inutilizável por efeito paranormal.",
+    "description": "Ritual de energia (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "tremeluzir|energia|2": {
-    "description": "Permite atravessar matéria sólida por efeito sobrenatural, com ação de movimento por objeto e falha em 1 de 1d4. Em perseguição, permite cortar caminho sem penalidade em Atletismo. Cada rodada causa 1d4 de Energia ignorando RD e mais 1d4 se terminar dentro de matéria sólida.",
+    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "mutar|energia|3": {
-    "description": "O personagem fica isolado de sons, sem emitir ou ouvir. Recebe +10 em Furtividade e reduz ganhos de visibilidade em 1 nas cenas correspondentes, conforme o mestre. A mesa aplica a regra de comunicação sem voz; falar sem autorização encerra o efeito.",
+    "description": "Ritual de energia (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Suporte"
   },
   "milagre ionizante|energia|3": {
-    "description": "Remove uma condição dentre abalado, apavorado, alquebrado, atordoado, cego, confuso, debilitado, enjoado, envenenado, esmorecido, exausto, fascinado, fatigado, fraco, frustrado, lento, ofuscado, paralisado, pasmo e surdo, ou doença ou veneno. Não afeta condições permanentes ou efeitos paranormais de Energia. Após a cura, Fortitude DT 30; falha aplica incubação de infectcídio na ficção.",
+    "description": "Ritual de energia (3º círculo) · Cura. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
     "kind": "Cura"
   }
 };
