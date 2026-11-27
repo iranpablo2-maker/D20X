@@ -611,11 +611,11 @@ renderAttacks=function(){
  const cards=items.map(item=>{
   const c=combatConsumable(item);
   if(c){
-   const id=safe(item.id),collapsed=!collapsedWeapons.has(String(item.id)),action=c.damage?'Rolar dano':'Ver efeito';
+   const id=safe(item.id),collapsed=!collapsedWeapons.has(String(item.id)),action='Rolar Agilidade e exibir resultado';
    return '<article class="nex-combat-equipped" data-equipped-weapon="'+id+'"><div class="nex-combat-weapon">'+
     '<button type="button" class="nex-combat-weapon-toggle" data-nex-weapon-toggle="'+id+'" aria-expanded="'+(!collapsed)+'" aria-label="Detalhes de '+safe(c.name)+'">'+(collapsed?'⌄':'⌃')+'</button>'+
     '<div class="nex-combat-weapon-main"><strong class="nex-combat-weapon-name">'+safe(c.name)+'</strong></div>'+
-    '<button type="button" class="nex-combat-die-button" data-nex-weapon-roll="'+id+'" aria-label="'+action+' de '+safe(c.name)+'" title="'+action+'">'+(c.damage?weaponDieSvg:'<span aria-hidden="true">✦</span>')+'</button></div>'+
+    '<button type="button" class="nex-combat-die-button" data-nex-weapon-roll="'+id+'" aria-label="'+action+' de '+safe(c.name)+'" title="'+action+'">'+weaponDieSvg+'</button></div>'+
     '<div class="nex-combat-weapon-details" '+(collapsed?'hidden':'')+'><div class="nex-combat-weapon-summary">'+(c.damage?'Dano: <b>'+safe(c.damage)+' '+safe(c.type)+'</b>':'Efeito sem dano direto')+'</div><div>'+safe(c.effect)+'</div>'+
     '<button type="button" class="nex-combat-weapon-remove" data-nex-weapon-remove="'+id+'">Remover</button></div></article>';
   }
@@ -710,16 +710,25 @@ document.addEventListener('click',e=>{
  if(!item||!item.equipped)return;
  const c=combatConsumable(item);
  if(c){
+  const agi=Math.max(0,Math.min(20,Math.trunc(Number(state.attributes?.agi)||0)));
+  const agiRolls=Array.from({length:agi===0?2:agi},weaponD20);
+  const agiResult=agi===0?Math.min(...agiRolls):Math.max(...agiRolls);
   const roll=c.damage?weaponDice(c.damage,1):null;
   if(c.damage&&!roll){toast('Fórmula de dano de RPG inválida.');return;}
   weaponRollPanel.innerHTML='<div class="nex-weapon-roll-head"><strong>'+safe(c.name)+'</strong><button type="button" data-close-weapon-popup aria-label="Fechar resultado">×</button></div>'+
-    (roll?'<div class="nex-weapon-roll-stats"><span class="nex-weapon-roll-hex"></span><div class="nex-weapon-roll-column"><div class="nex-weapon-roll-value">'+safe(roll.total)+'</div><div class="nex-weapon-roll-label">DANO DE RPG</div></div></div><div class="nex-weapon-roll-detail">'+safe(c.type)+' · '+safe(roll.expression)+': '+safe(roll.detail)+'</div>':'<div class="nex-weapon-roll-detail"><b>EFEITO</b></div>')+
-    '<div class="nex-weapon-roll-detail">'+safe(c.effect)+'</div>';
+    '<div class="nex-weapon-roll-stats"><span class="nex-weapon-roll-hex"></span><div class="nex-weapon-roll-column"><div class="nex-weapon-roll-value">'+safe(agiResult)+'</div><div class="nex-weapon-roll-label">AGILIDADE</div></div>'+
+    '<div class="nex-weapon-roll-column"><div class="nex-weapon-roll-value">'+safe(roll?roll.total:'—')+'</div><div class="nex-weapon-roll-label">DANO</div></div></div>'+
+    '<div class="nex-weapon-roll-detail"><b>Teste de Agilidade:</b> '+safe(agiRolls.join(', '))+' → '+safe(agiResult)+'</div>'+
+    '<div class="nex-weapon-roll-detail"><b>Dano:</b> '+(roll?safe(c.type)+' · '+safe(roll.expression)+': '+safe(roll.detail):'Sem dano direto')+'</div>'+
+    '<div class="nex-weapon-roll-detail"><b>EFEITO</b></div><div class="nex-weapon-roll-detail">'+safe(c.effect)+'</div>';
   weaponRollPanel.hidden=false;
   const rect=button.getBoundingClientRect(),width=310;
   weaponRollPanel.style.left=Math.max(8,Math.min(innerWidth-width-8,rect.left-100))+'px';
   weaponRollPanel.style.top=Math.max(8,Math.min(innerHeight-weaponRollPanel.offsetHeight-8,rect.bottom+9))+'px';
-  if(roll&&typeof logResult==='function')logResult(c.name+' — dano de RPG',roll.expression,roll.detail,roll.total);
+  if(typeof logResult==='function'){
+   logResult(c.name+' — Agilidade',(agi===0?2:agi)+'d20',agiRolls.join(', ')+' → '+agiResult,agiResult);
+   if(roll)logResult(c.name+' — dano de RPG',roll.expression,roll.detail,roll.total);
+  }
   return;
  }
  if(detail(item).category!=='Arma')return;
