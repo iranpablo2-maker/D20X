@@ -123,6 +123,7 @@ function rollSimpleDice(expression){
  const count=Number(matched[1]),faces=Number(matched[2]),bonus=Number(matched[3]||0),multiplier=Number(matched[4]||1);
  if(count<1||count>50||faces<2||faces>1000||multiplier<1||multiplier>100)return null;
  const rolls=Array.from({length:count},()=>die(faces));
+ if(state.nexAutoChoices?.luckEnabled&&typeof nexHasSheetPower==='function'&&nexHasSheetPower('Afortunado')&&(faces!==20||nexPowerAffinity('Afortunado'))){const i=rolls.indexOf(1);if(i>=0)rolls[i]=die(faces);}
  return {expression:value,rolls,bonus,multiplier,total:rolls.reduce((a,b)=>a+b,bonus)*multiplier};
 }
 function occultismRoll(cost,bonus){
@@ -243,7 +244,9 @@ function renderBody(){
  }
  if(view==='ativos'){
   const arr=kit().active;
-  el.innerHTML='<p class="tk-sub">Avance uma rodada manualmente ou encerre os efeitos. A sustentação só desconta PE quando você confirmar a rodada.</p>'+
+  const sustained=arr.filter(a=>Number(a.upkeep)>0);
+  const fluxo=typeof nexHasSheetPower==='function'&&nexHasSheetPower('Fluxo de Poder')&&sustained.length>=2?'<div class="tk-modal-fields"><label>Ritual 1 <select id="tkFluxo1">'+sustained.map(a=>'<option value="'+esc(a.id)+'">'+esc(a.name)+'</option>').join('')+'</select></label><label>Ritual 2 <select id="tkFluxo2">'+sustained.map((a,i)=>'<option value="'+esc(a.id)+'" '+(i===1?'selected':'')+'>'+esc(a.name)+'</option>').join('')+'</select></label><button type="button" class="tk-button" data-tk-fluxo="1">Sustentar dois rituais (Fluxo de Poder)</button></div>':'';
+  el.innerHTML=fluxo+'<p class="tk-sub">Avance uma rodada manualmente ou encerre os efeitos. A sustentação só desconta PE quando você confirmar a rodada.</p>'+
   (arr.length?'<div class="tk-cards">'+arr.map(a=>'<article class="tk-card"><div class="tk-row"><strong>'+esc(a.name)+'</strong><small>'+esc(a.version)+' · '+esc(a.duration||'Duração não indicada')+'</small></div>'+
   '<p>Rodadas acompanhadas: '+Math.max(0,Number(a.rounds)||0)+' · Sustentação configurada: '+Math.max(0,Number(a.upkeep)||0)+' PE/rodada</p>'+
   '<div class="tk-actions"><button type="button" class="tk-button" data-tk-round="'+esc(a.id)+'">Avançar 1 rodada</button><button type="button" class="tk-button" data-tk-end="'+esc(a.id)+'">Encerrar</button></div></article>').join('')+'</div><div class="tk-actions"><button class="tk-button" type="button" data-tk-scene-end="1">Encerrar cena (todos)</button></div>':'<p class="tk-sub">Nenhum ritual ativo. Conjure um ritual aprendido e marque “Manter ativo”.</p>');
@@ -349,6 +352,7 @@ function drawGrimoire(){
  }).join(''):'<p class="tk-sub">Nenhum ritual encontrado.</p>';
 }
 function quickDamageRoll(rid,version='Normal'){
+ if(['ampliar','acelerar','camuflar','parareligiosidade'].some(castPowerAvailable)){openCast(rid,version);return;}
  if(!isOccultist()){toast('A conjuração é exclusiva para Ocultistas.');return;}
  const r=learned().find(x=>String(x.id)===String(rid));
  if(!r){toast('Ritual não encontrado.');return;}
@@ -384,6 +388,34 @@ function quickDamageRoll(rid,version='Normal'){
  if(!modal.open){if(typeof modal.showModal==='function')modal.showModal();else modal.open=true;}
  toast('Conjuração concluída: '+cost+' PE gastos.');
 }
+function castPowerAvailable(name){
+ if(name==='ampliar')return typeof nexTrailIs==='function'&&nexTrailIs('Ocultista','Conduíte',10);
+ if(name==='acelerar')return typeof nexTrailIs==='function'&&nexTrailIs('Ocultista','Conduíte',40)&&!state.nexAutoRoundUses?.acelerarRitual;
+ if(name==='camuflar')return typeof nexHasSheetPower==='function'&&nexHasSheetPower('Camuflar Ocultismo');
+ if(name==='parareligiosidade')return typeof nexTrailIs==='function'&&nexTrailIs('Ocultista','Exorcista',65);
+ return false;
+}
+function castPowerFields(){
+ const out=[];
+ if(castPowerAvailable('ampliar'))out.push('<label>Ampliar Ritual<select id="tkAmpliar"><option value="">Não usar</option><option value="alcance">Alcance · +2 PE</option><option value="area">Área · +2 PE</option></select></label>');
+ if(castPowerAvailable('acelerar'))out.push('<label><input type="checkbox" id="tkAcelerar">Acelerar Ritual · +4 PE (ação livre)</label>');
+ if(castPowerAvailable('camuflar'))out.push('<label><input type="checkbox" id="tkCamuflar">Camuflar Ocultismo · +2 PE</label>');
+ if(castPowerAvailable('parareligiosidade'))out.push('<label><input type="checkbox" id="tkParareligiosidade">Parareligiosidade · +2 PE</label><label>Catalisador escolhido<input id="tkCatalisador" maxlength="80" placeholder="Nome do efeito de RPG"></label>');
+ return out.length?'<div class="tk-modal-fields">'+out.join('')+'</div>':'';
+}
+function castPowerOptions(r,d){
+ const flags=[],notes=[];let cost=0;
+ const amplify=modal.querySelector('#tkAmpliar')?.value;
+ if(castPowerAvailable('ampliar')&&['alcance','area'].includes(amplify)){
+  cost+=2;flags.push('ampliar');
+  if(amplify==='alcance'){const steps=['curto','médio','longo','extremo'];const i=steps.indexOf(String(d.range||'').toLowerCase().trim());notes.push('Ampliar: '+(i>=0&&i<3?steps[i+1]:'alcance ampliado conforme regra e mestre'));}
+  else notes.push('Ampliar: área dobrada, se elegível');
+ }
+ if(castPowerAvailable('acelerar')&&modal.querySelector('#tkAcelerar')?.checked){cost+=4;flags.push('acelerar');notes.push('Acelerar: ação livre');}
+ if(castPowerAvailable('camuflar')&&modal.querySelector('#tkCamuflar')?.checked){cost+=2;flags.push('camuflar');notes.push('Camuflar: conjuração por concentração, percepção DT 25');}
+ if(castPowerAvailable('parareligiosidade')&&modal.querySelector('#tkParareligiosidade')?.checked){cost+=2;flags.push('parareligiosidade');notes.push('Parareligiosidade: '+(String(modal.querySelector('#tkCatalisador')?.value||'').trim()||'efeito de catalisador a confirmar'));}
+ return {cost,flags,notes};
+}
 function openCast(rid,requestedVersion='Normal'){
  if(!isOccultist()){toast('A conjuração nesta aba é exclusiva para Ocultistas.');return;}
  const r=learned().find(x=>String(x.id)===String(rid));
@@ -401,7 +433,7 @@ function openCast(rid,requestedVersion='Normal'){
  '<label>PE adicional por ajustes<input id="tkCastExtra" type="number" min="0" max="99" step="1" value="0"></label>'+
  '<label>Bônus extra no Teste de Ocultismo<input id="tkTOBonus" type="number" min="-99" max="99" step="1" value="0"></label>'+
  '<label>Custo de sustentação (PE/rodada)<input id="tkCastUpkeep" type="number" min="0" max="99" step="1" value="'+(/sustentad/i.test(d.duration||'')?'1':'0')+'"></label>'+
- '</div><label><input id="tkCastActive" type="checkbox" '+(isActive?'checked':'')+'>Manter ativo e acompanhar rodadas</label>'+
+ '</div>'+castPowerFields()+'<label><input id="tkCastActive" type="checkbox" '+(isActive?'checked':'')+'>Manter ativo e acompanhar rodadas</label>'+
  '<h3>Teste de Ocultismo + efeito do ritual</h3>'+
  '<div class="tk-modal-fields"><label>Tipo de efeito<select id="tkEffectType"><option>Dano</option><option>Cura</option><option>Buff</option><option>Dano + Cura</option></select></label>'+
  '<label id="tkDamageLine">Dados de dano<input id="tkDamageDice" placeholder="Ex.: 3d6, 2d8+2" maxlength="24"></label>'+
@@ -422,9 +454,10 @@ function castMath(){
  const r=learned().find(x=>String(x.id)===castingId);
  if(!r)return null;
  const d=info(r),v=modal.querySelector('#tkCastVersion')?.value||'Normal';
- const extra=Math.min(maxCost,Math.max(0,Number(modal.querySelector('#tkCastExtra')?.value)||0));
+ const powerOptions=castPowerOptions(r,d);
+ const extra=Math.min(maxCost,Math.max(0,Number(modal.querySelector('#tkCastExtra')?.value)||0))+powerOptions.cost;
  const enhance=v==='Discente'?d.discente:v==='Verdadeiro'?d.verdadeiro:'';
- return {r,d,v,extra,enhance,total:finalPrice(r,v,extra)};
+ return {r,d,v,extra,enhance,powerOptions,total:finalPrice(r,v,extra)};
 }
 function preview(){
  const v=castMath();if(!v)return;
@@ -438,7 +471,7 @@ function preview(){
  const toDt=20+v.total;
  if(toNode)toNode.textContent=norm(v.r.element)==='medo'?'Medo: sem Teste de Ocultismo. Sanidade reduzida conforme a versão.':'Teste de Ocultismo: '+(Number(state.attributes?.[state.skills?.Ocultismo?.attr||'int'])||0)+'d20 (atributo) + '+(Number(state.skills?.Ocultismo?.training)||0)+' de treino + bônus extra. DT '+toDt+'.';
  if(costNode)costNode.textContent='Custo total: '+v.total+' PE · PE atuais: '+pe()+' · Disponíveis neste turno: '+availableTurnPE()+' de '+PE_LIMIT()+' PE.';
- let note=v.enhance||'Versão básica. Verifique o limite de PE por turno.';
+ let note=v.enhance||'Versão básica. Verifique o limite de PE por turno.';if(v.powerOptions?.notes.length)note+=' · '+v.powerOptions.notes.join(' · ');
  const required=Math.max(requirement(v.enhance),v.v==='Discente'?Number(v.d.discenteCircle)||0:v.v==='Verdadeiro'?Number(v.d.verdadeiroCircle)||0:0);
  const circleBlocked=Number(v.r.circle)>permittedCircle()||(required>0&&required>permittedCircle());
  const turnBlocked=v.total>availableTurnPE(),peBlocked=v.total>pe();
@@ -493,6 +526,7 @@ function castingResultHTML(m,check,sanity,effect){
  if(effect.type==='Buff')rows.push('<p><strong>Suporte/Buff:</strong> '+(effect.buff?'Bônus rolado: +'+esc(effect.buff.total)+' ('+esc(effect.buff.expression)+' → ['+esc(effect.buff.rolls.join(', '))+']). ':'')+esc(effect.buffText||'Consultar ritual')+'</p>');
  rows.push('<p><strong>DT de resistência do alvo:</strong> '+targetRitualDT(m.r)+' (quando aplicável).</p>');
  rows.push('<p class="tk-sub">Falhar no Teste de Ocultismo não impede a conjuração básica, mas pode causar perda de Sanidade. Confira os efeitos e resistências com o mestre.</p>');
+ if(m.powerOptions?.notes?.length)rows.push('<p><strong>Poderes de conjuração:</strong> '+esc(m.powerOptions.notes.join(' · '))+'</p>');
  const infoRows=rows.join('')+renderResistanceRoll(m.r);
  const details=info(m.r);
  const effectSummary=conciseRitualEffect(details.description||details.note||effect.buffText);
@@ -523,7 +557,7 @@ function castingResultHTML(m,check,sanity,effect){
 function confirmCast(){
  if(castCommitted)return;
  const m=castMath();if(!m)return;
- const {r,d,v,total,enhance,extra}=m;
+ const {r,d,v,total,enhance,extra,powerOptions}=m;
  if(!isOccultist()){toast('Somente Ocultistas podem conjurar nesta aba.');return;}
  if(v!=='Normal'&&enhancePrice(enhance)===null&&extra===0){toast('Informe o custo extra da versão aprimorada.');return;}
  const required=Math.max(requirement(enhance),v==='Discente'?Number(d.discenteCircle)||0:v==='Verdadeiro'?Number(d.verdadeiroCircle)||0:0);
@@ -550,9 +584,10 @@ function confirmCast(){
  const active=Boolean(modal.querySelector('#tkCastActive')?.checked);
  const upkeep=Math.min(99,Math.max(0,Number(modal.querySelector('#tkCastUpkeep')?.value)||0));
  state.peCurrent=Math.max(0,pe()-total);
+ if(powerOptions?.flags.includes('acelerar'))state.nexAutoRoundUses={...(state.nexAutoRoundUses||{}),acelerarRitual:true};
  kit().turnSpent+=total;
  kit().effectConfigs[signature(r)+'|'+v]=fields;
- addHistory('Conjuração',{name:r.name,ritualId:String(r.id),version:v,cost:total,peAfter:pe(),to:check,effect,sanLoss:sanity.lost,permanentSanLoss:sanity.permanent,targetDT:targetRitualDT(r)});
+ addHistory('Conjuração',{name:r.name,ritualId:String(r.id),version:v,cost:total,peAfter:pe(),to:check,effect,sanLoss:sanity.lost,permanentSanLoss:sanity.permanent,targetDT:targetRitualDT(r),note:powerOptions?.notes.join(' · ')||''});
  if(active){
   kit().active.unshift({id:id(),ritualId:String(r.id),name:r.name,version:v,duration:d.duration||'',upkeep,rounds:0,at:new Date().toISOString()});
   if(kit().active.length>60)kit().active.length=60;
@@ -595,6 +630,16 @@ host.addEventListener('click',e=>{
  
  if(btn.dataset.tkLearn){if(isOccultist())handleLearn(btn.dataset.tkLearn);return;}
  if(btn.dataset.tkCast){quickDamageRoll(btn.dataset.tkCast,btn.dataset.tkVersion||'Normal');return;}
+ if(btn.dataset.tkFluxo){
+  if(typeof nexHasSheetPower!=='function'||!nexHasSheetPower('Fluxo de Poder'))return;
+  const ids=[host.querySelector('#tkFluxo1')?.value,host.querySelector('#tkFluxo2')?.value],k=kit();if(!ids[0]||ids[0]===ids[1])return toast('Escolha dois rituais distintos.');
+  const list=ids.map(id=>k.active.find(x=>x.id===id));if(list.some(a=>!a||Number(a.upkeep)<=0))return;
+  const cost=list.reduce((sum,a)=>sum+Math.max(0,Number(a.upkeep)||0),0);
+  if(cost>pe()||cost>availableTurnPE())return toast('PE insuficientes para sustentar ambos.');
+  if(!confirm('Sustentar os dois rituais por '+cost+' PE com uma ação livre?'))return;
+  state.peCurrent=Math.max(0,pe()-cost);k.turnSpent+=cost;for(const a of list)a.rounds=(Number(a.rounds)||0)+1;
+  addHistory('Fluxo de Poder',{name:list.map(a=>a.name).join(' + '),cost,peAfter:pe()});update();return;
+ }
  if(btn.dataset.tkRound){handleRound(btn.dataset.tkRound);return;}
  if(btn.dataset.tkEnd){
   const k=kit(),a=k.active.find(x=>x.id===btn.dataset.tkEnd);if(!a)return;
@@ -637,8 +682,8 @@ modal.addEventListener('click',e=>{
  if(e.target.closest('[data-tk-roll-resistance]')){resolveResistanceRoll();return;}
  if(e.target.closest('[data-tk-modal-close]')){if(typeof modal.close==='function')modal.close();else modal.open=false;castingId='';}
 });
-modal.addEventListener('input',e=>{if(['tkCastExtra','tkTOBonus','tkDamageDice','tkHealDice','tkBuffText'].includes(e.target.id))preview();});
-modal.addEventListener('change',e=>{if(e.target.id==='tkCastVersion'){syncEffectFields(true);preview();}if(['tkEffectType','tkHealHalf'].includes(e.target.id)){syncEffectFields(false);preview();}});
+modal.addEventListener('input',e=>{if(['tkCastExtra','tkTOBonus','tkDamageDice','tkHealDice','tkBuffText','tkCatalisador'].includes(e.target.id))preview();});
+modal.addEventListener('change',e=>{if(e.target.id==='tkCastVersion'){syncEffectFields(true);preview();}if(['tkEffectType','tkHealHalf'].includes(e.target.id)){syncEffectFields(false);preview();}if(['tkAmpliar','tkAcelerar','tkCamuflar','tkParareligiosidade'].includes(e.target.id))preview();});
 modal.addEventListener('submit',e=>{if(e.target.id==='tkCastForm'){e.preventDefault();confirmCast();}});
 const previous=nex12RenderRitualList;
 nex12RenderRitualList=function(...args){const result=previous.apply(this,args);top();return result;};
