@@ -2775,7 +2775,7 @@ const NEX_OFFICIAL_GRANTED_SKILLS={"Acrobático":"Acrobacia","Ás do Volante":"P
 function nexTrailIs(cls,trail,nex){return state.class===cls&&state.trailByClass?.[cls]===trail&&Number(state.nex)>=nex;}
 function nexOfficialGrantedSkillBonus(name,rawTraining){
  const powers=[...(state.n16?.abilities||[]),...(state.powers||[])];
- const has=pname=>powers.some(p=>String(p?.name||'').toLocaleLowerCase('pt-BR')===pname.toLocaleLowerCase('pt-BR'));
+ const has=pname=>nexHasSheetPower(pname);
  const regular=Object.entries(NEX_OFFICIAL_GRANTED_SKILLS).some(([power,skill])=>skill===name&&has(power))?(Number(rawTraining)>0?2:5):0;
  const driving=name==='Pilotagem'&&has('Apaixonado por Veículos')?(Number(rawTraining)>0?2:5):0;
  const faith=name==='Religião'&&nexTrailIs('Ocultista','Exorcista',10)?(Number(rawTraining)>0?2:5):0;
@@ -2790,7 +2790,7 @@ function nexOfficialGrantedSkillBonus(name,rawTraining){
 function nexOfficialPassiveBonuses(){
  const nex=Math.max(0,Number(state.nex)||0);
  const cls=String(state.class||''),trail=String(state.trailByClass?.[cls]||'');
- const active=(name)=>[...(state.n16?.abilities||[]),...(state.powers||[])].some(p=>String(p?.name||'').trim().toLocaleLowerCase('pt-BR')===name.toLocaleLowerCase('pt-BR'));
+ const active=(name)=>nexHasSheetPower(name);
  return {
   // Tropa de Choque, NEX 10%: +1 PV por 5% de NEX.
   pv:cls==='Combatente'&&trail==='Tropa de Choque'&&nex>=10?Math.floor(nex/5):0,
@@ -2800,7 +2800,7 @@ function nexOfficialPassiveBonuses(){
   extraLoadAttributes:cls==='Especialista'&&trail==='Técnico'&&nex>=10?
    Math.max(0,Number(state.attributes?.int)||0):0,
   // Poder de Combatente: bônus passivo de Defesa e testes de resistência.
-  defensiveReflexes:cls==='Combatente'&&active('Reflexos Defensivos')&&nex>=15?2:0,
+  defensiveReflexes:active('Reflexos Defensivos')&&nex>=15?2:0,
   // Operações Especiais, NEX 10%: bônus permanente na Iniciativa.
   initiative:cls==='Combatente'&&trail==='Operações Especiais'&&nex>=10?5:0,
   // Poderes paranormais de efeito passivo comprovado.
@@ -2848,8 +2848,22 @@ function nexOfficialInquebravelActive(maxPv){
  return state.class==='Combatente'&&state.trailByClass?.Combatente==='Tropa de Choque'&&Number(state.nex)>=99&&
    pv>0&&pv<=Number(maxPv??maxValues().pv)/2;
 }
+function nexGrantedClassPowers(){
+ const direct=[...(state.n16?.abilities||[]),...(state.powers||[])].filter(p=>!p.homebrew&&!String(p.catalogKey||'').startsWith('homebrew:')&&!String(p.source||'').includes('Homebrew'));
+ const picks=state.nexAutoChoices?.b50ClassGrants||{},result=[];if(!Object.keys(picks).length)return result;const catalogue=window.NEX_B50_CLASS_CATALOG?.()||[];
+ for(const parent of ['Expansão de Conhecimento','Especialista Diletante']){
+   if(!direct.some(x=>x.name===parent))continue;
+   const limit=parent==='Expansão de Conhecimento'&&Number(state.nex)>=50&&state.nexAutoChoices?.powerAffinity?.[parent]===true?2:1;
+   if(parent==='Especialista Diletante'&&Number(state.nex)<30)continue;
+   for(const key of (Array.isArray(picks[parent])?picks[parent]:[]).slice(0,limit)){
+     const row=catalogue.find(x=>x.key===key&&x.cat!==state.class&&(x.classPower||parent==='Especialista Diletante'&&x.general));
+     if(row&&!direct.some(p=>p.name===row.name)&&!result.some(x=>x.name===row.name))result.push({...row,parent});
+   }
+ }
+ return result;
+}
 function nexHasSheetPower(name){
- const actual=[...(state.n16?.abilities||[]),...(state.powers||[])].some(p=>p?.name===name&&!String(p.catalogKey||'').startsWith('homebrew:')&&!p.homebrew);return actual||(name!=='Transmissão de Poder'&&state.nexAutoSceneUses?.transmittedPower===name&&[...(state.n16?.abilities||[]),...(state.powers||[])].some(p=>p?.name==='Transmissão de Poder'&&!p.homebrew));
+ const actual=[...(state.n16?.abilities||[]),...(state.powers||[])].some(p=>p?.name===name&&!String(p.catalogKey||'').startsWith('homebrew:')&&!p.homebrew);return actual||nexGrantedClassPowers().some(x=>x.name===name)||(name!=='Transmissão de Poder'&&state.nexAutoSceneUses?.transmittedPower===name&&[...(state.n16?.abilities||[]),...(state.powers||[])].some(p=>p?.name==='Transmissão de Poder'&&!p.homebrew));
 }
 function nexPowerAffinity(name){return nexHasSheetPower(name)&&Number(state.nex)>=50&&state.nexAutoChoices?.powerAffinity?.[name]===true;}
 function nexUtilityCatalog(){
@@ -5047,6 +5061,7 @@ window.NEX_LOCAL_RULE_NOTE=function(){return '';};
 
 function abilityRecords(){
    const entries=[];
+   for(const p of nexGrantedClassPowers())entries.push({name:p.name,source:p.source+' · '+p.parent,detail:p.detail,id:null});
    const origin=typeof nex12Orig==='function'?nex12Orig():null;
    if(origin)entries.push({name:origin.ability||origin.name,source:`Origem: ${origin.name}`,detail:origin.description||'',homebrew:origin.official===false,id:null});
    if(nexTrailIs('Ocultista','Possuído',65)&&state.nexAutoChoices?.possTrail){const t=state.nexAutoChoices.possTrail,entry=N19_TRAIL_ABILITIES.Ocultista?.[t]?.[0];if(t!=='Possuído'&&entry)entries.push({name:entry[0],source:'Trilha: '+t+' · NEX 10% (Ele Me Ensina)',detail:entry[1],id:null});}
@@ -5329,6 +5344,10 @@ function abilityRecords(){
    const check=(key,label)=>'<label><select data-nex-auto-origin-choice="'+key+'"><option value="false">Não</option><option value="true" '+(state.nexAutoChoices?.[key]?'selected':'')+'>Sim</option></select> '+escape(label)+'</label>';
    const period=state.nexAutoSceneUses||{},day=state.nexAutoDayUses||{},mission=state.nexAutoMissionUses||{},inter=state.nexAutoInterludeUses||{};
    const c=a.name,src=a.source||'';
+   if(['Expansão de Conhecimento','Especialista Diletante'].includes(c)){
+     const picks=state.nexAutoChoices?.b50ClassGrants?.[c]||[],limit=c==='Expansão de Conhecimento'&&nexPowerAffinity(c)?2:1;
+     const list=(window.NEX_B50_CLASS_CATALOG?.()||[]).filter(x=>x.cat!==state.class&&(x.classPower||c==='Especialista Diletante'&&x.general)&&(!nexHasSheetPower(x.name)||picks.includes(x.key)));
+     return aff+box(sel('Poder elegível',list.filter(x=>!picks.includes(x.key)).map(x=>[x.key,x.name+' · '+x.cat]))+btn(c==='Expansão de Conhecimento'?'b50Expansao':'b50Diletante','Adicionar poder à ficha',picks.length>=limit||!list.some(x=>!picks.includes(x.key)))+note('Poderes concedidos: '+(list.filter(x=>picks.includes(x.key)).map(x=>x.name).join(', ')||'nenhum')+' ('+picks.length+'/'+limit+'). O mestre deve confirmar os pré-requisitos.'));}
    if(c==='Acalentar'&&src==='Origem: Religioso')return nexBatchSkillControl(a)+box(btn('b50Acalentar','Rolar recuperação de SAN após sucesso')+note('Registra o resultado para o personagem atendido; não altera a ficha de outro jogador.'));
    if(c==='Técnica Medicinal'&&src==='Origem: Agente de Saúde')return box(num('PV de cura já rolados',0,999,0)+btn('b50Medicinal','Calcular cura com Intelecto')+note('Resultado para o alvo elegível, sem duplicar o bônus de Paramédico.'));
    if(c==='Ingrediente Secreto'&&src==='Origem: Chef')return box(num('Bônus de recuperação do primeiro prato',0,100,0)+num('Bônus do segundo prato',0,100,0)+btn('b50Chef','Somar os dois benefícios')+note('Informe os valores de recuperação aprovados pelo mestre para o mesmo recurso; não presume benefícios de pratos diferentes.'));
@@ -5339,7 +5358,7 @@ function abilityRecords(){
    if(c==='Minha Dor me Impulsiona')return box(note('Disponível conforme a diferença de PV atuais e máximos da ficha.'))+nexBatchSkillControl(a);
    if(c==='Nos Olhos do Monstro')return box(btn('b50Olhos','Ativar efeito na cena · 3 PE',!!period.b50Olhos)+note('Confirme o alvo fictício com o mestre.'))+nexBatchSkillControl(a);
    if(c==='Sincronia Paranormal'){
-     const pool=Number(state.nexAutoRoundUses?.b50SincroniaLeft??Math.max(0,Number(state.attributes?.pre)||0));
+     const pool=Number(state.nexAutoRoundUses?.b50SincroniaLeft??(period.b50Sincronia&&state.nexAutoRoundUses?.b50SincroniaPaid?Math.max(0,Number(state.attributes?.pre)||0):0));
      return box(btn('b50Sincronia','Ativar vínculo · 2 PE',!!period.b50Sincronia)+' '+btn('b50SincroniaManter','Manter na nova rodada · 1 PE',!period.b50Sincronia||!!state.nexAutoRoundUses?.b50SincroniaPaid)+note('Dados disponíveis nesta rodada: '+(period.b50Sincronia?pool:0))+
      num('Dados de bônus para aliado',1,Math.max(1,pool),1)+btn('b50SincroniaDar','Registrar dados destinados ao aliado',!period.b50Sincronia||pool<1||!state.nexAutoRoundUses?.b50SincroniaPaid)+btn('b50SincroniaFim','Encerrar vínculo',!period.b50Sincronia));
    }
@@ -5698,7 +5717,7 @@ function abilityRecords(){
    if(!activate&&!cancel&&!nextScene&&!sceneAction&&!motivate&&!paramedic&&!newSession&&!resourceAction)return;
    event.preventDefault();
    if(newSession){state.nexAutoSessionUses={};save();renderStats();return;}
-   if(nextScene){state.items=(state.items||[]).filter(i=>!i.nexAbilityTemporary);if(typeof renderInventory==='function')renderInventory();nexExpireAbilityTemps();state.nexAutoSceneUses={};state.nexAutoRoundUses={};state.nexAutoChoices={...(state.nexAutoChoices||{}),insideTrace:false,chaseScene:false};save();renderStats();return;}
+   if(nextScene){state.items=(state.items||[]).filter(i=>!i.nexAbilityTemporary);if(typeof renderInventory==='function')renderInventory();nexExpireAbilityTemps();state.nexAutoSceneUses={};state.nexAutoRoundUses={};state.nexAutoChoices={...(state.nexAutoChoices||{}),insideTrace:false,chaseScene:false,absorverOutro:false};save();renderStats();return;}
    if(resourceAction){
      const key=resourceAction.dataset.nexAutoResource,box=resourceAction.closest('.nex-auto-effect');
      const roll=faces=>{const v=new Uint32Array(1);crypto.getRandomValues(v);return v[0]%faces+1;};
@@ -5717,6 +5736,11 @@ function abilityRecords(){
        const skill=box.querySelector('[data-nex-auto-skill]')?.value;
        if(key==='b50Acalentar'){
          if(state.origin!=='Religioso'||!confirm('Confirme que o teste de RPG foi bem-sucedido.'))return;const d=roll(6),p=Math.max(0,Number(state.attributes?.pre)||0);record('Acalentar','1d6 ('+d+') + Presença',d+p);
+       }else if(key==='b50Expansao'||key==='b50Diletante'){
+         const parent=key==='b50Expansao'?'Expansão de Conhecimento':'Especialista Diletante',picks=C.b50ClassGrants||{},old=Array.isArray(picks[parent])?picks[parent]:[],limit=parent==='Expansão de Conhecimento'&&nexPowerAffinity(parent)?2:1;
+         const row=(window.NEX_B50_CLASS_CATALOG?.()||[]).find(x=>x.key===select&&x.cat!==state.class&&(x.classPower||parent==='Especialista Diletante'&&x.general));
+         if(!has(parent)||parent==='Especialista Diletante'&&Number(state.nex)<30||!row||old.length>=limit||old.includes(select)||nexHasSheetPower(row.name)||!confirm('Confirme que o personagem atende aos pré-requisitos do poder escolhido.'))return;
+         setC('b50ClassGrants',{...picks,[parent]:[...old,select]});record(parent,'Poder concedido: '+row.name,1);
        }else if(key==='b50Medicinal'){
          if(state.origin!=='Agente de Saúde'||!integer(nums[0],0,999))return;record('Técnica Medicinal','Cura rolada + Intelecto',nums[0]+Math.max(0,Number(state.attributes?.int)||0));
        }else if(key==='b50Chef'){
@@ -6989,6 +7013,7 @@ const PARANORMAL=[
   for(const p of window.NEX_ARQUIVOS?.powers||[]){const cat=p.category==='Geral'?'Poderes Gerais':p.category==='Paranormal'?'Poderes Paranormais':p.category;const branch=['Combatente','Especialista','Ocultista'].includes(cat)?'Poderes de '+cat:cat==='Poderes Gerais'?'Todos os poderes gerais':'Todos os poderes';data.push(item('arquivos:'+p.month+':'+p.name,cat,branch,p.name,p.description,15,p.source||'Arquivos Secretos'));}
   return (cachedCatalogue=data);
  }
+ window.NEX_B50_CLASS_CATALOG=()=>catalogue().filter(x=>x.key.startsWith('power:')||x.key.startsWith('general:')||x.key.startsWith('arquivos:')&&['Combatente','Especialista','Ocultista','Poderes Gerais'].includes(x.cat)).filter(x=>!['Transcender','Treinamento em Perícia','Expansão de Conhecimento','Especialista Diletante'].includes(x.name)).map(x=>({...x,classPower:['Combatente','Especialista','Ocultista'].includes(x.cat),general:x.cat==='Poderes Gerais'}));
  function branches(){if(category==='Origens')return ['Todas as origens','Sobrevivendo ao Horror','Arquivos Secretos','Homebrew'];if(category==='Poderes Gerais')return ['Todos os poderes gerais'];if(category==='Poderes Paranormais')return ['Todos os poderes'];return ['Poderes de '+category,...Object.keys(N19_TRAIL_ABILITIES[category]||{})];}
  function homebrewCatalogue(){
    const library=typeof window.NEX51?.readLibrary==='function'?window.NEX51.readLibrary():[];
