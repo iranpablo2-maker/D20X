@@ -58,7 +58,7 @@ async function sendFile(channel,ref,data){
 }
 export function mountNexPeerMedia({
  db,doc,collection,onSnapshot,setDoc,deleteDoc,campaignId,uid,gm,
- root,getAsset=async()=>null,getPreview=async()=>null,onPreview=()=>{},getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onTokenPreview=()=>{},onTokenAction=()=>{},onChat=()=>{},onConnected=()=>{},onDisconnected=()=>{}
+ root,getAsset=async()=>null,getPreview=async()=>null,onPreview=()=>{},getAudioStream=()=>null,getScene=()=>null,onScene=()=>{},onTokenMove=()=>{},onTokenPreview=()=>{},onTokenAction=()=>{},onChat=()=>{},onConnected=()=>{},onDisconnected=()=>{},onSharedPeer=()=>{},onSharedState=()=>{},onSharedRequest=async()=>{throw Error('Fichas locais indisponíveis')}
 }){
  if(!db||!uid||!root||typeof RTCPeerConnection==='undefined')return {
   connected:()=>false,sendChat:()=>false,fetchImage:()=>Promise.reject(Error('WebRTC nao disponivel neste navegador')),
@@ -75,6 +75,58 @@ export function mountNexPeerMedia({
  const remotePeers=new Map(),pending=new Map();
  let sceneRevision=0;
  const chatHistory=[];
+ const sharedPending=new Map();
+ const sharedLimit=1100000, sharedChunk=10000;
+ function sendShared(peer,payload){
+  if(!peer?.open||peer.channel?.readyState!=='open')return Promise.reject(Error('Conexão direta indisponível'));
+  const json=JSON.stringify(payload);
+  if(!json||json.length>sharedLimit)return Promise.reject(Error('Mensagem de ficha excede o limite'));
+  const channel=peer.channel,id=crypto.randomUUID(),total=Math.ceil(json.length/sharedChunk);
+  const send=async()=>{
+   for(let index=0;index<total;index++){
+    await waitBuffer(channel);
+    if(channel.readyState!=='open')throw Error('Conexão encerrada');
+    channel.send(JSON.stringify({type:'shared-frame',id,total,index,body:json.slice(index*sharedChunk,(index+1)*sharedChunk)}));
+   }
+  };
+  const work=(peer.sharedQueue||Promise.resolve()).then(send);
+  peer.sharedQueue=work.catch(()=>{});
+  return work;
+ }
+ function sendSharedState(player,record){
+  if(!gm||destroyed)return Promise.reject(Error('Somente o mestre transmite fichas'));
+  return sendShared(remotePeers.get(player),{kind:'state',record});
+ }
+ function requestShared(request){
+  if(gm||destroyed||!joinPeer?.open)return Promise.reject(Error('Abra a mesa e aguarde a conexão com o mestre'));
+  const id=crypto.randomUUID();
+  return new Promise((resolve,reject)=>{
+   const finish=(error,value)=>{const p=sharedPending.get(id);if(!p)return;clearTimeout(p.timer);sharedPending.delete(id);error?reject(error):resolve(value)};
+   const timer=setTimeout(()=>finish(Error('Mestre não confirmou a gravação; reabra a ficha antes de tentar novamente')),30000);
+   sharedPending.set(id,{timer,finish});
+   sendShared(joinPeer,{kind:'request',id,request}).catch(error=>finish(error));
+  });
+ }
+ function receiveShared(peer,msg){
+  if(typeof msg.id!=='string'||msg.id.length>80||!Number.isInteger(msg.total)||msg.total<1||msg.total>110||!Number.isInteger(msg.index)||msg.index<0||msg.index>=msg.total||typeof msg.body!=='string'||msg.body.length>sharedChunk)return;
+  if(msg.index===0)peer.sharedReceiving={id:msg.id,total:msg.total,parts:[]};
+  const transfer=peer.sharedReceiving;
+  if(!transfer||transfer.id!==msg.id||transfer.total!==msg.total||transfer.parts.length!==msg.index)return;
+  transfer.parts.push(msg.body);
+  if(transfer.parts.length!==transfer.total)return;
+  peer.sharedReceiving=null;
+  let data;try{data=JSON.parse(transfer.parts.join(''))}catch(_){return}
+  if(gm&&data?.kind==='request'&&typeof data.id==='string'&&data.id.length<=80){
+   peer.sharedRequests=(peer.sharedRequests||Promise.resolve()).then(async()=>{
+    try{
+     const value=await onSharedRequest(data.request,peer.uid);
+     await sendShared(peer,{kind:'result',id:data.id,ok:true,value});
+    }catch(error){await sendShared(peer,{kind:'result',id:data.id,ok:false,error:String(error.message||error).slice(0,200)}).catch(()=>{});}
+   }).catch(()=>{});
+  }else if(!gm&&data?.kind==='state'){onSharedState(data.record);}
+  else if(!gm&&data?.kind==='result'){sharedPending.get(data.id)?.finish(data.ok?null:Error(String(data.error||'Gravação recusada')),data.value);}
+ }
+
  function acceptChat(text,name,authorUid){
   if(typeof text!=='string'||!text.trim()||text.length>500)return null;
   const item={id:crypto.randomUUID(),uid:String(authorUid||'').slice(0,128),name:String(name||'Jogador').slice(0,48),text:text.trim().slice(0,500),at:Date.now()};
@@ -179,7 +231,7 @@ export function mountNexPeerMedia({
    if(destroyed)return;
    peer.open=true;
    if(!gm)reconnectAttempts=0;
-   if(gm){say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');queueScene(peer,++sceneRevision,getScene());if(chatHistory.length)channel.send(JSON.stringify({type:'chat-history',items:chatHistory}));}
+   if(gm){say('Transmissao ativa: '+Array.from(remotePeers.values()).filter(p=>p.open).length+' jogador(es) conectado(s).');queueScene(peer,++sceneRevision,getScene());if(chatHistory.length)channel.send(JSON.stringify({type:'chat-history',items:chatHistory}));onSharedPeer(peer.uid);}
    else{
     say('Conectado ao mestre. Imagens locais disponiveis.');
     window.dispatchEvent(new CustomEvent('nex:vtt-session-state',{detail:{campaignId,active:true}}));
@@ -202,6 +254,7 @@ export function mountNexPeerMedia({
    if(typeof event.data==='string'){
     let msg;
     try{msg=JSON.parse(event.data);}catch(_){return;}
+    if(msg?.type==='shared-frame'){receiveShared(peer,msg);return;}
     if(gm&&msg.type==='chat-send'&&typeof msg.text==='string'&&typeof msg.name==='string'){
       const item=acceptChat(msg.text,msg.name,peer.uid);if(item)relayChat(item);
      }else if(!gm&&msg.type==='chat-message'&&msg.item&&typeof msg.item.text==='string'&&typeof msg.item.uid==='string'&&typeof msg.item.name==='string'&&msg.item.text.length<=500){
@@ -450,10 +503,12 @@ export function mountNexPeerMedia({
   broadcastTokenMove,
   sendTokenMove,
   sendTokenAction,
+  requestShared,
+  sendSharedState,
   destroy(){
    if(destroyed)return;
    const shouldStop=gm&&hosting;
-   destroyed=true;unsubscribe();window.removeEventListener('nex:vtt-view',onTabletopView);
+   destroyed=true;for(const p of sharedPending.values())p.finish(Error('Conexão encerrada'));unsubscribe();window.removeEventListener('nex:vtt-view',onTabletopView);
    if(!gm){document.removeEventListener('pointerdown',retryPlayOnInteraction,true);document.removeEventListener('keydown',retryPlayOnInteraction,true);}
    teardown();panel.remove();
    if(shouldStop)void setDoc(sessionRef,{active:false,session:'',gmUid:uid,updatedAt:Date.now()}).catch(()=>{});
