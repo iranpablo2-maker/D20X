@@ -229,6 +229,14 @@ $('nexRitualEditor').addEventListener('submit',e=>{
 document.addEventListener('change',e=>{if(['nex','class'].includes(e.target?.id)||e.target?.dataset?.field==='class')queueMicrotask(render);});
 document.addEventListener('input',e=>{if(e.target?.dataset?.attribute==='pre'||e.target?.id==='pre')queueMicrotask(render);});
 window.NEX_RITUAL_CATALOG=()=>catalogue();
+window.NEX_LEARN_TRAIL_RITUAL=name=>{
+ const trail={'Canalizar o Medo':'Conduíte','Conhecendo o Medo':'Graduado','Presença do Medo':'Intuitivo'}[name];
+ if(!trail||typeof nexTrailIs!=='function'||!nexTrailIs('Ocultista',trail,99)||state.rituals.length>=100||state.rituals.some(x=>x.name===name))return false;
+ const template=catalogue().find(r=>r.name===name&&r.element==='Medo'&&Number(r.circle)===4);
+ if(!template)return false;
+ const before=state.rituals.length;addRecord(template);
+ return state.rituals.length>before;
+};
 nex12RenderRitualList=render;
 render();
 })();
