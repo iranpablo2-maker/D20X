@@ -1479,7 +1479,7 @@ window.NEX_ARQUIVOS={
           "NEX 99% — para Reproduzir Maldição, considera o item três categorias abaixo da real, até o limite final IV."
         ]
       ],
-      "description": "Opção de progressão de Ocultista. As etapas são registradas separadamente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro · p. 45."
+      "description": "Trilha de Ocultista centrada em identificar, estudar e transferir maldições ficcionais. NEX 10%: identificação; 40%: compreensão; 65%: reprodução; 99%: especialização máxima. Consulte cada habilidade para os custos, testes e limites cadastrados."
     },
     {
       "name": "Criptologista do Oculto",
@@ -1504,7 +1504,7 @@ window.NEX_ARQUIVOS={
           "NEX 99% — selos criados pelo personagem dispensam teste de Ocultismo; DT de resistência +5, dano +3 dados do mesmo tipo, e formas avançadas não exigem PE adicionais do usuário."
         ]
       ],
-      "description": "Trilha de Ocultista especializada na preparação e utilização de selos paranormais. Seus estágios aprimoram o uso, a leitura e o alcance de selos até versões mais avançadas."
+      "description": "Trilha de Ocultista para selos paranormais: NEX 10% aumenta a produção de selos, 40% facilita testes de uso e identificação de rituais, 65% permite leitura à distância, 99% melhora a resolução de selos avançados. Os valores e requisitos estão nas quatro habilidades cadastradas."
     },
     {
       "name": "Granadeiro Blaster",
@@ -1514,7 +1514,7 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Meus Bebês",
-          "Habilidade de progressão da trilha Granadeiro Blaster. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
+          "NEX 10%: treinamento em Profissão (químico) ou +5 se já treinada. Na ficha de RPG, recebe um recurso fictício da trilha fora do limite de itens no começo da missão, aumentando a quantidade em um nos NEX 40%, 65% e 99%. As regras adicionais da habilidade ainda precisam de conferência."
         ],
         [
           "Fogo Amigo",
@@ -1537,19 +1537,19 @@ window.NEX_ARQUIVOS={
       "month": "Julho",
       "page": 81,
       "source": "Arquivos Secretos · Julho/2026 · p. 81",
-      "description": "Opção de progressão de Especialista. As etapas são registradas separadamente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Julho/2026 · p. 81.",
+      "description": "Progressão de Especialista ligada a um elemento paranormal escolhido. Os estágios dos NEX 10%, 40%, 65% e 99% alteram atributos, perícias e benefícios elementais, acompanhados de penalidades sociais. Registre na ficha apenas o ramo correspondente à afinidade.",
       "stages": [
         [
           "Ser Experimentado",
-          "Habilidade de progressão da trilha Monstruoso — Especialista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
+          "NEX 10%: escolha elemento e futura afinidade. Ocultismo treinado ou +2 se já treinado; −2 em Diplomacia, Enganação e Intuição. Manifestação ficcional diária por ação completa recupera 1d8+1 PV. Sangue: tamanho Grande; Morte: 2d6 PV temporários e uma ação padrão extra por cena; Conhecimento: duas perícias treinadas; Energia: +6 m de deslocamento e um saque livre extra por rodada. O atributo associado ao elemento participa dos testes e cálculo de PE. As demais condições ainda precisam de conferência."
         ],
         [
           "Ser Testado",
-          "Habilidade de progressão da trilha Monstruoso — Especialista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
+          "NEX 40%: penalidade social passa a −5; recuperação da manifestação diária 2d8+2 PV. Sangue: +1d6 Sangue e RD 2; Morte: 2d8 PV temporários no início da cena e +1 turno na condição morrendo; Conhecimento: +1d6 nos testes de INT; Energia: +1d6 nas rolagens de ataque da ficha e +2 Defesa. A troca temporária entre atributos e seus limites ainda precisam de conferência."
         ],
         [
           "Ser Expurgado",
-          "Habilidade de progressão da trilha Monstruoso — Especialista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
+          "NEX 65%: PRE −1 permanente; manifestação diária recupera 3d8+3 PV. Aumente em 1 o atributo associado ao elemento. Sangue aprimora os dados elementais; Morte desbloqueia efeitos paranormais sobre objetos; Conhecimento desbloqueia efeitos de investigação mental; Energia permite manifestação intangível por 2 PE e ação de movimento, pela cena. Os efeitos adicionais, custos e restrições de cada ramo ainda precisam de conferência."
         ],
         [
           "Ser Apavorante",
@@ -1563,7 +1563,7 @@ window.NEX_ARQUIVOS={
       "month": "Julho",
       "page": 85,
       "source": "Arquivos Secretos · Julho/2026 · p. 85",
-      "description": "Opção de progressão de Ocultista. As etapas são registradas separadamente. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Julho/2026 · p. 85.",
+      "description": "Progressão de Ocultista com manifestações paranormais e benefícios associados ao elemento escolhido. Os estágios dos NEX 10%, 40%, 65% e 99% modificam atributos, recuperação de PE e conjuração. Registre somente as opções do elemento selecionado.",
       "stages": [
         [
           "Ser Escarificado",
@@ -1571,11 +1571,11 @@ window.NEX_ARQUIVOS={
         ],
         [
           "Ser Perfurado",
-          "Habilidade de progressão da trilha Monstruoso — Ocultista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
+          "NEX 40%: penalidade social −5 e recuperação de 1d6 PE pela manifestação diária. Receba Tatuagem Ritualística aplicada aos rituais registrados do elemento, ou outro poder de Ocultista se já possuir. +5 em concentração desses rituais. Uma vez por cena, permite conjuração como reação sob condição vinculada ao elemento; a lista exata de condições ainda precisa de conferência."
         ],
         [
           "Ser Rasgado",
-          "Habilidade de progressão da trilha Monstruoso — Ocultista. Consulte a publicação para custo, condições e efeito completo. Referência: Arquivos Secretos."
+          "NEX 65%: PRE −1 permanente, recuperação diária de 1d8 PE e +2 DT dos rituais registrados do elemento. Morte: aprende Cicatrização ou reduz seu custo em 1 PE; após outro ritual de Morte, pode conjurá-la como movimento. Conhecimento: efeito de investigação mediante movimento e 2 PE após conjurar. Energia: após conjurar, movimento e 3 PE permitem teletransporte fictício de 3 m e Defesa igual ao custo do ritual por uma rodada. Os demais efeitos elementais ainda precisam de conferência."
         ],
         [
           "Ser Mutilado",
@@ -1633,7 +1633,7 @@ window.NEX_ARQUIVOS={
           "NEX 99%: ação padrão e 5 PE concedem ajuda ao piloto e até cinco personagens em alcance longo pela cena; suspensa para quem ultrapassar 36 m. Receba mais três modificações sem categoria (sete no total); proteção do drone custa 1 PE."
         ]
       ],
-      "description": "Especialista em comandar drones como aliados, tanto em exploração quanto no suporte à equipe."
+      "description": "Trilha de Especialista com aliado drone exclusivamente de RPG. NEX 10% concede o aliado e escolha de perícia; 40% amplia modificações e proteção na ficha; 65% oferece benefícios de descanso; 99% distribui ajuda a vários personagens. A opção Drones Complexos tem regras próprias. Controle os custos e modificações pelas habilidades da trilha."
     }
   ],
   "rituals": [
@@ -1662,7 +1662,7 @@ window.NEX_ARQUIVOS={
       "otherElement": "Sangue",
       "month": "Janeiro",
       "page": 48,
-      "description": "Ritual de Conhecimento; círculo 2. Função: Suporte. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro/2026 · p. 48.",
+      "description": "Sangue e Conhecimento, círculo 2; ação completa, toque, uma pessoa, duração cena, Vontade evita. Na ficção, transfere o controle entre corpos: a ficha conserva atributos mentais e usa os físicos do corpo ocupado. Na ocupação unilateral, o alvo pode repetir Vontade no começo dos turnos; na troca completa, a duração ou uma nova conjuração encerra o efeito. Discente: +3 PE, 2º círculo, alcance curto e duração de um dia. Verdadeiro: +7 PE, 4º círculo e afinidade, alcance médio e duração permanente. Consequências especiais e intervalos de novas resistências ainda precisam de conferência.",
       "ritualType": "Suporte",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 48"
     },
@@ -1673,7 +1673,7 @@ window.NEX_ARQUIVOS={
       "month": "Julho",
       "page": 76,
       "source": "Arquivos Secretos · Julho/2026 · p. 76",
-      "description": "Ritual de Sangue; círculo 2. Função: Suporte. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Julho/2026 · p. 76.",
+      "description": "Sangue, círculo 2; ação completa, toque, uma pessoa, duração um dia. Transferência sobrenatural fictícia de capacidades, com cada benefício limitado a uma utilização por alvo. Na forma básica: bônus de +2 em ataque, acesso a ritual de 1º círculo conhecido pelo alvo, recuperação de 3d8+3 PV, +5 em rastreamento ficcional ou treinamento em perícia conhecida (+2 se já treinada). Discente: +7 PE e 3º círculo. Verdadeiro: +12 PE, 4º círculo e afinidade. Os valores das versões avançadas e demais condições ainda precisam de conferência.",
       "ritualType": "Suporte"
     }
   ],
