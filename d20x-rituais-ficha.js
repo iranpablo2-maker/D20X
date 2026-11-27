@@ -48,7 +48,11 @@ const canonical=x=>String(x||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
 const ritualMetaKey=r=>[canonical(r.name),canonical(r.element),Number(r.circle)||1].join('|');
 const RITUAL_METADATA=new Map((window.NEX_RITUAL_META||[]).map(r=>[ritualMetaKey(r),r]));
 const ritualMetaFor=r=>RITUAL_METADATA.get(ritualMetaKey(r))||{};
-const ritualGuideFor=r=>window.NEX_RITUAL_GUIDES?.[ritualMetaKey(r)]?.description||'';
+function usefulRitualText(value){
+  const text=String(value||'').trim();
+  return text&&!/^(?:Ritual de .+Confira os campos|Recurso ficcional de jogo|Consulte a publicação)/i.test(text)&&!/Confira os campos mecânicos/i.test(text)?text:'';
+ }
+ const ritualGuideFor=r=>usefulRitualText(window.NEX_RITUAL_GUIDES?.[ritualMetaKey(r)]?.description);
 
 const special={
  'Alterar Destino':{execution:'Reação',range:'Pessoal',target:'Você',duration:'Instantânea',description:'Em reação, concede +15 à Defesa contra um ataque ou a um teste de resistência.',verdadeiro:'(+5 PE) A forma Verdadeira permite estender o benefício a um aliado em alcance curto.'},
@@ -62,12 +66,12 @@ function catalogue(){
  const result=BASE.map((b,i)=>({...b,key:'base:'+i,...special[b.name],...ritualMetaFor(b),description:ritualGuideFor(b)||special[b.name]?.description||RITUAL_SUMMARIES[b.name]||'',summaryKind:'Resumo de consulta; efeitos condicionais podem exigir conferência.'}));
  for(const r of window.NEX_SAH?.rituals||[]){
    if(!r?.name)continue;
-   result.push({name:r.name,circle:Number(r.circle)||1,element:r.element||'Conhecimento',source:'Sobrevivendo ao Horror',description:ritualGuideFor(r)||r.description||'',key:'sah:'+r.name,...ritualMetaFor(r)});
+   result.push({name:r.name,circle:Number(r.circle)||1,element:r.element||'Conhecimento',source:'Sobrevivendo ao Horror',description:ritualGuideFor(r)||usefulRitualText(r.description)||RITUAL_SUMMARIES[r.name]||'',key:'sah:'+r.name,...ritualMetaFor(r)});
  }
  for(const r of window.NEX_ARQUIVOS?.rituals||[]){
    if(!r?.name)continue;
    result.push({name:r.name,circle:Number(r.circle)||1,element:r.element||'Conhecimento',source:'Arquivos Secretos · '+r.month+'/2026 · p. '+r.page,
-     description:r.description||'',ritualType:r.ritualType||'Suporte',otherElement:r.otherElement||'',
+     description:ritualGuideFor(r)||usefulRitualText(r.description)||RITUAL_SUMMARIES[r.name]||'',ritualType:r.ritualType||'Suporte',otherElement:r.otherElement||'',
      key:'arquivos:'+r.month+':'+r.name});
  }
  const hb=window.NEX51?.readLibrary?.()||[];
@@ -89,7 +93,7 @@ function metadata(record){
  }
  if(!String(resolved.note??'').trim())resolved.note=match?.description||'';
  const guide=ritualGuideFor(resolved);
- if(guide && official)resolved.guide=guide;
+ if(official){resolved.guide=guide||usefulRitualText(match.description)||'';if(!usefulRitualText(resolved.note))resolved.note=resolved.guide;}
  return resolved;
 }
 function ritualDT(){const limit=Math.max(0,Number(maxValues().peLimit)||0);const pre=Math.max(0,Number(state.attributes?.pre)||0);return 10+limit+pre+(Number(state.ritualDtBonus)||0);}
@@ -153,7 +157,7 @@ function shortRitualEffect(value){
 function ritualMechanicalLine(d,cost){
  const custom=/^(?:Homebrew|Personalizado)$/i.test(String(d.source||''));
  const entry=custom?null:window.NEX_RITUAL_EFFECTS?.[ritualMetaKey(d)];
- const parts=[['PE (normal)',String(cost)],['Função',custom?d.ritualType:(entry?.categories||[]).join(' / ')||d.ritualType]];
+ const parts=[['PE selecionados',String(cost)],['Função',custom?d.ritualType:(entry?.categories||[]).join(' / ')||d.ritualType]];
  const add=(label,value)=>{if(value)parts.push([label,value]);};
  add('Dano (normal)',d.ritualType==='Dano'&&d.ritualDice?d.ritualDice:entry?.damageDice);
  add('Cura (normal)',d.ritualType==='Cura'&&d.ritualDice?d.ritualDice:entry?.healDice);
@@ -182,7 +186,7 @@ function render(){
   const blocked=state.class==='Ocultista'&&Number(r.circle)>circleAccess();
   return '<article class="nex-ritual-card" data-ritual-element="'+esc(String(r.element||'Conhecimento').trim())+'"><details><summary><span class="nex-ritual-arrow">⌃</span>'+nexRitualArtHTML(r)+'<strong>'+esc(r.name)+'</strong></summary>'+
    '<div class="nex-ritual-detail"><div class="nex-ritual-pill nex-ritual-'+esc(r.element)+'">'+esc(r.element).toUpperCase()+' '+esc(r.circle)+'</div>'+
-   '<p class="nex-ritual-summary">'+esc(d.guide||d.note||d.description||'')+'</p>'+
+   '<p class="nex-ritual-summary">'+esc(d.guide||d.note||d.description||'Efeito específico não cadastrado; os parâmetros disponíveis estão abaixo.')+'</p>'+
    '<p class="nex-ritual-params">'+ritualParamLine(d)+'</p>'+
    '<div class="nex-ritual-params" style="margin:8px 0">'+ritualMechanicalLine(d,cost)+'</div>'+
    (window.NEX_LOCAL_RULE_NOTE?.('ritual:'+String(r.catalogKey||r.id||r.name),esc)||'')+
