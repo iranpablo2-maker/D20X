@@ -838,7 +838,7 @@ window.NEX_ARQUIVOS={
       "section": "Itens Amaldiçoados",
       "month": "Maio",
       "page": 61,
-      "description": "Categoria II; 2 espaços. Ao usar como transporte, recebe +3 m de deslocamento se treinado em Acrobacia, Atletismo ou Pilotagem. Para modificações e maldições, trate como proteção. Os demais efeitos de combate não são detalhados nesta nota.",
+      "description": "Energia, categoria II, 2 espaços. +3 m de deslocamento ao usar como transporte se treinado em Acrobacia, Atletismo ou Pilotagem. Na ficha, arma improvisada de duas mãos: 1d12 impacto, crítico ×2; como escudo, +5 Defesa. Para modificações e maldições, conta como proteção.",
       "source": "Arquivos Secretos · Maio/2026 · p. 61",
       "tier": "II",
       "spaces": 2
@@ -1468,7 +1468,7 @@ window.NEX_ARQUIVOS={
         ],
         [
           "Compreensão de Maldições",
-          "NEX 40%: estude um item amaldiçoado no interlúdio por 3 PE, com Ocultismo DT 10 + 5 por categoria. Falha: perda de 2d4+2 SAN e bloqueio de nova tentativa no item. Sucesso: perda de 1d4+1 SAN; permite aprender o ritual contido ou transferir maldição conforme o tipo de item. Limites de transferência ainda precisam de conferência."
+          "NEX 40%: interlúdio e 3 PE; Ocultismo DT 10 + 5 por categoria do item. Falha: perde 2d4+2 SAN e não pode repetir no item. Sucesso: perde 1d4+1 SAN e consome o item; aprende ritual contido fora do limite ou transfere maldição a outro item ou marcador paranormal próprio/de personagem adjacente voluntário. Limite de um marcador por personagem, removível com ação de interlúdio."
         ],
         [
           "Reproduzir Maldição",
@@ -1514,7 +1514,7 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Meus Bebês",
-          "NEX 10%: treinamento em Profissão (químico) ou +5 se já treinada. Na ficha de RPG, recebe um recurso fictício da trilha fora do limite de itens no começo da missão, aumentando a quantidade em um nos NEX 40%, 65% e 99%. As regras adicionais da habilidade ainda precisam de conferência."
+          "NEX 10%: Profissão (químico) treinada ou +5 se já treinada. Registre um item ficcional da trilha fora do limite de itens por missão; acrescente uma unidade nos NEX 40%, 65% e 99%. A criação em campo é resolvida somente pelas regras abstratas de RPG. A regra específica do item ainda precisa de conferência."
         ],
         [
           "Fogo Amigo",
@@ -1541,19 +1541,19 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Ser Experimentado",
-          "NEX 10%: escolha elemento e futura afinidade. Ocultismo treinado ou +2 se já treinado; −2 em Diplomacia, Enganação e Intuição. Manifestação ficcional diária por ação completa recupera 1d8+1 PV. Sangue: tamanho Grande; Morte: 2d6 PV temporários e uma ação padrão extra por cena; Conhecimento: duas perícias treinadas; Energia: +6 m de deslocamento e um saque livre extra por rodada. O atributo associado ao elemento participa dos testes e cálculo de PE. As demais condições ainda precisam de conferência."
+          "NEX 10%: Ocultismo treinado ou +2 se já treinado; −2 em Diplomacia, Enganação e Intuição. Escolha elemento e afinidade. Manifestação paranormal diária, ação completa, recupera 1d8+1 PV e ativa benefícios até fim do dia. Sangue: Grande (+2 manobras, −2 Furtividade), FOR aos próprios testes e para PE. Morte: 2d6 PV temporários, uma ação padrão extra por cena, VIG aos próprios testes e para PE. Conhecimento: duas perícias treinadas, INT aos próprios testes e para PE. Energia: +6 m de deslocamento, um saque livre adicional por rodada, AGI aos próprios testes e para PE. Experiência separada: dobra exposição. A privação sem manifestação ainda precisa de conferência."
         ],
         [
           "Ser Testado",
-          "NEX 40%: penalidade social passa a −5; recuperação da manifestação diária 2d8+2 PV. Sangue: +1d6 Sangue e RD 2; Morte: 2d8 PV temporários no início da cena e +1 turno na condição morrendo; Conhecimento: +1d6 nos testes de INT; Energia: +1d6 nas rolagens de ataque da ficha e +2 Defesa. A troca temporária entre atributos e seus limites ainda precisam de conferência."
+          "NEX 40%: penalidade social −5; manifestação diária recupera 2d8+2 PV. Sangue: +1d6 Sangue e RD 2, repetidos por ponto de INT temporariamente reduzido. Morte: +1 turno morrendo e 2d8 PV temporários no início da cena, repetidos por ponto de FOR reduzido. Conhecimento: +1d6 em testes de INT e +2 por ponto de AGI reduzido. Energia: +1d6 ataque e +2 Defesa, mais +1d4 ataque e +2 Defesa por ponto de VIG reduzido. Atributos podem chegar a 0, sem alterar PV, PE, SAN ou treinamento; não reduza pontos concedidos por outros efeitos."
         ],
         [
           "Ser Expurgado",
-          "NEX 65%: PRE −1 permanente; manifestação diária recupera 3d8+3 PV. Aumente em 1 o atributo associado ao elemento. Sangue aprimora os dados elementais; Morte desbloqueia efeitos paranormais sobre objetos; Conhecimento desbloqueia efeitos de investigação mental; Energia permite manifestação intangível por 2 PE e ação de movimento, pela cena. Os efeitos adicionais, custos e restrições de cada ramo ainda precisam de conferência."
+          "NEX 65%: PRE −1 permanente; manifestação diária recupera 3d8+3 PV e ativa benefícios. Sangue: FOR +1, +1d8 ataque corpo a corpo, dano elemental de Ser Testado passa a d8; uma vez por rodada, 1 PE acrescenta ataque desarmado. Morte: VIG +1, primeiro contato com objeto e 3 PE causam 50 de Morte ao objeto (manobra quebrar se houver portador) ou visão do passado por um minuto. Conhecimento: INT +1; ação completa e 3 PE para Detecção de Ameaças discente sobre si pela cena ou Mergulho Mental por três rodadas sem sustentação ou resistência, interrompido ao perder contato; alvo resistente exige teste de ataque. Energia: AGI +1; movimento e 2 PE tornam manifestação intangível pela cena, +5 em testes apropriados conforme mestre; interlúdio acopla item de uma mão liberando essa mão na ficha."
         ],
         [
           "Ser Apavorante",
-          "NEX 99%: PRE −1 permanente, penalidade social −10; manifestação diária recupera 4d8+4 PV. Sangue: tamanho Enorme (+5 manobras, −5 Furtividade), soma FOR a seus testes de FOR, +1 FOR e Vínculo de Sangue. Morte: 4d6 PV temporários, duas ações padrão extras por cena, soma VIG a seus testes de VIG, +1 VIG e Distorção Temporal. Conhecimento: três perícias expert, soma INT aos testes de INT, +1 INT e Controle Mental. Energia: três saques livres por rodada, +12 m de deslocamento, soma AGI aos testes de AGI, +1 AGI e Teletransporte. Consequências narrativas ainda precisam de conferência."
+          "NEX 99%: PRE −1 permanente, penalidade social −10; manifestação diária recupera 4d8+4 PV. Sangue: Enorme (+5 manobras, −5 Furtividade), soma FOR aos próprios testes, +1 FOR e Vínculo de Sangue. Morte: 4d6 PV temporários, duas ações padrão extras por cena, soma VIG aos próprios testes, +1 VIG e Distorção Temporal. Conhecimento: três perícias expert, soma INT aos próprios testes, +1 INT e Controle Mental. Energia: três saques livres por rodada, +12 m de deslocamento, soma AGI aos próprios testes, +1 AGI e Teletransporte. Consequências narrativas da trilha ainda precisam de conferência."
         ]
       ]
     },
@@ -1567,15 +1567,15 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Ser Escarificado",
-          "NEX 10%: +2 Ocultismo e −2 em Diplomacia, Enganação e Intuição. Escolha elemento e futura afinidade. Manifestação paranormal diária (ação completa) recupera 1d4 PE e habilita benefícios pelo dia. Atributo correspondente recebe +1 e substitui PRE para PE e DT de ritual: Sangue/FOR, Morte/VIG, Conhecimento/INT, Energia/AGI. Na progressão separada, dobra a exposição. Condições de privação e consequências da trilha ainda precisam de conferência."
+          "NEX 10%: +2 Ocultismo, −2 Diplomacia, Enganação e Intuição. Escolha elemento e afinidade. Ação completa de manifestação paranormal diária recupera 1d4 PE e ativa benefícios pelo dia. Atributo do elemento recebe +1 e substitui PRE para PE e DT de ritual: Sangue/FOR, Morte/VIG, Conhecimento/INT, Energia/AGI. Experiência separada dobra exposição. Condições de privação ainda precisam de conferência."
         ],
         [
           "Ser Perfurado",
-          "NEX 40%: penalidade social −5 e recuperação de 1d6 PE pela manifestação diária. Receba Tatuagem Ritualística aplicada aos rituais registrados do elemento, ou outro poder de Ocultista se já possuir. +5 em concentração desses rituais. Uma vez por cena, permite conjuração como reação sob condição vinculada ao elemento; a lista exata de condições ainda precisa de conferência."
+          "NEX 40%: penalidade social −5; manifestação diária recupera 1d6 PE. Tatuagem Ritualística cobre rituais registrados do elemento; se já possui, troque por poder de Ocultista. +5 concentração desses rituais. Uma vez por cena, conjure ritual registrado como reação nas condições do elemento: Sangue, machucado ou fadiga; Morte, morrendo ou sentidos; Conhecimento, mental ou medo; Energia, paralisia ou sentidos."
         ],
         [
           "Ser Rasgado",
-          "NEX 65%: PRE −1 permanente, recuperação diária de 1d8 PE e +2 DT dos rituais registrados do elemento. Morte: aprende Cicatrização ou reduz seu custo em 1 PE; após outro ritual de Morte, pode conjurá-la como movimento. Conhecimento: efeito de investigação mediante movimento e 2 PE após conjurar. Energia: após conjurar, movimento e 3 PE permitem teletransporte fictício de 3 m e Defesa igual ao custo do ritual por uma rodada. Os demais efeitos elementais ainda precisam de conferência."
+          "NEX 65%: PRE −1 permanente; manifestação diária recupera 1d8 PE; +2 DT dos rituais registrados do elemento. Sangue: após conjurar, ação de movimento e custo de 2d8+2 PV na ficha concedem a aliado adjacente voluntário +1d20 nos testes de AGI, FOR e VIG pela cena, com reação dele. Morte: aprende Cicatrização ou −1 PE se já conhece; após outro ritual de Morte, pode conjurá-la como movimento. Conhecimento: após conjurar, movimento e 2 PE permitem cinco perguntas de sim/não sobre o alvo; se for o próprio conjurador, percebe seres e objetos ocultos paranormalmente pela cena. Energia: após conjurar, movimento e 3 PE teletransportam 3 m para espaço livre e concedem Defesa igual ao custo do ritual por uma rodada."
         ],
         [
           "Ser Mutilado",
@@ -1662,7 +1662,7 @@ window.NEX_ARQUIVOS={
       "otherElement": "Sangue",
       "month": "Janeiro",
       "page": 48,
-      "description": "Sangue e Conhecimento, círculo 2; ação completa, toque, uma pessoa, duração cena, Vontade evita. Na ficção, transfere o controle entre corpos: a ficha conserva atributos mentais e usa os físicos do corpo ocupado. Na ocupação unilateral, o alvo pode repetir Vontade no começo dos turnos; na troca completa, a duração ou uma nova conjuração encerra o efeito. Discente: +3 PE, 2º círculo, alcance curto e duração de um dia. Verdadeiro: +7 PE, 4º círculo e afinidade, alcance médio e duração permanente. Consequências especiais e intervalos de novas resistências ainda precisam de conferência.",
+      "description": "Sangue/Conhecimento 2; completa, toque, uma pessoa, cena, Vontade evita. Ocupação ou troca ficcional de consciências: preserve atributos mentais e use os físicos do corpo ocupado; características inatas ficam a critério do mestre. Ocupação unilateral permite Vontade no início dos turnos (ou mais vezes por decisão do mestre); sucesso devolve controle. Troca completa não oferece nova resistência; termina pela duração ou nova conjuração. Perda do corpo ocupado elimina a consciência nele; na ocupação unilateral, perder o corpo original impede retorno. Discente +3 PE, 2º círculo: curto, um dia, nova resistência unilateral uma vez ao dia ou à cena, o que for mais frequente. Verdadeiro +7 PE, 4º círculo e afinidade: médio, permanente, nova resistência unilateral anual.",
       "ritualType": "Suporte",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 48"
     },
@@ -1673,7 +1673,7 @@ window.NEX_ARQUIVOS={
       "month": "Julho",
       "page": 76,
       "source": "Arquivos Secretos · Julho/2026 · p. 76",
-      "description": "Sangue, círculo 2; ação completa, toque, uma pessoa, duração um dia. Transferência sobrenatural fictícia de capacidades, com cada benefício limitado a uma utilização por alvo. Na forma básica: bônus de +2 em ataque, acesso a ritual de 1º círculo conhecido pelo alvo, recuperação de 3d8+3 PV, +5 em rastreamento ficcional ou treinamento em perícia conhecida (+2 se já treinada). Discente: +7 PE e 3º círculo. Verdadeiro: +12 PE, 4º círculo e afinidade. Os valores das versões avançadas e demais condições ainda precisam de conferência.",
+      "description": "Sangue 2; completa, toque, uma pessoa, um dia. Transferência sobrenatural exclusivamente de RPG; cada benefício uma vez por alvo, duração um dia salvo cura instantânea. O mesmo alvo não pode receber o efeito novamente após o fim. Base (visão/audição/paladar/olfato/tato): +2 ataque; acesso a ritual de 1º círculo do alvo; cura 3d8+3 PV; +5 para rastrear ser ligado ao alvo; treinamento em perícia do alvo ou +2 se já treinada. Discente +7 PE, 3º círculo: +5, ritual 2º, 6d8+6 PV, +10, veterano ou +4 se já veterano. Verdadeiro +12 PE, 4º círculo e afinidade: +10, ritual 3º, 9d8+9 PV, +15, expert ou +6 se já expert.",
       "ritualType": "Suporte"
     }
   ],
