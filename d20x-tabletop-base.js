@@ -1,7 +1,7 @@
 /* D20X Tabletop — base: mapa, grade, tokens, variantes 0-9 e sincronização. */
 import {createVttMediaCache} from './d20x-vtt-media-cache.js?v=20261122mp4cache200';
 import {mountNexLocalMusic} from './d20x-vtt-local-music.js?v=20261117hideplaylist4';
-import {mountNexPeerMedia} from './d20x-vtt-peer-media.js?v=20261127localshared1';
+import {mountNexPeerMedia} from './d20x-vtt-peer-media.js?v=20261127localshared3';
 import {createVttLocalScene} from './d20x-vtt-local-scene.js?v=20261120commitfix49';
 export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,collection,campaignId,uid,gm,getIdToken=null,getSheets=()=>[],updateResource=null,onSelectSheet=null,shared=null}){
  const $=id=>document.getElementById(id),board=$('nexTabletopBoard'),tools=$('nexTabletopTools'),status=$('nexTabletopMessage');
