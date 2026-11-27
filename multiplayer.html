@@ -3007,6 +3007,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
   <h2>Criar Campanha</h2>
   <form id="createCampaign">
    <label for="campaignNameOnline">Nome*</label><input id="campaignNameOnline" maxlength="100" placeholder="Nova campanha" required>
+   <label for="campaignSystemOnline">Sistema*</label><select id="campaignSystemOnline" required style="display:block;width:100%;max-width:380px;background:#101012;color:#eee;border:1px solid #373438;border-radius:5px;padding:11px"><option>Ordem Paranormal</option><option>Assimilação</option><option>Sacramento</option></select>
    <label>Escudo do Mestre Privado</label><small>Essa opção pode ser editada após a criação da campanha.</small>
    <div class="private-toggle" role="group" aria-label="Escudo do Mestre Privado"><button type="button" id="privateOff" aria-pressed="false">DESLIGADO</button><button type="button" id="privateOn" aria-pressed="true">LIGADO</button></div>
    <label for="campaignDescriptionOnline">Descrição</label><textarea id="campaignDescriptionOnline" maxlength="3000" placeholder="Conte um pouco sobre sua campanha..."></textarea>
@@ -3664,10 +3665,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    try{window.parent.postMessage({type:'nex-campaign-view',mode},location.origin);}catch(error){}
   }
  }
+ const campaignSystems=["Ordem Paranormal","Assimilação","Sacramento"]; let campaignSystemFilter=campaignSystems[0];
+ window.addEventListener("message",event=>{if(event.origin!==location.origin||event.source!==window.parent||event.data?.type!=="d20x-campaign-system")return;const selected=event.data.system;if(!campaignSystems.includes(selected))return;campaignSystemFilter=selected;renderLibrary();});
  function renderLibrary(){
   const all=new Map();
   for(const c of [...playerCampaigns,...myCampaigns])all.set(c.id,{...all.get(c.id),...c,role:c.gmUid===uid?'Mestre':'Jogador'});
-  const entries=[...all.values()].sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+  const entries=[...all.values()].filter(c=>(c.system||"Ordem Paranormal")===campaignSystemFilter).sort((a,b)=>(b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
   $('campaignCount').textContent='Campanhas: '+entries.length;
   show('campaignLoading',false);show('campaignEmpty',entries.length===0);
   $('campaignCards').innerHTML=entries.map(c=>{
@@ -3714,7 +3717,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  }
  function openCreate(){
   if(myCampaigns.length>=10){notice('Limite de 10 campanhas por conta.');return;}
-  $('createCampaign').reset();privateShield=true;updatePrivateButtons();libraryMode('create');notice('');
+  $('createCampaign').reset();$('campaignSystemOnline').value=campaignSystemFilter;privateShield=true;updatePrivateButtons();libraryMode('create');notice('');
  }
  function updatePrivateButtons(){
   $('privateOn').setAttribute('aria-pressed',String(privateShield));
@@ -4828,6 +4831,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(submit.disabled)return;
   const name=$('campaignNameOnline').value.trim();
   const description=$('campaignDescriptionOnline').value.trim();
+  const system=$('campaignSystemOnline').value;
+  if(!campaignSystems.includes(system)){message.textContent='Selecione um sistema válido.';return;}
   message.textContent='';
   if(!uid){message.textContent='Você precisa entrar na conta D20X para criar a campanha.';return;}
   if(!name){message.textContent='Preencha o nome da campanha para continuar.';$('campaignNameOnline').focus();return;}
@@ -4848,15 +4853,17 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    const core={name,description,gmUid:activeUser.uid,createdAt:serverTimestamp()};
    let saved=false;
    try{
-    await setDoc(ref,{...core,privateShield,updatedAt:serverTimestamp()});
+    await setDoc(ref,{...core,system,privateShield,updatedAt:serverTimestamp()});
     saved=true;
    }catch(error){
-    if(error?.code!=='permission-denied')throw error;
+    if(error?.code!=='permission-denied'||system!=='Ordem Paranormal')throw error;
     message.textContent='Tentando formato compatível com as regras antigas do Firebase…';
     await setDoc(ref,core);
     saved=true;
    }
    if(!saved)throw Error('Não houve confirmação de gravação.');
+   campaignSystemFilter=system;
+   if(window.parent!==window)window.parent.postMessage({type:'d20x-campaign-system-created',system},location.origin);
    $('campaignCode').value=ref.id;
    form.reset();
    libraryMode('list');
