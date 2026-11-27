@@ -229,8 +229,16 @@ $('nexRitualEditor').addEventListener('submit',e=>{
 document.addEventListener('change',e=>{if(['nex','class'].includes(e.target?.id)||e.target?.dataset?.field==='class')queueMicrotask(render);});
 document.addEventListener('input',e=>{if(e.target?.dataset?.attribute==='pre'||e.target?.id==='pre')queueMicrotask(render);});
 window.NEX_RITUAL_CATALOG=()=>catalogue();
+window.NEX_LEARN_POWER_RITUAL=(key,maxCircle)=>{
+ const cap=Math.max(1,Math.min(3,Number(maxCircle)||1));
+ const template=catalogue().find(r=>r.key===key&&Number(r.circle)<=cap&&r.source!=='Homebrew');
+ if(!template||state.rituals.length>=100||state.rituals.some(x=>x.catalogKey===key||(x.name===template.name&&x.element===template.element&&Number(x.circle)===Number(template.circle))))return false;
+ // Aquisição concedida por poder, independente do acesso de círculo da classe.
+ state.rituals.push({id:'nr'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),name:template.name,circle:template.circle,element:template.element,extra:0,note:template.description||'',catalogKey:template.key,source:template.source,execution:template.execution||'',range:template.range||'',target:template.target||'',duration:template.duration||'',resistance:template.resistance||'',discente:template.discente||'',verdadeiro:template.verdadeiro||'',ritualType:template.ritualType||'',ritualDice:template.ritualDice||'',discenteDice:template.discenteDice||'',verdadeiroDice:template.verdadeiroDice||''});
+ save();render();return true;
+};
 window.NEX_LEARN_TRAIL_RITUAL=name=>{
- const trail={'Canalizar o Medo':'Conduíte','Conhecendo o Medo':'Graduado','Presença do Medo':'Intuitivo'}[name];
+ const trail={'Canalizar o Medo':'Conduíte','Conhecendo o Medo':'Graduado','Presença do Medo':'Intuitivo','Medo Tangível':'Flagelador','Lâmina do Medo':'Lâmina Paranormal'}[name];
  if(!trail||typeof nexTrailIs!=='function'||!nexTrailIs('Ocultista',trail,99)||state.rituals.length>=100||state.rituals.some(x=>x.name===name))return false;
  const template=catalogue().find(r=>r.name===name&&r.element==='Medo'&&Number(r.circle)===4);
  if(!template)return false;
