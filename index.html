@@ -2255,13 +2255,7 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 #sheetScreen #attributes .attr-pre,#wAttributes .w-art-pre{left:69.2%!important;top:74.1%!important;right:auto!important;bottom:auto!important}
 #sheetScreen #attributes .attr .nex-attr-roll,#sheetScreen #attributes .attr .nex-attr-editor,#wAttributes .wizard-attribute-art .w-art-number input{font-family:Georgia,"Times New Roman",serif!important;font-size:clamp(18px,5vw,28px)!important;line-height:1!important;font-weight:700!important;}
 </style>
-<style id="d20x-compact-trail">
-#n19TrailPanel:not(.hide){display:grid;grid-template-columns:minmax(0,1fr) minmax(120px,1fr);align-items:center;gap:4px 10px;padding:7px 10px;margin-block:6px}
-#n19TrailPanel .n19-trail-head{display:flex;align-items:center;justify-content:space-between;gap:6px;margin:0}
-#n19TrailPanel #n19TrailHint{grid-column:1/-1;grid-row:2;margin:0;font-size:10px;line-height:1.25}
-#n19TrailPanel #n19TrailSelect{grid-column:2;grid-row:1;width:100%;min-width:0;min-height:30px;height:30px;margin:0;padding:4px 8px}
-@media(max-width:380px){#n19TrailPanel:not(.hide){grid-template-columns:1fr}#n19TrailPanel #n19TrailSelect{grid-column:1;grid-row:2}#n19TrailPanel #n19TrailHint{grid-row:3}}
-</style>
+
 </head><body>
 <script src="d20x-sobrevivendo-ao-horror.js?v=20261125revisao40"></script>
 <script src="d20x-arquivos-secretos.js?v=20261125revisao136"></script>
@@ -6860,4 +6854,12 @@ body.nex-vtt-sheet-overlay.nex-character-roll-toast-active #nexAttributeRollPopu
 
 <style>#nexSystemPicker{color:#f5edef;background:#171416;border:1px solid #6b3941;border-radius:12px;width:min(650px,calc(100% - 24px));max-height:85vh;overflow:auto;padding:20px}#nexSystemPicker::backdrop{background:#000b}#nexSystemPicker .nex-system-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:16px}#nexSystemPicker .nex-system-grid button{display:grid;text-align:left;gap:6px;padding:14px;background:#241c20;color:#f5edef;border:1px solid #67434a;border-radius:8px}#nexSystemPicker button:hover{border-color:#ff8595}#nexSystemPicker small{color:#c5b2b8;font-weight:400}#nexSystemPicker h2{font-size:17px}</style><dialog id="nexSystemPicker" aria-labelledby="nexSystemTitle"><div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><h2 id="nexSystemTitle">Escolha o sistema de RPG</h2><button class="btn" id="nexSystemClose" type="button" aria-label="Fechar">×</button></div><div class="nex-system-grid"><button type="button" data-nex-system="ordem"><strong>Ordem Paranormal</strong><small>Ficha existente · automações atuais</small></button><button type="button" data-nex-system="D&D 5e"><strong>D&amp;D 5e</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Tormenta20"><strong>Tormenta20</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Call of Cthulhu"><strong>Call of Cthulhu</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Pathfinder 2e"><strong>Pathfinder 2e</strong><small>Ficha manual personalizável</small></button><button type="button" data-nex-system="Personalizado"><strong>Sistema personalizado</strong><small>Campos editáveis e regras próprias</small></button></div><p class="hint" style="margin-top:12px">Os novos sistemas usam fichas manuais locais; ainda não possuem automação ou integração com campanhas.</p></dialog><script>(()=>{const d=document.getElementById('nexSystemPicker');let origin=null,bypass=false;document.addEventListener('click',e=>{const target=e.target.closest?.('#menuNew,#agentsCreate,[data-home="new"]');if(!target||bypass||document.body.dataset.d20xScreen==='ordem')return;e.preventDefault();e.stopImmediatePropagation();origin=target;if(!d.open)d.showModal();},true);document.getElementById('nexSystemClose').onclick=()=>d.close();d.addEventListener('click',e=>{const target=e.target.closest?.('[data-nex-system]');if(!target)return;const value=target.dataset.nexSystem;d.close();if(value==='ordem'){if(!origin)return;bypass=true;try{origin.click();}finally{bypass=false;}}else location.href='./fichas-universais.html?system='+encodeURIComponent(value);});})();</script>
 
-</body></html>
+<style id="d20x-compact-trail-final">
+#n19TrailPanel:not(.hide){display:flex!important;flex-direction:row!important;align-items:center!important;gap:8px!important;padding:5px 8px!important;margin:0 0 6px!important;min-height:0!important;height:auto!important}
+#n19TrailPanel .n19-trail-head{display:flex!important;align-items:center!important;gap:6px!important;flex:0 0 auto!important;margin:0!important}
+#n19TrailPanel .n19-trail-head strong{font-size:11px!important;white-space:nowrap}
+#n19TrailPanel #n19TrailStatus{font-size:9px!important;padding:2px 5px!important;white-space:nowrap}
+#n19TrailPanel #n19TrailHint{display:none!important}
+#n19TrailPanel #n19TrailSelect{flex:1 1 100px!important;width:0!important;min-width:75px!important;height:28px!important;min-height:28px!important;margin:0!important;padding:3px 6px!important;font-size:12px!important}
+@media(max-width:340px){#n19TrailPanel:not(.hide){flex-wrap:wrap!important}#n19TrailPanel #n19TrailSelect{flex-basis:100%!important}}
+</style></body></html>
