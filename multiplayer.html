@@ -3184,7 +3184,7 @@ document.addEventListener('click',function(event){
 <script src="./d20x-ritual-guides.js?v=20261127descricao4"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127homebrewmanual1';
+import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127campaignlocal1';
 import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared2';
 import {createCampaignLocalStore} from './d20x-campaign-local.js?v=1';
 import {createVttLocalScene} from './d20x-vtt-local-scene.js';
@@ -5255,10 +5255,13 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
       '<div class="room-request-card"><strong>'+escape(item.name||'Jogador')+'</strong><div><button type="button" data-approve-request="'+escape(item.uid)+'">Aceitar</button><button type="button" class="alt" data-deny-request="'+escape(item.uid)+'">Recusar</button></div></div>'
     ).join(''):'<p>Nenhuma solicitação pendente.</p>';
   },error=>notice('Falha ao carregar solicitações: '+error.message)));
-  unsubs.push(onSnapshot(collection(db,'campaigns',id,'members'),snapshot=>{
-    roomMembers=snapshot.docs.map(d=>({id:d.id,...d.data()}));drawMembers();renderQuota();renderSlotManagement();if(gm)for(const p of sharedPeers)sharedPeer(p);
+  unsubs.push(onSnapshot(collection(db,'campaigns',id,'members'),{includeMetadataChanges:true},snapshot=>{
+    if(roomId!==id)return;
+    roomMembers=snapshot.docs.map(d=>({id:d.id,...d.data()}));
+    if(gm){const allowed=snapshot.metadata.fromCache?[]:roomMembers.map(m=>m.uid||m.id);sharedTransport?.setAllowedPeers?.(allowed);for(const p of sharedPeers)if(!allowed.includes(p))sharedPeers.delete(p);}
+    drawMembers();renderQuota();renderSlotManagement();if(gm)for(const p of sharedPeers)sharedPeer(p);
     if(gm)for(const m of roomMembers)ensurePlayerIndex(id,m.uid).catch(error=>console.warn('Índice do jogador',error));
-  },e=>notice('Não foi possível carregar participantes: '+e.message)));
+  },e=>{if(roomId!==id)return;if(gm){sharedTransport?.setAllowedPeers?.([]);sharedPeers.clear();}notice('Não foi possível carregar participantes: '+e.message);}));
   unsubs.push(onSnapshot(collection(db,'campaigns',id,'sheets'),snapshot=>{
     publicSheets=snapshot.docs.map(d=>({id:d.id,...d.data(),isHidden:false}));if(!gm){for(const key of Object.keys(sharedRecords)){const sheet=publicSheets.find(sh=>sharedKey(sh.id)===key);if(!sheet||!canEditSharedSheet(sheet,uid,roomData?.gmUid)||sharedRecords[key].identity!==sharedSheetIdentity(sheet))delete sharedRecords[key];}}refreshRoomSheets();if(gm){void sharedImportCatalog().then(()=>{if(roomId===id)for(const p of sharedPeers)sharedPeer(p);}).catch(error=>notice('Importação local: '+String(error.message||error)));}else sharedRequestMissing();
   },e=>notice('Não foi possível carregar fichas: '+e.message)));
