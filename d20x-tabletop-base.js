@@ -1662,6 +1662,23 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    vttLog.hidden=false;vttLog.textContent=label;
    return {ok:true};
  }
+ // Resultados privados do Escudo só entram na cena após publicação explícita do mestre.
+ function publishMasterRoll(result){
+   if(!gm||disposed||!remoteReady)throw Error('Mesa local indisponível.');
+   if(!result||!['NPC','Ameaça'].includes(result.kind)||typeof result.rollId!=='string'||!/^[a-f0-9-]{36}$/i.test(result.rollId)||
+     typeof result.title!=='string'||!result.title.trim()||result.title.length>90||
+     typeof result.expression!=='string'||result.expression.length>180||
+     typeof result.detail!=='string'||result.detail.length>450||
+     !Number.isFinite(result.total)||Math.abs(result.total)>1000000)throw Error('Resultado inválido.');
+   const id='gm-roll-'+result.rollId;
+   if((scene.combatLog||[]).some(x=>x.id===id))return {ok:true};
+   const clean=(v,n)=>v.replace(/[\r\n\t]+/g,' ').trim().slice(0,n);
+   const label=('Mestre · '+result.kind+' · '+clean(result.title,42)+' = '+result.total+' · '+clean(result.expression,36)+' '+clean(result.detail,70)).slice(0,150);
+   scene.combatLog=[...(scene.combatLog||[]),{id,label,at:Date.now()}].slice(-40);
+   renderCombatDock();void save();
+   vttLog.hidden=false;vttLog.textContent=label;
+   return {ok:true};
+ }
  function renderCombatDock(){
    if(!combatDock||combatDock.hidden)return;
    combatDock.replaceChildren();
@@ -2061,7 +2078,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const previousIds=new Set((scene.combatLog||[]).map(x=>x.id));
    const wasSynced=receivedPublicScene;
    scene=validScene(data);receivedPublicScene=true;remoteReady=true;mediaFailed.clear();render();emitMapState();
-   if(wasSynced){const latest=[...scene.combatLog].reverse().find(x=>!previousIds.has(x.id)&&(x.label.startsWith('Dados · ')||x.label.startsWith('Ficha · ')));if(latest){vttLog.hidden=false;vttLog.textContent=latest.label;}}
+   if(wasSynced){const latest=[...scene.combatLog].reverse().find(x=>!previousIds.has(x.id)&&(x.label.startsWith('Dados · ')||x.label.startsWith('Ficha · ')||x.label.startsWith('Mestre · ')));if(latest){vttLog.hidden=false;vttLog.textContent=latest.label;}}
    if(['clues','turn'].includes(vttOptions.dataset.section)&&!vttOptions.hidden){const section=vttOptions.dataset.section;vttOptions.hidden=true;vttOpen(section);}
    message('Mesa sincronizada com o mestre por conexão direta.');
   },
@@ -2094,7 +2111,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   onConnected:()=>{mediaFailed.clear();if(!disposed)render();},
   onDisconnected:()=>{receivedPublicScene=false;if(!disposed)render();}
  });
- shared?.bind?.({publishSheetRoll:request=>gm?Promise.resolve().then(()=>publishSheetRoll(request,uid)):peerMedia?.requestShared?peerMedia.requestShared(request):Promise.reject(Error('WebRTC indisponível')),request:request=>peerMedia?.requestShared?peerMedia.requestShared(request):Promise.reject(Error('WebRTC indisponível')),send:(player,record)=>peerMedia?.sendSharedState?peerMedia.sendSharedState(player,record):Promise.reject(Error('WebRTC indisponível'))});
+ shared?.bind?.({publishMasterRoll:result=>Promise.resolve().then(()=>publishMasterRoll(result)),publishSheetRoll:request=>gm?Promise.resolve().then(()=>publishSheetRoll(request,uid)):peerMedia?.requestShared?peerMedia.requestShared(request):Promise.reject(Error('WebRTC indisponível')),request:request=>peerMedia?.requestShared?peerMedia.requestShared(request):Promise.reject(Error('WebRTC indisponível')),send:(player,record)=>peerMedia?.sendSharedState?peerMedia.sendSharedState(player,record):Promise.reject(Error('WebRTC indisponível'))});
  // Apenas a primeira abertura do mestre lê o documento antigo para migração.
  // Nenhuma nova posição/configuração de mesa é gravada no Firestore.
  const unsubscribe=()=>{};
