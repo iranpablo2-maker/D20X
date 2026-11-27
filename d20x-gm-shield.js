@@ -68,6 +68,9 @@ export function mountGmShield(options){
  ];
   let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
  let selectedSheet=null,draftNpcId=null,showNpcImport=false,showThreatImport=false;
+ let privateRoll=null;
+ function refreshRollShare(){const b=$('[data-gm-share-roll]');if(b){b.disabled=!privateRoll||privateRoll.room!==room||privateRoll.entity!==selectedSheet?.id;b.textContent=b.disabled?'Compartilhar última rolagem':'Compartilhar resultado: '+privateRoll.total;}}
+ function rememberRoll(kind,options,result){if(!result||!Number.isFinite(result.total)||!getContext().gm||!selectedSheet)return;privateRoll={room,entity:selectedSheet.id,kind,rollId:crypto.randomUUID(),title:String(options.title||'Rolagem').slice(0,90),expression:String(result.expression||options.expression||'').slice(0,180),detail:String(result.detail||'').slice(0,450),total:result.total};refreshRollShare();}
  function discardNpcDraft(){if(!draftNpcId)return;state.npcs=state.npcs.filter(x=>x.id!==draftNpcId);draftNpcId=null;}
  let activeNoteId='',noteMode='documents',noteSearch='',boardDrag=null,lastLocalWrite=0,pendingHistoryRoute=null,applyingHistoryRoute=false;
  let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
@@ -131,7 +134,7 @@ export function mountGmShield(options){
  }
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
-  room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;showThreatImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;pendingMasterSave=null;pendingNeedsRetry=false;
+  privateRoll=null;room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;showThreatImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;pendingMasterSave=null;pendingNeedsRetry=false;
   clearTimeout(generalSaveTimer);generalSaveTimer=null;activeNoteId='';noteMode='documents';noteSearch='';boardDrag=null;lastLocalWrite=0;pendingHistoryRoute=null;richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
@@ -667,13 +670,13 @@ export function mountGmShield(options){
   const label=btn.dataset.gmNpcDiceLabel||btn.getAttribute('aria-label')||'Rolagem';
   const isPool=skill||btn.dataset.gmNpcPool==='high';
   if(skill){
-   ui.roll({title:label,count:attr||2,sides:20,bonus,pool:true,low:attr===0,detail:'Atributo '+key.toUpperCase()+' '+attr});
+   const opts={title:label,count:attr||2,sides:20,bonus,pool:true,low:attr===0,detail:'Atributo '+key.toUpperCase()+' '+attr};rememberRoll('NPC',opts,ui.roll(opts));
   }else if(ui.parse(expression)){
    // Suporte ativo altera dano e testes, mantendo a fórmula original intacta na ficha.
    const kind=label.startsWith('Dano')?'dano':label.includes('Teste')?'ataque':'';
    const modifier=kind?gmNpcSupportBonus(npc,kind):0;
    const adjusted=modifier?'('+expression+')'+(modifier>=0?'+':'')+modifier:expression;
-   ui.roll({title:label,expression:modifier&&ui.parse(adjusted)?adjusted:expression,pool:isPool,critical:btn.dataset.gmNpcCritical||''});
+   const opts={title:label,expression:modifier&&ui.parse(adjusted)?adjusted:expression,pool:isPool,critical:btn.dataset.gmNpcCritical||''};rememberRoll('NPC',opts,ui.roll(opts));
   }
  }
  function npcCampaignView(x){
@@ -794,7 +797,7 @@ export function mountGmShield(options){
   if(kind==='threats'&&String(x.sourceId||'').startsWith('catalog:')){
    const source=String(x.sourceId).slice(8);
    const key=source.includes('::')?source:(()=>{const i=source.lastIndexOf(':');return i<0?'':source.slice(i+1).split(' · ').slice(1).join(' · ')+'::'+source.slice(0,i);})();
-   if(key)return '<section class="nex-gm-entity-sheet"><div class="nex-gm-entity-sheet-head"><button type="button" class="alt" data-gm-close-sheet>← Voltar às Ameaças</button><h3>'+escape(x.title)+'</h3></div><iframe data-gm-threat-sheet title="Ficha da ameaça" src="./ameaca-ficha.html?id='+encodeURIComponent(key)+'&embedded=1&v=20261120hpnotemp5" scrolling="no" style="display:block;width:100%;min-height:900px;border:0;background:#0b0b0e"></iframe></section>';
+   if(key)return '<section class="nex-gm-entity-sheet"><div class="nex-gm-entity-sheet-head"><button type="button" class="alt" data-gm-close-sheet>← Voltar às Ameaças</button><h3>'+escape(x.title)+'</h3></div><iframe data-gm-threat-sheet title="Ficha da ameaça" src="./ameaca-ficha.html?id='+encodeURIComponent(key)+'&embedded=1&gmShieldRoll=1&v=20261127gmroll1" scrolling="no" style="display:block;width:100%;min-height:900px;border:0;background:#0b0b0e"></iframe></section>';
   }
   const note=(x.body||'').trim();
   const meaningful=note&&!['NPC criado na biblioteca Homebrew','NPC importado da biblioteca Homebrew'].includes(note);
@@ -1158,7 +1161,7 @@ export function mountGmShield(options){
   const current=unsupported?'<p class="room-note">A biblioteca de '+escape(getContext().system)+' ainda não está disponível.</p>':tab==='npcs'&&showNpcImport?homebrewOptions():tab==='threats'&&showThreatImport?threatPicker():(selectedSheet&&selectedSheet.kind===tab?entitySheetView():(tab==='notes'?renderGeneralNotes():renderList(kinds.includes(tab)?tab:'notes')));
   const topThreatHeader=!unsupported&&tab==='threats'&&!showThreatImport&&!selectedSheet?gmSectionHeader('threats'):'';
   root.innerHTML=menu()+topThreatHeader+'<div class="nex-gm-status" data-gm-status role="status"></div>'+
-   (isOrdemCampaign()?renderFavourites():'')+'<div class="nex-gm-content">'+current+'</div>'+
+   (isOrdemCampaign()?renderFavourites():'')+(!unsupported&&selectedSheet&&selectedSheet.kind===tab&&!npcInlineEditing?'<div style="padding:6px 0"><button type="button" class="alt" data-gm-share-roll disabled>Compartilhar última rolagem</button> <small>As rolagens são privadas até você compartilhar.</small></div>':'')+'<div class="nex-gm-content">'+current+'</div>'+
    '';
   // Corrigir scroll persistente do Menu Principal: a mini ficha nova
   // precisa começar na barra de VIDA, não nas abas ou atributos.
@@ -1166,7 +1169,7 @@ export function mountGmShield(options){
    const host=document.getElementById('nexVttInlineGmHost');
    if(host&&host.contains(root)&&host.scrollTop>0)host.scrollTop=0;
   }
-  refreshMasterStatus();
+  refreshMasterStatus();refreshRollShare();
   if(tab==='notes')applyNoteSearch();
   if(!applyingHistoryRoute)options.onHistoryRoute?.(historyRoute());
   if(tab==='threats'&&showThreatImport){const frame=$('[data-gm-threat-picker]');if(frame)frame.addEventListener('load',syncThreatPicker,{once:true});}
@@ -1236,6 +1239,7 @@ export function mountGmShield(options){
    return;
   }
   const sheet=$('[data-gm-threat-sheet]');
+  if(sheet&&event.source===sheet.contentWindow&&event.data?.type==='d20x-gm-threat-roll-result'&&room&&ready&&getContext().gm&&selectedSheet?.kind==='threats'){const x=event.data;rememberRoll('Ameaça',x,x);return;}
   if(sheet&&event.source===sheet.contentWindow&&event.data?.type==='nex-threat-sheet-height'){
    const h=Number(event.data.height);
    if(Number.isFinite(h)&&h>0&&h<70000)sheet.style.height=Math.ceil(h+16)+'px';
@@ -1351,6 +1355,7 @@ export function mountGmShield(options){
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
   if(!isOrdemCampaign()&&['npcs','threats'].includes(tab)&&!btn.dataset.gmTab)return;
+  if(btn.hasAttribute('data-gm-share-roll')){const result=privateRoll;if(!result||result.room!==room||result.entity!==selectedSheet?.id)return;btn.disabled=true;Promise.resolve().then(()=>options.publishRoll?.(result,room)).then(ok=>{if(ok?.ok!==true)throw Error('Abra o Tabletop para compartilhar.');if(privateRoll===result)privateRoll=null;if(room===result.room)status('Resultado compartilhado na mesa.');}).catch(error=>{if(room===result.room)status('Não foi possível compartilhar: '+String(error.message||error));}).finally(refreshRollShare);return;}
   if(btn.dataset.gmRetrySave){void store();return;}
   if(btn.dataset.gmDiscardSave){
    if(!window.confirm('Descartar apenas as alterações locais não enviadas e voltar aos dados salvos na campanha?'))return;
@@ -1514,7 +1519,7 @@ export function mountGmShield(options){
 
   if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;flushNoteSave();showNpcImport=false;showThreatImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
-  if(btn.hasAttribute('data-gm-close-sheet')){discardNpcDraft();selectedSheet=null;npcInlineEditing=false;render();return;}
+  if(btn.hasAttribute('data-gm-close-sheet')){privateRoll=null;discardNpcDraft();selectedSheet=null;npcInlineEditing=false;render();return;}
   if(btn.dataset.gmOpenSheet){
    const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);
    const entry=state[kind]?.find(x=>x.id===key);
