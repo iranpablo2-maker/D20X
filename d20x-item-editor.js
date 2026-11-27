@@ -91,6 +91,13 @@ function detail(item){
  for(const key of ['proficiency','kind','wield','damage','secondary','critical','multiplier','damageType','range','tier','description']){
   if(merged[key]===null || merged[key]===undefined || String(merged[key]).trim()==='')merged[key]=fallback[key];
  }
+ // Atualiza somente descrições oficiais antigas destes dois itens, sem alterar textos personalizados.
+ if(model.name&&['granada de gas sonifero','granada de pem'].includes(norm(model.name))){
+  const old=String(merged.description||'').trim();
+  if(!old||/^(?:Granada fictícia com efeitos de sono e fadiga determinados pelo sistema\.|Granada que interfere em eletrônicos e criaturas de Energia no cenário\.|Equipamento listado na tabela|.*Efeito especial não cadastrado separadamente)/i.test(old)){
+   merged.description=window.NEX_ITEM_DESCRIBE?.(model)||model.description||old;
+  }
+ }
  const rules=window.NEX_ITEM_MODS;
  if(!rules)return merged;
  const baseTier=String(saved.baseTier||merged.tier||'0');
