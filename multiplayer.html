@@ -3173,7 +3173,7 @@ document.addEventListener('click',function(event){
  }
 },true);
 </script>
-<script src="./d20x-roll-popup.js?v=20261121transparentd20"></script>
+<script src="./d20x-roll-popup.js?v=20261127gmroll1"></script>
 <link rel="stylesheet" href="./d20x-gm-shield.css?v=20261126campaignArchive">
 
 
@@ -3183,9 +3183,9 @@ document.addEventListener('click',function(event){
 <script src="./d20x-ritual-guides.js?v=20261127descricao4"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127localsheetroll1';
+import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127gmroll1';
 import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared2';
-import {mountGmShield} from './d20x-gm-shield.js?v=20261127systemIsolation1';
+import {mountGmShield} from './d20x-gm-shield.js?v=20261127gmroll1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);
@@ -4154,6 +4154,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   root:$('nexGmShieldRoot'),db,doc,onSnapshot,setDoc,onHistoryRoute:d20xRecordShield,
   getContext:()=>({roomId,gm,uid,system:currentCampaignSystem()}),
   openTabletop:()=>roomSection('tabletop'),
+  publishRoll:(result,campaignId)=>{if(!gm||!uid||campaignId!==roomId||$('roomTabletopPanel')?.classList.contains('hide')||!sharedTransport?.publishMasterRoll)throw Error('Abra a mesa como mestre para compartilhar.');return sharedTransport.publishMasterRoll(result);},
   revealToChat:(message,campaignId)=>{
    if(!gm||!vttHostActive||campaignId!==roomId)return false;
    let profile={};
