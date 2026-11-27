@@ -205,7 +205,7 @@ window.NEX_SAH={
         "Profissão"
       ],
       "ability": "Terapia",
-      "description": "Origem de personagem; a habilidade associada é Terapia. Perícias: Intuição, Profissão. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror.",
+      "description": "Na ficha, a opção de Terapia substitui o teste de Diplomacia por Profissão nas conversas profissionais permitidas, sem custo registrado na automatização.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -366,7 +366,7 @@ window.NEX_SAH={
       "attr": "agi",
       "threshold": 2,
       "minNex": 0,
-      "description": "Opção de personagem. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Na ficha do D20X, recebe treinamento em Pilotagem; caso já possua treinamento, a automatização soma +2."
     },
     {
       "name": "Atlético",
@@ -478,7 +478,7 @@ window.NEX_SAH={
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Opção de personagem. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Na ficha do D20X, recebe treinamento em Tática; caso já possua treinamento, a automatização soma +2."
     },
     {
       "name": "Personalidade Esotérica",
@@ -527,7 +527,7 @@ window.NEX_SAH={
       "attr": "int",
       "threshold": 2,
       "minNex": 0,
-      "description": "Opção de personagem. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Na ficha do D20X, recebe treinamento em Tecnologia; caso já possua treinamento, a automatização soma +2."
     },
     {
       "name": "Resposta Rápida",
@@ -555,14 +555,14 @@ window.NEX_SAH={
       "attr": "vig",
       "threshold": 2,
       "minNex": 0,
-      "description": "Opção de personagem. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Na ficha do D20X, recebe treinamento em Fortitude; caso já possua treinamento, a automatização soma +2."
     },
     {
       "name": "Sentidos Aguçados",
       "attr": "pre",
       "threshold": 2,
       "minNex": 0,
-      "description": "Opção de personagem. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Na ficha do D20X, recebe treinamento em Percepção; caso já possua treinamento, a automatização soma +2."
     },
     {
       "name": "Sobrevivencialista",
@@ -576,7 +576,7 @@ window.NEX_SAH={
       "attr": "agi",
       "threshold": 2,
       "minNex": 0,
-      "description": "Opção de personagem. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Na ficha do D20X, recebe treinamento em Furtividade; caso já possua treinamento, a automatização soma +2."
     },
     {
       "name": "Vitalidade Reforçada",
