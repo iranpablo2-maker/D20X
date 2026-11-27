@@ -788,12 +788,24 @@ export function mountGmShield(options){
   if(apply&&raw!==''){const number=Number(raw);if(Number.isSafeInteger(number)&&number>=0)setNpcHp(widget,number);}
  }
  let npcInlineEditing=false;
+ function homebrewThreatView(x){
+  const raw=x.threatHomebrew?.threatSheet||{},t=npcSheet(raw);
+  const dice=(formula,label,pool=false)=>{
+   if(!window.NEX_DICE_UI?.parse?.(formula))return '';
+   return '<button type="button" class="alt" data-gm-threat-dice="'+escape(formula)+'" data-gm-threat-roll-label="'+escape(label)+'" data-gm-threat-pool="'+String(pool)+'">'+gmNpcD20Icon+' '+escape(label)+' · '+escape(formula)+'</button>';
+  };
+  const attributes=npcAttrNames.map(([key,label])=>{const n=Math.trunc(t.attributes[key]);return '<p>'+escape(label)+' '+n+' '+dice((n||2)+'d20',label,true).replace('data-gm-threat-pool="true"','data-gm-threat-pool="true" data-gm-threat-low="'+String(n===0)+'"')+'</p>';}).join('');
+  const tests=[['Fortitude','fortitude'],['Reflexos','reflexos'],['Vontade','vontade'],['Iniciativa','iniciativa'],['Percepção','percepcao']].filter(([,k])=>raw[k]).map(([label,k])=>'<p>'+escape(label)+': '+escape(raw[k])+' '+dice(raw[k],label,true)+'</p>').join('');
+  const actions=t.actions.map(a=>'<section class="nex-gm-sheet-description"><h4>'+escape(a.name)+'</h4><p>'+escape(a.action)+' · '+escape(a.range)+'</p>'+[['Teste',a.test,true],['Dano',a.damage,false],['Dano secundário',a.secondaryDamage,false]].filter(([,f])=>f).map(([label,f,pool])=>'<p>'+escape(f)+' '+dice(f,a.name+' · '+label,pool)+'</p>').join('')+'<p style="white-space:pre-wrap">'+escape(a.effect)+'</p></section>').join('');
+  return '<section class="nex-gm-entity-sheet"><div class="nex-gm-entity-sheet-head"><button type="button" class="alt" data-gm-close-sheet>← Voltar às Ameaças</button><h3>'+escape(x.title)+'</h3><button type="button" class="alt" data-gm-edit="threats:'+escape(x.id)+'">Editar ficha</button></div><p>PV '+t.pv+' · Defesa '+t.defense+' · '+escape(raw.element||'')+'</p><h4>Atributos</h4>'+attributes+'<h4>Testes</h4>'+tests+'<h4>Ações e habilidades</h4>'+actions+'<p style="white-space:pre-wrap">'+escape(x.body||'')+'</p></section>';
+ }
  function entitySheetView(){
   if(!selectedSheet)return '';
   const kind=selectedSheet.kind,x=state[kind]?.find(entry=>entry.id===selectedSheet.id);
   if(!x)return '';
   const npc=kind==='npcs',sheet=x.sheet;
   if(npc)return npcInlineEditing?npcCampaignEditor(x):npcCampaignView(x);
+  if(kind==='threats'&&x.threatHomebrew)return homebrewThreatView(x);
   if(kind==='threats'&&String(x.sourceId||'').startsWith('catalog:')){
    const source=String(x.sourceId).slice(8);
    const key=source.includes('::')?source:(()=>{const i=source.lastIndexOf(':');return i<0?'':source.slice(i+1).split(' · ').slice(1).join(' · ')+'::'+source.slice(0,i);})();
@@ -1355,6 +1367,7 @@ export function mountGmShield(options){
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
   if(!isOrdemCampaign()&&['npcs','threats'].includes(tab)&&!btn.dataset.gmTab)return;
+  if(btn.hasAttribute('data-gm-threat-dice')){if(selectedSheet?.kind!=='threats'||!state.threats.find(x=>x.id===selectedSheet.id)?.threatHomebrew)return;const opts={title:btn.dataset.gmThreatRollLabel,expression:btn.dataset.gmThreatDice,pool:btn.dataset.gmThreatPool==='true',low:btn.dataset.gmThreatLow==='true'};rememberRoll('Ameaça',opts,window.NEX_DICE_UI?.roll?.(opts));return;}
   if(btn.hasAttribute('data-gm-share-roll')){const result=privateRoll;if(!result||result.room!==room||result.entity!==selectedSheet?.id||result.sheetKind!==selectedSheet?.kind)return;btn.disabled=true;Promise.resolve().then(()=>options.publishRoll?.(result,result.room)).then(ok=>{if(ok?.ok!==true)throw Error('Abra o Tabletop para compartilhar.');if(privateRoll===result)privateRoll=null;if(room===result.room)status('Resultado compartilhado na mesa.');}).catch(error=>{if(room===result.room)status('Não foi possível compartilhar: '+String(error.message||error));}).finally(refreshRollShare);return;}
   if(btn.dataset.gmRetrySave){void store();return;}
   if(btn.dataset.gmDiscardSave){
@@ -1524,7 +1537,7 @@ export function mountGmShield(options){
    const sep=btn.dataset.gmOpenSheet.indexOf(':'),kind=btn.dataset.gmOpenSheet.slice(0,sep),key=btn.dataset.gmOpenSheet.slice(sep+1);
    const entry=state[kind]?.find(x=>x.id===key);
    if(!entry)return;
-   if(kind==='threats'&&entry.threatHomebrew&&window.parent!==window){editCampaignThreat(entry);return;}
+   privateRoll=null;
    if(kind==='npcs'){openNpcFullEditor(entry);return;}
    selectedSheet={kind,id:key};render();return;
   }
