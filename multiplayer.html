@@ -3311,9 +3311,14 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    info.append(name,meta);button.append(info);list.append(button);
   }
   if(!allowed.length){const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent=gm?'Nenhuma ficha disponível nesta campanha.':'Nenhuma ficha atribuída a você.';list.append(note);}
+  for(const sh of allowed){const effects=vttAbilityEffects(sh.fullSheet);if(!effects.length)continue;const note=document.createElement('p');note.className='nex-vtt-sheet-note';note.textContent=(sh.name||'Personagem')+': '+effects.map(e=>e.label+(e.kind==='defense'?' ('+(e.value>=0?'+':'')+e.value+' Defesa)':e.kind==='skill'?' ('+(e.value>=0?'+':'')+e.value+' '+e.skill+')':'')).join(' · ');list.append(note);}
   if(gm&&allowed.length)appendVttAbilityEffects(list,allowed);
   renderVttMiniSheet();
  }
+ function vttAbilityEffects(full){return Array.isArray(full?.nexVttAbilityEffects)?full.nexVttAbilityEffects.filter(e=>e&&typeof e.id==='string'&&['defense','skill','condition'].includes(e.kind)).slice(0,50):[];}
+ async function changeVttEffects(sheetId,transform){if(!gm||!roomId||!uid)throw Error('Somente o mestre pode administrar efeitos.');const sh=roomSheets.find(x=>x.id===sheetId);if(!sh||campaignSheetSystem(sh)!=='Ordem Paranormal')throw Error('Ficha indisponível.');const ref=campaignSheetRef(sh);await runTransaction(db,async tr=>{const snap=await tr.get(ref);if(!snap.exists()||!snap.data().fullSheet)throw Error('Ficha completa necessária.');const rows=vttAbilityEffects(snap.data().fullSheet),next=transform(rows);if(!Array.isArray(next)||next.length>50)throw Error('Limite de efeitos atingido.');tr.update(ref,{'fullSheet.nexVttAbilityEffects':next,updatedAt:serverTimestamp()});});}
+ async function expireVttEffects(period,eventId){if(!gm||!roomId)return;const campaign=roomId;for(const sh of roomSheets.filter(x=>vttAbilityEffects(x.fullSheet).some(e=>e.period===period))){if(roomId!==campaign||!gm)return;try{await changeVttEffects(sh.id,rows=>rows.flatMap(e=>{if(e.period!==period||e.lastTick===eventId)return [e];const remaining=(Number(e.remaining)||1)-1;return remaining>0?[{...e,remaining,lastTick:eventId}]:[];}));}catch(error){notice('Falha ao atualizar duração dos efeitos: '+String(error.message||error));}}}
+ window.addEventListener('nex:vtt-round-advanced',event=>{if(event.detail?.campaignId===roomId&&gm)void expireVttEffects('round',String(event.detail.id));});
  // Aplicação explícita de resultados numéricos de habilidades: somente o mestre.
  function appendVttAbilityEffects(list,allowed){
   const targets=allowed.filter(sh=>campaignSheetSystem(sh)==='Ordem Paranormal');
@@ -3333,6 +3338,23 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    if(!confirm('Aplicar '+(amount>0?'+':'')+amount+' '+field.toUpperCase()+' em '+String(sh.name||'Personagem')+'?'))return;
    apply.disabled=true;try{await updateVttSheetResource(id,field,amount,'delta');notice('Efeito aplicado à ficha selecionada.');value.value='0';}catch(error){notice('Não foi possível aplicar o efeito: '+String(error.message||error));}finally{apply.disabled=false;}
   });
+  const sep=document.createElement('hr');panel.append(sep);
+  const source=makeField('Nome da habilidade / condição',document.createElement('input'));source.maxLength=80;source.placeholder='Ex.: Resgate';
+  const kind=makeField('Efeito temporário',document.createElement('select'));for(const [v,label] of [['defense','Defesa'],['skill','Bônus de perícia'],['condition','Condição (registro)']]){const o=document.createElement('option');o.value=v;o.textContent=label;kind.append(o);}
+  const skill=makeField('Perícia (se aplicável)',document.createElement('input'));skill.maxLength=60;skill.placeholder='Nome exato da perícia';
+  const mod=makeField('Modificador numérico',document.createElement('input'));mod.type='number';mod.min='-99';mod.max='99';mod.value='5';
+  const period=makeField('Expira em',document.createElement('select'));for(const [v,label] of [['round','Rodadas'],['scene','Fim da cena'],['manual','Remoção pelo mestre']]){const o=document.createElement('option');o.value=v;o.textContent=label;period.append(o);}
+  const duration=makeField('Quantidade de rodadas',document.createElement('input'));duration.type='number';duration.min='1';duration.max='99';duration.value='1';
+  const add=document.createElement('button');add.type='button';add.textContent='Adicionar efeito temporário';panel.append(add);
+  add.addEventListener('click',async()=>{const id=target.value,label=source.value.trim(),value=Number(mod.value),remaining=period.value==='round'?Number(duration.value):1;
+   if(!gm||!id||!label||!['defense','skill','condition'].includes(kind.value)||!['round','scene','manual'].includes(period.value)||!Number.isInteger(value)||Math.abs(value)>99||!Number.isInteger(remaining)||remaining<1||remaining>99||kind.value==='skill'&&!skill.value.trim()){notice('Preencha os campos do efeito.');return;}
+   const effect={id:crypto.randomUUID(),label,kind:kind.value,skill:skill.value.trim(),value:kind.value==='condition'?0:value,period:period.value,remaining};
+   add.disabled=true;try{await changeVttEffects(id,rows=>[...rows,effect]);notice('Efeito adicionado à ficha da campanha.');}catch(error){notice(String(error.message||error));}finally{add.disabled=false;}
+  });
+  const rescue=document.createElement('button');rescue.type='button';rescue.textContent='Resgate: aplicar +5 Defesa ao aliado';panel.append(rescue);
+  rescue.addEventListener('click',async()=>{if(!target.value||!confirm('Confirma o benefício de Resgate para o personagem selecionado?'))return;rescue.disabled=true;try{await changeVttEffects(target.value,rows=>[...rows.filter(e=>e.label!=='Resgate'),{id:crypto.randomUUID(),label:'Resgate',kind:'defense',skill:'',value:5,period:'round',remaining:1}]);notice('Defesa temporária aplicada.');}catch(error){notice(String(error.message||error));}finally{rescue.disabled=false;}});
+  const end=document.createElement('button');end.type='button';end.textContent='Encerrar cena (efeitos)';panel.append(end);end.addEventListener('click',async()=>{if(!confirm('Encerrar os efeitos com duração de cena?'))return;end.disabled=true;try{await expireVttEffects('scene',crypto.randomUUID());}finally{end.disabled=false;}});
+  for(const sh of targets)for(const effect of vttAbilityEffects(sh.fullSheet)){const remove=document.createElement('button');remove.type='button';remove.textContent='Remover '+effect.label+' · '+(sh.name||'Personagem');panel.append(remove);remove.addEventListener('click',async()=>{remove.disabled=true;try{await changeVttEffects(sh.id,rows=>rows.filter(e=>e.id!==effect.id));}catch(error){notice(String(error.message||error));}finally{remove.disabled=false;}});}
   list.append(panel);
  }
  function openManualCampaignSheet(sheet){const data=sheet.fullSheet||{},body=$('nexCampaignSheetBody');$('nexCampaignSheetTitle').textContent=sheet.name||'Personagem';body.replaceChildren();const add=(label,value)=>{const p=document.createElement('p'),b=document.createElement('strong');b.textContent=label+': ';p.append(b,document.createTextNode(String(value??'')));p.style.whiteSpace='pre-wrap';body.append(p);};add('Sistema',campaignSheetSystem(sheet));add('Conceito',data.concept);for(const f of (Array.isArray(data.fields)?data.fields:[]))add(f.label,f.value);for(const [label,key] of [['Perícias e habilidades','skills'],['Inventário','inventory'],['História e anotações','notes']])if(data[key])add(label,data[key]);$('nexCampaignSheetDialog').showModal();}
@@ -5099,8 +5121,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(JSON.stringify(data).length>450000){answer(false,'A ficha excede o limite de compartilhamento.');return;}
   const clampStat=(value)=>Math.max(0,Math.min(9999,Math.trunc(Number(value)||0)));
   try{
-   await updateDoc(campaignSheetRef(sheet),{
-    fullSheet:data,
+   await runTransaction(db,async tr=>{const ref=campaignSheetRef(sheet),snap=await tr.get(ref);if(!snap.exists())throw Error('Ficha não encontrada.');const current=snap.data();tr.update(ref,{
+    fullSheet:{...data,nexVttAbilityEffects:vttAbilityEffects(current.fullSheet)},
     ...(!sheet.fullSheet?{linkedAgentId:'shared-'+sheet.id,sheetFormat:'nex-agent-v1'}:{}),
     name:String(data.name||sheet.name).slice(0,100),
     nex:Math.max(0,Math.min(99,Math.trunc(Number(data.nex)||0))),
@@ -5108,7 +5130,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     pe:clampStat(data.peCurrent??sheet.pe),
     san:clampStat(data.sanCurrent??sheet.san),
     updatedAt:serverTimestamp()
-   });
+   });});
    answer(true);
   }catch(error){answer(false,error?.code||error?.message||'Falha na gravação');}
  });
