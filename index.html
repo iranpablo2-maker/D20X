@@ -4918,7 +4918,7 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
  const original=String((!isHomebrew&&NEX_POWER_DETAILS[key]&&(/paranormal/i.test(from)||!from&&!extra.originName&&!extra.trail&&!extra.classPower)?NEX_POWER_DETAILS[key]:detail)||'').trim();
  const originName=extra.originName||(from.startsWith('Origem: ')?from.slice(8).split(' · ')[0]:'');
  const guidance=extra.classPower&&detail?'':NEX_ABILITY_EXPLANATIONS[String(name||'').trim()]||NEX_ABILITY_EXPLANATIONS[originName]||'';
- const genericDescription=/^(?:Opção de jogo registrada|Habilidade de .+Use os recursos|Recurso ficcional de jogo|Consulte a publicação|Habilidade concedida por esta origem|Descrição (?:não cadastrada|indisponível))/i.test(original)||/Confira os campos mecânicos (?:cadastrados|e consulte)/i.test(original);
+ const genericDescription=/^(?:Opção de (?:jogo registrada|personagem|progressão)|Habilidade de .+Use os recursos|Habilidade de progressão|Poder de .+Consulte a publicação|Origem de personagem|Recurso (?:ficcional de jogo|de jogo)|Consulte a publicação|Habilidade concedida por esta origem|Descrição (?:não cadastrada|indisponível))/i.test(original)||/(?:Confira os campos mecânicos|Consulte a publicação para (?:as condições|custo|condições))/i.test(original);
  const usefulGuidance=guidance&&guidance.length<=240&&!/consulte (?:o livro|a publicação)/i.test(guidance);
  const parts=original&&!genericDescription&&original.length<=240?[original]:usefulGuidance?[guidance]:[];
 
@@ -4942,7 +4942,7 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
  if(attrs[attr]&&Number(extra.threshold)>0)add('Pré-requisito de atributo: '+attrs[attr]+' '+Number(extra.threshold)+'.');
  if(attr.startsWith('trained'))add('Pré-requisito: possuir o treinamento exigido pela habilidade.');
  if(Number(extra.minNex)>0)add('NEX mínimo registrado para este poder: '+Number(extra.minNex)+'%.');
- if(!parts.length)parts.push('Efeito específico ainda não cadastrado no D20X.');
+ if(!parts.length||(genericDescription&&!usefulGuidance))parts.unshift('Efeito específico ainda não cadastrado no D20X. Os demais campos abaixo não substituem esse efeito.');
  if(from&&!parts.some(p=>p.startsWith('Fonte cadastrada:')))parts.push('Referência: '+from+'.');
  return parts.join('\n\n');
 }
