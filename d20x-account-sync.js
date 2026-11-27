@@ -1,7 +1,7 @@
 /* NEX Contas: login seguro e sincronização por usuário; o armazenamento local continua independente. */
 import {initializeApp,getApps} from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,updateProfile} from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js';
-import {getFirestore,collection,doc,getDocs,setDoc,serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
+import {getFirestore,collection,getDocsFromServer} from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
 const cfg=window.NEX_FIREBASE_CONFIG;
 const panel=document.createElement('dialog');panel.id='nexAccountDialog';
 panel.innerHTML=`<div class="nex-account-heading"><strong>Conta D20X</strong><button type="button" id="nexAccountClose" aria-label="Fechar">×</button></div><p id="nexAccountStatus">Conectando ao serviço de contas…</p><div id="nexAccountGuest"><button type="button" id="nexAccountGoogle" class="nex-account-google"><span aria-hidden="true">G</span> Continuar com Google</button><div class="nex-account-separator">ou usar e-mail</div><div class="nex-account-modes" role="group" aria-label="Acesso à conta"><button type="button" id="nexAccountModeLogin" aria-pressed="true">Entrar</button><button type="button" id="nexAccountModeCreate" aria-pressed="false">Criar conta</button></div><form id="nexAccountForm"><div id="nexAccountRegistration" hidden><label>Nome para exibição<input id="nexAccountName" autocomplete="name" type="text" maxlength="60"></label></div><label>E-mail<input id="nexAccountEmail" autocomplete="email" type="email" required></label><label>Senha<input id="nexAccountPassword" autocomplete="current-password" type="password" minlength="6" required></label><div id="nexAccountConfirmation" hidden><label>Confirmar senha<input id="nexAccountConfirm" autocomplete="new-password" type="password" minlength="6"></label><small>Use um nome de exibição e confirme sua senha para criar a conta.</small></div><div class="nex-account-actions"><button type="submit" id="nexAccountSubmit">Entrar na conta</button><button type="button" id="nexAccountReset">Recuperar senha</button></div></form></div><div id="nexAccountConnected" hidden><p id="nexAccountWho"></p><p class="nex-account-help">Suas fichas, campanhas locais e homebrews são mantidos neste navegador e podem ser sincronizados com a sua conta. Não compartilhe sua senha.</p><div class="nex-account-actions"><button id="nexAccountLogout" type="button">Sair da conta</button></div></div><small id="nexAccountMessage" role="status"></small>`;
@@ -107,7 +107,7 @@ else{
  const auth=getAuth(app),db=getFirestore(app);let current=null,busy=false,ready=false,dirty=false,timer=0,hydratedUid=null,localVersion=0;
  const getBridge=()=>window.NEX_AUTO_BRIDGE?.ready?.()?window.NEX_AUTO_BRIDGE:null;
  const safeClone=v=>JSON.parse(JSON.stringify(v));
- const uidPath=()=>collection(db,'users',current.uid,'nex_v3');
+ 
  const merge=(local,remote,keyFn)=>{
   const m=new Map();
   for(const x of remote||[])if(x&&keyFn(x)!=null)m.set(String(keyFn(x)),x);
@@ -136,143 +136,87 @@ else{
   localStorage.setItem(ADVANCED_KEY,JSON.stringify(output));
   return output;
  };
+ // Local-first: importação inicial somente leitura. Nenhuma gravação pessoal no Firestore.
+ const migrationKey=uid=>'d20x_local_first_migrated_v1_'+uid;
+ async function archiveLocal(account,local){
+  const snapshot={account,local:safeClone(local),advanced:advanced(),advancedDeletedIds:[...advancedDeleted()],profile:currentProfile(),savedAt:Date.now()};
+  await new Promise((resolve,reject)=>{
+   const req=indexedDB.open('D20X_LOCAL_MIGRATION',1);
+   req.onupgradeneeded=()=>req.result.createObjectStore('backups',{keyPath:'key'});
+   req.onerror=()=>reject(req.error||Error('Banco de recuperação indisponível'));
+   req.onblocked=()=>reject(Error('Banco de recuperação bloqueado'));
+   req.onsuccess=()=>{
+    const backupDb=req.result;
+    try{
+     const tx=backupDb.transaction('backups','readwrite');
+     tx.oncomplete=()=>{backupDb.close();resolve();};
+     tx.onabort=tx.onerror=()=>{backupDb.close();reject(tx.error||Error('Backup não confirmado'));};
+     tx.objectStore('backups').put({key:account+':'+snapshot.savedAt,...snapshot});
+    }catch(error){backupDb.close();reject(error);}
+   };
+  });
+ }
  async function sync(){
-  if(busy||!current)return;
+  if(busy||!current||ready)return;
   const bridge=getBridge();
-  if(!bridge){status('Preparando acesso às fichas da conta…');setTimeout(()=>{if(current&&!busy)sync();},500);return;}
+  if(!bridge){status('Preparando armazenamento local…');return;}
   const account=current.uid;
-  busy=true;status('Sincronizando fichas com a conta D20X…');
-  const versionAtStart=localVersion;
+  busy=true;
   try{
-   const priorLocal=bridge.read();
-   const cloud=await getDocs(collection(db,'users',account,'nex_v3'));
-   if(current?.uid!==account)return;
-   const records=new Map(cloud.docs.map(s=>[s.id,s.data()]));
-   if(hydratedUid!==account){
-    // No primeiro carregamento, as fichas da conta são a fonte principal.
-    // Uma única migração é permitida apenas quando não há fichas salvas na conta.
-    let previous='';try{previous=localStorage.getItem('nex_account_last_uid')||'';}catch(error){}
-    const remoteAgents=[],removed=[];
-    let hasAgentRecords=false;
+   const owner=localStorage.getItem('nex_account_last_uid')||localStorage.getItem('nex_sync_v3_account')||'';
+   if(owner&&owner!==account){
+    await signOut(auth);
+    message('Os dados locais pertencem a outra conta. Use outro perfil do navegador para não misturar fichas.');
+    return;
+   }
+   if(!localStorage.getItem(migrationKey(account))){
+    status('Importando uma cópia dos dados existentes, sem modificar o Firebase…');
+    const local=bridge.read();
+    await archiveLocal(account,local);
+    const cloud=await getDocsFromServer(collection(db,'users',account,'nex_v3'));
+    if(current?.uid!==account)return;
+    const records=new Map(cloud.docs.map(doc=>[doc.id,doc.data()]));
+    const removed=new Set(local.deletedAgentIds||[]);
+    const agents=new Map((local.agents||[]).filter(a=>a?.id&&a.data).map(a=>[a.id,a]));
     for(const [key,record] of records){
      if(!key.startsWith('agent-'))continue;
-     hasAgentRecords=true;
-     if(record.deleted){removed.push(key.slice(6));continue;}
-     if(record.payload?.item?.data)remoteAgents.push(record.payload.item);
-    }
-    const canImportLegacy=!hasAgentRecords&&(!previous||previous===account);
-    const localOwnedByAccount=previous===account;
-    const merged=new Map(remoteAgents.map(agent=>[agent.id,agent]));
-    if(canImportLegacy||localOwnedByAccount){
-     for(const agent of priorLocal.agents||[]){
-      if(!agent?.id||removed.includes(agent.id))continue;
-      const cloudAgent=merged.get(agent.id);
-      if(!cloudAgent || Date.parse(agent.updatedAt||'')>Date.parse(cloudAgent.updatedAt||'')){
-       merged.set(agent.id,agent);
-      }
+     const id=key.slice(6),item=record.payload?.item;
+     // Não apagar uma ficha local na migração por causa de uma exclusão remota antiga.
+     if(record.deleted){if(!agents.has(id))removed.add(id);continue;}
+     if(item?.id===id&&item.data&&!removed.has(id)){
+      const existing=agents.get(id);
+      if(!existing||(Date.parse(item.updatedAt||'')||0)>(Date.parse(existing.updatedAt||'')||0))agents.set(id,item);
      }
     }
-    try{
-     localStorage.setItem('nex_account_recovery_'+(previous||account),JSON.stringify({savedAt:new Date().toISOString(),...priorLocal}));
-    }catch(error){console.warn('Backup anterior indisponível',error);}
-    bridge.replaceAccountAgents([...merged.values()],removed);
-    hydratedUid=account;
-   }
-   const local=bridge.read();
-   const patches=[],uploads=[];
-   // Exclusions are explicit tombstones, never inferred from a missing local sheet.
-   const deletedIds=new Set((local.deletedAgentIds||[]).filter(id=>typeof id==='string'&&/^[A-Za-z0-9_-]{2,90}$/.test(id)));
-   const localIds=new Set((local.agents||[]).map(a=>a.id));
-   for(const id of deletedIds){
-     const key='agent-'+id,remote=records.get(key);
-     if(remote&&!remote.deleted){
-       uploads.push({key,type:'agent',payload:{},deleted:true});
-     }
-   }
-   for(const a of local.agents||[]){
-    if(!a?.id||!/^[A-Za-z0-9_-]{2,90}$/.test(a.id)||deletedIds.has(a.id))continue;
-    const key='agent-'+a.id,r=records.get(key),other=r?.payload?.item;
-    if(r?.deleted){
-      patches.push({id:key,entry:r});
-      continue; // A cloud deletion can never be undone by an older local copy.
-    }
-    if(other&&Date.parse(other.updatedAt||0)>Date.parse(a.updatedAt||0)){
-      patches.push({id:key,entry:r});continue;
-    }
-    if(!r||JSON.stringify(other)!==JSON.stringify(a))uploads.push({key,type:'agent',payload:{item:a},deleted:false});
-   }
-   for(const [key,r] of records){
-    if(!key.startsWith('agent-'))continue;
-    const id=key.slice(6);
-    if(deletedIds.has(id))continue;
-    if(r.deleted){
-      if(localIds.has(id))patches.push({id:key,entry:r});
-      continue;
-    }
-    if(!localIds.has(id))patches.push({id:key,entry:r});
-   }
-   for(const [name,items,idFn] of [
-    ['campaigns',local.campaigns,x=>x.id],
-    ['homebrew',local.homebrew,x=>x.id||x.name]
-   ]){
-    const r=records.get(name);
-    let syncedProfile={};
-    if(name==='homebrew'){
-      const localProfile=currentProfile();
-      const cloudProfile=r?.payload?.profile&&typeof r.payload.profile==='object'?r.payload.profile:{};
-      const localStamp=Date.parse(localProfile.updatedAt||'')||0;
-      const cloudStamp=Date.parse(cloudProfile.updatedAt||'')||0;
-      syncedProfile=cloudStamp>localStamp?cloudProfile:localProfile;
-      if(cloudStamp>localStamp){
-        try{localStorage.setItem('nex_account_profile_'+current.uid,JSON.stringify(syncedProfile));}catch(error){console.warn('Perfil local indisponível',error);}
-        if(profile.open)updateProfileDisplay();
-      }
-    }
-    const cloudRemoved=name==='homebrew'?normalizeItems(r?.payload?.advancedDeletedIds):[];
-    const removedSet=name==='homebrew'?new Set([...advancedDeleted(),...cloudRemoved.filter(id=>typeof id==='string')]):new Set();
-    const mergedAdvanced=name==='homebrew'?merge(advanced(),r?.payload?.advanced,x=>x.id||[x.type,x.name].join(':'))
-      .filter(item=>item&&(!item.id||!removedSet.has(String(item.id)))):[];
-    const removedIds=[...removedSet].slice(-2000);
-    const full=merge(normalizeItems(items),normalizeItems(r?.payload?.items),idFn);
-    // Never delete cloud-only entries or local entries during first sign-in.
-    if(JSON.stringify(full)!==JSON.stringify(items))patches.push({id:name,entry:{type:name,deleted:false,payload:{items:full}}});
-    if(!r||JSON.stringify(r.payload?.items)!==JSON.stringify(full)||name==='homebrew'&&(JSON.stringify(r.payload?.advanced||[])!==JSON.stringify(mergedAdvanced)||JSON.stringify(r.payload?.advancedDeletedIds||[])!==JSON.stringify(removedIds)||JSON.stringify(r.payload?.profile||{})!==JSON.stringify(syncedProfile))){
-      uploads.push({key:name,type:name,payload:{items:full,...(name==='homebrew'?{advanced:mergedAdvanced,advancedDeletedIds:removedIds,profile:syncedProfile}:{})}});
-    }
-   }
-   // Save the local pre-merge collection as a recovery point.
-   if(patches.length){
-     try{localStorage.setItem('nex_account_recovery_'+current.uid,JSON.stringify({savedAt:new Date().toISOString(),...local,advanced:advanced()}));}catch(e){console.warn('Backup local de recuperação indisponível',e);}
-     bridge.apply(patches);
-   }
-   if(records.get('homebrew')?.payload)mergeAdvanced(records.get('homebrew').payload.advanced,records.get('homebrew').payload.advancedDeletedIds);
-   for(const u of uploads){
+    const campaigns=merge(local.campaigns,records.get('campaigns')?.payload?.items,x=>x.id);
+    const homebrew=merge(local.homebrew,records.get('homebrew')?.payload?.items,x=>x.id||x.name);
     if(current?.uid!==account)return;
-    await setDoc(doc(db,'users',account,'nex_v3',u.key),{type:u.type,payload:safeClone(u.payload),deleted:!!u.deleted,updatedAt:serverTimestamp()});
+    bridge.replaceAccountAgents([...agents.values()], [...removed]);
+    bridge.apply([{id:'campaigns',entry:{payload:{items:campaigns}}},{id:'homebrew',entry:{payload:{items:homebrew}}}]);
+    const hp=records.get('homebrew')?.payload;
+    if(hp){
+     mergeAdvanced(hp.advanced,hp.advancedDeletedIds);
+     if(hp.profile&&!localStorage.getItem('nex_account_profile_'+account))localStorage.setItem('nex_account_profile_'+account,JSON.stringify(hp.profile));
+    }
+    if(typeof bridge.confirmLocalSave!=='function')throw Error('Confirmação do armazenamento indisponível');
+    await bridge.confirmLocalSave();
+    if(current?.uid!==account)return;
+    localStorage.setItem('nex_account_last_uid',account);
+    localStorage.setItem(migrationKey(account),'1');
    }
-   if(current?.uid!==account)return;
-   try{localStorage.setItem('nex_account_last_uid',account);}catch(error){}
-   ready=true;
-   window.NEX_ACCOUNT_SYNC_READY=true;
-   status('Conta D20X · fichas sincronizadas na nuvem');
-   message('Fichas vinculadas à sua conta D20X. A cópia do navegador é apenas uma recuperação temporária.');
-   window.dispatchEvent(new CustomEvent('nex-cloud-sync-state',{detail:{state:'saved',uid:account}}));
+   localStorage.setItem('nex_account_last_uid',account);
+   ready=true;hydratedUid=account;window.NEX_ACCOUNT_SYNC_READY=true;
+   status('Conta D20X · armazenamento local ativo');
+   message('As fichas ficam neste navegador. Exporte backups para usar outro dispositivo.');
+   window.dispatchEvent(new CustomEvent('nex-cloud-sync-state',{detail:{state:'local',uid:account}}));
   }catch(error){
-    console.error('NEX sincronização',error);
-    status('Conta D20X · não foi possível sincronizar');
-    message('Não foi possível confirmar o salvamento na conta ('+(error?.code||error?.message||'erro')+'). Uma cópia temporária foi mantida neste navegador; não a considere salva na nuvem.');
-    window.dispatchEvent(new CustomEvent('nex-cloud-sync-state',{detail:{state:'error',uid:current?.uid}}));
-  }finally{
-   busy=false;
-   if(current&&hydratedUid!==current.uid){
-    setTimeout(()=>{if(current&&!busy)sync();},300);
-   }else if(current&&localVersion!==versionAtStart){
-    dirty=true;schedule();
-   }else dirty=false;
-  }
+   console.warn('D20X migração local',error);
+   status('Importação não confirmada. Nenhum dado remoto foi apagado.');
+   message('Conecte-se novamente para concluir a importação inicial. '+String(error?.message||error));
+   window.dispatchEvent(new CustomEvent('nex-cloud-sync-state',{detail:{state:'error',uid:account}}));
+  }finally{busy=false;if(current&&current.uid!==account&&!ready)void sync();}
  }
- function schedule(){if(!current||!ready)return;clearTimeout(timer);timer=setTimeout(sync,1000);}
- window.addEventListener('nex-auto-local-change',()=>{localVersion++;dirty=true;schedule();});
+ function schedule(){/* Alterações pessoais persistidas pelo motor local. */}
  $('nexAccountLogout').onclick=async()=>{try{await signOut(auth);menu.hidden=true;}catch(e){message('Falha ao sair da conta.');}};
  $('nexAccountMenuLogout').onclick=()=>$('nexAccountLogout').click();
  $('nexProfileLogout').onclick=async()=>{
@@ -411,7 +355,7 @@ else{
      dirty=true;
      if(ready)schedule();
      else setTimeout(()=>{if(current?.uid===owner)sync();},1200);
-     profileStatus('Foto alterada. A sincronização acontece automaticamente.');
+     profileStatus('Foto salva neste dispositivo.');
      closeCrop();
    }catch(err){$('nexPhotoCropStatus').textContent='Não foi possível salvar: '+(err?.message||'tente novamente');}
    finally{button.disabled=false;}
@@ -452,7 +396,7 @@ else{
     updateHeaderAvatar();
     // Persist the optional age in the owner's existing private homebrew record on the next sync.
     dirty=true;schedule();
-    profileStatus('Perfil salvo. As alterações serão sincronizadas automaticamente.');
+    profileStatus('Perfil salvo neste dispositivo.');
    }catch(error){profileStatus('Não foi possível salvar o perfil: '+(error?.code||'tente novamente'));}
    finally{button.disabled=false;}
  };
@@ -551,36 +495,15 @@ else{
   if(user){
    $('nexAccountWho').textContent=user.email||'Conta conectada';
    if(panel.open)panel.close();
-   // Ao trocar contas, esconde imediatamente as fichas da sessão anterior.
-   let last='';try{last=localStorage.getItem('nex_account_last_uid')||'';}catch(error){}
-   if((previousUser&&previousUser!==user.uid)||(last&&last!==user.uid)){
-    const bridge=getBridge();
-    if(bridge){
-     try{
-      const before=bridge.read();
-      localStorage.setItem('nex_account_recovery_'+(previousUser||last),JSON.stringify({savedAt:new Date().toISOString(),...before}));
-      bridge.replaceAccountAgents([],[]);
-     }catch(error){console.warn('NEX: não foi possível isolar a troca de conta',error);}
-    }
-   }
-   status('Carregando personagens da conta D20X…');
-   setTimeout(()=>{if(current?.uid===user.uid)sync();},700);
+   status('Abrindo armazenamento local da conta D20X…');
+   void sync();
   }else{
-   // Na primeira visita sem login, preserve as fichas antigas para migrá-las
-   // quando a conta correta entrar. Ao sair de uma conta, limpe só a visualização.
-   const bridge=getBridge();
-   if(previousUser&&bridge){
-    try{
-     const previousData=bridge.read();
-     localStorage.setItem('nex_account_recovery_'+previousUser,JSON.stringify({savedAt:new Date().toISOString(),...previousData}));
-     bridge.replaceAccountAgents([],[]);
-    }catch(error){console.warn('NEX: limpeza da visualização ao sair',error);}
-   }
-   status('Entre na conta D20X para carregar e sincronizar personagens.');
-   message('As fichas são vinculadas à conta D20X. Sem login, o salvamento na nuvem não está disponível.');
+   // Sair não apaga fichas locais nem a cópia de recuperação.
+   status('Entre com sua conta D20X para abrir as fichas locais.');
+   message('Os dados continuam neste navegador. Utilize outro perfil do navegador para outra conta.');
+
   }
  });
  document.addEventListener('nex51-ready',()=>{if(current&&!busy&&!ready)sync();});
-  // Periodic reconciliation while signed in, including changes from other devices.
- setInterval(()=>{if(current&&!busy)sync();},45000);
+
 }
