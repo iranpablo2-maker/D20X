@@ -69,8 +69,8 @@ export function mountGmShield(options){
   let room='',unsubscribe=null,ready=false,state=empty(),tab='notes',editing=null,filter='',bestiary=false;
  let selectedSheet=null,draftNpcId=null,showNpcImport=false,showThreatImport=false;
  let privateRoll=null;
- function refreshRollShare(){const b=$('[data-gm-share-roll]');if(b){b.disabled=!privateRoll||privateRoll.room!==room||privateRoll.entity!==selectedSheet?.id;b.textContent=b.disabled?'Compartilhar última rolagem':'Compartilhar resultado: '+privateRoll.total;}}
- function rememberRoll(kind,options,result){if(!result||!Number.isFinite(result.total)||!getContext().gm||!selectedSheet)return;privateRoll={room,entity:selectedSheet.id,kind,rollId:crypto.randomUUID(),title:String(options.title||'Rolagem').slice(0,90),expression:String(result.expression||options.expression||'').slice(0,180),detail:String(result.detail||'').slice(0,450),total:result.total};refreshRollShare();}
+ function refreshRollShare(){const b=$('[data-gm-share-roll]');if(b){b.disabled=!privateRoll||privateRoll.room!==room||privateRoll.entity!==selectedSheet?.id||privateRoll.sheetKind!==selectedSheet?.kind;b.textContent=b.disabled?'Compartilhar última rolagem':'Compartilhar resultado: '+privateRoll.total;}}
+ function rememberRoll(kind,options,result){if(!result||!Number.isFinite(result.total)||!getContext().gm||!selectedSheet)return;privateRoll={room,entity:selectedSheet.id,sheetKind:selectedSheet.kind,kind,rollId:crypto.randomUUID(),title:String(options.title||'Rolagem').slice(0,90),expression:String(result.expression||options.expression||'').slice(0,180),detail:String(result.detail||'').slice(0,450),total:result.total};refreshRollShare();}
  function discardNpcDraft(){if(!draftNpcId)return;state.npcs=state.npcs.filter(x=>x.id!==draftNpcId);draftNpcId=null;}
  let activeNoteId='',noteMode='documents',noteSearch='',boardDrag=null,lastLocalWrite=0,pendingHistoryRoute=null,applyingHistoryRoute=false;
  let homebrew=[],threatCatalog=[],saveStatus='',writeQueue=Promise.resolve(),revision=0,committed=0,pendingReveal=null;
@@ -1355,7 +1355,7 @@ export function mountGmShield(options){
  root.addEventListener('click',event=>{
   const btn=event.target.closest('button');if(!btn||!room||!ready||!getContext().gm)return;
   if(!isOrdemCampaign()&&['npcs','threats'].includes(tab)&&!btn.dataset.gmTab)return;
-  if(btn.hasAttribute('data-gm-share-roll')){const result=privateRoll;if(!result||result.room!==room||result.entity!==selectedSheet?.id)return;btn.disabled=true;Promise.resolve().then(()=>options.publishRoll?.(result,room)).then(ok=>{if(ok?.ok!==true)throw Error('Abra o Tabletop para compartilhar.');if(privateRoll===result)privateRoll=null;if(room===result.room)status('Resultado compartilhado na mesa.');}).catch(error=>{if(room===result.room)status('Não foi possível compartilhar: '+String(error.message||error));}).finally(refreshRollShare);return;}
+  if(btn.hasAttribute('data-gm-share-roll')){const result=privateRoll;if(!result||result.room!==room||result.entity!==selectedSheet?.id||result.sheetKind!==selectedSheet?.kind)return;btn.disabled=true;Promise.resolve().then(()=>options.publishRoll?.(result,result.room)).then(ok=>{if(ok?.ok!==true)throw Error('Abra o Tabletop para compartilhar.');if(privateRoll===result)privateRoll=null;if(room===result.room)status('Resultado compartilhado na mesa.');}).catch(error=>{if(room===result.room)status('Não foi possível compartilhar: '+String(error.message||error));}).finally(refreshRollShare);return;}
   if(btn.dataset.gmRetrySave){void store();return;}
   if(btn.dataset.gmDiscardSave){
    if(!window.confirm('Descartar apenas as alterações locais não enviadas e voltar aos dados salvos na campanha?'))return;
@@ -1517,7 +1517,7 @@ export function mountGmShield(options){
    return;
   }
 
-  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;flushNoteSave();showNpcImport=false;showThreatImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
+  if(btn.dataset.gmTab){if(!kinds.includes(btn.dataset.gmTab))return;privateRoll=null;flushNoteSave();showNpcImport=false;showThreatImport=false;discardNpcDraft();tab=btn.dataset.gmTab;filter='';editing=null;selectedSheet=null;render();if(tab==='threats')void readThreats();return;}
   if(btn.dataset.gmAdd){editing={kind:btn.dataset.gmAdd,id:null};render();$('[data-gm-form] [name="title"]')?.focus();return;}
   if(btn.hasAttribute('data-gm-close-sheet')){privateRoll=null;discardNpcDraft();selectedSheet=null;npcInlineEditing=false;render();return;}
   if(btn.dataset.gmOpenSheet){
