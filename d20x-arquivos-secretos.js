@@ -1514,7 +1514,7 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Meus Bebês",
-          "NEX 10%: Profissão (químico) treinada ou +5 se já treinada. Registre um item ficcional da trilha fora do limite de itens por missão; acrescente uma unidade nos NEX 40%, 65% e 99%. A criação em campo é resolvida somente pelas regras abstratas de RPG. A regra específica do item ainda precisa de conferência."
+          "NEX 10%: treinamento em Profissão (químico), ou +5 se já treinado. No início de cada missão, registre um explosivo autoral exclusivamente como recurso de inventário do RPG, sem contar no limite de itens. Quantidade inicial por NEX: 1 (10%), 2 (40%), 3 (65%) e 4 (99%). Itens adicionais usam a mecânica abstrata de Fabricação em Campo do jogo."
         ],
         [
           "Fogo Amigo",
@@ -1541,11 +1541,11 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Ser Experimentado",
-          "NEX 10%: Ocultismo treinado ou +2 se já treinado; −2 em Diplomacia, Enganação e Intuição. Escolha elemento e afinidade. Manifestação paranormal diária, ação completa, recupera 1d8+1 PV e ativa benefícios até fim do dia. Sangue: Grande (+2 manobras, −2 Furtividade), FOR aos próprios testes e para PE. Morte: 2d6 PV temporários, uma ação padrão extra por cena, VIG aos próprios testes e para PE. Conhecimento: duas perícias treinadas, INT aos próprios testes e para PE. Energia: +6 m de deslocamento, um saque livre adicional por rodada, AGI aos próprios testes e para PE. Experiência separada: dobra exposição. A privação sem manifestação ainda precisa de conferência."
+          "NEX 10%: Ocultismo treinado ou +2 se já treinado; −2 em Diplomacia, Enganação e Intuição. Escolha elemento e afinidade. Uma ativação paranormal ficcional por dia, resolvida por ação completa, recupera 1d8+1 PV e ativa benefícios até fim do dia. Sangue: Grande (+2 manobras, −2 Furtividade), FOR aos próprios testes e para PE. Morte: 2d6 PV temporários, uma ação padrão extra por cena, VIG aos próprios testes e para PE. Conhecimento: duas perícias treinadas, INT aos próprios testes e para PE. Energia: +6 m de deslocamento, um saque livre adicional por rodada, AGI aos próprios testes e para PE. Sem ativação, aplique à ficha as condições equivalentes a fome e sede durante o dia. A progressão opcional de NEX se aplica sempre; se experiência separada estiver ativa, dobre o NEX por exposição."
         ],
         [
           "Ser Testado",
-          "NEX 40%: penalidade social −5; manifestação diária recupera 2d8+2 PV. Sangue: +1d6 Sangue e RD 2, repetidos por ponto de INT temporariamente reduzido. Morte: +1 turno morrendo e 2d8 PV temporários no início da cena, repetidos por ponto de FOR reduzido. Conhecimento: +1d6 em testes de INT e +2 por ponto de AGI reduzido. Energia: +1d6 ataque e +2 Defesa, mais +1d4 ataque e +2 Defesa por ponto de VIG reduzido. Atributos podem chegar a 0, sem alterar PV, PE, SAN ou treinamento; não reduza pontos concedidos por outros efeitos."
+          "NEX 40%: penalidade social −5; manifestação diária recupera 2d8+2 PV. Sangue: +1d6 Sangue e RD 2, repetidos por ponto de INT temporariamente reduzido. Morte: +1 turno morrendo e 2d8 PV temporários no início da cena, repetidos por ponto de FOR reduzido. Conhecimento: +2 em testes de INT e +2 por ponto de AGI reduzido. Energia: +1d4 ataque e +2 Defesa, mais +1d4 ataque e +2 Defesa por ponto de VIG reduzido. Atributos podem chegar a 0, sem alterar PV, PE, SAN ou treinamento; não reduza pontos concedidos por outros efeitos."
         ],
         [
           "Ser Expurgado",
@@ -1553,7 +1553,7 @@ window.NEX_ARQUIVOS={
         ],
         [
           "Ser Apavorante",
-          "NEX 99%: PRE −1 permanente, penalidade social −10; manifestação diária recupera 4d8+4 PV. Sangue: Enorme (+5 manobras, −5 Furtividade), soma FOR aos próprios testes, +1 FOR e Vínculo de Sangue. Morte: 4d6 PV temporários, duas ações padrão extras por cena, soma VIG aos próprios testes, +1 VIG e Distorção Temporal. Conhecimento: três perícias expert, soma INT aos próprios testes, +1 INT e Controle Mental. Energia: três saques livres por rodada, +12 m de deslocamento, soma AGI aos próprios testes, +1 AGI e Teletransporte. Consequências narrativas da trilha ainda precisam de conferência."
+          "NEX 99%: PRE −1 permanente, penalidade social −10; manifestação diária recupera 4d8+4 PV. Sangue: Enorme (+5 manobras, −5 Furtividade), soma FOR aos próprios testes, +1 FOR e Vínculo de Sangue. Morte: 4d6 PV temporários, duas ações padrão extras por cena, soma VIG aos próprios testes, +1 VIG e Distorção Temporal. Conhecimento: três perícias expert, soma INT aos próprios testes, +1 INT e Controle Mental. Energia: três saques livres por rodada, +12 m de deslocamento, soma AGI aos próprios testes, +1 AGI e Teletransporte. Aplique a regra Monstruosa Transformação (Sobrevivendo ao Horror, p. 21): aos 75%, perturbado permanente, perda do apoio da Ordem e equipamento inicial de uma patente inferior. Aos 99%, SAN reduzida a 1, confuso substitui o efeito de enlouquecendo e termina normalmente ou quando essa condição acaba; enlouquecer nesse NEX transforma o personagem definitivamente em criatura. Na variante sem SAN, perturbado permanente e condição enlouquecendo/confuso a cada perda de PD que não seja custo de habilidade ou item."
         ]
       ]
     },
@@ -1567,7 +1567,7 @@ window.NEX_ARQUIVOS={
       "stages": [
         [
           "Ser Escarificado",
-          "NEX 10%: +2 Ocultismo, −2 Diplomacia, Enganação e Intuição. Escolha elemento e afinidade. Ação completa de manifestação paranormal diária recupera 1d4 PE e ativa benefícios pelo dia. Atributo do elemento recebe +1 e substitui PRE para PE e DT de ritual: Sangue/FOR, Morte/VIG, Conhecimento/INT, Energia/AGI. Experiência separada dobra exposição. Condições de privação ainda precisam de conferência."
+          "NEX 10%: +2 Ocultismo, −2 Diplomacia, Enganação e Intuição. Escolha elemento e afinidade. Uma ativação paranormal ficcional por dia, resolvida por ação completa, recupera 1d4 PE e ativa benefícios pelo dia. Atributo do elemento recebe +1 e substitui PRE para PE e DT de ritual: Sangue/FOR, Morte/VIG, Conhecimento/INT, Energia/AGI. Sem ativação, aplique à ficha os efeitos equivalentes a fome e sede durante o dia. A progressão opcional de NEX se aplica sempre; com experiência separada, dobre o NEX por exposição."
         ],
         [
           "Ser Perfurado",
@@ -1579,7 +1579,7 @@ window.NEX_ARQUIVOS={
         ],
         [
           "Ser Mutilado",
-          "NEX 99%: PRE −1 permanente, penalidade social −10 e recuperação diária de 1d12 PE pela manifestação paranormal. Aumente em 1 o atributo de seu elemento (FOR/Sangue, VIG/Morte, INT/Conhecimento, AGI/Energia). Rituais registrados desse elemento dispensam componentes, fala e gestos; aprenda um ritual de 4º círculo do elemento. Consequências narrativas da trilha precisam de conferência."
+          "NEX 99%: PRE −1 permanente, penalidade social −10 e recuperação diária de 1d12 PE pela manifestação paranormal. Aumente em 1 o atributo de seu elemento (FOR/Sangue, VIG/Morte, INT/Conhecimento, AGI/Energia). Rituais registrados desse elemento dispensam componentes, fala e gestos; aprenda um ritual de 4º círculo do elemento. Aplique a regra Monstruosa Transformação (Sobrevivendo ao Horror, p. 21): aos 75%, perturbado permanente, perda do apoio da Ordem e equipamento inicial de uma patente inferior. Aos 99%, SAN reduzida a 1, confuso substitui o efeito de enlouquecendo e termina normalmente ou quando essa condição acaba; enlouquecer nesse NEX transforma o personagem definitivamente em criatura. Na variante sem SAN, perturbado permanente e condição enlouquecendo/confuso a cada perda de PD que não seja custo de habilidade ou item."
         ]
       ]
     },
