@@ -59,7 +59,7 @@ const special={
  'Tecer Ilusão':{description:'Manifesta uma imagem ou som ilusório.'}
 };
 function catalogue(){
- const result=BASE.map((b,i)=>({...b,key:'base:'+i,...special[b.name],...ritualMetaFor(b),description:ritualGuideFor(b)||special[b.name]?.description||RITUAL_SUMMARIES[b.name]||'',summaryKind:'Resumo original; consulte o livro para regras e aprimoramentos.'}));
+ const result=BASE.map((b,i)=>({...b,key:'base:'+i,...special[b.name],...ritualMetaFor(b),description:ritualGuideFor(b)||special[b.name]?.description||RITUAL_SUMMARIES[b.name]||'',summaryKind:'Resumo de consulta; efeitos condicionais podem exigir conferência.'}));
  for(const r of window.NEX_SAH?.rituals||[]){
    if(!r?.name)continue;
    result.push({name:r.name,circle:Number(r.circle)||1,element:r.element||'Conhecimento',source:'Sobrevivendo ao Horror',description:ritualGuideFor(r)||r.description||'',key:'sah:'+r.name,...ritualMetaFor(r)});
@@ -150,6 +150,20 @@ function shortRitualEffect(value){
  const boundary=Math.max(cut.lastIndexOf('. '),cut.lastIndexOf('; '));
  return (boundary>85?cut.slice(0,boundary+1):cut.slice(0,247).trimEnd()+'…');
 }
+function ritualMechanicalLine(d,cost){
+ const custom=/^(?:Homebrew|Personalizado)$/i.test(String(d.source||''));
+ const entry=custom?null:window.NEX_RITUAL_EFFECTS?.[ritualMetaKey(d)];
+ const parts=[['PE (normal)',String(cost)],['Função',custom?d.ritualType:(entry?.categories||[]).join(' / ')||d.ritualType]];
+ const add=(label,value)=>{if(value)parts.push([label,value]);};
+ add('Dano (normal)',d.ritualType==='Dano'&&d.ritualDice?d.ritualDice:entry?.damageDice);
+ add('Cura (normal)',d.ritualType==='Cura'&&d.ritualDice?d.ritualDice:entry?.healDice);
+ for(const version of ['Discente','Verdadeiro']){
+  add('Dano ('+version+')',entry?.versions?.[version]);
+  add('Cura ('+version+')',entry?.healVersions?.[version]);
+ }
+ if(entry?.healFromDamage)add('Cura','Calculada a partir do dano na ferramenta Conjurar');
+ return parts.filter(([,value])=>typeof value==='string'&&value.trim()).map(([label,value])=>'<span style="display:block"><b>'+esc(label)+':</b> '+esc(value)+'</span>').join('');
+}
 function ritualParamLine(d){
  return [['Execução',d.execution],['Alcance',d.range],['Alvo/Área',d.target],['Duração',d.duration]]
   .filter(([,value])=>String(value||'').trim()&&!/^N[aã]o especificad/i.test(String(value)))
@@ -170,6 +184,8 @@ function render(){
    '<div class="nex-ritual-detail"><div class="nex-ritual-pill nex-ritual-'+esc(r.element)+'">'+esc(r.element).toUpperCase()+' '+esc(r.circle)+'</div>'+
    '<p class="nex-ritual-summary">'+esc(d.guide||d.note||d.description||'')+'</p>'+
    '<p class="nex-ritual-params">'+ritualParamLine(d)+'</p>'+
+   '<div class="nex-ritual-params" style="margin:8px 0">'+ritualMechanicalLine(d,cost)+'</div>'+
+   (window.NEX_LOCAL_RULE_NOTE?.('ritual:'+String(r.catalogKey||r.id||r.name),esc)||'')+
    (d.resistance?'<p class="nex-ritual-resistance">'+lines('Resistência',d.resistance)+'</p>':'')+
    (d.summaryKind?'<small class="nex-ritual-summary-kind">'+esc(d.summaryKind)+'</small>':'')+
    (d.discente?'<p class="nex-ritual-enhance"><b>Discente:</b> '+esc(d.discente)+'</p>':'')+
