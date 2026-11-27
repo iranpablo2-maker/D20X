@@ -73,6 +73,14 @@ export function mountNexPeerMedia({
  // A seleção, início, pausa e troca de áudio pertencem somente ao mestre.
  // Jogadores tentam reproduzir a transmissão automaticamente; navegadores podem exigir interação real.
  const remotePeers=new Map(),pending=new Map();
+ let allowedPeers=new Set();
+ function setAllowedPeers(ids){
+  if(!gm||destroyed)return;
+  const next=new Set((Array.isArray(ids)?ids:[]).filter(x=>typeof x==='string'&&x&&x!==uid));
+  const changed=next.size!==allowedPeers.size||[...next].some(x=>!allowedPeers.has(x));allowedPeers=next;
+  for(const [id,peer] of remotePeers)if(!next.has(id)){remotePeers.delete(id);peer.open=false;try{peer.channel?.close();peer.pc.close();}catch(_){}}
+  if(changed&&hosting)watchPeers();
+ }
  let sceneRevision=0;
  const chatHistory=[];
  const sharedPending=new Map();
@@ -94,7 +102,7 @@ export function mountNexPeerMedia({
   return work;
  }
  function sendSharedState(player,record){
-  if(!gm||destroyed)return Promise.reject(Error('Somente o mestre transmite fichas'));
+  if(!gm||destroyed||!allowedPeers.has(player))return Promise.reject(Error('Participante não autorizado'));
   return sendShared(remotePeers.get(player),{kind:'state',record});
  }
  function requestShared(request){
@@ -119,6 +127,7 @@ export function mountNexPeerMedia({
   if(gm&&data?.kind==='request'&&typeof data.id==='string'&&data.id.length<=80){
    peer.sharedRequests=(peer.sharedRequests||Promise.resolve()).then(async()=>{
     try{
+     if(!allowedPeers.has(peer.uid)||remotePeers.get(peer.uid)!==peer)throw Error('Participante não autorizado');
      const value=await onSharedRequest(data.request,peer.uid);
      await sendShared(peer,{kind:'result',id:data.id,ok:true,value});
     }catch(error){await sendShared(peer,{kind:'result',id:data.id,ok:false,error:String(error.message||error).slice(0,200)}).catch(()=>{});}
@@ -334,7 +343,7 @@ export function mountNexPeerMedia({
   };
  }
  async function answerPlayer(peerId,offer,sess){
-  if(destroyed||!hosting||activeSession!==sess)return;
+  if(destroyed||!hosting||activeSession!==sess||!allowedPeers.has(peerId))return;
   const old=remotePeers.get(peerId);
   if(old?.offer===offer)return;
   if(old){try{old.channel?.close();old.pc.close();}catch(_){} remotePeers.delete(peerId);}
@@ -370,7 +379,7 @@ export function mountNexPeerMedia({
    if(!hosting||!activeSession)return;
    for(const d of snap.docs){
     const v=d.data();
-    if(d.id===uid||v?.uid!==d.id||v.session!==activeSession||typeof v.offer!=='string'||v.offer.length>45000)continue;
+    if(!allowedPeers.has(d.id)||d.id===uid||v?.uid!==d.id||v.session!==activeSession||typeof v.offer!=='string'||v.offer.length>45000)continue;
     void answerPlayer(d.id,v.offer,activeSession);
    }
   },error=>say('Falha no sinal da campanha: '+String(error.message).slice(0,110)));
@@ -508,6 +517,7 @@ export function mountNexPeerMedia({
   sendTokenAction,
   requestShared,
   sendSharedState,
+  setAllowedPeers,
   destroy(){
    if(destroyed)return;
    const shouldStop=gm&&hosting;
