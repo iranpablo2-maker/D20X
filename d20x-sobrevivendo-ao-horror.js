@@ -8,7 +8,7 @@ window.NEX_SAH={
         "Percepção"
       ],
       "ability": "Companheiro Animal",
-      "description": "Registre o animal aliado na campanha. A ficha não gerencia automaticamente os benefícios de perícia associados ao companheiro nem sua progressão.",
+      "description": "O companheiro funciona como aliado da ficha: +2 em uma perícia aprovada pelo mestre. No NEX 35% acrescente o bônus de um tipo de aliado; no 70%, sua habilidade. A perda do companheiro reduz SAN máxima em 10 e impõe perturbado pela cena; substituição depende do mestre. Controle manual na campanha.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -30,7 +30,7 @@ window.NEX_SAH={
         "Profissão"
       ],
       "ability": "Fome do Outro Lado",
-      "description": "Recurso de preparação de refeições paranormais no interlúdio. Registre o resultado do preparo e os efeitos temporários acordados na mesa; a origem não aplica resistência permanente.",
+      "description": "No interlúdio, registre o resultado da preparação paranormal fictícia em Profissão (cozinheiro), DT 15 + 1d20 definida pelo mestre. Sucesso: RD 10 ao elemento; falha: vulnerabilidade ao elemento, ambos até o fim da próxima cena. Custo na ficha: 1 SAN máxima por refeição. A regra opcional de experiência separada e os requisitos de ingredientes ainda precisam de conferência.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -96,7 +96,7 @@ window.NEX_SAH={
         "Ocultismo"
       ],
       "ability": "Conhecimento Oculto",
-      "description": "Após identificar uma criatura por Ocultismo, registre o alvo: +2 nos testes contra ele até o fim da missão. O D20X não aplica automaticamente esse bônus por alvo.",
+      "description": "Evidências aceitas pelo mestre permitem identificar criatura com Ocultismo. Sucesso: +2 nos testes contra o ser identificado até terminar a missão. Identificar características não revela necessariamente a espécie. Anote o alvo do bônus, pois a ficha não o aplica automaticamente.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -118,7 +118,7 @@ window.NEX_SAH={
         "Vontade"
       ],
       "ability": "Invenção Paranormal",
-      "description": "Registre o dispositivo ficcional e o ritual básico associado. O D20X ainda não automatiza seu acionamento, suas falhas ou sua manutenção no interlúdio.",
+      "description": "Associe ao invento fictício um ritual básico de 1º círculo. Categoria 0, 1 espaço, sem custo em PE. Use a ação mais longa entre padrão e execução do ritual; teste Profissão (engenheiro), DT inicial 15, +5 a cada ativação anterior na missão. Falha bloqueia novas ativações; interlúdio restaura o invento e a DT inicial. Troque o ritual no começo da missão. Controle manual.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -129,7 +129,7 @@ window.NEX_SAH={
         "Religião"
       ],
       "ability": "A Culpa é das Estrelas",
-      "description": "Registre o resultado de sorte escolhido e a ativação no início da cena. A ficha não acompanha automaticamente o dado de sorte nem os bônus temporários.",
+      "description": "Escolha um número de 1 a 6. Ao iniciar cena, 1 PE permite rolar 1d6. Acerto de número escolhido concede +2 nas perícias pela cena e reinicia a lista em um número. Falha permite acrescentar outro número para a próxima utilização. Registre a lista manualmente.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -205,7 +205,7 @@ window.NEX_SAH={
         "Profissão"
       ],
       "ability": "Terapia",
-      "description": "Na ficha, a opção de Terapia substitui o teste de Diplomacia por Profissão nas conversas profissionais permitidas, sem custo registrado na automatização.",
+      "description": "Na resolução ficcional de interações, Profissão (psicólogo) pode substituir Diplomacia. Uma vez por rodada, 2 PE permitem usar essa profissão no lugar de uma resistência fracassada contra dano mental do próprio personagem ou de aliado em alcance curto. Controle manual na ficha.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -295,7 +295,7 @@ window.NEX_SAH={
       ],
       [
         "Leitura Fria",
-        "Recurso de interação no interlúdio para interpretar uma pessoa observada. Registre perguntas e eventuais PE temporários; a ficha não resolve a interação automaticamente."
+        "Uma vez por interlúdio, após observar ou conversar com NPC, faça três perguntas pessoais ao mestre. Cada resposta que ele optar por omitir rende 2 PE temporários até terminar a missão. Limite de uma utilização por NPC; exige Intuição treinada."
       ],
       [
         "Mãos Firmes",
@@ -341,11 +341,11 @@ window.NEX_SAH={
       ],
       [
         "Sentido Premonitório",
-        "Custo inicial: 3 PE. Antecipação de uma rodada em investigação, perseguição ou furtividade. Manutenção: 1 PE por rodada. Controle manual na ficha."
+        "3 PE antecipam os acontecimentos de uma rodada em investigação, perseguição ou furtividade, inclusive eventos e urgência. Nas duas últimas, escolha ações após conhecer resultados dos demais. Não funciona em combate; manutenção de 1 PE no início de cada rodada. Outras aplicações dependem do mestre."
       ],
       [
         "Sincronia Paranormal",
-        "Ação padrão · 2 PE. Vínculo paranormal entre aliados em alcance médio com experiência compartilhada. Manutenção: 1 PE por rodada. Os benefícios mentais continuam parcialmente cadastrados."
+        "Ação padrão e 2 PE vinculam aliados em alcance médio que sobreviveram juntos a evento paranormal. No início da rodada, distribua entre os outros vinculados tantos d20 extras quanto sua PRE, para perícias de INT ou PRE naquela rodada. Não transmite mensagens precisas. Manutenção 1 PE por rodada; exige PRE 2."
       ],
       [
         "Traçado Conjuratório",
@@ -648,7 +648,7 @@ window.NEX_SAH={
       "Agente Secreto": [
         [
           "Carteirada",
-          "NEX 10%: selecione Diplomacia ou Enganação. Concede treinamento na escolhida ou +2 se já treinada. A escolha ainda não é automatizada."
+          "NEX 10%: escolha treinamento em Diplomacia ou Enganação, ou +2 se já treinada. No começo da missão registre credenciais operacionais fictícias sem espaços de carga; privilégios e validade na história dependem do mestre. Seleção e resolução manual."
         ],
         [
           "O Sorriso",
@@ -660,7 +660,7 @@ window.NEX_SAH={
         ],
         [
           "Multifacetado",
-          "NEX 99% · 5 SAN · uma ativação por cena. Permite escolher outra trilha de Combatente ou Especialista e utilizar suas habilidades até NEX 65%, respeitando requisitos, até o fim da cena."
+          "NEX 99%: 5 SAN, uma vez por cena, habilitam habilidades até NEX 65% de outra trilha de Combatente ou Especialista, respeitando requisitos, pela cena. Cada trilha pode ser escolhida uma vez por missão; SAN gasta retorna somente ao fim da missão."
         ]
       ],
       "Caçador": [
@@ -670,11 +670,11 @@ window.NEX_SAH={
         ],
         [
           "Estudar Fraquezas",
-          "Habilidade de progressão da trilha Caçador. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 40%: uma ação de interlúdio e uma pista ligada ao ser escolhido fornecem uma informação do mestre e +1 nas perícias contra esse ser até terminar a missão. Cada pista fornece uma informação; algumas informações exigem evidência específica."
         ],
         [
           "Atacar das Sombras",
-          "Habilidade de progressão da trilha Caçador. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 65%: em cenas de furtividade do RPG, ignore a penalidade por deslocamento normal e reduza a visibilidade inicial em 1 (pode ficar negativa). A regra adicional de combate ainda precisa de conferência."
         ],
         [
           "Estudar a Presa",
@@ -684,19 +684,19 @@ window.NEX_SAH={
       "Monstruoso": [
         [
           "Ser Amaldiçoado",
-          "Habilidade de progressão da trilha Monstruoso. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 10%: treinamento em Ocultismo e escolha do elemento associado à manifestação paranormal. A ficha deve registrar resistências, benefícios e limitações conforme o elemento. Valores e requisitos específicos ainda precisam de conferência."
         ],
         [
           "Ser Macabro",
-          "Habilidade de progressão da trilha Monstruoso. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 40%: evolução dos benefícios, resistências e penalidades do elemento escolhido em Ser Amaldiçoado. Os modificadores específicos ainda precisam de conferência."
         ],
         [
           "Ser Assustador",
-          "Habilidade de progressão da trilha Monstruoso. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 65%: evolução dos efeitos elementais, incluindo redução permanente de PRE. O valor da redução e os efeitos específicos ainda precisam de conferência."
         ],
         [
           "Ser Aterrorizante",
-          "Habilidade de progressão da trilha Monstruoso. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 99%: estágio final da transformação ficcional, com benefícios e consequências associados à afinidade elemental. Os valores específicos ainda precisam de conferência."
         ]
       ]
     },
@@ -748,7 +748,7 @@ window.NEX_SAH={
         ],
         [
           "Laboratório de Campo",
-          "NEX 65%: escolha uma especialidade de Profissão entre as opções da trilha. Concede treinamento ou +5 caso já treinada. A seleção ainda não é automatizada."
+          "NEX 65%: escolha Profissão (armeiro, engenheiro ou químico): treinamento, ou +5 se já treinada. A fabricação paranormal é resolvida apenas como mecânica abstrata de RPG, com três ações de interlúdio, que podem ser separadas. Controle manual."
         ],
         [
           "Achado Conveniente",
@@ -790,13 +790,13 @@ window.NEX_SAH={
         ],
         [
           "Tornamo-nos Um",
-          "Habilidade de progressão da trilha Possuído. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 99%: benefício paranormal definido pela afinidade. Sangue: 6 PE restauram 50 PV e alteram bônus de perícias até o próximo turno. Morte: 6 PE geram turno extra ao fim da iniciativa. Energia: 6 PE permitem teletransporte ficcional em alcance médio. Cada um desses efeitos tem limite de uma vez por rodada. Conhecimento: 6 PE, uma vez por cena, concedem poder elegível pela cena, exceto habilidade de trilha de NEX 99%; Vontade DT 15 + 5 por uso anterior na missão, com perda de SAN na falha. Valores adicionais de perícia e SAN ainda precisam de conferência."
         ]
       ],
       "Parapsicólogo": [
         [
           "Terapia",
-          "Habilidade de progressão da trilha Parapsicólogo. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 10%: requer Profissão (psicólogo) treinada. Pode substituir Diplomacia por essa profissão. Uma vez por rodada, 2 PE permitem substituir resistência fracassada contra dano mental, própria ou de aliado em alcance curto, por teste da profissão. Se já possui Terapia, custo reduzido em 1 PE e +2 na profissão."
         ],
         [
           "Palavras-chave",
@@ -938,21 +938,21 @@ window.NEX_SAH={
       "element": "Energia",
       "category": "III",
       "spaces": 1,
-      "description": "Recurso de jogo. Categoria: III. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Energia; categoria III; 1 espaço. Na ficha de RPG, 3 PE concedem turno extra por uma rodada. Há teste de Ocultismo para evitar penalidade posterior de atributos. DT, duração e valor da penalidade ainda precisam de conferência."
     },
     {
       "name": "Conector de Membros",
       "element": "Sangue",
       "category": "III",
       "spaces": 1,
-      "description": "Recurso de jogo. Categoria: III. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Sangue; categoria III; 1 espaço. Artefato ficcional de recuperação de uma condição física específica, sem restaurar automaticamente todos os PV. Custo, teste e condições ainda precisam de conferência."
     },
     {
       "name": "Dose d’A Praga",
       "element": "Sangue",
       "category": "III",
       "spaces": 1,
-      "description": "Recurso de jogo. Categoria: III. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Sangue; categoria III; 1 espaço. Recurso exclusivamente paranormal de RPG que concede poderes temporários de Sangue e tem consequências ao término. Poderes, duração e consequências ainda precisam de conferência."
     },
     {
       "name": "Enxame Fantasmagórico",
@@ -966,7 +966,7 @@ window.NEX_SAH={
       "element": "Energia",
       "category": "II",
       "spaces": 1,
-      "description": "Recurso de jogo. Categoria: II. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Energia; categoria II; 1 espaço. Permite observação paranormal de pontos fora do campo visual e bônus de Percepção. Há efeito de reflexão de dano de Energia que consome o item. Valores e condições ainda precisam de conferência."
     },
     {
       "name": "Fuzil Alheio",
@@ -994,7 +994,7 @@ window.NEX_SAH={
       "element": "Sangue",
       "category": "II",
       "spaces": 1,
-      "description": "Recurso de jogo. Categoria: II. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Sangue; categoria II; 1 espaço. Artefato sobrenatural de distração sonora em cenas de furtividade; pode atrair criaturas de Sangue na narrativa. Testes, alcance e duração ainda precisam de conferência."
     },
     {
       "name": "A Primeira Adaga",
@@ -1022,7 +1022,7 @@ window.NEX_SAH={
       "element": "Morte",
       "category": "II",
       "spaces": 1,
-      "description": "Recurso de jogo. Categoria: II. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Morte; categoria II; 1 espaço. Indica proximidade aproximada de criaturas paranormais por chiados na ficção. O som pode chamar a atenção dessas criaturas. Alcance, ações e testes ainda precisam de conferência."
     },
     {
       "name": "Repositório do Fracasso",
@@ -1036,7 +1036,7 @@ window.NEX_SAH={
       "element": "Sangue",
       "category": "II",
       "spaces": 1,
-      "description": "Recurso de jogo. Categoria: II. Espaços: 1. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Sangue; categoria II; 1 espaço. Equipamento paranormal com benefícios graduais de percepção e dano na ficha, acompanhados de penalidades e restrições à remoção. Progressão e valores ainda precisam de conferência."
     },
     {
       "name": "Tablet do Saber Custoso",
