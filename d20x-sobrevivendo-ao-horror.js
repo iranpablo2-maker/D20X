@@ -30,7 +30,7 @@ window.NEX_SAH={
         "Profissão"
       ],
       "ability": "Fome do Outro Lado",
-      "description": "No interlúdio, registre o resultado da preparação paranormal fictícia em Profissão (cozinheiro), DT 15 + 1d20 definida pelo mestre. Sucesso: RD 10 ao elemento; falha: vulnerabilidade ao elemento, ambos até o fim da próxima cena. Custo na ficha: 1 SAN máxima por refeição. A regra opcional de experiência separada e os requisitos de ingredientes ainda precisam de conferência.",
+      "description": "Interlúdio: use um ingrediente paranormal (categoria I, 0,5 espaço; criaturas Pequenas ou maiores derrotadas fornecem uma unidade) e teste Profissão (cozinheiro), DT 15 + 1d20 secreta do mestre. Sucesso concede RD 10 ao elemento; falha, vulnerabilidade, até fim da próxima cena. Cada refeição reduz SAN máxima em 1. Na experiência separada, cada tipo diferente de ingrediente aumenta NEX em 3%.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -674,7 +674,7 @@ window.NEX_SAH={
         ],
         [
           "Atacar das Sombras",
-          "NEX 65%: em cenas de furtividade do RPG, ignore a penalidade por deslocamento normal e reduza a visibilidade inicial em 1 (pode ficar negativa). A regra adicional de combate ainda precisa de conferência."
+          "NEX 65%: ignore a penalidade de Furtividade por deslocamento normal. A penalidade da rodada por ataque com item classificado como silencioso na ficha passa a −1d20. Visibilidade inicial −1 em cenas de furtividade, inclusive abaixo de zero."
         ],
         [
           "Estudar a Presa",
@@ -684,19 +684,19 @@ window.NEX_SAH={
       "Monstruoso": [
         [
           "Ser Amaldiçoado",
-          "NEX 10%: treinamento em Ocultismo e escolha do elemento associado à manifestação paranormal. A ficha deve registrar resistências, benefícios e limitações conforme o elemento. Valores e requisitos específicos ainda precisam de conferência."
+          "NEX 10%: Ocultismo treinado ou +2 se já treinado; escolha o elemento da futura afinidade. Manifestação paranormal diária habilita benefícios até fim do dia; sem ela, aplica-se a regra de privação da trilha. Sangue: RD 5 balístico/Sangue, faro, VIG ao dano do contra-ataque, −1d20 Ciências/Intuição. Morte: RD 5 perfuração/Morte, imunidade a fadiga, FOR aos PV, −1d20 Diplomacia/Enganação. Conhecimento: RD 5 balístico/Conhecimento, visão no escuro, INT à Defesa, −1d20 Atletismo/Acrobacia. Energia: RD 5 corte/eletricidade/fogo/Energia, AGI à RD do bloqueio, −1d20 Investigação/Percepção. Na experiência separada, dobra NEX por exposição. As condições exatas da etapa diária e da privação ainda precisam de conferência."
         ],
         [
           "Ser Macabro",
-          "NEX 40%: evolução dos benefícios, resistências e penalidades do elemento escolhido em Ser Amaldiçoado. Os modificadores específicos ainda precisam de conferência."
+          "NEX 40%: RD da trilha 10, penalidades −2d20. Sangue: FOR pode substituir PRE para PE; movimento e até FOR PE recuperam 1d8 PV por PE. Morte: +1d20 Intimidação, VIG pode substituir PRE para PE, tolera quatro inícios de turno morrendo em vez de três; dispensa alimentação comum na ficção, não a etapa paranormal. Conhecimento: INT +1, pode usar INT em Enganação e para PE. Energia: AGI pode substituir PRE para PE; ao acertar corpo a corpo, até AGI PE acrescentam 1d6 Energia por PE."
         ],
         [
           "Ser Assustador",
-          "NEX 65%: evolução dos efeitos elementais, incluindo redução permanente de PRE. O valor da redução e os efeitos específicos ainda precisam de conferência."
+          "NEX 65%: RD da trilha 15, PRE −1 permanente. Sangue: 50% de chance de ignorar dano extra de crítico ou Ataque Furtivo; ataque natural 1d8 perfuração, crítico ×2; uma vez por rodada, 1 PE adiciona ataque natural ao agredir com outra arma. Morte: início de turno morrendo, teste VIG DT 15 para recuperar 1 PV e encerrar condição; crítico ou inimigo reduzido a 0 PV rende 2 PE. Conhecimento: suspenda treinamento de uma perícia para reservar INT dados, cada um concede +1d20 em teste até fim da cena; restaure treinamento no interlúdio. Energia: RD também contra químico; ação de movimento e efeito sobrenatural sobre fonte do cenário recuperam 1d4, 2d4 ou 4d4 PE conforme porte ficcional, inutilizando a fonte."
         ],
         [
           "Ser Aterrorizante",
-          "NEX 99%: estágio final da transformação ficcional, com benefícios e consequências associados à afinidade elemental. Os valores específicos ainda precisam de conferência."
+          "NEX 99%: RD 20, benefícios diários permanentes, ainda depende da etapa paranormal contra privação; conta como criatura. Sangue: INT −1, FOR +1, ataque natural recupera 5 PV ao causar dano (multiplica no crítico); aprende Forma Monstruosa, sujeita a Vontade DT 10 + dano recebido para evitar ativação compulsória na próxima ação padrão. Morte: PRE −1, VIG +1, imunidade a Morte, retorno no dia seguinte salvo 0 PV por fogo ou Energia; aprende Fim Inevitável. Conhecimento: FOR −1, INT +1, percepção às cegas e ritual de Conhecimento de 4º círculo que apaga lembranças da cena. Energia: FOR −1, AGI +1, flutua 1,5 m com deslocamento 12 m, ignora terreno difícil e queda, passa por espaços Minúsculos, imunidade a paralisia física, aprende Deflagração de Energia; sem benefícios de itens vestidos, manipula telecineticamente um item de carga de duas mãos por vez. Aos 75%: perturbado permanente e equipamento de uma patente inferior; aos 99%: SAN 1, confuso substitui condição enlouquecendo. Equivalência da regra sem SAN ainda precisa de conferência."
         ]
       ]
     },
@@ -790,7 +790,7 @@ window.NEX_SAH={
         ],
         [
           "Tornamo-nos Um",
-          "NEX 99%: benefício paranormal definido pela afinidade. Sangue: 6 PE restauram 50 PV e alteram bônus de perícias até o próximo turno. Morte: 6 PE geram turno extra ao fim da iniciativa. Energia: 6 PE permitem teletransporte ficcional em alcance médio. Cada um desses efeitos tem limite de uma vez por rodada. Conhecimento: 6 PE, uma vez por cena, concedem poder elegível pela cena, exceto habilidade de trilha de NEX 99%; Vontade DT 15 + 5 por uso anterior na missão, com perda de SAN na falha. Valores adicionais de perícia e SAN ainda precisam de conferência."
+          "NEX 99%: Sangue, 6 PE uma vez por rodada recuperam 50 PV e mudam bônus de treinamento das perícias físicas e Intimidação para +35, outras de PRE para −10 até o próximo turno, inclusive se inconsciente. Morte: 6 PE, uma vez por rodada, turno extra ao fim da iniciativa, inclusive inconsciente. Conhecimento: 6 PE uma vez por cena concedem poder elegível pela cena, exceto habilidade de trilha NEX 99%; Vontade DT 15 + 5 por uso anterior na missão; falha perde 1d6 SAN por utilização na missão. Energia: 6 PE uma vez por rodada, teletransporte ficcional em alcance médio; se destino ocupado, use espaço livre mais próximo."
         ]
       ],
       "Parapsicólogo": [
@@ -938,21 +938,21 @@ window.NEX_SAH={
       "element": "Energia",
       "category": "III",
       "spaces": 1,
-      "description": "Energia; categoria III; 1 espaço. Na ficha de RPG, 3 PE concedem turno extra por uma rodada. Há teste de Ocultismo para evitar penalidade posterior de atributos. DT, duração e valor da penalidade ainda precisam de conferência."
+      "description": "Energia, categoria III, 1 espaço. Ação padrão e 3 PE geram uma cópia ficcional e turno extra ao final da iniciativa da rodada. Sorteie a cópia que desaparece ao fim dela; efeitos das duas persistem conforme aplicável, sem contar pessoa adicional. Ocultismo DT 15 + 5 por uso adicional no dia; falha reduz atributos à metade (arredonde para baixo). Cada interlúdio recupera 1 ponto de cada atributo."
     },
     {
       "name": "Conector de Membros",
       "element": "Sangue",
       "category": "III",
       "spaces": 1,
-      "description": "Sangue; categoria III; 1 espaço. Artefato ficcional de recuperação de uma condição física específica, sem restaurar automaticamente todos os PV. Custo, teste e condições ainda precisam de conferência."
+      "description": "Sangue, categoria III, 1 espaço. Efeito paranormal de restauração na ficha: ação padrão, até três rodadas após o evento; não restaura PV normalmente, mas condição morrendo ou morto passa a inconsciente com 1 PV. Remover o item reverte o efeito e impede repetir na mesma parte. 25% de chance de complicação: lento, −1d20 em testes correspondentes ou 25% de chance de confuso em cena tensa, conforme determinação do mestre."
     },
     {
       "name": "Dose d’A Praga",
       "element": "Sangue",
       "category": "III",
       "spaces": 1,
-      "description": "Sangue; categoria III; 1 espaço. Recurso exclusivamente paranormal de RPG que concede poderes temporários de Sangue e tem consequências ao término. Poderes, duração e consequências ainda precisam de conferência."
+      "description": "Consumível ficcional de Sangue, categoria III, 1 espaço. Ação padrão concede Arma de Sangue, Sangue de Ferro e Sangue Vivo ao usuário ou alvo adjacente pela cena. Ao terminar, Fortitude DT 20 + 5 por uso anterior desde interlúdio. Falha: 2d4 dano mental; poderes continuam pela cena seguinte junto com Ódio Incontrolável."
     },
     {
       "name": "Enxame Fantasmagórico",
@@ -966,7 +966,7 @@ window.NEX_SAH={
       "element": "Energia",
       "category": "II",
       "spaces": 1,
-      "description": "Energia; categoria II; 1 espaço. Permite observação paranormal de pontos fora do campo visual e bônus de Percepção. Há efeito de reflexão de dano de Energia que consome o item. Valores e condições ainda precisam de conferência."
+      "description": "Energia, categoria II, 1 espaço. Ação de movimento permite perceber um ponto ou ser em alcance médio fora do campo visual, inclusive sob cobertura total; +1d20 Percepção. Consuma o artefato para anular dano de Energia recebido e refletir o mesmo valor à origem."
     },
     {
       "name": "Fuzil Alheio",
@@ -994,7 +994,7 @@ window.NEX_SAH={
       "element": "Sangue",
       "category": "II",
       "spaces": 1,
-      "description": "Sangue; categoria II; 1 espaço. Artefato sobrenatural de distração sonora em cenas de furtividade; pode atrair criaturas de Sangue na narrativa. Testes, alcance e duração ainda precisam de conferência."
+      "description": "Sangue, categoria II, 1 espaço. Ação padrão, escolha ponto em alcance médio; efeito sonoro paranormal de raio 30 m pela cena. Em furtividade, a ação distrair tem sucesso automático. Criaturas de Sangue resistem à atração com Vontade DT 35. Reutilizável após uma cena de descanso."
     },
     {
       "name": "A Primeira Adaga",
@@ -1022,7 +1022,7 @@ window.NEX_SAH={
       "element": "Morte",
       "category": "II",
       "spaces": 1,
-      "description": "Morte; categoria II; 1 espaço. Indica proximidade aproximada de criaturas paranormais por chiados na ficção. O som pode chamar a atenção dessas criaturas. Alcance, ações e testes ainda precisam de conferência."
+      "description": "Morte, categoria II, 1 espaço. Ligado, detecta seres paranormais em alcance extremo; intensidade permite estimar direção e faixa de alcance. Carga de 12 horas; pode desligar. Criaturas que percebem o som podem ser atraídas. Não substitui rádio gravador comum."
     },
     {
       "name": "Repositório do Fracasso",
@@ -1036,7 +1036,7 @@ window.NEX_SAH={
       "element": "Sangue",
       "category": "II",
       "spaces": 1,
-      "description": "Sangue; categoria II; 1 espaço. Equipamento paranormal com benefícios graduais de percepção e dano na ficha, acompanhados de penalidades e restrições à remoção. Progressão e valores ainda precisam de conferência."
+      "description": "Sangue, categoria II, 1 espaço. Vestir por ação padrão: faro, visão no escuro, vulnerabilidade a Morte e −2d20 em interações sociais. +1 cumulativo no dano por dia consecutivo equipado. No fim do dia, Fortitude DT 15 + 5 por teste adicional consecutivo; falha perde 1d6 PV. Remover exige ação padrão e mesmo teste; falha perde 1d6 PV. PV perdidos assim só retornam após remoção; efeito encerra com morte do personagem."
     },
     {
       "name": "Tablet do Saber Custoso",
