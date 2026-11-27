@@ -1691,9 +1691,11 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const make=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;};
    const stat=make('div','nex-vtt-combat-stat');
    const actor=selected();
-   stat.textContent=actor?'Token selecionado: '+actor.name+' · PV '+tokenStat(actor,'pv')+' · PE '+tokenStat(actor,'pe')+' · SAN '+tokenStat(actor,'san')+(linkedSheet(actor)?' · Ficha vinculada':''):'Selecione um token no mapa para iniciar.';
+   stat.textContent=actor?'Token selecionado: '+actor.name+(shared?.system?.()&&shared.system()!=='Ordem Paranormal'?'':' · PV '+tokenStat(actor,'pv')+' · PE '+tokenStat(actor,'pe')+' · SAN '+tokenStat(actor,'san'))+(linkedSheet(actor)?' · Ficha vinculada':''):'Selecione um token no mapa para iniciar.';
    body.append(stat);
+   const manualSystem=shared?.system?.()&&shared.system()!=='Ordem Paranormal';
    if(gm){
+     if(!manualSystem){
      const targetTitle=make('strong','','Alvos');body.append(targetTitle);
      const targeting=make('button','nex-vtt-action-alt',vttCombatTargetMode?'✓ Selecionando alvos no mapa':'◎ Selecionar alvos no mapa');
      targeting.type='button';targeting.setAttribute('aria-pressed',String(vttCombatTargetMode));
@@ -1755,8 +1757,9 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
        render();
      });
      rolls.append(bonus,roll);
+     }else body.append(make('p','','Use as regras do sistema e edite os recursos na ficha manual.'));
      const next=make('div','nex-vtt-combat-initiative');body.append(next);
-     next.append(make('strong','','Iniciativa automática'));
+     next.append(make('strong','',manualSystem?'Ordem de turnos manual':'Iniciativa automática'));
      next.append(make('p','','Rodada '+(scene.initiativeRound||1)+' · '+(scene.turns.join(' → ')||'Nenhuma ordem definida')));
      if((scene.initiativeRolls||[]).length){
       const scores=make('div','nex-vtt-initiative-scores');next.append(scores);
@@ -1779,7 +1782,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
       }).sort((a,b)=>b.total-a.total||b.bonus-a.bonus||a.name.localeCompare(b.name,'pt-BR'));
       scene.turns=scene.initiativeRolls.map(x=>x.name);
       scene.initiativeRound=1;combatEntry('Iniciativa rolada: '+scene.turns.join(' → '));render();
-     });next.append(auto);
+     });if(!manualSystem)next.append(auto);
      const add=make('button','nex-vtt-action-alt','Adicionar token selecionado');
      add.addEventListener('click',()=>{const t=selected();if(!t||scene.turns.includes(t.name))return;scene.turns.push(t.name);combatEntry(t.name+' entrou na iniciativa');render();});
      const forward=make('button','nex-vtt-action-alt','Próximo turno');
@@ -1792,6 +1795,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      const clearTurns=make('button','nex-vtt-action-alt','Encerrar combate');
      clearTurns.addEventListener('click',()=>{if(!confirm('Encerrar a iniciativa atual?'))return;scene.turns=[];scene.initiativeRolls=[];scene.initiativeRound=1;combatEntry('Iniciativa encerrada');render();});
      next.append(add,forward,clearTurns);
+     if(manualSystem){const round=make('button','nex-vtt-action-alt','Avançar rodada');round.addEventListener('click',()=>{scene.initiativeRound=Math.min(999,(scene.initiativeRound||1)+1);combatEntry('Rodada '+scene.initiativeRound);render();});next.append(round);}
    }else{
      const order=make('div','nex-vtt-combat-initiative');
      order.append(make('strong','','Iniciativa · Rodada '+(scene.initiativeRound||1)));
