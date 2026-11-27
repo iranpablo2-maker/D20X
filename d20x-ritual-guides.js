@@ -354,7 +354,7 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "martirio de sangue|sangue|4": {
-    "description": "Ritual de sangue (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Transformação paranormal que melhora as capacidades físicas e a resistência do personagem, com restrições e riscos mentais. A versão discente amplia o bônus e concede PV temporários.",
     "kind": "Suporte"
   },
   "apagar as luzes|morte|1": {
@@ -362,11 +362,11 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "lingua morta|morte|2": {
-    "description": "Ritual de morte (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Permite interrogar um cadáver sobre acontecimentos passados enquanto o efeito está sustentado; o número de respostas é limitado. Os aprimoramentos alteram a duração e podem gerar uma criatura fictícia ao término.",
     "kind": "Suporte"
   },
   "fedor putrido|morte|3": {
-    "description": "Ritual de morte (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Oculta sinais de vida do personagem, facilitando testes de Furtividade e disfarces apropriados, mas prejudicando interações sociais. Os aprimoramentos permitem aplicar o efeito a aliados voluntários.",
     "kind": "Suporte"
   },
   "singularidade temporal|morte|4": {
@@ -386,23 +386,23 @@ window.NEX_RITUAL_GUIDES={
     "kind": "Suporte"
   },
   "pronunciar sigilo|conhecimento|4": {
-    "description": "Ritual de conhecimento (4º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Uma palavra paranormal provoca efeitos debilitantes sobre um ser; o teste de Vontade pode reduzir o resultado. Aprimoramentos aumentam o alcance ou o número de alvos.",
     "kind": "Suporte"
   },
   "overclock|energia|1": {
-    "description": "Ritual de energia (1º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Reação vinculada a um teste de Tecnologia: oferece auxílio paranormal em tarefas eletrônicas fictícias. Os aprimoramentos permitem tolerar erros adicionais no minijogo.",
     "kind": "Suporte"
   },
   "tremeluzir|energia|2": {
-    "description": "Ritual de energia (2º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Enquanto sustentado, permite atravessar obstáculos sólidos no cenário fictício de forma instável. Aprimoramentos estendem o efeito a voluntários.",
     "kind": "Suporte"
   },
   "mutar|energia|3": {
-    "description": "Ritual de energia (3º círculo) · Suporte. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Durante a cena, o personagem deixa de emitir e perceber sons, favorecendo Furtividade, mas impedindo comunicação oral e audição. Aprimoramentos permitem afetar outros seres.",
     "kind": "Suporte"
   },
   "milagre ionizante|energia|3": {
-    "description": "Ritual de energia (3º círculo) · Cura. Confira os campos mecânicos e consulte a publicação para condições, efeitos e exceções.",
+    "description": "Ritual de cura por toque que usa Energia paranormal para remover uma condição prejudicial elegível de um personagem. A execução ocupa uma ação completa.",
     "kind": "Cura"
   }
 };
