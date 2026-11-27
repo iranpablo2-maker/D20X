@@ -4919,8 +4919,8 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
  const originName=extra.originName||(from.startsWith('Origem: ')?from.slice(8).split(' · ')[0]:'');
  const guidance=extra.classPower&&detail?'':NEX_ABILITY_EXPLANATIONS[String(name||'').trim()]||NEX_ABILITY_EXPLANATIONS[originName]||'';
  const genericDescription=/^(?:Opção de (?:jogo registrada|personagem|progressão)|Habilidade de .+Use os recursos|Habilidade de progressão|Poder de .+Consulte a publicação|Origem de personagem|Recurso (?:ficcional de jogo|de jogo)|Consulte a publicação|Habilidade concedida por esta origem|Descrição (?:não cadastrada|indisponível))/i.test(original)||/(?:Confira os campos mecânicos|Consulte a publicação para (?:as condições|custo|condições))/i.test(original);
- const usefulGuidance=guidance&&guidance.length<=240&&!/consulte (?:o livro|a publicação)/i.test(guidance);
- const parts=original&&!genericDescription&&original.length<=240?[original]:usefulGuidance?[guidance]:[];
+ const usefulGuidance=guidance&&!/consulte (?:o livro|a publicação)/i.test(guidance);
+ const parts=original&&!genericDescription?[original]:usefulGuidance?[guidance]:[];
 
  const add=(text)=>{if(text&&!original.includes(text)&&!parts.includes(text))parts.push(text);};
  if(usefulGuidance&&!parts.includes(guidance)&&!original.includes(guidance))add('Aplicação na ficha: '+guidance);
@@ -4928,7 +4928,7 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
   const base=NEX12_ORIGINS.find(x=>x[0]===originName);
   const extraOrigin=[...(NEX_EXTRA_ORIGINS.horror||[]),...(NEX_EXTRA_ORIGINS.arquivos||[])].find(x=>x.name===originName);
   const skills=base?[base[1],base[2]].filter(Boolean):Array.isArray(extraOrigin?.skills)?extraOrigin.skills.filter(Boolean):[];
-  if(skills.length)add('Perícias de origem: '+skills.join(' e ')+'. A concessão pertence à escolha da origem e não deve ser aplicada de novo a cada abertura da ficha.');
+  if(skills.length)add('Perícias de origem: '+skills.join(' e ')+'.');
   if(extraOrigin?.source)add('Fonte cadastrada: '+extraOrigin.source+'.');
  }
  const trailSource=from.match(/^Trilha: (.+?) · NEX (\d+)%$/);
