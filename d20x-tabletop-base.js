@@ -140,6 +140,7 @@ export function mountNexTabletop({db,doc,onSnapshot,setDoc,getDoc,deleteDoc,writ
  const selected=()=>scene.tokens.find(t=>t.id===selectedId);
  const linkedSheet=t=>t?.linkedSheetId?getSheets().find(s=>s.id===t.linkedSheetId):null;
  const tokenStat=(t,f)=>{const sh=linkedSheet(t);return Math.max(0,Math.trunc(Number(sh?(sh.fullSheet?.[f+'Current']??sh[f]??t[f]):t[f])||0));};
+ const tokenDefense=t=>{const sh=linkedSheet(t),effects=Array.isArray(sh?.fullSheet?.nexVttAbilityEffects)?sh.fullSheet.nexVttAbilityEffects:[];return Math.max(0,Number(t.defense)||0)+effects.filter(e=>e?.kind==='defense'&&Number(e.remaining)>0).reduce((n,e)=>n+Math.max(-99,Math.min(99,Number(e.value)||0)),0);};
  const tokenMax=(t,f)=>{const sh=linkedSheet(t),raw=sh?.fullSheet||{};const v=raw[f+'Max']??raw['max'+f[0].toUpperCase()+f.slice(1)]??t[f+'Max'];return Math.max(0,Number(v)||0);};
  const isTyping=e=>e.target?.closest?.('input,textarea,select,[contenteditable="true"]');
  tools.hidden=!gm;
@@ -1697,7 +1698,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
        const die=new Uint32Array(1);crypto.getRandomValues(die);
        const result=1+(die[0]%20),added=Math.max(-99,Math.min(99,Math.trunc(Number(bonus.value)||0))),total=result+added;
        const chosen=scene.tokens.filter(t=>vttCombatTargets.has(t.id)&&!t.hidden);
-       const comparison=chosen.length?' | '+chosen.map(t=>t.name+': '+(t.defense>0?(total>=t.defense?'Acerto':'Falha')+' (Def '+t.defense+')':'Defesa não definida')).join(', '):'';
+       const comparison=chosen.length?' | '+chosen.map(t=>t.name+': '+(tokenDefense(t)>0?(total>=tokenDefense(t)?'Acerto':'Falha')+' (Def '+tokenDefense(t)+')':'Defesa não definida')).join(', '):'';
        combatEntry((actor?.name||'Ataque')+': d20 '+result+(added>=0?' + ':' - ')+Math.abs(added)+' = '+total+comparison);
        render();
      });
@@ -1733,7 +1734,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
      forward.addEventListener('click',()=>{
       if(!scene.turns.length)return;
       const first=scene.turns.shift();scene.turns.push(first);
-      if(scene.initiativeRolls.length&&first===scene.initiativeRolls[scene.initiativeRolls.length-1]?.name)scene.initiativeRound++;
+      if(scene.initiativeRolls.length&&first===scene.initiativeRolls[scene.initiativeRolls.length-1]?.name){scene.initiativeRound++;window.dispatchEvent(new CustomEvent('nex:vtt-round-advanced',{detail:{campaignId,id:crypto.randomUUID(),round:scene.initiativeRound}}));}
       combatEntry('Rodada '+scene.initiativeRound+' · Próximo turno: '+scene.turns[0]);render();
      });
      const clearTurns=make('button','nex-vtt-action-alt','Encerrar combate');
