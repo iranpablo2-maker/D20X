@@ -13,7 +13,7 @@ const nexRitualArtIndexes=new Map(nexRitualArtNames.map((name,i)=>[nexRitualArtN
 const nexRitualArtStyle=document.createElement('link');
 nexRitualArtStyle.id='nex-ritual-art-sheet-20261123';
 nexRitualArtStyle.rel='stylesheet';
-nexRitualArtStyle.href='./d20x-ritual-art-symbols.css?v=20261123art64';
+nexRitualArtStyle.href='./estilos/d20x-ritual-art-symbols.css?v=20261123art64';
 document.head.appendChild(nexRitualArtStyle);
 function nexRitualArtIndexFor(ritual){
  const name=nexRitualArtNorm(ritual?.name);

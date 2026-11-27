@@ -1651,7 +1651,7 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  flex:0 0 auto!important;width:auto!important;min-width:0!important;padding:5px!important;font-size:10px!important;
 }
 #roomTabletopPanel .nex-vtt-atmosphere-entry input[type="range"]{max-width:100%;min-width:0}
-</style><script src="./d20x-image-crop.js?v=20261113crop1"></script>
+</style><script src="./scripts/d20x-image-crop.js?v=20261113crop1"></script>
 <style id="nex-manage-players-v1">
 #room #roomManagePanel{border-color:#723642;background:#151115}
 #room #roomManagePanel .nex-manager-group{padding:16px 0;border-top:1px solid #50303b}
@@ -2950,8 +2950,8 @@ html.nex-embedded main{max-width:100%;padding:10px 12px 28px}
  grid-template-columns:repeat(3,minmax(0,1fr))!important;
 }
 </style>
-<link rel="stylesheet" href="./d20x-tabletop-mobile-20261123.css?v=20261123mobile2">
-<script defer src="./d20x-logo-display.js?v=20261126originalHD"></script>
+<link rel="stylesheet" href="./estilos/d20x-tabletop-mobile-20261123.css?v=20261123mobile2">
+<script defer src="./scripts/d20x-logo-display.js?v=20261126originalHD"></script>
 </head>
 <body>
 <script>
@@ -2978,7 +2978,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
 <h1>Campanha compartilhada</h1>
 <p>Todos os participantes podem visualizar as fichas. Somente o dono do personagem e o mestre podem editar. As permissões são verificadas no banco de dados.</p>
 <div id="notice" role="status" aria-live="polite"></div>
-<section id="setup" class="panel hide"><h2>Multiplayer ainda não ativado</h2><p>É preciso conectar um projeto Firebase e publicar as regras de acesso antes de usar campanhas entre celulares. As fichas locais permanecem intactas.</p><p>Consulte <a href="./MULTIPLAYER.md">as instruções de ativação</a>.</p></section>
+<section id="setup" class="panel hide"><h2>Multiplayer ainda não ativado</h2><p>É preciso conectar um projeto Firebase e publicar as regras de acesso antes de usar campanhas entre celulares. As fichas locais permanecem intactas.</p><p>Consulte <a href="./docs/MULTIPLAYER.md">as instruções de ativação</a>.</p></section>
 <section id="authPanel" class="panel hide">
  <h2>Entrar no D20X online</h2>
  <form id="authForm"><label>E-mail<input type="email" id="email" autocomplete="email" required></label>
@@ -3173,18 +3173,18 @@ document.addEventListener('click',function(event){
  }
 },true);
 </script>
-<script src="./d20x-roll-popup.js?v=20261121transparentd20"></script>
-<link rel="stylesheet" href="./d20x-gm-shield.css?v=20261126campaignArchive">
+<script src="./scripts/d20x-roll-popup.js?v=20261121transparentd20"></script>
+<link rel="stylesheet" href="./estilos/d20x-gm-shield.css?v=20261126campaignArchive">
 
 
 
-<script src="./d20x-ritual-effects.js?v=20261121npcRitualVisible3"></script>
-<script src="./d20x-rituais-metadados.js?v=20261127license1"></script>
-<script src="./d20x-ritual-guides.js?v=20261127descricao4"></script>
+<script src="./scripts/d20x-ritual-effects.js?v=20261121npcRitualVisible3"></script>
+<script src="./dados/d20x-rituais-metadados.js?v=20261127license1"></script>
+<script src="./dados/d20x-ritual-guides.js?v=20261127descricao4"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261122playerBrightness1';
-import {mountGmShield} from './d20x-gm-shield.js?v=20261127systemIsolation1';
+import {mountNexTabletop} from './scripts/d20x-tabletop-base.js?v=20261122playerBrightness1';
+import {mountGmShield} from './scripts/d20x-gm-shield.js?v=20261127systemIsolation1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
 const $=id=>document.getElementById(id);

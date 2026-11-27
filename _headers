@@ -18,3 +18,12 @@
 
 /version.json
   Cache-Control: no-cache, no-store, must-revalidate
+
+/dados/*
+  Cache-Control: no-cache, must-revalidate
+
+/scripts/*
+  Cache-Control: no-cache, must-revalidate
+
+/estilos/*
+  Cache-Control: no-cache, must-revalidate
