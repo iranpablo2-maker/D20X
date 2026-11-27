@@ -1,5 +1,4 @@
-/* NEX | Escudo do Mestre — dados privados da campanha.
-   Usa /campaigns/{id}/masterNotes/shield: somente o mestre tem permissão. */
+/* D20X | Escudo do Mestre — dados privados no IndexedDB, com importação inicial da cópia antiga do Firestore. */
 import {createCampaignLocalStore} from './d20x-campaign-local.js?v=1';
 export function mountGmShield(options){
  'use strict';
@@ -101,7 +100,7 @@ export function mountGmShield(options){
  function refreshMasterStatus(){
   const node=$('[data-gm-status]');if(!node)return;
   // Confirmações breves não ocupam espaço no topo; falhas e avisos continuam visíveis.
-  node.textContent=saveStatus==='Salvo na campanha.'?'':saveStatus;
+  node.textContent=saveStatus==='Salvo no dispositivo do mestre.'?'':saveStatus;
   node.hidden=!node.textContent&&!pendingNeedsRetry;
   if(pendingNeedsRetry){
    const retry=document.createElement('button');retry.type='button';retry.className='alt';retry.dataset.gmRetrySave='true';retry.textContent='Salvar novamente';retry.style.marginLeft='8px';node.append(retry);
@@ -172,6 +171,7 @@ export function mountGmShield(options){
     saved=await store.seed(snap.exists()?snap.data():{...empty(),version:1});
    }
    if(!valid())return;
+   if(pendingMasterSave&&Number(pendingMasterSave.updatedAt||0)<=Number(saved.updatedAt||0)){pendingMasterSave=null;pendingNeedsRetry=false;clearMasterDraft(current,user);}
    if(pendingMasterSave){
     state=dataSafe(pendingMasterSave);
     saveStatus='Alterações locais não confirmadas recuperadas. Confira e salve novamente.';
