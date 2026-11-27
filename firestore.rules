@@ -95,13 +95,14 @@ service cloud.firestore {
       // Nunca exponha todas as campanhas a usuários autenticados.
       allow list: if request.auth != null && resource.data.gmUid == request.auth.uid;
       allow create: if request.auth != null
-        && request.resource.data.keys().hasOnly(['name','description','gmUid','privateShield','createdAt','updatedAt'])
+        && request.resource.data.keys().hasOnly(['name','description','gmUid','privateShield','createdAt','updatedAt','system'])
         && request.resource.data.gmUid == request.auth.uid
         && request.resource.data.name is string
         && request.resource.data.name.size() > 0
         && request.resource.data.name.size() <= 100
         && request.resource.data.description is string
         && request.resource.data.privateShield is bool
+        && (!request.resource.data.keys().hasAny(['system']) || request.resource.data.system in ['Ordem Paranormal','Assimilação','Sacramento'])
         && request.resource.data.createdAt is timestamp
         && request.resource.data.updatedAt is timestamp;
       allow update: if nexGM(cid)
