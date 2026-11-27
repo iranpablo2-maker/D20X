@@ -96,7 +96,7 @@ window.NEX_SAH={
         "Ocultismo"
       ],
       "ability": "Conhecimento Oculto",
-      "description": "Use Ocultismo para investigar indícios de uma criatura. Registre o alvo identificado nas anotações; a ficha não aplica automaticamente o benefício específico contra esse alvo.",
+      "description": "Após identificar uma criatura por Ocultismo, registre o alvo: +2 nos testes contra ele até o fim da missão. O D20X não aplica automaticamente esse bônus por alvo.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -341,11 +341,11 @@ window.NEX_SAH={
       ],
       [
         "Sentido Premonitório",
-        "Recurso de antecipação em cenas fora de combate. A ficha não acompanha automaticamente seu custo de preparação ou manutenção por rodada."
+        "Custo inicial: 3 PE. Antecipação de uma rodada em investigação, perseguição ou furtividade. Manutenção: 1 PE por rodada. Controle manual na ficha."
       ],
       [
         "Sincronia Paranormal",
-        "Recurso de vínculo entre aliados. Registre os participantes e a duração do efeito; os benefícios em testes mentais e seus custos ainda não são automatizados."
+        "Ação padrão · 2 PE. Vínculo paranormal entre aliados em alcance médio com experiência compartilhada. Manutenção: 1 PE por rodada. Os benefícios mentais continuam parcialmente cadastrados."
       ],
       [
         "Traçado Conjuratório",
@@ -622,7 +622,7 @@ window.NEX_SAH={
       "name": "Absorver Conhecimento",
       "element": "Conhecimento",
       "prerequisite": "",
-      "description": "Opção de personagem · Conhecimento. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Ação completa · 1 PE. Permite localizar a resposta a uma pergunta em uma fonte escrita disponível. Afinidade: redução de 1 PE em ritual de Conhecimento sobre outra pessoa ao alcance de toque."
     },
     {
       "name": "Apatia Herege",
@@ -634,7 +634,7 @@ window.NEX_SAH={
       "name": "Conexão Empática",
       "element": "Energia",
       "prerequisite": "Energia 1",
-      "description": "Opção de personagem · Energia. Requisito registrado: Energia 1. Consulte a publicação para as condições e os efeitos completos. Referência: Sobrevivendo ao Horror."
+      "description": "Ação completa · 2 PE. Comunicação sobrenatural com dispositivo elétrico ligado, por contato, durante a cena. Afinidade: +5 em testes de Intelecto ou Presença relacionados ao dispositivo."
     },
     {
       "name": "Valer-se do Caos",
@@ -648,7 +648,7 @@ window.NEX_SAH={
       "Agente Secreto": [
         [
           "Carteirada",
-          "Habilidade de progressão da trilha Agente Secreto. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 10%: selecione Diplomacia ou Enganação. Concede treinamento na escolhida ou +2 se já treinada. A escolha ainda não é automatizada."
         ],
         [
           "O Sorriso",
@@ -660,7 +660,7 @@ window.NEX_SAH={
         ],
         [
           "Multifacetado",
-          "Habilidade de progressão da trilha Agente Secreto. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 99% · 5 SAN · uma ativação por cena. Permite escolher outra trilha de Combatente ou Especialista e utilizar suas habilidades até NEX 65%, respeitando requisitos, até o fim da cena."
         ]
       ],
       "Caçador": [
@@ -748,7 +748,7 @@ window.NEX_SAH={
         ],
         [
           "Laboratório de Campo",
-          "Habilidade de progressão da trilha Muambeiro. Consulte a publicação para custo, condições e efeito completo. Referência: Sobrevivendo ao Horror."
+          "NEX 65%: escolha uma especialidade de Profissão entre as opções da trilha. Concede treinamento ou +5 caso já treinada. A seleção ainda não é automatizada."
         ],
         [
           "Achado Conveniente",
