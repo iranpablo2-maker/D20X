@@ -207,6 +207,15 @@ function computeEffect(fields){
  }
  return result;
 }
+function shareCastResults(ritual,version,check,effect){
+ if(!window.NEX_CAMPAIGN_EDIT_SESSION||!document.body.classList.contains('nex-vtt-sheet-overlay')||typeof logResult!=='function')return;
+ const title=String(ritual.name||'Ritual')+' ('+version+')';
+ if(check)logResult(title+' · Ocultismo','d20 · DT '+check.dt,check.rolls.join(', ')+' · '+(check.passed?'Sucesso':'Falha'),check.total);
+ for(const [key,label] of [['damage','Dano'],['healing','Cura'],['buff','Bônus']]){
+  const value=effect?.[key];
+  if(value&&Number.isFinite(value.total))logResult(title+' · '+label,value.expression,(value.rolls||[]).join(', '),value.total);
+ }
+}
 function badgeInfo(){
  const n=learned().length,a=kit().active.length,h=kit().history.length,c=kit().combos.length;
  return 'PE atuais: '+pe()+' · Gasto do turno: '+kit().turnSpent+'/'+PE_LIMIT()+' PE';
@@ -395,6 +404,7 @@ function quickDamageRoll(rid,version='Normal'){
  modal.classList.add('nex-tk-result-compact');
  modal.innerHTML=castingResultHTML(result,check,sanity,effect);
  if(!modal.open){if(typeof modal.showModal==='function')modal.showModal();else modal.open=true;}
+ shareCastResults(r,version,check,effect);
  toast('Conjuração concluída: '+cost+' PE gastos.');
 }
 function castPowerAvailable(name){
@@ -542,6 +552,7 @@ function resolveResistanceRoll(){
  const chosen=pool===0?Math.min(...values):Math.max(...values);
  const total=chosen+bonus,dt=targetRitualDT();
  output.textContent='Dados: ['+values.join(', ')+'] · '+chosen+' + '+bonus+' = '+total+' / DT '+dt+' · '+(total>=dt?'Passou na resistência':'Falhou na resistência')+'. Confira o efeito da resistência na descrição do ritual.';
+ if(window.NEX_CAMPAIGN_EDIT_SESSION&&document.body.classList.contains('nex-vtt-sheet-overlay')&&typeof logResult==='function')logResult('Resistência ao ritual','d20 · DT '+dt,values.join(', ')+' · '+(total>=dt?'Sucesso':'Falha'),total);
 }
 function castingResultHTML(m,check,sanity,effect){
  const rows=[];
@@ -630,6 +641,7 @@ function confirmCast(){
  modal.classList.toggle('nex-tk-result-compact',Boolean(effect.damage));
  modal.innerHTML=castingResultHTML(m,check,sanity,effect);
  castingId='';
+ shareCastResults(r,v,check,effect);
  toast('Conjuração registrada: '+total+' PE descontados.');
 }
 function handleRound(aid){
