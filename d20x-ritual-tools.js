@@ -81,7 +81,10 @@ function enhancePrice(text){
 function hasEnhance(text){return Boolean(text&&!/^(Não consta|N[aã]o possui|Sem aprimoramento)/i.test(String(text).trim()));}
 function finalPrice(r,version,additional){
  const d=info(r),v=version==='Discente'?d.discente:version==='Verdadeiro'?d.verdadeiro:'';
- return Math.max(1,(baseCost[Number(r.circle)]||1)+Math.max(0,Number(r.extra)||0)+(enhancePrice(v)||0)+Math.max(0,Number(additional)||0)-(typeof nexRitualPowerReduction==='function'?nexRitualPowerReduction(r,d):0));
+ const p=typeof nexB150Profile==='function'?nexB150Profile():null;
+ const avatarDiscount=p?.active&&p.cls==='Ocultista'&&p.stage>=2&&norm(r.element)===norm(p.element)&&!(typeof nexHasSheetPower==='function'&&nexHasSheetPower('Tatuagem Ritualística')&&norm(d.range)==='pessoal')?1:0;
+ const healingDiscount=p?.active&&p.cls==='Ocultista'&&p.stage>=3&&p.element==='Morte'&&norm(r.name)==='cicatrizacao'?1:0;
+ return Math.max(1,(baseCost[Number(r.circle)]||1)+Math.max(0,Number(r.extra)||0)+(enhancePrice(v)||0)+Math.max(0,Number(additional)||0)-(typeof nexRitualPowerReduction==='function'?nexRitualPowerReduction(r,d):0)-avatarDiscount-healingDiscount);
 }
 function effectSettings(r,version){
  const d=info(r),key=signature(r),preset=window.NEX_RITUAL_EFFECTS?.[key]||{};
@@ -129,16 +132,22 @@ function rollSimpleDice(expression){
 function occultismRoll(cost,bonus){
  const sk=state.skills?.Ocultismo||{};
  const attr=sk.attr||'int';
- const pool=Math.max(0,Math.min(20,Math.floor(Number(state.attributes?.[attr])||0)));
- const rolls=Array.from({length:pool===0?2:pool},()=>die(20));
- const chosen=pool===0?Math.min(...rolls):Math.max(...rolls);
- const training=Math.floor(Number(sk.training)||0);
+ const base=typeof nexB150Attribute==='function'?nexB150Attribute(attr):Math.floor(Number(state.attributes?.[attr])||0);
+ const pool=Math.max(-10,Math.min(20,base+(typeof nexOfficialExtraSkillDie==='function'?nexOfficialExtraSkillDie('Ocultismo'):0)));
+ const rolls=Array.from({length:pool<=0?2-pool:pool},()=>die(20));
+ const chosen=pool<=0?Math.min(...rolls):Math.max(...rolls);
+ const training=Math.floor(Number(sk.training)||0)+(typeof nexOfficialGrantedSkillBonus==='function'?nexOfficialGrantedSkillBonus('Ocultismo',sk.training):0);
+ bonus+=Number(sk.other||0)+(typeof nexOfficialSkillBonus==='function'?nexOfficialSkillBonus('Ocultismo'):0)+(typeof nexItemBonuses==='function'?Number(nexItemBonuses().skills?.Ocultismo||0):0);
  const total=chosen+training+bonus,dt=20+cost;
  return {rolls,chosen,training,bonus,total,dt,passed:total>=dt,shortfall:Math.max(0,dt-total),attr};
 }
 function targetRitualDT(r){
  if(!r&&castingId)r=learned().find(x=>String(x.id)===String(castingId));
- return 10+(Number(maxValues().peLimit)||0)+(Number(state.attributes?.pre)||0)+(Number(state.ritualDtBonus)||0)+(state.class==='Ocultista'&&state.trailByClass?.Ocultista==='Graduado'&&Number(state.nex)>=65?5:0)+(typeof nexRitualElementDT==='function'?nexRitualElementDT(r):0);
+ const p=typeof nexB150Profile==='function'?nexB150Profile():null,avatar=p?.cls==='Ocultista'&&p.active;
+ const attr=avatar?p.attr:'pre',value=typeof nexB150Attribute==='function'?nexB150Attribute(attr):Number(state.attributes?.[attr])||0;
+ const graduation=typeof nexTrailIs==='function'&&nexTrailIs('Ocultista','Graduado',65)?5:0;
+ const elemental=avatar&&p.stage>=3&&r&&norm(r.element)===norm(p.element)?2:0;
+ return 10+(Number(maxValues().peLimit)||0)+value+(Number(state.ritualDtBonus)||0)+graduation+elemental+(typeof nexRitualElementDT==='function'?nexRitualElementDT(r):0);
 }
 function applyCastSanity(element,version,cost,check){
  const fear=norm(element)==='medo';
@@ -352,7 +361,7 @@ function drawGrimoire(){
  }).join(''):'<p class="tk-sub">Nenhum ritual encontrado.</p>';
 }
 function quickDamageRoll(rid,version='Normal'){
- if(['ampliar','acelerar','camuflar','parareligiosidade','barreira','graoMestre','placas','catalisadores','macula'].some(castPowerAvailable)){openCast(rid,version);return;}
+ if(['ampliar','acelerar','camuflar','parareligiosidade','barreira','graoMestre','placas','catalisadores','macula','avatarReaction'].some(castPowerAvailable)){openCast(rid,version);return;}
  if(!isOccultist()){toast('A conjuração é exclusiva para Ocultistas.');return;}
  const r=learned().find(x=>String(x.id)===String(rid));
  if(!r){toast('Ritual não encontrado.');return;}
@@ -389,6 +398,7 @@ function quickDamageRoll(rid,version='Normal'){
  toast('Conjuração concluída: '+cost+' PE gastos.');
 }
 function castPowerAvailable(name){
+ if(name==='avatarReaction'){const p=typeof nexB150Profile==='function'?nexB150Profile():null;return p?.cls==='Ocultista'&&p.active&&p.stage>=2&&!state.nexAutoSceneUses?.b150Reaction;}
  if(name==='ampliar')return typeof nexTrailIs==='function'&&nexTrailIs('Ocultista','Conduíte',10);
  if(name==='acelerar')return typeof nexTrailIs==='function'&&nexTrailIs('Ocultista','Conduíte',40)&&!state.nexAutoRoundUses?.acelerarRitual;
  if(name==='camuflar')return typeof nexHasSheetPower==='function'&&nexHasSheetPower('Camuflar Ocultismo');
@@ -404,7 +414,11 @@ function castPowerFields(r){
  if(castPowerAvailable('graoMestre')&&matching)out.push('<label><input type="checkbox" id="tkGraoMestre">Grão-Mestre em Elemento · +1 PE</label>');
  if(castPowerAvailable('catalisadores')){const max=nexHasSheetPower('Especialista Esotérico')?3:2;out.push('<label>Catalisadores distintos no RPG (máx. '+max+')<select id="tkCatalisadores">'+Array.from({length:max+1},(_,i)=>'<option value="'+i+'">'+i+'</option>').join('')+'</select></label><label>Efeitos escolhidos<input id="tkCatalisadoresNota" maxlength="180" placeholder="Registre os efeitos confirmados na mesa"></label>');}
  if(castPowerAvailable('macula')&&String(state.nexAutoChoices?.maculaRitual||'')===String(r?.id))out.push('<label><input type="checkbox" id="tkMacula">Usar Mácula Ritualística · custo básico dispensado</label>');
- if(castPowerAvailable('ampliar'))out.push('<label>Ampliar Ritual<select id="tkAmpliar"><option value="">Não usar</option><option value="alcance">Alcance · +2 PE</option><option value="area">Área · +2 PE</option></select></label>');
+ if(castPowerAvailable('ampliar')){
+  const d=info(r),range=/^(curto|m[eé]dio|longo)$/i.test(String(d.range||'').trim()),area=/área|raio|cubo|cone|esfera|quadrado|linha/i.test(String(d.target||''));
+  if(range||area)out.push('<label>Ampliar Ritual<select id="tkAmpliar"><option value="">Não usar</option>'+(range?'<option value="alcance">Alcance · +2 PE</option>':'')+(area?'<option value="area">Área · +2 PE</option>':'')+'</select></label>');
+ }
+ if(castPowerAvailable('avatarReaction')&&norm(r.element)===norm(nexB150Profile().element))out.push('<label><input type="checkbox" id="tkAvatarReaction"> Conjurar como reação uma vez por cena (condição confirmada pelo mestre)</label>');
  if(castPowerAvailable('acelerar'))out.push('<label><input type="checkbox" id="tkAcelerar">Acelerar Ritual · +4 PE (ação livre)</label>');
  if(castPowerAvailable('camuflar'))out.push('<label><input type="checkbox" id="tkCamuflar">Camuflar Ocultismo · +2 PE</label>');
  if(castPowerAvailable('parareligiosidade'))out.push('<label><input type="checkbox" id="tkParareligiosidade">Parareligiosidade · +2 PE</label><label>Catalisador escolhido<input id="tkCatalisador" maxlength="80" placeholder="Nome do efeito de RPG"></label>');
@@ -413,14 +427,15 @@ function castPowerFields(r){
 function castPowerOptions(r,d){
  const flags=[],notes=[];let cost=0;
  const amplify=modal.querySelector('#tkAmpliar')?.value;
- if(castPowerAvailable('ampliar')&&['alcance','area'].includes(amplify)){
+ if(castPowerAvailable('ampliar')&&(amplify==='alcance'&&/^(curto|m[eé]dio|longo)$/i.test(String(d.range||'').trim())||amplify==='area'&&/área|raio|cubo|cone|esfera|quadrado|linha/i.test(String(d.target||'')))){
   cost+=2;flags.push('ampliar');
   if(amplify==='alcance'){const steps=['curto','médio','longo','extremo'];const i=steps.indexOf(String(d.range||'').toLowerCase().trim());notes.push('Ampliar: '+(i>=0&&i<3?steps[i+1]:'alcance ampliado conforme regra e mestre'));}
   else notes.push('Ampliar: área dobrada, se elegível');
  }
  if(castPowerAvailable('acelerar')&&modal.querySelector('#tkAcelerar')?.checked){cost+=4;flags.push('acelerar');notes.push('Acelerar: ação livre');}
  if(castPowerAvailable('camuflar')&&modal.querySelector('#tkCamuflar')?.checked){cost+=2;flags.push('camuflar');notes.push('Camuflar: conjuração por concentração, percepção DT 25');}
- if(castPowerAvailable('parareligiosidade')&&modal.querySelector('#tkParareligiosidade')?.checked){cost+=2;flags.push('parareligiosidade');notes.push('Parareligiosidade: '+(String(modal.querySelector('#tkCatalisador')?.value||'').trim()||'efeito de catalisador a confirmar'));}
+ if(castPowerAvailable('parareligiosidade')&&modal.querySelector('#tkParareligiosidade')?.checked){const catalyst=String(modal.querySelector('#tkCatalisador')?.value||'').trim();cost+=2;flags.push('parareligiosidade');notes.push('Parareligiosidade: '+(catalyst||'Selecione um efeito de catalisador'));if(!catalyst)flags.push('missingCatalyst');}
+ if(castPowerAvailable('avatarReaction')&&norm(r.element)===norm(nexB150Profile().element)&&modal.querySelector('#tkAvatarReaction')?.checked){flags.push('avatarReaction');notes.push('Reação da trilha: uso único nesta cena');}
  const matching=norm(r?.element)===norm(state.nexAutoChoices?.ritualElement)&&Boolean(state.nexAutoChoices?.ritualElement);
  let barrier=0,macula=false;
  if(castPowerAvailable('barreira')&&matching){barrier=Math.max(0,Math.min(PE_LIMIT(),Math.floor(Number(modal.querySelector('#tkBarreira')?.value)||0)));if(barrier){cost+=barrier;flags.push('barreira');notes.push('Barreira: +'+(barrier*2)+' Defesa por uma rodada');}}
@@ -497,7 +512,7 @@ function preview(){
  if(effect.type==='Buff')note+=' O buff será registrado para aplicar no alvo; não altera automaticamente os atributos da ficha.';
  if(rulesNode)rulesNode.textContent=note;
  const submit=modal.querySelector('#tkCastForm button[type="submit"]');
- if(submit){submit.disabled=turnBlocked||peBlocked||circleBlocked||missingDice||missingCost;submit.title=submit.disabled?'Corrija os dados ou os limites de conjuração':'';}
+ if(submit){submit.disabled=turnBlocked||peBlocked||circleBlocked||missingDice||missingCost||v.powerOptions?.flags.includes('missingCatalyst');submit.title=submit.disabled?'Corrija os dados ou os limites de conjuração':'';}
 }
 function rollSimpleDicePattern(expr){
  const matched=/^(\d{1,2})d(\d{1,3})(?:[+-]\d{1,3})?(?:x(\d{1,3}))?$/.exec(String(expr||'').trim().replace(/\s+/g,'').toLowerCase());
@@ -585,6 +600,8 @@ function confirmCast(){
  if((needsDamage&&!rollSimpleDicePattern(fields.damageDice))||(needsHeal&&!rollSimpleDicePattern(fields.healDice))||(needsBuff&&!rollSimpleDicePattern(fields.buffDice))){
   toast('Dados inválidos: informe uma expressão como 2d6+2.');return;
  }
+ if(powerOptions?.flags.includes('missingCatalyst'))return toast('Informe o catalisador escolhido.');
+ if(powerOptions?.flags.includes('avatarReaction')&&!confirm('Confirma a condição de reação da trilha com o mestre?'))return;
  if(!confirm('Conjurar '+r.name+' ('+v+') por '+total+' PE e rolar o Teste de Ocultismo?'))return;
  // A confirmação acontece antes do gasto e das rolagens.
  castCommitted=true;
@@ -598,6 +615,7 @@ function confirmCast(){
  const upkeep=Math.min(99,Math.max(0,Number(modal.querySelector('#tkCastUpkeep')?.value)||0));
  state.peCurrent=Math.max(0,pe()-total);
  if(powerOptions?.flags.includes('acelerar'))state.nexAutoRoundUses={...(state.nexAutoRoundUses||{}),acelerarRitual:true};
+ if(powerOptions?.flags.includes('avatarReaction'))state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),b150Reaction:true};
  if(powerOptions?.macula)state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),maculaCast:true};
  if(powerOptions?.barrier)state.nexAutoRoundUses={...(state.nexAutoRoundUses||{}),barreiraDefense:powerOptions.barrier*2};
  if(castPowerAvailable('placas')&&norm(r.element)==='sangue'){const b=Number(r.circle)+(typeof nexPowerAffinity==='function'&&nexPowerAffinity('Placas Sanguinolentas')?2:0);state.nexAutoRoundUses={...(state.nexAutoRoundUses||{}),placasDefense:b};powerOptions.notes.push('Placas: +'+b+' Defesa até o próximo turno');}
