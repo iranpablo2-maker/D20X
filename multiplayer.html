@@ -3183,7 +3183,7 @@ document.addEventListener('click',function(event){
 <script src="./d20x-ritual-guides.js?v=20261127descricao4"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127localdice1';
+import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127localsheetroll1';
 import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared2';
 import {mountGmShield} from './d20x-gm-shield.js?v=20261127systemIsolation1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
@@ -3554,6 +3554,19 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   }
  }
  function campaignSheetRef(sheet){return doc(db,'campaigns',roomId,sheet.isHidden?'privateSheets':'sheets',sheet.id)}
+ // Somente a ficha compartilhada editável aberta na mesa pode publicar resultados.
+ window.addEventListener('message',event=>{
+  if(window.parent===window||event.origin!==location.origin||event.source!==window.parent||event.data?.type!=='nex-campaign-sheet-roll')return;
+  const msg=event.data,campaign=roomId,actor=uid;
+  const reply=(ok,error='')=>{if(roomId===campaign&&uid===actor)window.parent.postMessage({type:'nex-campaign-sheet-roll-result',ok,error},location.origin);};
+  if(!campaign||!actor||$('roomTabletopPanel')?.classList.contains('hide'))return;
+  const sheet=sharedLookup(msg.sheetId);
+  if(!sheet||!sharedCanAccess(sheet,actor)||!sharedBaselines.has(sheet.id))return reply(false,'Ficha não autorizada.');
+  if(sheet.isHidden)return; // Rolagens de fichas ocultas do mestre permanecem privadas.
+  if(!sharedTransport?.publishSheetRoll||(!gm&&!vttHostActive))return reply(false,'Conexão com o mestre indisponível.');
+  const request={kind:'sheet-roll',id:sheet.id,rollId:msg.rollId,title:msg.title,expression:msg.expression,detail:msg.detail,total:msg.total};
+  void sharedTransport.publishSheetRoll(request).then(result=>reply(result?.ok===true,result?.ok?'':'Resultado não confirmado.')).catch(error=>reply(false,String(error.message||error).slice(0,160)));
+ });
  const pendingBridge=new Map();
  let bridgeSeq=0;
  function requestNex(type,agentId){
@@ -4033,7 +4046,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   return sharedSubmit({kind:'resource',id:sheetId,field,amount:Number(amount),mode});
  }
  function subscribeTabletop(id){
-  try{unsubs.push(mountNexTabletop({db,doc,collection,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId:id,uid,gm,getIdToken:()=>auth.currentUser?.getIdToken(),getSheets:()=>roomSheets,updateResource:updateVttSheetResource,shared:{memberName:player=>{if(roomId!==id||!gm)return null;const member=roomMembers.find(m=>(m.uid||m.id)===player);return member?String(member.name||member.displayName||'Jogador'):null;},bind:transport=>{if(roomId===id)sharedTransport=transport;},onPeer:player=>{if(roomId===id)sharedPeer(player);},onState:record=>{if(roomId===id)sharedIncoming(record);},onRequest:(request,player)=>{if(roomId!==id)throw Error('Campanha indisponível');return sharedMasterChange(request,player);}},onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
+  try{unsubs.push(mountNexTabletop({db,doc,collection,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId:id,uid,gm,getIdToken:()=>auth.currentUser?.getIdToken(),getSheets:()=>roomSheets,updateResource:updateVttSheetResource,shared:{publicSheetName:(sheetId,actor)=>{if(roomId!==id||!gm||!$('roomTabletopPanel')||$('roomTabletopPanel').classList.contains('hide'))return null;const sheet=sharedLookup(sheetId);return sheet&&!sheet.isHidden&&sharedCanAccess(sheet,actor)?String(sharedCurrent(sheet).name||'Personagem'):null;},memberName:player=>{if(roomId!==id||!gm)return null;const member=roomMembers.find(m=>(m.uid||m.id)===player);return member?String(member.name||member.displayName||'Jogador'):null;},bind:transport=>{if(roomId===id)sharedTransport=transport;},onPeer:player=>{if(roomId===id)sharedPeer(player);},onState:record=>{if(roomId===id)sharedIncoming(record);},onRequest:(request,player)=>{if(roomId!==id)throw Error('Campanha indisponível');return sharedMasterChange(request,player);}},onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
   catch(error){console.error('Falha ao iniciar Tabletop',error);$('nexTabletopMessage').textContent='Falha ao iniciar mesa virtual.';}
  }
  const vttUnavailable=document.createElement('p');
