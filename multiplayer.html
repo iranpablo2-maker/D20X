@@ -3183,7 +3183,8 @@ document.addEventListener('click',function(event){
 <script src="./d20x-ritual-guides.js?v=20261127descricao4"></script>
 <script type="module">
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js';
-import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127abilityEffects2';
+import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127localshared1';
+import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared1';
 import {mountGmShield} from './d20x-gm-shield.js?v=20261127systemIsolation1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -3245,9 +3246,107 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  let portraitSyncBusy=false;
  let extraSlotRequests=[],slotPending=false;
  let publicSheets=[],privateSheets=[];
+ // O cadastro e as atribuições continuam no Firestore; o estado operacional é local.
+ let sharedStore=null,sharedRecords={},sharedTransport=null,sharedReady=false,sharedPeers=new Set(),sharedQueue=Promise.resolve(),sharedEditorQueue=Promise.resolve();
+ const sharedBaselines=new Map();
+ const sharedKey=id=>'s:'+id;
+ function sharedCatalog(){return gm?[...publicSheets,...privateSheets]:publicSheets.slice();}
+ function sharedLookup(id){return sharedCatalog().find(x=>x.id===id);}
+ function sharedCurrent(sheet){return sharedSheetData(sheet,sharedRecords[sharedKey(sheet.id)]);}
+ function sharedCanAccess(sheet,actor){return canEditSharedSheet(sheet,actor,roomData?.gmUid)&&
+  (actor===roomData?.gmUid||roomMembers.some(member=>(member.uid||member.id)===actor));}
+ function sharedSend(player,sheet){
+  if(!gm||!sharedReady||!sharedTransport||!sharedCanAccess(sheet,player)||sheet.isHidden)return;
+  const record=sharedRecords[sharedKey(sheet.id)]||sheetRecord(sheet,0);
+  if(record.identity!==sharedSheetIdentity(sheet))return;
+  void sharedTransport.send(player,{id:sheet.id,record}).catch(error=>console.warn('Ficha direta não entregue',error));
+ }
+ function sharedBroadcast(sheet){for(const player of sharedPeers)sharedSend(player,sheet);}
+ function sharedPeer(player){
+  if(!gm)return;
+  sharedPeers.add(player);
+  for(const sheet of sharedCatalog())sharedSend(player,sheet);
+ }
+ function sharedIncoming(payload){
+  if(gm||!roomId||!payload||typeof payload.id!=='string')return;
+  const sheet=sharedLookup(payload.id),record=payload.record;
+  if(!sheet||!canEditSharedSheet(sheet,uid,roomData?.gmUid)||sheet.isHidden||
+     !record||record.identity!==sharedSheetIdentity(sheet)||!Number.isSafeInteger(record.revision)||record.revision<0)return;
+  const old=sharedRecords[sharedKey(sheet.id)];
+  if(old&&old.identity===record.identity&&old.revision>record.revision)return;
+  try{
+   const checked=sheetRecord(sharedSheetData(sheet,record),record.revision);
+   sharedRecords={...sharedRecords,[sharedKey(sheet.id)]:checked};
+   refreshRoomSheets();
+  }catch(error){notice('Ficha recebida inválida: '+String(error.message||error));}
+ }
+ function sharedMasterWork(work){
+  const campaign=roomId,owner=uid,store=sharedStore;
+  const valid=()=>gm&&sharedReady&&roomId===campaign&&uid===owner&&sharedStore===store;
+  const task=sharedQueue.then(async()=>{
+   if(!valid())throw Error('O armazenamento local do mestre ainda não está pronto.');
+   return work(valid,store);
+  });
+  sharedQueue=task.catch(()=>{});
+  return task;
+ }
+ async function sharedImportCatalog(){
+  if(!gm||!sharedReady)return;
+  await sharedMasterWork(async(valid,store)=>{
+   const next={...sharedRecords};let changed=false;
+   for(const sheet of sharedCatalog()){
+    const key=sharedKey(sheet.id);
+    if(next[key]?.identity===sharedSheetIdentity(sheet))continue;
+    try{next[key]=sheetRecord(sheet,0);changed=true;}catch(error){console.warn('Ficha não importada',error);}
+   }
+   if(changed){
+    await store.save(next);if(!valid())return;
+    sharedRecords=next;refreshRoomSheets();
+   }
+  });
+ }
+ async function sharedMasterChange(request,actor,transform=null){
+  return sharedMasterWork(async(valid,store)=>{
+   if(!request||typeof request.id!=='string'||request.id.length>160)throw Error('Ficha inválida');
+   const catalog=sharedLookup(request.id);
+   if(!catalog||!sharedCanAccess(catalog,actor))throw Error('Sem permissão para editar esta ficha');
+   const sheet=sharedCurrent(catalog);
+   let updated;
+   if(transform){
+    if(actor!==roomData.gmUid)throw Error('Somente o mestre altera efeitos');
+    updated=transform(sheet);
+   }else if(request.kind==='resource'){
+    updated=resourceChange(sheet,request.field,request.amount,request.mode);
+   }else if(request.kind==='edit'){
+    if(!sheet.fullSheet)throw Error('Esta ficha antiga precisa ser vinculada como ficha completa');
+    updated=mergeSharedEdit(sheet,request.changes);
+   }else throw Error('Operação inválida');
+   const record=sheetRecord(updated,(Number(sheet.localRevision)||0)+1);
+   const next={...sharedRecords,[sharedKey(catalog.id)]:record};
+   await store.save(next);
+   if(!valid())throw Error('Campanha alterada durante o salvamento');
+   sharedRecords=next;
+   refreshRoomSheets();
+   sharedBroadcast(catalog);
+   return {id:catalog.id,record};
+  });
+ }
+ async function sharedSubmit(request){
+  if(gm)return sharedMasterChange(request,uid);
+  if(!sharedTransport)throw Error('Abra o Tabletop e conecte-se ao mestre.');
+  const result=await sharedTransport.request(request);
+  if(roomId&&result?.id===request.id)sharedIncoming(result);
+  return result;
+ }
+ function sharedRemember(sheet,data){sharedBaselines.set(sheet.id,JSON.parse(JSON.stringify(data)));}
+ function sharedReset(){
+  sharedStore=null;sharedRecords={};sharedTransport=null;sharedReady=false;sharedPeers=new Set();sharedBaselines.clear();
+  sharedQueue=Promise.resolve();sharedEditorQueue=Promise.resolve();
+ }
+
  function campaignSheetSystem(sheet){return sheet?.fullSheet?.systemName||sheet?.fullSheet?.system||sheet?.systemName||sheet?.system||'Ordem Paranormal';}
  function currentCampaignSystem(){return roomData?.system||'Ordem Paranormal';}
- function refreshRoomSheets(){roomSheets=(gm?[...publicSheets,...privateSheets]:publicSheets.slice()).filter(sheet=>campaignSheetSystem(sheet)===currentCampaignSystem());drawSheets();drawMembers();renderQuota();renderSlotManagement();renderVttSheets();window.dispatchEvent(new Event('nex:campaign-sheets-updated'));if(publicSheets.length)syncOwnCharacterPhotos();}
+ function refreshRoomSheets(){roomSheets=sharedCatalog().filter(sheet=>campaignSheetSystem(sheet)===currentCampaignSystem()).map(sheet=>gm||canEditSharedSheet(sheet,uid,roomData?.gmUid)?sharedCurrent(sheet):sheet);drawSheets();drawMembers();renderQuota();renderSlotManagement();renderVttSheets();window.dispatchEvent(new Event('nex:campaign-sheets-updated'));}
  let activeVttMiniSheetId=null;
  function vttStatValue(sheet,keys){
   const sources=[sheet.fullSheet,sheet].filter(x=>x&&typeof x==='object');
@@ -3316,7 +3415,15 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   renderVttMiniSheet();
  }
  function vttAbilityEffects(full){return Array.isArray(full?.nexVttAbilityEffects)?full.nexVttAbilityEffects.filter(e=>e&&typeof e.id==='string'&&['defense','skill','condition'].includes(e.kind)).slice(0,50):[];}
- async function changeVttEffects(sheetId,transform){if(!gm||!roomId||!uid)throw Error('Somente o mestre pode administrar efeitos.');const sh=roomSheets.find(x=>x.id===sheetId);if(!sh||campaignSheetSystem(sh)!=='Ordem Paranormal')throw Error('Ficha indisponível.');const ref=campaignSheetRef(sh);await runTransaction(db,async tr=>{const snap=await tr.get(ref);if(!snap.exists()||!snap.data().fullSheet)throw Error('Ficha completa necessária.');const rows=vttAbilityEffects(snap.data().fullSheet),next=transform(rows);if(!Array.isArray(next)||next.length>50)throw Error('Limite de efeitos atingido.');tr.update(ref,{'fullSheet.nexVttAbilityEffects':next,updatedAt:serverTimestamp()});});}
+ async function changeVttEffects(sheetId,transform){
+  if(!gm||!roomId||!uid)throw Error('Somente o mestre pode administrar efeitos.');
+  return sharedMasterChange({id:sheetId},uid,sheet=>{
+   if(campaignSheetSystem(sheet)!=='Ordem Paranormal'||!sheet.fullSheet)throw Error('Ficha completa necessária.');
+   const rows=vttAbilityEffects(sheet.fullSheet),next=transform(rows);
+   if(!Array.isArray(next)||next.length>50)throw Error('Limite de efeitos atingido.');
+   return {...sheet,fullSheet:{...sheet.fullSheet,nexVttAbilityEffects:next}};
+  });
+ }
  async function expireVttEffects(period,eventId){if(!gm||!roomId)return;const campaign=roomId;for(const sh of roomSheets.filter(x=>vttAbilityEffects(x.fullSheet).some(e=>e.period===period))){if(roomId!==campaign||!gm)return;try{await changeVttEffects(sh.id,rows=>rows.flatMap(e=>{if(e.period!==period||e.lastTick===eventId)return [e];const remaining=(Number(e.remaining)||1)-1;return remaining>0?[{...e,remaining,lastTick:eventId}]:[];}));}catch(error){notice('Falha ao atualizar duração dos efeitos: '+String(error.message||error));}}}
  window.addEventListener('nex:vtt-round-advanced',event=>{if(event.detail?.campaignId===roomId&&gm)void expireVttEffects('round',String(event.detail.id));});
  // Aplicação explícita de resultados numéricos de habilidades: somente o mestre.
@@ -3377,15 +3484,11 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    syncVttPanels();
    post(type,data);
   };
-  // A ficha do próprio agente usa o editor ORIGINAL com inventário, combate,
-  // perícias, rituais, PV, PE, SAN e salvamento da conta, sem copiar o estado.
-  const ownAgent=sheet.linkedAgentId&&sheet.ownerUid===uid&&
-   (!sheet.controllerUid||sheet.controllerUid===uid)&&
-   !String(sheet.linkedAgentId).startsWith('shared-');
-  if(ownAgent){
-   open('nex-campaign-open-agent',{agentId:sheet.linkedAgentId});
-   return;
-  }
+  // Na campanha, todos editam a cópia compartilhada local do mestre.
+  if(!gm&&!sharedRecords[sharedKey(sheet.id)]){notice('Aguarde a ficha chegar pela conexão direta do mestre.');return;}
+  if(gm&&!sharedReady){notice('Armazenamento local do mestre indisponível.');return;}
+  if(!full){notice('Vincule uma ficha completa antes de usar a edição local.');return;}
+  if(editable)sharedRemember(sheet,full);
   // As fichas vinculadas à campanha usam os mesmos componentes da ficha
   // operacional, mas salvam exclusivamente no documento da campanha.
   if(full){
@@ -3702,7 +3805,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   vttHostActive=false;
   $('roomOpenTabletop').disabled=true;
   vttUnavailable.hidden=true;
-  roomId='';gm=false;roomMembers=[];roomSheets=[];publicSheets=[];privateSheets=[];roomRequests=[];extraSlotRequests=[];slotPending=false;roomData=null;editing=null;localPortraits.clear();
+  sharedReset();roomId='';gm=false;roomMembers=[];roomSheets=[];publicSheets=[];privateSheets=[];roomRequests=[];extraSlotRequests=[];slotPending=false;roomData=null;editing=null;localPortraits.clear();
   $('roomAgentPicker').hidden=true;$('roomEditConfiguration').hidden=true;$('nexCampaignSheetDialog').close?.();
   show('room',false);show('sheetFormPanel',false);
  };
@@ -3882,27 +3985,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
  async function updateVttSheetResource(sheetId,field,amount,mode='set'){
   if(!roomId||!uid)throw Error('Campanha indisponível.');
-  if(!['pv','pe','san'].includes(field))throw Error('Recurso inválido.');
   const sheet=roomSheets.find(x=>x.id===sheetId);
-  if(!sheet||!(gm||assignedTo(sheet,uid)))throw Error('Sem permissão para editar esta ficha.');
-  const target=campaignSheetRef(sheet);
-  const value=Math.trunc(Number(amount));
-  if(!Number.isFinite(value)||Math.abs(value)>9999)throw Error('Valor inválido.');
-  await runTransaction(db,async tr=>{
-   const snap=await tr.get(target);
-   if(!snap.exists())throw Error('Ficha não encontrada.');
-   const data=snap.data(),full=data.fullSheet&&typeof data.fullSheet==='object'?data.fullSheet:null;
-   const base=Number(full?.[field+'Current']??data[field])||0;
-   const maxRaw=full?.[field+'Max']??full?.['max'+field[0].toUpperCase()+field.slice(1)];
-   const limit=Number(maxRaw)>0?Math.min(9999,Number(maxRaw)):9999;
-   const next=Math.max(0,Math.min(limit,mode==='delta'?base+value:value));
-   const updates={[field]:Math.trunc(next),updatedAt:serverTimestamp()};
-   if(full)updates['fullSheet.'+field+'Current']=Math.trunc(next);
-   tr.update(target,updates);
-  });
+  if(!sheet||!canEditSharedSheet(sheet,uid,roomData?.gmUid))throw Error('Sem permissão para editar esta ficha.');
+  return sharedSubmit({kind:'resource',id:sheetId,field,amount:Number(amount),mode});
  }
  function subscribeTabletop(id){
-  try{unsubs.push(mountNexTabletop({db,doc,collection,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId:id,uid,gm,getIdToken:()=>auth.currentUser?.getIdToken(),getSheets:()=>roomSheets,updateResource:updateVttSheetResource,onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
+  try{unsubs.push(mountNexTabletop({db,doc,collection,onSnapshot,setDoc,getDoc,deleteDoc,writeBatch,campaignId:id,uid,gm,getIdToken:()=>auth.currentUser?.getIdToken(),getSheets:()=>roomSheets,updateResource:updateVttSheetResource,shared:{bind:transport=>{if(roomId===id)sharedTransport=transport;},onPeer:player=>{if(roomId===id)sharedPeer(player);},onState:record=>{if(roomId===id)sharedIncoming(record);},onRequest:(request,player)=>{if(roomId!==id)throw Error('Campanha indisponível');return sharedMasterChange(request,player);}},onSelectSheet:sheetId=>{if(roomSheets.some(sheet=>sheet.id===sheetId&&(gm||assignedTo(sheet,uid)))){activeVttMiniSheetId=sheetId;renderVttSheets();}}}));}
   catch(error){console.error('Falha ao iniciar Tabletop',error);$('nexTabletopMessage').textContent='Falha ao iniciar mesa virtual.';}
  }
  const vttUnavailable=document.createElement('p');
@@ -4983,6 +5071,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   for(const key of ['roomEditAction','roomInviteAction'])$(key).hidden=!gm;
   show('leaveCampaign',!gm);
   updateRoomCover();
+  if(gm){
+   const store=createSharedSheetStore(uid,id);sharedStore=store;
+   try{const records=await store.read();if(roomId!==id||sharedStore!==store)return;sharedRecords=records;sharedReady=true;}
+   catch(error){notice('Banco local de fichas indisponível. Nada será sobrescrito. '+String(error.message||error));}
+  }
+  if(roomId!==id)return;
   subscribeTabletop(id);
   show('roomMasterTab',gm);
   $('nexVttMainMenu')?.querySelector('[data-nex-main-tab="master"]')?.classList.toggle('hide',!gm);
@@ -5001,14 +5095,14 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     ).join(''):'<p>Nenhuma solicitação pendente.</p>';
   },error=>notice('Falha ao carregar solicitações: '+error.message)));
   unsubs.push(onSnapshot(collection(db,'campaigns',id,'members'),snapshot=>{
-    roomMembers=snapshot.docs.map(d=>({id:d.id,...d.data()}));drawMembers();renderQuota();renderSlotManagement();
+    roomMembers=snapshot.docs.map(d=>({id:d.id,...d.data()}));drawMembers();renderQuota();renderSlotManagement();if(gm)for(const p of sharedPeers)sharedPeer(p);
     if(gm)for(const m of roomMembers)ensurePlayerIndex(id,m.uid).catch(error=>console.warn('Índice do jogador',error));
   },e=>notice('Não foi possível carregar participantes: '+e.message)));
   unsubs.push(onSnapshot(collection(db,'campaigns',id,'sheets'),snapshot=>{
-    publicSheets=snapshot.docs.map(d=>({id:d.id,...d.data(),isHidden:false}));refreshRoomSheets();
+    publicSheets=snapshot.docs.map(d=>({id:d.id,...d.data(),isHidden:false}));refreshRoomSheets();if(gm){void sharedImportCatalog().then(()=>{for(const p of sharedPeers)sharedPeer(p);}).catch(error=>notice('Importação local: '+String(error.message||error)));}
   },e=>notice('Não foi possível carregar fichas: '+e.message)));
   if(gm)unsubs.push(onSnapshot(collection(db,'campaigns',id,'privateSheets'),snapshot=>{
-    privateSheets=snapshot.docs.map(d=>({id:d.id,...d.data(),isHidden:true}));refreshRoomSheets();
+    privateSheets=snapshot.docs.map(d=>({id:d.id,...d.data(),isHidden:true}));refreshRoomSheets();void sharedImportCatalog().catch(error=>notice('Importação local: '+String(error.message||error)));
   },e=>notice('Não foi possível carregar fichas ocultas. Publique as regras de privacidade do Firebase: '+e.message)));
  }
  function nexMasterProfile(){
@@ -5113,26 +5207,20 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const msg=event.data||{};
   const answer=(ok,error='')=>window.parent.postMessage({type:'nex-campaign-shared-sheet-saved',ok,error},location.origin);
   const sheet=roomSheets.find(item=>item.id===msg.sheetId);
-  if(!sheet||!(gm||sheet.controllerUid===uid)){answer(false,'Sem permissão de edição.');return;}
-  if(!msg.data||typeof msg.data!=='object'||Array.isArray(msg.data)){
-   answer(false,'Esta ficha não possui dados operacionais.');return;
-  }
-  const data=msg.data;
-  if(JSON.stringify(data).length>450000){answer(false,'A ficha excede o limite de compartilhamento.');return;}
-  const clampStat=(value)=>Math.max(0,Math.min(9999,Math.trunc(Number(value)||0)));
-  try{
-   await runTransaction(db,async tr=>{const ref=campaignSheetRef(sheet),snap=await tr.get(ref);if(!snap.exists())throw Error('Ficha não encontrada.');const current=snap.data();tr.update(ref,{
-    fullSheet:{...data,nexVttAbilityEffects:vttAbilityEffects(current.fullSheet)},
-    ...(!sheet.fullSheet?{linkedAgentId:'shared-'+sheet.id,sheetFormat:'nex-agent-v1'}:{}),
-    name:String(data.name||sheet.name).slice(0,100),
-    nex:Math.max(0,Math.min(99,Math.trunc(Number(data.nex)||0))),
-    pv:clampStat(data.pvCurrent??sheet.pv),
-    pe:clampStat(data.peCurrent??sheet.pe),
-    san:clampStat(data.sanCurrent??sheet.san),
-    updatedAt:serverTimestamp()
-   });});
-   answer(true);
-  }catch(error){answer(false,error?.code||error?.message||'Falha na gravação');}
+  if(!sheet||!canEditSharedSheet(sheet,uid,roomData?.gmUid)){answer(false,'Sem permissão de edição.');return;}
+  if(!msg.data||typeof msg.data!=='object'||Array.isArray(msg.data)||JSON.stringify(msg.data).length>450000){answer(false,'Ficha inválida ou acima do limite.');return;}
+  const campaign=roomId,owner=uid,data=JSON.parse(JSON.stringify(msg.data));
+  const task=sharedEditorQueue.then(async()=>{
+   if(roomId!==campaign||uid!==owner)throw Error('Campanha alterada');
+   const baseline=sharedBaselines.get(msg.sheetId);
+   if(!baseline)throw Error('Reabra a ficha pelo Tabletop antes de editar.');
+   const changes=sharedEditDiff(baseline,data);
+   if(changes.length)await sharedSubmit({kind:'edit',id:msg.sheetId,changes});
+   if(roomId!==campaign||uid!==owner)throw Error('Campanha alterada');
+   sharedBaselines.set(msg.sheetId,data);
+  });
+  sharedEditorQueue=task.catch(()=>{});
+  try{await task;answer(true);}catch(error){answer(false,error?.message||'Falha na gravação local');}
  });
   $('nexCampaignSheetClose').onclick=()=>$('nexCampaignSheetDialog').close();
  $('sheets').addEventListener('click',e=>{
@@ -5178,23 +5266,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const sheet=roomSheets.find(item=>item.id===button.dataset.openCampaignSheet);
   if(!sheet)return;
   if(campaignSheetSystem(sheet)!=='Ordem Paranormal'){openManualCampaignSheet(sheet);return;}
-  if(sheet.ownerUid===uid&&sheet.linkedAgentId&&(!sheet.controllerUid||sheet.controllerUid===uid)){
-   if(window.parent!==window){
-    window.parent.postMessage({type:'nex-campaign-open-agent',agentId:sheet.linkedAgentId},location.origin);
-    return;
-   }
-  }
-  // Quem recebeu a ficha do Mestre abre o editor operacional completo.
-  // A ficha pessoal do Mestre não é substituída: somente a cópia da campanha muda.
-  if((gm||sheet.controllerUid===uid)&&window.parent!==window){
-   const source=sheet.fullSheet&&typeof sheet.fullSheet==='object'?sheet.fullSheet:{
-    name:sheet.name||'Personagem',nex:Number(sheet.nex)||0,
-    pvCurrent:Number(sheet.pv)||0,peCurrent:Number(sheet.pe)||0,
-    sanCurrent:Number(sheet.san)||0,notes:sheet.notes||''
-   };
-   window.parent.postMessage({type:'nex-campaign-open-editable-sheet',sheet:source,sheetId:sheet.id,name:sheet.name},location.origin);
-   return;
-  }
+  if(canEditSharedSheet(sheet,uid,roomData?.gmUid)&&window.parent!==window){openVttSheet(sheet.id);return;}
     // Mostra o layout verdadeiro da ficha operacional NEX.
   // O payload é apenas para exibição; alterações não são permitidas nessa visualização.
   if(sheet.fullSheet&&typeof sheet.fullSheet==='object'&&!Array.isArray(sheet.fullSheet)){
