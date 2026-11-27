@@ -322,7 +322,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Março",
       "page": 108,
-      "description": "Opção de personagem · Geral. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Março/2026 · p. 108.",
+      "description": "Permite utilizar duas armas na mesma ação de ataque do RPG, respeitando as condições de empunhadura e de ativação. Resolva cada ataque separadamente. Custo e condições específicas não automatizados.",
       "source": "Arquivos Secretos · Março/2026 · p. 108"
     },
     {
@@ -634,7 +634,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Junho",
       "page": 68,
-      "description": "Opção de personagem · Geral. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Junho/2026 · p. 68.",
+      "description": "Aprimora tratamentos e recursos de atendimento no RPG. O benefício depende do procedimento escolhido e não aumenta permanentemente os PV máximos. Valores específicos não cadastrados.",
       "source": "Arquivos Secretos · Junho/2026 · p. 68"
     },
     {
