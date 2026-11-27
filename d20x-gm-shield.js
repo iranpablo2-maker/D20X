@@ -1,8 +1,10 @@
 /* NEX | Escudo do Mestre — dados privados da campanha.
    Usa /campaigns/{id}/masterNotes/shield: somente o mestre tem permissão. */
+import {createCampaignLocalStore} from './d20x-campaign-local.js?v=1';
 export function mountGmShield(options){
  'use strict';
- const {root,db,doc,onSnapshot,setDoc,getContext,openTabletop,notify}=options;
+ const {root,db,doc,getDocFromServer,getContext,openTabletop,notify}=options;
+ let shieldStore=null;
  const $=(selector)=>root.querySelector(selector);
  const escape=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','"':'&quot;',"'":'&#39;'}[c]));
  const safeImage=value=>{const v=String(value||'');return /^https:\/\/[^\s<>"']{1,480}$/i.test(v)||/^\.\/assets\/ameacas\/[a-z0-9/_-]+\.webp(?:\?[a-z0-9=_-]+)?$/i.test(v)||/^data:image\/(?:jpeg|png|webp);base64,[a-z0-9+/=]{1,200000}$/i.test(v)?v:'';};
@@ -134,7 +136,7 @@ export function mountGmShield(options){
  }
  function close(){
   if(unsubscribe){unsubscribe();unsubscribe=null;}
-  privateRoll=null;room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;showThreatImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;pendingMasterSave=null;pendingNeedsRetry=false;
+  shieldStore=null;privateRoll=null;room='';ready=false;selectedSheet=null;draftNpcId=null;showNpcImport=false;showThreatImport=false;state=empty();writeQueue=Promise.resolve();revision=0;committed=0;editing=null;filter='';saveStatus='';pendingReveal=null;pendingMasterSave=null;pendingNeedsRetry=false;
   clearTimeout(generalSaveTimer);generalSaveTimer=null;activeNoteId='';noteMode='documents';noteSearch='';boardDrag=null;lastLocalWrite=0;pendingHistoryRoute=null;richLastRange=null;richDragging=null;root.replaceChildren();
  }
  function open(){
@@ -159,41 +161,47 @@ export function mountGmShield(options){
   }catch(error){pendingMasterSave=null;pendingNeedsRetry=false;}
   root.innerHTML='<p class="room-note">Carregando Escudo do Mestre…</p>';
   const current=room;
-  unsubscribe=onSnapshot(doc(db,'campaigns',room,'masterNotes','shield'),snap=>{
-   if(room!==current)return;
-   if(revision>committed||generalSaveTimer)return;
-   if(ready&&lastLocalWrite&&snap.data()?.updatedAt===lastLocalWrite)return;
+  const user=ctx.uid,store=createCampaignLocalStore(user,current,'shield');
+  shieldStore=store;
+  const valid=()=>room===current&&getContext().gm&&getContext().uid===user&&shieldStore===store;
+  void (async()=>{
+   let saved=await store.read();
+   if(saved===null){
+    // A primeira leitura precisa vir do servidor, não de cache vazio.
+    const snap=await getDocFromServer(doc(db,'campaigns',current,'masterNotes','shield'));
+    saved=await store.seed(snap.exists()?snap.data():{...empty(),version:1});
+   }
+   if(!valid())return;
    if(pendingMasterSave){
     state=dataSafe(pendingMasterSave);
-    saveStatus='Alterações locais não enviadas recuperadas. Confira e salve novamente.';
-   }else state=dataSafe(snap.exists()?snap.data():null);
+    saveStatus='Alterações locais não confirmadas recuperadas. Confira e salve novamente.';
+   }else state=dataSafe(saved);
    ready=true;if(pendingHistoryRoute){const target=pendingHistoryRoute;pendingHistoryRoute=null;restoreHistoryRoute(target);}else render();
-  },error=>{if(room!==current)return;ready=false;root.textContent='Não foi possível carregar o Escudo do Mestre: '+String(error.message||error);});
+  })().catch(error=>{if(valid()){ready=false;root.textContent='Não foi possível carregar o Escudo local: '+String(error.message||error);}});
   readHomebrews();
  }
  function store(){
-  if(!ready||!room||!getContext().gm)return;
+  if(!ready||!room||!getContext().gm||!shieldStore)return;
   const payload=JSON.parse(JSON.stringify({...state,version:1,updatedAt:Date.now()}));
   if(JSON.stringify(payload).length>680000){status('Limite de dados da campanha atingido. Reduza algumas anotações.');return;}
   lastLocalWrite=payload.updatedAt;
-   const current=room,user=getContext().uid,number=++revision;
+   const current=room,user=getContext().uid,number=++revision,local=shieldStore;
   pendingMasterSave=payload;pendingNeedsRetry=false;
   const backupReady=saveMasterDraft(payload,current,user);
-  status(backupReady?'Salvando na conta…':'Salvando na conta… (cópia local indisponível)');
+  status(backupReady?'Salvando no dispositivo…':'Salvando no dispositivo… (cópia temporária indisponível)');
   writeQueue=writeQueue.catch(()=>{}).then(()=>{
-   if(current!==room)return;
-   return setDoc(doc(db,'campaigns',current,'masterNotes','shield'),payload);
+   return local.save(payload);
   });
   writeQueue.then(()=>{
-   if(room!==current)return;
+   if(room!==current||shieldStore!==local||getContext().uid!==user)return;
    committed=Math.max(committed,number);
    if(number===revision){
     pendingMasterSave=null;pendingNeedsRetry=false;
     clearMasterDraft(current,user);
-    status('Salvo na campanha.');
+    status('Salvo no dispositivo do mestre.');
    }
   }).catch(error=>{
-   if(room===current&&number===revision){
+   if(room===current&&shieldStore===local&&getContext().uid===user&&number===revision){
     // Nunca marcar uma gravação rejeitada como confirmada: isso perderia
     // alterações quando o próximo snapshot remoto chegasse.
     pendingNeedsRetry=true;
@@ -215,7 +223,7 @@ export function mountGmShield(options){
  }
  function menu(){
 
-  return '<div class="nex-gm-head"><div><h3>◈ ESCUDO DO MESTRE</h3><small>Painel privado · informações salvas nesta campanha</small></div>'+
+  return '<div class="nex-gm-head"><div><h3>◈ ESCUDO DO MESTRE</h3><small>Painel privado · informações salvas neste dispositivo</small></div>'+
    '</div>'+
    '<nav class="nex-gm-tabs" aria-label="Áreas do Escudo do Mestre">'+kinds.map(k=>'<button type="button" data-gm-tab="'+k+'" aria-pressed="'+(tab===k)+'">'+icons[k]+' '+labels[k]+'</button>').join('')+'</nav>';
  }
