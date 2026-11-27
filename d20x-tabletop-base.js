@@ -1641,6 +1641,27 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    vttLog.hidden=false;vttLog.textContent=label;
    return {label,values};
  }
+ // Resultado já calculado pela ficha: o mestre autoriza a publicação,
+ // mas não reexecuta nem certifica a fórmula informada pelo cliente.
+ function publishSheetRoll(request,actor){
+   if(!gm||disposed||!remoteReady)throw Error('A mesa do mestre ainda não está pronta.');
+   if(typeof request?.id!=='string'||request.id.length>160||
+      typeof request.rollId!=='string'||!/^[a-f0-9-]{36}$/i.test(request.rollId)||
+      typeof request.title!=='string'||!request.title.trim()||request.title.length>90||
+      typeof request.expression!=='string'||request.expression.length>180||
+      typeof request.detail!=='string'||request.detail.length>450||
+      !Number.isFinite(request.total)||Math.abs(request.total)>1000000)throw Error('Resultado de ficha inválido.');
+   const name=shared?.publicSheetName?.(request.id,actor);
+   if(typeof name!=='string'||!name.trim())throw Error('Ficha não autorizada para publicação.');
+   const id='sheet-roll-'+request.rollId;
+   if((scene.combatLog||[]).some(item=>item.id===id))return {ok:true};
+   const clean=(value,max)=>value.replace(/[\r\n\t]+/g,' ').trim().slice(0,max);
+   const label=('Ficha · '+clean(name,24)+' · '+clean(request.title,42)+' = '+request.total+' · '+clean(request.expression,36)+' '+clean(request.detail,70)).slice(0,150);
+   scene.combatLog=[...(scene.combatLog||[]),{id,label,at:Date.now()}].slice(-40);
+   renderCombatDock();void save();
+   vttLog.hidden=false;vttLog.textContent=label;
+   return {ok:true};
+ }
  function renderCombatDock(){
    if(!combatDock||combatDock.hidden)return;
    combatDock.replaceChildren();
@@ -1997,7 +2018,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   getScene:()=>gm?networkScene():null,
   onSharedPeer:player=>{if(!disposed)shared?.onPeer?.(player);},
   onSharedState:record=>{if(!disposed)shared?.onState?.(record);},
-  onSharedRequest:(request,player)=>{if(disposed||!shared?.onRequest)throw Error('Mesa indisponível');if(request?.kind==='table-dice')return rollPublicDice(request,player);return shared.onRequest(request,player);},
+  onSharedRequest:(request,player)=>{if(disposed||!shared?.onRequest)throw Error('Mesa indisponível');if(request?.kind==='table-dice')return rollPublicDice(request,player);if(request?.kind==='sheet-roll')return publishSheetRoll(request,player);return shared.onRequest(request,player);},
   onTokenAction:({action,id,sourceId,variation})=>{
    if(!gm||disposed||!remoteReady)return;
    const token=scene.tokens.find(t=>t.id===id);
@@ -2040,7 +2061,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
    const previousIds=new Set((scene.combatLog||[]).map(x=>x.id));
    const wasSynced=receivedPublicScene;
    scene=validScene(data);receivedPublicScene=true;remoteReady=true;mediaFailed.clear();render();emitMapState();
-   if(wasSynced){const latest=[...scene.combatLog].reverse().find(x=>!previousIds.has(x.id)&&x.label.startsWith('Dados · '));if(latest){vttLog.hidden=false;vttLog.textContent=latest.label;}}
+   if(wasSynced){const latest=[...scene.combatLog].reverse().find(x=>!previousIds.has(x.id)&&(x.label.startsWith('Dados · ')||x.label.startsWith('Ficha · ')));if(latest){vttLog.hidden=false;vttLog.textContent=latest.label;}}
    if(['clues','turn'].includes(vttOptions.dataset.section)&&!vttOptions.hidden){const section=vttOptions.dataset.section;vttOptions.hidden=true;vttOpen(section);}
    message('Mesa sincronizada com o mestre por conexão direta.');
   },
@@ -2073,7 +2094,7 @@ const slot=$('nexTtSlot');for(let k=0;k<10;k++){const o=document.createElement('
   onConnected:()=>{mediaFailed.clear();if(!disposed)render();},
   onDisconnected:()=>{receivedPublicScene=false;if(!disposed)render();}
  });
- shared?.bind?.({request:request=>peerMedia?.requestShared?peerMedia.requestShared(request):Promise.reject(Error('WebRTC indisponível')),send:(player,record)=>peerMedia?.sendSharedState?peerMedia.sendSharedState(player,record):Promise.reject(Error('WebRTC indisponível'))});
+ shared?.bind?.({publishSheetRoll:request=>gm?Promise.resolve().then(()=>publishSheetRoll(request,uid)):peerMedia?.requestShared?peerMedia.requestShared(request):Promise.reject(Error('WebRTC indisponível')),request:request=>peerMedia?.requestShared?peerMedia.requestShared(request):Promise.reject(Error('WebRTC indisponível')),send:(player,record)=>peerMedia?.sendSharedState?peerMedia.sendSharedState(player,record):Promise.reject(Error('WebRTC indisponível'))});
  // Apenas a primeira abertura do mestre lê o documento antigo para migração.
  // Nenhuma nova posição/configuração de mesa é gravada no Firestore.
  const unsubscribe=()=>{};
