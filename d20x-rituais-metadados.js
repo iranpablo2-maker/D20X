@@ -73,7 +73,7 @@ window.NEX_RITUAL_META=[
     "target": "Efeito: ilusão que se estende a até 4 cubos de 1,5m",
     "duration": "Cena",
     "resistance": "Vontade desacredita",
-    "discente": "Custo adicional: +2 PE. Efeito específico do aprimoramento ainda não cadastrado.",
+    "discente": "+2 PE; exige acesso ao 2º círculo. O aprimoramento modifica duração, dano e testes e inclui uma medida de 5 m. A interação exata desses campos ainda precisa ser conferida.",
     "verdadeiro": "+5 PE: ilusão ameaçadora; Vontade na conjuração e início dos turnos evita 6d6 de Conhecimento. Dois sucessos consecutivos encerram o efeito para aquele alvo. Requer 3º círculo."
   },
   {
@@ -157,7 +157,7 @@ window.NEX_RITUAL_META=[
     "target": "1 objeto",
     "duration": "Cena",
     "resistance": "Vontade anula (veja texto)",
-    "discente": "Custo adicional: +2 PE. Efeito específico do aprimoramento ainda não cadastrado.",
+    "discente": "+2 PE; exige acesso ao 2º círculo. O aprimoramento altera o alcance e usa uma medida de 6 m; o efeito exato ainda precisa ser conferido.",
     "verdadeiro": "+5 PE: aliados na área recebem +1d20 em Vontade; inimigos ficam ofuscados. Requer 3º círculo."
   },
   {
