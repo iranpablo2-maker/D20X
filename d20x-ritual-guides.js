@@ -370,7 +370,7 @@ window.NEX_RITUAL_GUIDES= {
     "kind": "Suporte"
   },
   "singularidade temporal|morte|4": {
-    "description": "Envelhece sobrenaturalmente objeto não paranormal Médio até estado de deterioração definido pelo mestre: danificado (−5 em testes com ele) ou destruído, conforme sua natureza. Portador pode proteger objeto em uso com Fortitude.",
+    "description": "Ritual instantâneo de Morte que envelhece sobrenaturalmente um objeto não paranormal Médio em alcance curto. O mestre define a deterioração possível para aquele material: o objeto pode ficar danificado (−5 nos testes em que é usado), ser destruído ou não sofrer alteração. Se estiver em uso, seu portador pode protegê-lo com Fortitude. Discente (+5 PE) aceita objeto Grande; verdadeiro (+10 PE), Enorme.",
     "kind": "Suporte"
   },
   "desfazer sinapses|conhecimento|1": {
