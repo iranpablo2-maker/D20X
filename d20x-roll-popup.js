@@ -110,7 +110,7 @@
   const close=document.createElement('button');close.type='button';close.className='nex-roll20-close';close.setAttribute('aria-label','Fechar rolagem');close.textContent='×';close.addEventListener('click',()=>toast.remove());
   toast.append(emblem,details,number,close);stack.prepend(toast);
   while(stack.children.length>4)stack.lastElementChild.remove();
-  return {total,terms:rollValues.map(x=>({dice:x.nums,selected:x.selected})),pool:usePool,critical:criticalHit};
+  return {total,terms:rollValues.map(x=>({dice:x.nums,selected:x.selected})),pool:usePool,critical:criticalHit,expression:formula.textContent,detail:breakdown.textContent};
  }
  // Exibe uma rolagem que a ficha de personagem JA calculou; nunca gera novos dados.
  function showResult(options={}){
@@ -142,6 +142,11 @@
   e.preventDefault();
   const label=button.dataset.nexRollTitle||'Rolagem';
   const options={title:label,expression:button.dataset.nexRollExpression,pool:button.dataset.nexRollPool==='true'?true:button.dataset.nexRollPool==='false'?false:undefined,low:button.dataset.nexRollLow==='true',critical:button.dataset.nexRollCritical||''};
+  const report=result=>{
+   if(result&&window.parent!==window&&new URLSearchParams(location.search).get('gmShieldRoll')==='1'){
+    window.parent.postMessage({type:'d20x-gm-threat-roll-result',title:String(options.title||'Rolagem').slice(0,90),expression:String(result.expression||options.expression||'').slice(0,180),detail:String(result.detail||'').slice(0,450),total:result.total},location.origin);
+   }
+  };
   // Todas as fichas embutidas no Tabletop (incluindo as do Escudo do Mestre)
   // devem mostrar o resultado na janela principal, e nao dentro do iframe.
   // Isso preserva uma unica rolagem e coloca o aviso no canto inferior esquerdo.
@@ -150,12 +155,12 @@
     const topDice=window.top.NEX_DICE_UI;
     if(typeof topDice?.roll==='function'){
      const result=topDice.roll(options);
-     if(result)return;
+     if(result){report(result);return;}
     }
    }catch(error){
     console.warn('NEX: rolador principal indisponivel; usando janela atual',error);
    }
   }
-  roll(options);
+  report(roll(options));
  });
 })();
