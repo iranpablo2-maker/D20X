@@ -3825,11 +3825,11 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
   const message=roster.hidden&&!nexShowPreservedCopies?'<div class="home-empty" style="grid-column:1/-1;padding:12px;border:1px solid #67434a">'+roster.hidden+' cópia(s) antigas agrupadas para não lotar sua lista. Nada foi apagado. Em Meus personagens, use Mostrar cópias ou Revisar fichas repetidas.</div>':'';
   if(list)list.innerHTML=message+previewHtml;
   if(panel){
-    const systems=['Todos','Ordem Paranormal','Assimilação','Sacramento'];
-    const selected=systems.includes(panel.dataset.systemFilter)?panel.dataset.systemFilter:'Todos';
-    let local=[];try{const parsed=JSON.parse(localStorage.getItem('nex_universal_sheets_v1')||'[]');if(Array.isArray(parsed))local=parsed.filter(x=>x&&typeof x.id==='string'&&Array.isArray(x.fields)&&systems.slice(2).includes(x.systemName));}catch(e){}
-    const manual=local.filter(x=>selected==='Todos'||x.systemName===selected).map(x=>'<article class="agent-card"><div class="agent-card-media"><div class="agent-card-placeholder"><svg class="d20x-ui-icon d20x-portrait-symbol" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="7.8" r="3.5"/><path d="M5 20v-1a7 7 0 0 1 14 0v1"/></svg></div></div><div class="agent-card-body"><div class="agent-card-title">'+escapeHtml(x.name||'Personagem sem nome')+'</div><div class="agent-card-role">'+escapeHtml(x.systemName)+(x.concept?' · '+escapeHtml(x.concept):'')+'</div><div class="agent-card-actions"><a class="btn primary sm" href="./fichas-universais.html?system='+encodeURIComponent(x.systemName)+'">Acessar fichas</a></div></div></article>').join('');
-    const ordem=selected==='Todos'||selected==='Ordem Paranormal';
+    const systems=['Ordem Paranormal','Assimilação','Sacramento'];
+    const selected=systems.includes(panel.dataset.systemFilter)?panel.dataset.systemFilter:'Ordem Paranormal';
+    let local=[];try{const parsed=JSON.parse(localStorage.getItem('nex_universal_sheets_v1')||'[]');if(Array.isArray(parsed))local=parsed.filter(x=>x&&typeof x.id==='string'&&Array.isArray(x.fields)&&systems.slice(1).includes(x.systemName));}catch(e){}
+    const manual=local.filter(x=>x.systemName===selected).map(x=>'<article class="agent-card"><div class="agent-card-media"><div class="agent-card-placeholder"><svg class="d20x-ui-icon d20x-portrait-symbol" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="7.8" r="3.5"/><path d="M5 20v-1a7 7 0 0 1 14 0v1"/></svg></div></div><div class="agent-card-body"><div class="agent-card-title">'+escapeHtml(x.name||'Personagem sem nome')+'</div><div class="agent-card-role">'+escapeHtml(x.systemName)+(x.concept?' · '+escapeHtml(x.concept):'')+'</div><div class="agent-card-actions"><a class="btn primary sm" href="./fichas-universais.html?system='+encodeURIComponent(x.systemName)+'">Acessar fichas</a></div></div></article>').join('');
+    const ordem=selected==='Ordem Paranormal';
     const cards=(ordem&&shown.length?panelHtml:'')+manual;
     const filters=$('d20xCharacterFilters');
     if(filters){
