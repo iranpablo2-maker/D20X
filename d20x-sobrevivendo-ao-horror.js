@@ -8,7 +8,7 @@ window.NEX_SAH={
         "Percepção"
       ],
       "ability": "Companheiro Animal",
-      "description": "O companheiro funciona como aliado da ficha: +2 em uma perícia aprovada pelo mestre. No NEX 35% acrescente o bônus de um tipo de aliado; no 70%, sua habilidade. A perda do companheiro reduz SAN máxima em 10 e impõe perturbado pela cena; substituição depende do mestre. Controle manual na campanha.",
+      "description": "Pode usar Adestramento para influenciar a atitude de animais, cujas intenções e emoções consegue compreender. Seu companheiro conta como aliado e concede +2 em uma perícia aprovada pelo mestre; em NEX 35% acrescenta o bônus de um tipo de aliado e, em 70%, a habilidade correspondente. Se perder o companheiro, reduz a SAN máxima em 10 e fica perturbado até a cena terminar. A substituição depende do mestre.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
@@ -41,7 +41,7 @@ window.NEX_SAH={
         "Tecnologia"
       ],
       "ability": "Poder da Amizade",
-      "description": "No D20X, a opção de melhor amigo presente e visível acrescenta +2 aos testes de perícia. Desative a condição quando o amigo não estiver próximo e visível.",
+      "description": "Escolha um personagem como melhor amigo. Enquanto estiverem em alcance médio um do outro e puderem se ver, recebe +2 nos testes de perícia. Se o amigo morrer, perde 1 PE máximo por cada 5% de NEX até o fim da missão. Pode escolher outro amigo no início da missão seguinte. Controle essas condições na ficha.",
       "official": true,
       "source": "Sobrevivendo ao Horror"
     },
