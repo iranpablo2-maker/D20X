@@ -3356,7 +3356,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(system!==currentCampaignSystem())throw Error('Sistema incompatível');
   const existing=sharedCatalog().find(sh=>sh.ownerUid===actor&&sh.linkedAgentId===agentId);
   if(existing){if(!sharedCanAccess(existing,actor))throw Error('Ficha já atribuída a outro responsável');return {id:existing.id,existing:true};}
-  if(actor!==master&&playerCount(actor)>=characterLimit(actor))throw Error('Limite de personagens atingido');
+  if(actor!==master&&sharedCatalog().filter(sh=>assignedTo(sh,actor)).length>=characterLimit(actor))throw Error('Limite de personagens atingido');
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([actor,agentId])));
   const id='local-'+Array.from(new Uint8Array(digest),n=>n.toString(16).padStart(2,'0')).join('');
   if(!valid())throw Error('Campanha alterada');
@@ -3375,7 +3375,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const record=sheetRecord({...catalog,fullSheet:data,pv:n(data.pvCurrent??data.pv),pe:n(data.peCurrent??data.pe),san:n(data.sanCurrent??data.san)},0);
   const next={...sharedRecords,[key]:record};
   await store.save(next);
-  if(!valid())throw Error('Campanha alterada');
+  if(!valid()||(actor!==master&&!roomMembers.some(m=>m.uid===actor)))throw Error('Campanha alterada ou acesso revogado');
   sharedRecords=next;
   await setDoc(ref,{...stub,updatedAt:serverTimestamp()});
   if(!valid())throw Error('Campanha alterada');
@@ -3434,7 +3434,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const campaign=roomId,actor=uid;
   const result=await sharedTransport.request(request);
   if(roomId!==campaign||uid!==actor)throw Error('Campanha alterada');
-  if(result?.id===request.id)sharedIncoming(result);
+  if(result?.id===request.id||request.kind==='link-local'&&result?.record)sharedIncoming(result);
   return result;
  }
  function sharedRemember(sheet,data){sharedBaselines.set(sheet.id,JSON.parse(JSON.stringify(data)));}
@@ -3587,7 +3587,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(!['Sacramento','Assimilação'].includes(system)||system!==currentCampaignSystem()||!sharedCanAccess(sheet,actor)){notice('Ficha não autorizada para este sistema.');return;}
   if(!gm&&!sharedRecords[sharedKey(sheet.id)]){notice('Aguarde a ficha chegar pela conexão direta do mestre.');return;}
   if(gm&&!sharedReady){notice('Armazenamento local do mestre indisponível.');return;}
-  const data=JSON.parse(JSON.stringify(sharedCurrent(sharedLookup(sheet.id)||sheet).fullSheet||{}));
+  const current=sharedCurrent(sharedLookup(sheet.id)||sheet).fullSheet;if(!current){notice('Ficha completa indisponível neste dispositivo.');return;}
+  const data=JSON.parse(JSON.stringify(current));
   $('nexCampaignSheetTitle').textContent=sheet.name||'Personagem';body.replaceChildren();
   const make=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
   body.append(make('p',system+' · Ficha manual (sem automação de regras oficiais).'));
@@ -3958,6 +3959,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if((data.systemName||data.system||'Ordem Paranormal')!==currentCampaignSystem())throw Error('Esta ficha pertence a outro sistema.');
   if(serialized.length>450000)throw Error('Ficha acima do limite de compartilhamento (450 KB).');
   const campaign=roomId,actor=uid;
+  if(!gm&&!vttHostActive)throw Error('O mestre precisa abrir o Tabletop para receber a ficha.');
   const response=await sharedSubmit({kind:'link-local',id:agentId,data});
   if(roomId!==campaign||uid!==actor)return;
   if(!response?.id)throw Error('O mestre não confirmou o vínculo.');
@@ -5454,6 +5456,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   const button=e.target.closest('[data-open-campaign-sheet]');if(!button)return;
   const sheet=roomSheets.find(item=>item.id===button.dataset.openCampaignSheet);
   if(!sheet)return;
+  if(!gm&&!assignedTo(sheet,uid)){notice('Somente o responsável pode acessar esta ficha.');return;}
+  if(sharedLookup(sheet.id)?.fullSheet?.d20xLocalOnly===true&&!sharedCurrent(sharedLookup(sheet.id)).fullSheet){notice('Aguarde a cópia completa do mestre.');return;}
   if(campaignSheetSystem(sheet)!=='Ordem Paranormal'){openManualCampaignSheet(sheet);return;}
   if(canEditSharedSheet(sheet,uid,roomData?.gmUid)&&window.parent!==window){openVttSheet(sheet.id);return;}
     // Mostra o layout verdadeiro da ficha operacional NEX.
