@@ -89,7 +89,7 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 40,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 40.",
+    "narrative": "Registro de referência para uso na mesa virtual. Consulte a publicação oficial para o texto integral.",
     "resistances": [
       "Balístico, impacto e perfuração 10",
       "Sangue 20"
@@ -204,7 +204,7 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 41,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 41.",
+    "narrative": "Registro de referência para uso na mesa virtual. Consulte a publicação oficial para o texto integral.",
     "resistances": [
       "Balístico, impacto e perfuração 10",
       "Sangue 20"
@@ -309,7 +309,7 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 42,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 42.",
+    "narrative": "Registro de referência para uso na mesa virtual. Consulte a publicação oficial para o texto integral.",
     "resistances": [
       "Balístico, impacto e perfuração 10",
       "Sangue 20"
@@ -417,7 +417,7 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 43,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 43.",
+    "narrative": "Registro de referência para uso na mesa virtual. Consulte a publicação oficial para o texto integral.",
     "resistances": [
       "Balístico, impacto e perfuração 10",
       "Sangue 20"
@@ -547,7 +547,7 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 45,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 45.",
+    "narrative": "Registro de referência para uso na mesa virtual. Consulte a publicação oficial para o texto integral.",
     "resistances": [
       "Balístico, impacto e perfuração 5",
       "Sangue 10"
@@ -664,7 +664,7 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 65,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 65."
+    "narrative": "Registro de referência para uso na mesa virtual. Consulte a publicação oficial para o texto integral."
   },
   "Arquivos Secretos — Julho::Strzyga": {
     "pv": 240,
@@ -709,7 +709,7 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 67,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 67.",
+    "narrative": "Registro de referência para uso na mesa virtual. Consulte a publicação oficial para o texto integral.",
     "vd": 120,
     "defense": 28,
     "senses": [
@@ -778,7 +778,7 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 70,
-    "narrative": "Ameaça apresentada no pacote de julho de Arquivos Secretos. As habilidades abaixo são resumos originais; para condições e valores complementares, consulte a página 70.",
+    "narrative": "Registro de referência para uso na mesa virtual. Consulte a publicação oficial para o texto integral.",
     "size": "MÉDIO"
   },
   "Arquivos Secretos — Julho::Velisar": {
@@ -896,6 +896,6 @@ window.NEX_JULY_THREAT_DETAILS={
       }
     ],
     "pdfPage": 44,
-    "narrative": "Velisar é um oponente de Realidade do suplemento de julho. Esta ficha reúne estatísticas e ações de combate para consulta rápida."
+    "narrative": "Registro de referência para uso na mesa virtual. Consulte a publicação oficial para o texto integral."
   }
 };
