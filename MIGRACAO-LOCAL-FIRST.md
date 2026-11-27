@@ -35,4 +35,10 @@ Sem TURN, algumas redes não conseguem estabelecer WebRTC direto. Não há garan
 - O rolador público da barra de ferramentas solicita ao mestre a geração dos dados via WebRTC; a solicitação aceita somente membros atuais da campanha, 1–20 dados e faces d4/d6/d8/d10/d12/d20/d100. O histórico da cena é salvo no IndexedDB do mestre e distribuído por WebRTC.
 - O mestre possui uma opção de rolagem secreta, sem histórico compartilhado. Os jogadores acompanham a ordem, rodada e pontuações de iniciativa existentes no estado da cena.
 - Testar com dois dispositivos: rolar publicamente como mestre e jogador, verificar histórico nos dois, recarregar a mesa do mestre, confirmar iniciativa e histórico, e testar uma queda de conexão durante uma rolagem. Uma confirmação de resultado não garante persistência se houver falha do banco local.
-- As rolagens de dentro das fichas completas e a correção das regras de iniciativa por sistema ainda precisam de revisão separada. Não publicar em produção sem testes.
+- A correção das regras de iniciativa por sistema ainda precisa de revisão separada. Não publicar em produção sem testes.
+
+## Resultados de fichas compartilhadas
+
+- O registro central `logResult` das fichas editáveis abertas no Tabletop encaminha o resultado já calculado (atributos, perícias, ataques e habilidades que usam esse registro). A conjuração rápida e completa e o teste de resistência do ritual também encaminham seus resultados numéricos. Não são gerados dados novamente.
+- O mestre verifica associação e permissão sobre a ficha pública; fichas ocultas não publicam. O histórico fica na cena local e é distribuído por WebRTC. Resultados vindos das fichas são declarados pelo cliente, não verificados matematicamente pelo mestre; não constituem proteção contra manipulação de dados pelo jogador. A confirmação de recepção não garante persistência se IndexedDB falhar.
+- Testar atributos, perícias, ataques, habilidades e rituais individualmente com dois dispositivos, bem como ficha oculta, ficha pessoal fora da mesa e jogador sem atribuição. Rolagens de NPCs/ameaças e sistemas alternativos que não usam logResult não foram integradas nesta etapa.
