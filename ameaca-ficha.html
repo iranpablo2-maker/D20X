@@ -372,7 +372,7 @@ function actionSummary(a){
  const effect=String(a?.effect||a?.description||'').trim();
  const test=String(a?.test||'').trim();
  const damage=String(a?.damage||'').trim();
- const generic=/^Consulte a publicação de referência/i.test(effect);
+ const generic=/^(?:Consulte a publicação|Recurso ficcional de jogo|Efeito ainda não conferido)/i.test(effect)||/Confira os campos mecânicos/i.test(effect);
  if(effect&&!generic)return effect;
  const fields=[];
  if(a?.type)fields.push('Ação: '+a.type);
