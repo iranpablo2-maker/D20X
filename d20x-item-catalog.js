@@ -71,7 +71,7 @@ for(const entry of window.NEX_ARQUIVOS?.items||[]){
  const september=entry.month==='Setembro';
  if(existing&&!september)continue;
  const stats=[...(entry.tier!=null?[['Categoria',String(entry.tier)]]:[]),...(entry.spaces!=null?[['Espaços',String(entry.spaces)]]:[]),...(Array.isArray(entry.stats)?entry.stats:[]),['Fonte',entry.source]];
- const record={name:entry.name,section:entry.section,description:entry.description+(september?'':' Consulte '+entry.source+' para as regras completas.'),subtitle:entry.subtitle||'Arquivos Secretos',stats,spaces:entry.spaces??1,source:entry.source,sourceMonth:entry.month};
+ const record={name:entry.name,section:entry.section,description:entry.description||'',subtitle:entry.subtitle||'Arquivos Secretos',stats,spaces:entry.spaces??1,source:entry.source,sourceMonth:entry.month};
  if(existing){const merged=new Map((existing.stats||[]).map(row=>[norm(row[0]),row]));for(const row of stats)merged.set(norm(row[0]),row);Object.assign(existing,record,{stats:[...merged.values()]});}
  else items.push(record);
 }
