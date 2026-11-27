@@ -73,7 +73,7 @@ window.NEX_RITUAL_META=[
     "target": "Efeito: ilusão que se estende a até 4 cubos de 1,5m",
     "duration": "Cena",
     "resistance": "Vontade desacredita",
-    "discente": "+2 PE: oito cubos de 1,5m, duração sustentada. Combina imagem, sons complexos, odores e sensações; seres precisam de Vontade para atravessá-la. Ação livre a cada rodada ajusta imagem ou som. Persiste uma rodada após deixar de sustentar. Requer 2º círculo.",
+    "discente": "Aprimoramento discente: consulte a publicação oficial para custo e condições.",
     "verdadeiro": "+5 PE: ilusão ameaçadora; Vontade na conjuração e início dos turnos evita 6d6 de Conhecimento. Dois sucessos consecutivos encerram o efeito para aquele alvo. Requer 3º círculo."
   },
   {
@@ -157,7 +157,7 @@ window.NEX_RITUAL_META=[
     "target": "1 objeto",
     "duration": "Cena",
     "resistance": "Vontade anula (veja texto)",
-    "discente": "+2 PE: alcance longo; quatro esferas luminosas, cada uma com raio de iluminação de 6m, reposicionáveis por ação livre uma vez por rodada. Ser no espaço de uma esfera fica ofuscado e perde camuflagem por invisibilidade ou escuridão. Requer 2º círculo.",
+    "discente": "Aprimoramento discente: consulte a publicação oficial para custo e condições.",
     "verdadeiro": "+5 PE: aliados na área recebem +1d20 em Vontade; inimigos ficam ofuscados. Requer 3º círculo."
   },
   {
