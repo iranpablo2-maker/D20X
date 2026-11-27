@@ -2256,7 +2256,7 @@ body.nex-campaign-hb-open{overflow:hidden!important}
 #sheetScreen #attributes .attr .nex-attr-roll,#sheetScreen #attributes .attr .nex-attr-editor,#wAttributes .wizard-attribute-art .w-art-number input{font-family:Georgia,"Times New Roman",serif!important;font-size:clamp(18px,5vw,28px)!important;line-height:1!important;font-weight:700!important;}
 </style>
 
-</head><body>
+<style id="d20x-character-filter-style">#agentsPanel #d20xCharacterFilters{display:flex!important;flex-direction:row!important;align-items:center!important;gap:6px!important;width:100%!important;box-sizing:border-box!important;overflow-x:auto!important;margin:0 0 18px!important;padding:4px!important;background:#0d0d10!important;border-radius:6px!important}#agentsPanel #d20xCharacterFilters button{appearance:none!important;flex:0 0 auto!important;font-family:inherit!important;font-size:13px!important;font-weight:400!important;color:#eee!important;background:transparent!important;border:0!important;border-bottom:2px solid transparent!important;border-radius:7px!important;padding:10px 12px!important;white-space:nowrap!important;cursor:pointer!important;box-shadow:none!important}#agentsPanel #d20xCharacterFilters button[aria-pressed="true"]{background:#351c23!important;border-bottom-color:#e44b60!important}#agentsPanel #d20xCharacterFilters button:hover{background:#281a20!important}</style></head><body>
 <script src="d20x-sobrevivendo-ao-horror.js?v=20261125revisao40"></script>
 <script src="d20x-arquivos-secretos.js?v=20261125revisao136"></script>
 <header class="topbar"><div class="topinner"><button type="button" id="n17MenuToggle" class="n17-menu-button" aria-expanded="false" aria-controls="n17Drawer" aria-label="Abrir menu">☰</button><button type="button" class="brand" id="nexBrandHome" aria-label="Voltar ao menu principal" title="Voltar ao menu principal"><img src="./d20x-logo.png?v=20261126originalHD" onerror="this.onerror=null;this.src='./d20x-logo.svg?v=20261126transparent'" alt="" width="44" height="44" style="display:block;object-fit:contain;border:0;background:transparent;border-radius:6px"><span><h1>D20X</h1><span class="subtitle">PLATAFORMA UNIVERSAL DE RPG</span></span></button><div class="actions"><button type="button" id="nexAccountOpen" class="btn sm" style="display:inline-flex!important;align-items:center;justify-content:center;background:#8c2534;color:white;border:1px solid #c64657;border-radius:7px;min-height:36px;padding:6px 12px;font-weight:750;white-space:nowrap">Conta D20X</button><button class="btn sm" id="menuHeaderButton" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">⌂ Menu principal</button><button class="btn sm" id="newChar" type="button" style="display:none!important" hidden tabindex="-1" aria-hidden="true">＋ Nova ficha</button><button class="btn sm" id="importBtn" style="display:none!important" aria-hidden="true" tabindex="-1">Importar</button><button class="btn sm" id="exportBtn" style="display:none!important" aria-hidden="true" tabindex="-1">↓ Exportar</button><input type="file" id="fileInput" accept="application/json,.json" hidden><span id="n17SaveIndicator" hidden aria-hidden="true"></span></div></div></header>
@@ -2329,7 +2329,7 @@ body.nex-campaign-hb-open{overflow:hidden!important}
  </div>
  <input type="file" id="nexBackupAllInput" accept=".json,application/json" hidden>
  <p id="nexPersistenceWarning" class="nex-persistence-warning" hidden></p>
- <div id="agentsPanelList" class="agents-grid"></div>
+ <div id="d20xCharacterFilters" role="group" aria-label="Filtrar personagens por sistema"></div><div id="agentsPanelList" class="agents-grid"></div>
 <details id="nex56DataTools" class="nex56-data-tools" hidden style="display:none!important" aria-hidden="true">
   <summary>Ferramentas de segurança</summary>
   <p>Use essas opções quando precisar guardar, restaurar ou revisar seus personagens. Nenhuma ficha é apagada automaticamente.</p>
@@ -3808,8 +3808,12 @@ $('nexHomebrewFilter')?.addEventListener('input',()=>nex12RenderHomebrew());
     const manual=local.filter(x=>selected==='Todos'||x.systemName===selected).map(x=>'<article class="agent-card"><div class="agent-card-media"><div class="agent-card-placeholder">♙</div></div><div class="agent-card-body"><div class="agent-card-title">'+escapeHtml(x.name||'Personagem sem nome')+'</div><div class="agent-card-role">'+escapeHtml(x.systemName)+(x.concept?' · '+escapeHtml(x.concept):'')+'</div><div class="agent-card-actions"><a class="btn primary sm" href="./fichas-universais.html?system='+encodeURIComponent(x.systemName)+'">Acessar fichas</a></div></div></article>').join('');
     const ordem=selected==='Todos'||selected==='Ordem Paranormal';
     const cards=(ordem&&shown.length?panelHtml:'')+manual;
-    panel.innerHTML='<nav class="d20x-character-filters" aria-label="Filtrar personagens por sistema">'+systems.map(name=>'<button type="button" data-character-filter="'+name+'" aria-pressed="'+(name===selected)+'">'+name+'</button>').join('')+'</nav>'+(ordem?message:'')+(cards||'<div class="home-empty" style="grid-column:1/-1">Nenhum personagem cadastrado neste sistema.</div>');
-    panel.querySelectorAll('[data-character-filter]').forEach(btn=>btn.onclick=()=>{panel.dataset.systemFilter=btn.dataset.characterFilter;renderAgents();});
+    const filters=$('d20xCharacterFilters');
+    if(filters){
+      filters.innerHTML=systems.map(name=>'<button type="button" data-character-filter="'+name+'" aria-pressed="'+(name===selected)+'">'+name+'</button>').join('');
+      filters.querySelectorAll('[data-character-filter]').forEach(btn=>btn.onclick=()=>{panel.dataset.systemFilter=btn.dataset.characterFilter;renderAgents();});
+    }
+    panel.innerHTML=(ordem?message:'')+(cards||'<div class="home-empty" style="grid-column:1/-1">Nenhum personagem cadastrado neste sistema.</div>');
     if(count)count.dataset.manualCount=String(local.length);
   }
   const toggle=$('nexToggleCopies');if(toggle){toggle.textContent=nexShowPreservedCopies?'Ocultar cópias preservadas':'Mostrar todas as cópias';toggle.hidden=!roster.hidden&&!nexShowPreservedCopies;}
@@ -6872,4 +6876,4 @@ body.nex-vtt-sheet-overlay.nex-character-roll-toast-active #nexAttributeRollPopu
 #n19TrailPanel #n19TrailHint{display:none!important}
 #n19TrailPanel #n19TrailSelect{flex:1 1 100px!important;width:0!important;min-width:75px!important;height:28px!important;min-height:28px!important;margin:0!important;padding:3px 6px!important;font-size:12px!important}
 @media(max-width:340px){#n19TrailPanel:not(.hide){flex-wrap:wrap!important}#n19TrailPanel #n19TrailSelect{flex-basis:100%!important}}
-</style><style>.d20x-character-filters{grid-column:1/-1;display:flex;align-items:center;gap:6px;overflow-x:auto;margin:0 0 2px;padding:0 0 4px;background:#0d0d10;border-radius:6px}.d20x-character-filters button{font:inherit;font-size:13px;color:#eee;background:transparent;border:0;border-bottom:2px solid transparent;border-radius:7px;padding:10px 12px;white-space:nowrap;cursor:pointer}.d20x-character-filters button[aria-pressed="true"]{background:#351c23;border-bottom-color:#e44b60}.d20x-character-filters button:hover{background:#281a20}</style></body></html>
+</style></body></html>
