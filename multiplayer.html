@@ -3021,6 +3021,7 @@ if(new URLSearchParams(location.search).get('integrado')==='1'){
    <button type="button" id="roomAddAgentsAction">Adicionar Personagens</button>
    <button type="button" id="roomInviteAction">Convidar Jogadores</button>
    <button type="button" id="roomEditAction">Editar Campanha</button>
+   <button type="button" id="roomBackupLocal">Exportar dados locais</button>
    <button type="button" id="roomOpenTabletop" class="nex-open-tabletop">Tabletop</button>
   </nav>
   <div class="room-hero">
@@ -3186,6 +3187,7 @@ import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase
 import {mountNexTabletop} from './d20x-tabletop-base.js?v=20261127homebrewmanual1';
 import {canEditSharedSheet,sharedSheetIdentity,sharedSheetData,resourceChange,sheetRecord,mergeSharedEdit,sharedEditDiff,createSharedSheetStore} from './d20x-vtt-shared-local.js?v=20261127localshared2';
 import {createCampaignLocalStore} from './d20x-campaign-local.js?v=1';
+import {createVttLocalScene} from './d20x-vtt-local-scene.js';
 import {mountGmShield} from './d20x-gm-shield.js?v=20261127campaignlocal1';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js';
 import {getFirestore,collection,doc,getDoc,getDocFromServer,getDocs,setDoc,addDoc,updateDoc,deleteDoc,onSnapshot,serverTimestamp,query,where,writeBatch,runTransaction} from 'https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js';
@@ -3831,6 +3833,23 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   if(value)img.src=value;else img.removeAttribute('src');
  }
  $('roomEditAction').onclick=showRoomEditor;
+ $('roomBackupLocal').onclick=()=>run(async()=>{
+  if(!gm||!uid||!roomId)throw Error('Somente o mestre pode exportar a campanha.');
+  const owner=uid,campaign=roomId,button=$('roomBackupLocal');button.disabled=true;
+  try{
+   const metadata=await createCampaignLocalStore(owner,campaign,'metadata').read();
+   const shieldStore=createCampaignLocalStore(owner,campaign,'shield');
+   let shield=await shieldStore.read();
+   if(shield===null){const old=await getDocFromServer(doc(db,'campaigns',campaign,'masterNotes','shield'));shield=await shieldStore.seed(old.exists()?old.data():{version:1,notes:[],npcs:[],threats:[]});}
+   const sheets=await createSharedSheetStore(owner,campaign).read(),scene=await createVttLocalScene(owner,campaign).read();
+   if(uid!==owner||roomId!==campaign||!gm)return;
+   if(!metadata||!sharedReady)throw Error('Dados locais não carregados. Abra a campanha e tente novamente.');
+   const file={format:'d20x-local-campaign-v1',exportedAt:new Date().toISOString(),campaignId:campaign,ownerUid:owner,system:currentCampaignSystem(),metadata,shield,sheets,scene,mediaIncluded:false,accessControlIncluded:false};
+   const url=URL.createObjectURL(new Blob([JSON.stringify(file,null,2)],{type:'application/json'})),a=document.createElement('a');
+   a.href=url;a.download='D20X-'+campaign+'-dados-locais.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+   notice('Dados locais exportados. O arquivo é privado e não inclui mídias externas, convites ou permissões.');
+  }finally{button.disabled=false;}
+ });
  $('roomCancelConfiguration').onclick=()=>{$('roomEditConfiguration').hidden=true;};
  $('roomChooseImage').onclick=()=>{
   setImagePreview(pendingCoverImage);
@@ -5082,7 +5101,10 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
  });
  async function ensurePlayerIndex(campaignId,memberUid){
   if(!gm||!campaignId||!memberUid)return;
-  await setDoc(doc(db,'users',memberUid,'joinedCampaigns',campaignId),{campaignId,gmUid:uid,joinedAt:serverTimestamp()},{merge:true});
+  const owner=uid,ref=doc(db,'users',memberUid,'joinedCampaigns',campaignId),existing=await getDoc(ref);
+  if(!gm||uid!==owner||roomId!==campaignId)return;
+  if(existing.exists()&&existing.data().gmUid===owner&&existing.data().campaignId===campaignId)return;
+  await setDoc(ref,{campaignId,gmUid:owner,joinedAt:serverTimestamp()},{merge:true});
  }
  $('leaveCampaign').onclick=()=>run(async()=>{
   if(!roomId||gm)return;
@@ -5128,7 +5150,8 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    const bytes=new Uint8Array(8);crypto.getRandomValues(bytes);
    const code='NEX-'+Array.from(bytes,b=>alphabet[b%alphabet.length]).join('');
    const ref=doc(db,'campaigns',code);
-   const core={name,description,gmUid:activeUser.uid,createdAt:serverTimestamp()};
+   await createCampaignLocalStore(activeUser.uid,code,'metadata').seed(cleanCampaignMeta({name,description,coverUrl:''}));
+   const core={name,description:'',gmUid:activeUser.uid,createdAt:serverTimestamp()};
    let saved=false;
    try{
     await setDoc(ref,{...core,system,privateShield,updatedAt:serverTimestamp()});
@@ -5208,7 +5231,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
   $('roomTitle').textContent=roomData.name;
   $('roomDescription').textContent=roomData.description||'';
   $('roomCode').textContent=id;$('roomInviteLink').value=inviteLink(id);$('role').textContent=gm?'Mestre':'Jogador';libraryMode('room');show('room',true);
-  for(const key of ['roomEditAction','roomInviteAction'])$(key).hidden=!gm;
+  for(const key of ['roomEditAction','roomInviteAction','roomBackupLocal'])$(key).hidden=!gm;
   show('leaveCampaign',!gm);
   updateRoomCover();
   if(gm){
