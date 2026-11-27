@@ -218,7 +218,7 @@ window.NEX_ARQUIVOS={
       "category": "Geral",
       "month": "Janeiro",
       "page": 46,
-      "description": "Opção de personagem · Geral. Consulte a publicação para as condições e os efeitos completos. Referência: Arquivos Secretos · Janeiro/2026 · p. 46.",
+      "description": "Na ficha do D20X, recebe treinamento em Crime; caso já possua treinamento, a automatização soma +2.",
       "source": "Arquivos Secretos · Janeiro/2026 · p. 46"
     },
     {
