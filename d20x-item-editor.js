@@ -607,7 +607,7 @@ function weaponData(item){
  const extraDice=(Number(d.extraDamageDice)||0)+(Number(effects.extraDice)||0);
  // Bônus de dado: ajusta somente a fórmula de jogo, sem alterar o valor-base salvo.
  if(extraDice>0)damageExpression=damageExpression.replace(/^(\d*)d(\d+)/i,(full,count,faces)=>(Number(count||1)+extraDice)+'d'+faces);
- return {d,skillName,attribute,bonus,dieCount,value:pool,threshold,multiplier,ammoInfo,extraDamage,damageExpression,effects};
+ return {d,skillName,attribute,bonus,dieCount,value:pool,threshold,multiplier,ammo,ammoInfo,extraDamage,damageExpression,effects};
 }
 const weaponDieSvg='<img class="nex-combat-d20-image" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAG4AAAB+AQAAAADt9hnNAAAEL0lEQVR42m2VTYhbVRTHf++8R5KWMIky2CBj5hVtcVEkxS4GrX2vC7G49AOqC5udulC78mOVWypOEbFdVpBOFqIUEbooSMHSNx1pu1AmCEoXLX2xgw22i8QUTcabd1y895IpeDeXP/97z7n/83EPAOCadJd02xaydS01HoDxQnYJAKd6YbKFLJRXzRa4sL8fb7E8H5YOb2FXbVKemXJ3PSvJpSk5V7fajaZ3t78OlXNTthlbtbUcOWuRVS3khwsvXofexfwh5af3Wo0bUQYb77tWR6dzUd17FdtK6rmo5RtBXNHKciZn8VKCk1S6Bjx4+Ei0d2lp56lKKuqoVWd4wFW7BILz8mRcx7lp3N8A3IoavbNii7oGwrbG5CQx7gXqEcKecOMopQZL/o5zQDcpqq7cUT2W1BDn67+WUv/vHXwXCouuqgZDVXXXjDzy2kKu++Z3Te+VbTFoWADqX0ZEFVW1rbGqalTGqKpatarraj0pAkwQwwjXyJZETXO0iRMxmcI+QGwwUuYyeNAkBF8ggBgYOwYEBUrQuDYHSIGGoQM1GmgoJIeSNFNRatn717ShvBtAPBgpQA0SRIkwIRQAjACDxIDLKiBImEafyAPOtKw7VtWk9aMz3hDAS9nHb6USSpuAE9k2iJMLYu74JkIkVQ+gqR4IOH5vYMZhgxoIBkOn3evQaYIQE3aifjyqwf3UiekWsZD79Ht2zZSfCnoIIaol4x3gIXoIfQghkyRAYsD4bgp9cPqZJkQ/JO0oMVQRYAQfZ3kSp5rFOovkD9xnswQ0aSMWYFQFoIf8bejRbwINLKKlNJeA7kZ4gw6rmJgaLiJg+ISpIw+fsWcvU8YYoaWhwnOGQjJCSk2mwicRXyRWE9y4otZ2v/JcrOso4wZMQFyOARQjxFQReqNp3W03QjevQ+eyhxCdz8nDIJyYFakiWn0rRw0n9Bx/4GSwODKszL4PVzeESUWzdRGE/Us5e83AyuB2ztYXN4Rf5nI3O/sIPxUzmITn4cyibaVnR9rdkKQpwBhw2AGnVAPVOFAdqn1ChipNiGMY+m4sXqLnIAL+6GGkROE6FPuwttkOvX18NA8l4NStIz/LO0LaKerXdI/cOxZ9kL2i+MyT8mf7oGcYVbEH/bd9nOWoHmi0qIO54lXg9lgDjQId1t9cQHi1QBMf7v++ax4oB6N1vRLouvYjhH/iE6dxYjoMI8C54g716qIu6ucg6LefFVDU109B4JvryqN+EiaH0v4JbKvfGukg/VXdk0mgOtCraXlP9jmA8HwWwr26ononyb/chda66vooznrhbrsGnbvtvAqWh6rBlbxT9EYBDV+aDoJfXZLJbIqU97dG42iW9nowuD2bOMlZ5OyWaTX3wmOtDYC0amrfT+b9Gbt5sXZtZgr3ePF/B19ef0cfgAvRAzP0bgb/AwCO4zlQNWGBAAAAAElFTkSuQmCC" alt="Dado d20" draggable="false">';
 const collapsedWeapons=new Set();
@@ -642,6 +642,7 @@ renderAttacks=function(){
    '<div class="nex-combat-weapon-details" '+(collapsed?'hidden':'')+'>'+
      '<div class="nex-combat-weapon-summary">Dano: <b>'+safe(w.damageExpression||damage||'—')+'</b>　Crítico: <b>'+safe(w.threshold)+'–20 ×'+safe(w.multiplier)+'</b></div>'+
     (w.ammoInfo?'<div><span class="nex-combat-stat-label">Munição:</span> <b>'+safe(w.ammoInfo.name)+(w.extraDamage?' · +'+safe(w.extraDamage):'')+'</b></div>':'')+
+    (w.ammo&&typeof nexHasSheetPower==='function'&&nexHasSheetPower('Chuva de Balas')&&Number(w.ammo.quantity)>0&&/fogo/i.test(String(d.kind||''))?'<label class="nex-energy-option">Pacotes fictícios a consumir no próximo teste de RPG <input type="number" min="0" max="'+Math.min(25,Math.trunc(Number(w.ammo.quantity)))+'" value="0" step="1" data-nex-ability-pack-count></label><small>Saldo de pacotes: '+safe(w.ammo.quantity)+' · duração de jogo ×2</small>':'')+
     '<div><span class="nex-combat-stat-label">Ataque Bônus:</span> <b>'+safe((bonus>=0?'+':'')+bonus)+'</b> ('+safe(w.skillName)+')</div>'+
     (d.modifiers?.length?'<div><span class="nex-combat-stat-label">Melhorias:</span> '+safe(d.modifiers.map(id=>window.NEX_ITEM_MODS?.improvements.find(x=>x.id===id)?.name||id).join(', '))+'</div>':'')+
     (d.curses?.length?'<div><span class="nex-combat-stat-label">Maldições:</span> '+safe(d.curses.map(c=>c.name+' ('+c.element+')').join(', '))+'</div>':'')+
@@ -747,6 +748,12 @@ document.addEventListener('click',e=>{
  }
  if(detail(item).category!=='Arma')return;
  const w=weaponData(item);
+ const packInput=button.closest('.nex-combat-equipped')?.querySelector('[data-nex-ability-pack-count]');
+ const packCount=packInput?Number(packInput.value):0;
+ if(!Number.isInteger(packCount)||packCount<0||packCount>25||(packCount>0&&(!w.ammo||!nexHasSheetPower('Chuva de Balas')||!/fogo/i.test(String(w.d.kind||''))||packCount>Number(w.ammo.quantity)))){toast('Quantidade de pacotes de RPG inválida.');return;}
+ const packFaces=String(w.damageExpression||'').match(/^\s*\d*d(\d+)/i)?.[1];
+ const packRoll=packCount>0&&packFaces?weaponDice((packCount*2)+'d'+packFaces,1):null;
+ if(packCount>0&&!packRoll){toast('Fórmula de dados adicionais do RPG inválida.');return;}
  const rolls=Array.from({length:w.dieCount},weaponD20);
  const natural=w.value<=0?Math.min(...rolls):Math.max(...rolls);
  const energyRequested=!!button.closest('.nex-combat-equipped')?.querySelector('[data-nex-energy-active]')?.checked;
@@ -776,11 +783,12 @@ document.addEventListener('click',e=>{
  const itemBonus=(Number(w.d.damageBonus)||0)+(Number(w.effects.flatDamage)||0)+preparedDamage;
  const sneak=w.effects.sneakDice?weaponDice(w.effects.sneakDice+'d6',1):null;
  if(sneak){damage.total+=sneak.total;damage.detail+=' + '+sneak.detail;}
- const totalDamage=damage.total+(secondary?secondary.total:0)+(extra?extra.total:0)+(curseExtra?curseExtra.total:0)+originBonus+itemBonus;
+ const totalDamage=damage.total+(secondary?secondary.total:0)+(extra?extra.total:0)+(curseExtra?curseExtra.total:0)+(packRoll?packRoll.total:0)+originBonus+itemBonus;
  const attackBonus=w.bonus+(hasEnergy?5:0)+preparedAttack+preparedSkill;
  const detailAttack=rolls.join(', ')+' → '+natural+' '+(attackBonus>=0?'+ ':'− ')+Math.abs(attackBonus);
  const damageDetail=damage.detail+(originBonus?' + bônus '+originBonus:'')+(itemBonus?' + melhoria '+itemBonus:'');
  const secondaryDetail=secondary?secondary.detail:'';
+ if(packRoll){const left=Number(w.ammo.quantity)-packCount;if(left>0){w.ammo.quantity=left;if(w.ammo.nexInfo)w.ammo.nexInfo.quantity=left;}else{state.items=(state.items||[]).filter(i=>String(i.id)!==String(w.ammo.id));for(const entry of state.items){if(String(entry.nexInfo?.ammoItemId||'')===String(w.ammo.id))entry.nexInfo.ammoItemId='';}}if(packInput)packInput.value='0';}
  if(pendingMatches||pendingSkillMatches)state.nexAutoPending=null;
  if(w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak||w.effects.intuitive){
   const r={...(state.nexAutoRoundUses||{})};
@@ -790,7 +798,7 @@ document.addEventListener('click',e=>{
   if(w.effects.intuitive)delete r['b189:Tiro Intuitivo'];
   state.nexAutoRoundUses=r;
  }
- if(pendingMatches||pendingSkillMatches||w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak||w.effects.intuitive){save();queueMicrotask(()=>{if(typeof renderStats==='function')renderStats();if(typeof renderAttacks==='function')renderAttacks();});}
+ if(packRoll||pendingMatches||pendingSkillMatches||w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak||w.effects.intuitive){save();queueMicrotask(()=>{if(typeof renderStats==='function')renderStats();if(packRoll&&typeof renderInventory==='function')renderInventory();if(typeof renderAttacks==='function')renderAttacks();});}
  if(hasEnergy){
   state.peCurrent=Math.max(0,Number(state.peCurrent||0)-2);
   const energyCheckbox=button.closest('.nex-combat-equipped')?.querySelector('[data-nex-energy-active]');
@@ -806,11 +814,12 @@ document.addEventListener('click',e=>{
  (w.effects.ignoreRD?'<div>Modificador de RD do RPG: '+safe(w.effects.ignoreRD)+'</div>':'')+
  (w.effects.wide?'<div>Efeito adicional registrado para resolução pelo mestre.</div>':'')+
  (sneak?'<div>Dados adicionais de habilidade: '+safe(sneak.detail)+'</div>':'')+
+ (packRoll?'<div>Dados adicionais do RPG: '+safe(packRoll.detail)+' · '+safe(packRoll.total)+'</div>':'')+
  '<div>Dano principal ('+safe(w.damageExpression)+'): '+safe(damageDetail)+' = '+safe(damage.total+originBonus+itemBonus)+(critical?' · '+safe(w.multiplier)+'× dados':'')+'</div>'+
  (extra?'<div>Dano adicional ('+safe(extra.expression)+'): '+safe(extra.detail)+' = '+safe(extra.total)+'</div>':'')+
  (curseExtra?'<div>Dano de maldição ('+safe(curseExtra.expression)+'): '+safe(curseExtra.detail)+' = '+safe(curseExtra.total)+(critical?' · crítico':'')+'</div>':'')+
  (secondary?'<div>Dano secundário '+safe(w.d.secondaryType||'Normal')+' ('+safe(secondary.expression)+'): '+safe(secondaryDetail)+' = '+safe(secondary.total)+'</div>':'')+
- (secondary||extra||curseExtra?'<div>Total: '+safe(totalDamage)+'</div>':'')+'</div>';
+ (secondary||extra||curseExtra||packRoll?'<div>Total: '+safe(totalDamage)+'</div>':'')+'</div>';
  weaponRollPanel.hidden=false;
  const rect=button.getBoundingClientRect(),width=310;
  const left=Math.max(8,Math.min(innerWidth-width-8,rect.left-100));
@@ -820,7 +829,8 @@ document.addEventListener('click',e=>{
   logResult(w.d.name+' — ataque','d20 ('+w.skillName+')', '['+rolls.join(', ')+'] → '+natural,attack);
   logResult(w.d.name+' — dano principal',damage.expression,damageDetail,damage.total+originBonus+itemBonus);
   if(secondary)logResult(w.d.name+' — dano secundário ('+(w.d.secondaryType||'Normal')+')',secondary.expression,secondaryDetail,secondary.total);
-  if(secondary||extra||curseExtra)logResult(w.d.name+' — dano total',[damage.expression,secondary?.expression,extra?.expression,curseExtra?.expression].filter(Boolean).join(' + '),[damageDetail,secondaryDetail,extra?.detail,curseExtra?.detail].filter(Boolean).join(' + '),totalDamage);
+  if(packRoll)logResult('Chuva de Balas — efeito de RPG',packRoll.expression,packRoll.detail,packRoll.total);
+  if(secondary||extra||curseExtra||packRoll)logResult(w.d.name+' — dano total',[damage.expression,secondary?.expression,extra?.expression,curseExtra?.expression,packRoll?.expression].filter(Boolean).join(' + '),[damageDetail,secondaryDetail,extra?.detail,curseExtra?.detail,packRoll?.detail].filter(Boolean).join(' + '),totalDamage);
   if(extra)logResult(w.d.name+' — dano adicional',extra.expression,extra.detail,extra.total);
   if(curseExtra)logResult(w.d.name+' — dano de maldição',curseExtra.expression,curseExtra.detail,curseExtra.total);
  }
