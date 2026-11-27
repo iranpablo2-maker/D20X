@@ -2782,8 +2782,9 @@ function nexTrailIs(cls,trail,nex){
 }
 function nexHasDirectPower(name){return [...(state.n16?.abilities||[]),...(state.powers||[])].some(p=>p?.name===name&&!p.homebrew&&!String(p.source||'').includes('Homebrew')&&!String(p.catalogKey||'').startsWith('homebrew:'));}
 function nexB100HeavyProtection(){return nexHasSheetPower('Tanque de Guerra')&&(state.items||[]).some(i=>i.equipped&&i.category==='Proteção'&&/^proteção pesada$/i.test(String(i.name||'').trim()))?2:0;}
-function nexB100Defense(){return (nexHasSheetPower('Ripostar Ousado')&&state.nexAutoRoundUses?.['b189:Ripostar Ousado']?5:0)+nexB150Defense()+nexB100HeavyProtection()+(nexHasSheetPower('Combate Defensivo')&&state.nexAutoRoundUses?.b100Defensive?5:0);}
+function nexB100Defense(){return (nexTrailIs('Especialista','Médico de Campo',65)&&state.nexAutoRoundUses?.b189RescueDefense?5:0)+(nexHasSheetPower('Ripostar Ousado')&&state.nexAutoRoundUses?.['b189:Ripostar Ousado']?5:0)+nexB150Defense()+nexB100HeavyProtection()+(nexHasSheetPower('Combate Defensivo')&&state.nexAutoRoundUses?.b100Defensive?5:0);}
 function nexB100Arsenal(){return state.origin==='Treinado pela Hell Hunters'?(state.nexAutoChoices?.b100Arsenal==='distance'?['Pontaria','Reflexos']:state.nexAutoChoices?.b100Arsenal==='melee'?['Luta','Fortitude']:[]):[];}
+function nexB189PairPenalty(){const R=state.nexAutoRoundUses||{},paired=nexHasSheetPower('Ambidestria')&&R['b189:Ambidestria'];if(paired)return nexHasSheetPower('Combater com Duas Armas')&&R['b189:Combater com Duas Armas']?0:1;return nexHasSheetPower('Combater com Duas Armas')&&R['b189:Combater com Duas Armas']?1:0;}
 function nexB100WeaponEffects(item,d){
  const melee=/corpo\s*a\s*corpo|desarmado/i.test(String(d.kind||''))||/^(desarmado|ataque desarmado|golpe desarmado)$/i.test(String(d.name||item.name||'').trim()),distance=/disparo|fogo|dist[aâ]ncia|arremesso/i.test(String(d.kind||'')),firearm=/fogo/i.test(String(d.kind||'')),ranged=distance&&!melee;
  const favorite=nexTrailIs('Combatente','Aniquilador',10)&&String(state.nexAutoChoices?.favoriteItem||'')===String(item.id);
@@ -2802,7 +2803,7 @@ function nexB100WeaponEffects(item,d){
  if(intuitive)margin+=2;
  const extraDice=(improvised?1:0)+(melee&&nexHasSheetPower('Golpe Pesado')?1:0)+(favorite&&nexTrailIs('Combatente','Aniquilador',99)?1:0);
  const flatDamage=(unarmedBuff?(nexPowerAffinity('Ácido Corrosivo')?10:5):0)+(item.nexB189Instrument&&nexHasSheetPower('Instrumento Elétrico de Combate')?nexB150Attribute('pre'):0)+(firearm&&nexHasSheetPower('Balística Avançada')?2:0)+(!firearm&&tactical&&(melee||ranged)&&nexHasSheetPower('Ninja Urbano')?2:0)+(ranged&&nexHasSheetPower('Tiro Certeiro')?Math.max(0,Number(state.attributes?.agi)||0):0)+(firearm&&nexTrailIs('Combatente','Incursor',10)?Number(skill.training||0)+Number(skill.other||0)+nexOfficialGrantedSkillBonus('Tática',skill.training)+nexOfficialSkillBonus('Tática'):0);
- return {margin,multiplier,extraDice,flatDamage,attackBonus:unarmedBuff?(nexPowerAffinity('Ácido Corrosivo')?4:2):0,intuitive,skillOverride:item.nexB189Instrument&&nexHasSheetPower('Instrumento Elétrico de Combate')?'Artes':'',penalty:(nexHasSheetPower('Combate Defensivo')&&R.b100Defensive?1:0)+(nexHasSheetPower('Combater com Duas Armas')&&R['b189:Combater com Duas Armas']?1:0),unarmedDice:unarmed&&nexHasSheetPower('Artista Marcial')?(nex>=70?'1d10':nex>=35?'1d8':'1d6'):'',maxCritical:firearm&&nexTrailIs('Especialista','Atirador de Elite',99),sneakDice:sneak?(nex>=99?4:nex>=65?3:nex>=40?2:1)*(S.b189Prepared&&nexTrailIs('Especialista','Infiltrador',65)?2:1):0,ignoreRD:(selected?.perfurantes?selected.perfurantes*5:0)+(intuitiveEnhanced?10:0),wide:selected?.amplo||0,aimed:Boolean(aimed),favoriteChoice:Boolean(selected),sneak:Boolean(sneak),melee};
+ return {margin,multiplier,extraDice,flatDamage,attackBonus:unarmedBuff?(nexPowerAffinity('Ácido Corrosivo')?4:2):0,intuitive,skillOverride:item.nexB189Instrument&&nexHasSheetPower('Instrumento Elétrico de Combate')?'Artes':'',penalty:(nexHasSheetPower('Combate Defensivo')&&R.b100Defensive?1:0)+nexB189PairPenalty(),unarmedDice:unarmed&&nexHasSheetPower('Artista Marcial')?(nex>=70?'1d10':nex>=35?'1d8':'1d6'):'',maxCritical:firearm&&nexTrailIs('Especialista','Atirador de Elite',99),sneakDice:sneak?(nex>=99?4:nex>=65?3:nex>=40?2:1)*(S.b189Prepared&&nexTrailIs('Especialista','Infiltrador',65)?2:1):0,ignoreRD:(selected?.perfurantes?selected.perfurantes*5:0)+(intuitiveEnhanced?10:0),wide:selected?.amplo||0,aimed:Boolean(aimed),favoriteChoice:Boolean(selected),sneak:Boolean(sneak),melee};
 }
 window.NEX_B100_WEAPON=nexB100WeaponEffects;
 // Efeitos numéricos de avatares sobrenaturais do RPG, sem alterar os campos-base.
@@ -2908,7 +2909,7 @@ function nexFocusSelectedSkills(){
 function nexOfficialExtraSkillDie(name){
  const focus=nexFocusSelectedSkills().includes(name)&&name!=='Luta'&&name!=='Pontaria'&&Number(state.skills?.[name]?.training||0)>0?1:0;
  const speech=state.class==='Especialista'&&state.trailByClass?.Especialista==='Negociador'&&Number(state.nex)>=40?Math.min(Number(state.nex)>=65?2:1,Math.max(0,Number(state.nexAutoSceneUses?.motivatorDice)||0)):0;
- return nexB150Dice(name)-(nexHasSheetPower('Combater com Duas Armas')&&state.nexAutoRoundUses?.['b189:Combater com Duas Armas']&&['Luta','Pontaria'].includes(name)?1:0)+focus+speech+(nexTrailIs('Ocultista','Possuído',40)&&state.nexAutoRoundUses?.sombras&&['Acrobacia','Atletismo','Furtividade'].includes(name)?1:0)+(name==='Religião'&&nexTrailIs('Ocultista','Exorcista',40)&&Number(state.skills?.[name]?.training||0)>=10?1:0);
+ return nexB150Dice(name)-(['Luta','Pontaria'].includes(name)?nexB189PairPenalty():0)+focus+speech+(nexTrailIs('Ocultista','Possuído',40)&&state.nexAutoRoundUses?.sombras&&['Acrobacia','Atletismo','Furtividade'].includes(name)?1:0)+(name==='Religião'&&nexTrailIs('Ocultista','Exorcista',40)&&Number(state.skills?.[name]?.training||0)>=10?1:0);
 }
 /* Resistencias automaticas separadas das resistencias manuais para nao duplicar efeitos ao salvar. */
 function nexOfficialInquebravelActive(maxPv){
@@ -5570,14 +5571,14 @@ function abilityRecords(){
    'Full Metal Jacket':{skill:['Luta','Pontaria'],cost:2,offset:true},
    'Força Opressora':{skill:['Luta'],cost:1,offset:true},
    'Combater com Duas Armas':{toggle:true},
-   'Ambidestria':{manual:true},
+   'Ambidestria':{pairedRolls:true},
    'Golpe Demolidor':{dice:2,cost:1},
    'Segurar o Gatilho':{extra:true},
    'Disparo Impactante':{cost:2,record:true},
    'Tiro de Cobertura':{cost:1,opposed:true},
    'Cai Dentro':{cost:1,opposed:true,dt:'vig'},
    'Assassinar':{cost:3,prepare:true},
-   'Resgate':{manual:true},
+   'Resgate':{rescue:true},
    'Apego Angustiado':{roundResource:true},
    'Perito em Explosivos':{dtBonus:true},
    'Fogo Amigo':{dtBonus:true},
@@ -5586,7 +5587,7 @@ function abilityRecords(){
    'Memória Muscular':{cost:4,record:true},
    'Alvo-prioritário':{cost:5,record:true},
    'Marteladas':{cost:3,record:true},
-   'Chuva de Balas':{manual:true},
+   'Chuva de Balas':{inventoryEffect:true},
    'Ácido Corrosivo':{cost:1,sceneToggle:true},
    'Sangue Corrosivo':{cost:1,sceneDice:true},
    'Instrumento Elétrico de Combate':{instrument:true},
@@ -5616,7 +5617,10 @@ function abilityRecords(){
   if(s.instrument)return aff+box(act('Vincular item paranormal fictício',Boolean((state.items||[]).find(i=>i.nexB189Instrument))), 'Cria somente um registro de equipamento no inventário do RPG.');
   if(s.passive)return box('', 'O bônus de dado é calculado quando o item está classificado como improvisado na ficha.');
   if(s.interlude)return box(act('Rolar reserva de recursos de jogo',Object.prototype.hasOwnProperty.call(state.nexAutoInterludeUses||{},key))+btn('novoInterludio','Novo interlúdio'), 'Reserva abstrata: '+Number(state.nexAutoInterludeUses?.[key]||0)+'. Não altera automaticamente os itens.');
-  if(s.roundResource)return box(num('Custo de SAN indicado pela regra',1,Math.max(1,Number(state.sanCurrent)||0),1)+act('Registrar custo nesta rodada',!!R[key]||Number(state.sanCurrent)<1)+btn('novaRodada','Nova rodada'), 'Confirme a condição e o custo com o mestre. A ficha desconta SAN uma única vez nesta rodada.');
+  if(s.pairedRolls)return box(act(R[key]?'Encerrar benefício de jogo':'Ativar benefício de jogo')+btn('novaRodada','Nova rodada'),'Registra o uso no turno e aplica o modificador de dado da ficha até a próxima rodada. Confirme a elegibilidade dos dois itens com o mestre; as duas rolagens permanecem separadas.');
+  if(s.rescue)return box(btn('b189RescueMove','Registrar ação livre',!!R.b189RescueMove)+btn('b189RescueDefense','Registrar auxílio a aliado',!!R.b189RescueDefense)+num('Espaços de transporte antes do benefício',0,999,Number(state.nexAutoChoices?.b189RescueLoad)||0)+btn('b189RescueLoad','Atualizar carga')+btn('novaRodada','Nova rodada'),'Defesa própria temporária: '+(R.b189RescueDefense?'+5':'inativa')+'. Carga de personagem: '+((Number(state.nexAutoChoices?.b189RescueLoad)||0)/2)+' espaços. O mestre confirma alcance e efeito no aliado.');
+  if(s.inventoryEffect)return box('', 'O controle de pacotes fictícios aparece nas rolagens de equipamento com um item de munição vinculado. A duração de jogo do pacote é duplicada; a contagem opcional recebe o ajuste previsto pela regra.');
+  if(s.roundResource)return box(act(S[key]?'Desativar condição de jogo':'Ativar condição de jogo')+btn('novaRodada','Encerrar rodada'), 'Quando a condição elegível estiver ativa, o sistema desconta 2 SAN por rodada. Confirme o estado do personagem na mesa; a condição é encerrada quando os PV voltam acima de zero.');
   if(s.defense)return box(act('Preparar Defesa temporária · '+s.cost+' PE',!!R[key])+btn('b189End','Encerrar efeito'), 'Bônus de +5 Defesa até resolver o evento elegível ou iniciar nova rodada.');
   if(s.critical)return box(sel('Modificador de jogo',[['0','Bônus básico · 0 PE'],['2','Bônus aprimorado · 2 PE']])+act('Preparar modificador de crítico',!!R[key]),'Aplica ao próximo teste elegível confirmado na mesa.');
   if(s.record)return box(act('Registrar efeito confirmado · '+s.cost+' PE'),note+' Condições e efeitos não numéricos continuam manuais.');
@@ -5952,7 +5956,7 @@ function abilityRecords(){
    if(resourceAction){
      const key=resourceAction.dataset.nexAutoResource,box=resourceAction.closest('.nex-auto-effect');
      const roll=faces=>{const v=new Uint32Array(1);crypto.getRandomValues(v);return v[0]%faces+1;};
-     if(key==='b189Action'||key==='b189End'){
+     if(['b189Action','b189End','b189RescueMove','b189RescueDefense','b189RescueLoad'].includes(key)){
        const entry=box?.closest('[data-nex-ability-id]')?.dataset.nexAbilityId,a=abilityRecords().find(x=>x.name+'|'+x.source===entry&&!x.homebrew&&!/homebrew/i.test(x.source||''));
        const s=a&&nexB189Spec(a.name);if(!s)return;
        const n=a.name,mark='b189:'+n,R=state.nexAutoRoundUses||{},S=state.nexAutoSceneUses||{},M=state.nexAutoMissionUses||{},I=state.nexAutoInterludeUses||{};
@@ -5962,6 +5966,9 @@ function abilityRecords(){
        const record=(v,label='Efeito confirmado de RPG')=>logResult(n,'Regra de jogo',label,v);
        const yes=()=>confirm('Confirma a condição elegível desta habilidade com o mestre?');
        if(key==='b189End'){if(!s.defense)return;set('nexAutoRoundUses',mark,false);}
+       else if(key==='b189RescueMove'){if(!s.rescue||R.b189RescueMove||!yes())return;set('nexAutoRoundUses','b189RescueMove',true);record(1,'Ação de jogo registrada');}
+       else if(key==='b189RescueDefense'){if(!s.rescue||R.b189RescueDefense||!yes())return;set('nexAutoRoundUses','b189RescueDefense',true);record(5,'Defesa própria temporária; confirme o efeito no aliado');}
+       else if(key==='b189RescueLoad'){if(!s.rescue||!valid(nums[0],0,999)||!yes())return;set('nexAutoChoices','b189RescueLoad',nums[0]);record(nums[0]/2,'Espaços de carga de personagem');}
        else if(s.skill){
         if(state.nexAutoPending||!s.skill.includes(select)||s.offset&&!valid(nums[0],0,20)||!yes()||!pe(s.cost))return;
         state.nexAutoPending={id:mark,name:n,skill:select,kind:'skill',cost:s.cost,resource:'pe',bonus:s.offset?nums[0]:(s.bonus||0),replaceWith:s.replaceWith||'',equipmentEligible:['Luta','Pontaria'].includes(select)&&!!box.querySelector('[data-nex-b189-equipment]')?.checked,used:false};
@@ -5978,7 +5985,8 @@ function abilityRecords(){
        else if(s.instrument){if((state.items||[]).some(i=>i.nexB189Instrument)||!yes())return;const id='b189-instrument-'+Date.now();state.items=[...(state.items||[]),{id,name:'Instrumento Elétrico de Combate',category:'Arma',quantity:1,spaces:2,equipped:false,nexB189Instrument:true,nexInfo:{name:'Instrumento Elétrico de Combate',category:'Arma',kind:'Paranormal',proficiency:'Armas Táticas',wield:'Duas mãos',tier:'II',spaces:2,damage:'2d8',critical:'20',multiplier:'2',damageType:'Energia',range:'Curto'}}];record(1,'Item fictício vinculado');}
        else if(s.interlude){if(Object.prototype.hasOwnProperty.call(I,mark)||!yes())return;const rolls=Array.from({length:nexB150Attribute('int')},()=>roll(6)),total=rolls.reduce((v,x)=>v+x,0);set('nexAutoInterludeUses',mark,total);record(total,'Reserva abstrata · '+rolls.join(', '));}
        else if(s.defense||s.critical){const cost=s.critical?Number(select):s.cost;if(s.critical&&!['0','2'].includes(select)||R[mark]||!yes()||!pe(cost))return;set('nexAutoRoundUses',mark,s.critical?{enhanced:cost===2}:true);record(1,'Modificador de ficha preparado');}
-       else if(s.roundResource){const cost=nums[0];if(R[mark]||!valid(cost,1,Number(state.sanCurrent)||0)||!yes())return;state.sanCurrent=Number(state.sanCurrent)-cost;set('nexAutoRoundUses',mark,true);record(cost,'SAN descontada nesta rodada');}
+       else if(s.pairedRolls){if(!R[mark]&&!yes())return;set('nexAutoRoundUses',mark,!R[mark]);record(R[mark]?0:1,'Benefício de jogo registrado');}
+       else if(s.roundResource){if(!S[mark]&&(Number(state.pvCurrent)>0||!yes()))return;set('nexAutoSceneUses',mark,!S[mark]);record(S[mark]?0:1,'Condição de jogo registrada');}
        else if(s.record){if(!yes()||!pe(s.cost))return;record(1);}
        else if(s.manual){if(!valid(nums[0],0,999)||!yes())return;record(nums[0],'Valor confirmado pela mesa');}
        else return;
@@ -6188,7 +6196,7 @@ function abilityRecords(){
        }else return;
        save();renderStats();return;
      }
-     if(key==='novaRodada'){if(state.nexAutoSceneUses?.b189Prepared)state.nexAutoSceneUses.b189Prepared=Math.max(0,Number(state.nexAutoSceneUses.b189Prepared)-1);state.nexAutoRoundUses={};if(typeof renderAttacks==='function')queueMicrotask(renderAttacks);if(state.nexAutoSceneUses?.sangueVivo&&(Number(state.pvCurrent)<=0||Number(state.pvCurrent)>Math.floor(maxValues().pv/2)))state.nexAutoSceneUses.sangueVivo=false;}
+     if(key==='novaRodada'){const apeg='b189:Apego Angustiado';if(state.nexAutoSceneUses?.[apeg]){if(nexHasSheetPower('Apego Angustiado')&&Number(state.pvCurrent)<=0){const loss=Math.min(2,Math.max(0,Number(state.sanCurrent)||0));state.sanCurrent=Math.max(0,Number(state.sanCurrent||0)-2);logResult('Apego Angustiado','SAN','Custo de rodada de RPG',loss);}else delete state.nexAutoSceneUses[apeg];}if(state.nexAutoSceneUses?.b189Prepared)state.nexAutoSceneUses.b189Prepared=Math.max(0,Number(state.nexAutoSceneUses.b189Prepared)-1);state.nexAutoRoundUses={};if(typeof renderAttacks==='function')queueMicrotask(renderAttacks);if(state.nexAutoSceneUses?.sangueVivo&&(Number(state.pvCurrent)<=0||Number(state.pvCurrent)>Math.floor(maxValues().pv/2)))state.nexAutoSceneUses.sangueVivo=false;}
      else if(key==='profeciaTemp'){
        if(state.origin!=='Profetizado'||!confirm('O mestre confirmou o acontecimento previsto?'))return;
        nexAbilityTempGrant('pe',2,true);state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),profeciaTemp:true};logResult('Luta ou Fuga','PE temporários','Premonição confirmada',2);
@@ -6588,7 +6596,7 @@ function abilityRecords(){
  }
  function isBackpack(i){return /^(mochila|mochila militar)$/i.test(String(i?.name||'').trim())&&Number(i?.quantity)>0;}
  function capacity(){const force=Math.max(0,Number(state.attributes.for)||0);const bonus=typeof nexOfficialPassiveBonuses==='function'?nexOfficialPassiveBonuses().extraLoadAttributes:0;return (force+bonus+nexOfficialPassiveBonuses().bonusLoad===0?2:5*(force+bonus+nexOfficialPassiveBonuses().bonusLoad))+((state.items||[]).some(isBackpack)?2:0)+(nexHomebrewBonuses().carga||0)+(nexHasSheetPower('Mochileiro')?5:0)+(nexTrailIs('Especialista','Muambeiro',10)?5:0);}
- function spacesUsed(){return (state.items||[]).reduce((sum,i)=>sum+Math.max(0,Number(i.quantity)||0)*nexItemEffectiveSpaces(i),0);}
+ function spacesUsed(){const carried=nexTrailIs('Especialista','Médico de Campo',65)?Math.max(0,Number(state.nexAutoChoices?.b189RescueLoad)||0)/2:0;return carried+(state.items||[]).reduce((sum,i)=>sum+Math.max(0,Number(i.quantity)||0)*nexItemEffectiveSpaces(i),0);}
  function categoryUsed(tier,omitId=null){
    return (state.items||[]).reduce((sum,i)=>sum+(String(i.id)===String(omitId)||itemTier(i)!==tier?0:Math.max(0,Math.trunc(Number(i.quantity)||0))),0);
  }
@@ -7634,7 +7642,7 @@ const PARANORMAL=[
 <script src="d20x-descricoes-completas.js?v=20261127descricoesSAH12"></script>
 <script src="d20x-item-catalog.js?v=20261127descricao8"></script>
 <script src="d20x-item-modifiers.js?v=20261125pdfdefense1"></script>
-<script src="d20x-item-editor.js?v=20261127abilityAudit1"></script>
+<script src="d20x-item-editor.js?v=20261127abilityAudit2"></script>
 <!-- Sincronização em nuvem desativada a pedido do proprietário: mantém salvamento local. -->
 
 <style id="nex-v2059-attribute-roll-skill-picker">
