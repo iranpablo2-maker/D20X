@@ -4940,10 +4940,22 @@ function nexDetailedDescription(name,detail='',source='',extra={}){
  if(attr.startsWith('trained'))add('Pré-requisito: possuir o treinamento exigido pela habilidade.');
  if(Number(extra.minNex)>0)add('NEX mínimo registrado para este poder: '+Number(extra.minNex)+'%.');
  if(!parts.length)parts.push('Esta entrada não possui descrição mecânica verificada no catálogo atual. Não foram presumidos bônus, custos nem ativações.');
- if(from&&!parts.some(p=>p.startsWith('Fonte cadastrada:')))parts.push('Referência: '+from+'. Consulte a publicação oficial para o texto integral.');
+ if(from&&!parts.some(p=>p.startsWith('Fonte cadastrada:')))parts.push('Referência: '+from+'.');
  return parts.join('\n\n');
 }
 window.NEX_DETAILED_DESCRIPTION=nexDetailedDescription;
+/* Notas locais de consulta: não são incluídas em fichas, campanhas ou catálogos compartilhados. */
+window.NEX_LOCAL_RULE_NOTE=function(key,escapeText){
+ const id='d20x_local_rule_note_v1:'+encodeURIComponent(String(key));
+ let value='';try{value=localStorage.getItem(id)||'';}catch{}
+ return '<details style="margin-top:10px"><summary style="cursor:pointer">Minha anotação de mesa</summary><label style="display:block;margin-top:8px;font-size:12px">Somente neste navegador; visível a quem usar o mesmo perfil do navegador.</label><textarea data-d20x-local-rule-note="'+escapeText(id)+'" rows="3" maxlength="2000" style="width:100%;box-sizing:border-box;margin-top:6px;resize:vertical" placeholder="Escreva sua própria anotação...">'+escapeText(value)+'</textarea><small data-d20x-note-status aria-live="polite"></small></details>';
+};
+document.addEventListener('input',event=>{
+ const field=event.target.closest?.('textarea[data-d20x-local-rule-note]');if(!field)return;
+ const status=field.parentElement.querySelector('[data-d20x-note-status]');
+ try{if(field.value)localStorage.setItem(field.dataset.d20xLocalRuleNote,field.value);else localStorage.removeItem(field.dataset.d20xLocalRuleNote);if(status)status.textContent='Salva neste navegador.';}catch{if(status)status.textContent='Não foi possível salvar neste navegador.';}
+});
+
 function abilityRecords(){
    const entries=[];
    const origin=typeof nex12Orig==='function'?nex12Orig():null;
@@ -5166,7 +5178,7 @@ function abilityRecords(){
      if(Object.prototype.hasOwnProperty.call(NEX_OFFICIAL_GRANTED_SKILLS,a.name))return `Poder automático: treino em ${NEX_OFFICIAL_GRANTED_SKILLS[a.name]} ou +2 se já houver treinamento.`;
      return '';
    };
-   $id('n16AbilityList').innerHTML=(Object.keys(state.nexAutoSceneUses||{}).some(k=>state.nexAutoSceneUses[k])?'<button type="button" class="btn sm" data-nex-auto-new-scene>Nova cena · reiniciar habilidades por cena</button>':'')+(records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry" data-nex-ability-id="${escape(a.name+"|"+a.source)}" ${opened.has(a.name+"|"+a.source)?"open":""}><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div style="white-space:pre-line">${escape(nexDetailedDescription(a.name,a.detail,a.source))}</div>${nexOfficialAbilityControls(a)}${a.id?`<div class="actions" style="margin-top:12px"><button type="button" class="btn sm" data-n16-remove-${a.removeKind==='power'?'power':'ability'}="${escape(a.id)}">Remover habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>');
+   $id('n16AbilityList').innerHTML=(Object.keys(state.nexAutoSceneUses||{}).some(k=>state.nexAutoSceneUses[k])?'<button type="button" class="btn sm" data-nex-auto-new-scene>Nova cena · reiniciar habilidades por cena</button>':'')+(records.length?records.map(a=>`<details class="nexv16-entry nex-sheet-ability-entry" data-nex-ability-id="${escape(a.name+"|"+a.source)}" ${opened.has(a.name+"|"+a.source)?"open":""}><summary><span class="nexv16-name">${escape(a.name)}</span></summary><div class="nexv16-detail"><small class="nex-sheet-ability-source">${escape(a.source)}</small>${automatedValue(a)?`<p class="hint" style="margin:7px 0;color:#91d6a9">${escape(automatedValue(a))}</p>`:''}<div style="white-space:pre-line">${escape(nexDetailedDescription(a.name,a.detail,a.source))}</div>${nexOfficialAbilityControls(a)}${window.NEX_LOCAL_RULE_NOTE('habilidade:'+a.source+'|'+a.name,escape)}${a.id?`<div class="actions" style="margin-top:12px"><button type="button" class="btn sm" data-n16-remove-${a.removeKind==='power'?'power':'ability'}="${escape(a.id)}">Remover habilidade</button></div>`:''}</div></details>`).join(''):'<div class="nexv16-empty">Nenhuma habilidade encontrada.</div>');
  }
 
  document.addEventListener('click',event=>{
@@ -6014,7 +6026,8 @@ const PARANORMAL=[
  let mode='all',category='Combatente',sub='',filter='',homebrewCategory='Combatente',homebrewFilter='',lastFocus=null;
  function ensure(){if(!state.n16||typeof state.n16!=='object')state.n16={};if(!Array.isArray(state.n16.abilities))state.n16.abilities=[];if(!Array.isArray(state.powers))state.powers=[];}
  function item(k,cat,branch,name,detail,req=0,source='',extra={}){
-  return {key:k,cat,branch,name,detail:window.NEX_DETAILED_DESCRIPTION(name,detail,source,{...extra,req,classPower:branch==='Poderes de '+cat?cat:null}),req,source:source||(cat==='Origens'?'Origem: '+branch:cat==='Poderes Paranormais'?'Poder Paranormal':branch==='Poderes de '+cat?'Poder de '+cat:'Trilha: '+branch+' · NEX '+req+'%'),...extra};
+  const resolvedSource=source||(cat==='Origens'?'Origem: '+branch:cat==='Poderes Paranormais'?'Poder Paranormal':branch==='Poderes de '+cat?'Poder de '+cat:'Trilha: '+branch+' · NEX '+req+'%');
+  return {key:k,cat,branch,name,detail:window.NEX_DETAILED_DESCRIPTION(name,detail,resolvedSource,{...extra,req,classPower:branch==='Poderes de '+cat?cat:null}),req,source:resolvedSource,...extra};
  }
  let cachedCatalogue=null;
  function catalogue(){
@@ -6268,7 +6281,7 @@ const PARANORMAL=[
 <script src="d20x-rituais-metadados.js?v=20261127license1"></script>
 <script src="d20x-source-references.js?v=20261125nolink"></script>
 <script src="d20x-ritual-guides.js?v=20261127license1"></script>
-<script src="d20x-rituais-ficha.js?v=20261127license1"></script>
+<script src="d20x-rituais-ficha.js?v=20261127consulta2"></script>
 <script src="d20x-ritual-effects.js?v=5"></script>
 <script src="d20x-ritual-tools.js?v=20261113fundos1"></script>
 <script src="d20x-livros-itens.js?v=2076"></script>
@@ -6278,7 +6291,7 @@ const PARANORMAL=[
 <script src="d20x-municoes-adicionais.js?v=2082"></script>
 <script src="d20x-itens-amaldicoados-basico.js?v=2083"></script>
 <script src="d20x-descricoes-completas.js?v=20261127license1"></script>
-<script src="d20x-item-catalog.js?v=20261125nolink"></script>
+<script src="d20x-item-catalog.js?v=20261127consulta2"></script>
 <script src="d20x-item-modifiers.js?v=20261125pdfdefense1"></script>
 <script src="d20x-item-editor.js?v=20261112cleancombat2"></script>
 <!-- Sincronização em nuvem desativada a pedido do proprietário: mantém salvamento local. -->
