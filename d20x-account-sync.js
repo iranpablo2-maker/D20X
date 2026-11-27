@@ -1,4 +1,4 @@
-/* NEX Contas: login seguro e sincronização por usuário; o armazenamento local continua independente. */
+/* D20X Contas: autenticação Firebase e persistência pessoal local, com importação inicial somente leitura. */
 import {initializeApp,getApps} from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js';
 import {getAuth,onAuthStateChanged,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,sendPasswordResetEmail,GoogleAuthProvider,signInWithPopup,updateProfile} from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js';
 import {getFirestore,collection,getDocsFromServer} from 'https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js';
@@ -189,7 +189,7 @@ else{
      }
     }
     const campaigns=merge(local.campaigns,records.get('campaigns')?.payload?.items,x=>x.id);
-    const homebrew=merge(local.homebrew,records.get('homebrew')?.payload?.items,x=>x.id||x.name);
+    const homebrew=merge(local.homebrew,records.get('homebrew')?.payload?.items,x=>x.id||x.name).filter(x=>x&&x.name!=='Ex-Militar');
     if(current?.uid!==account)return;
     bridge.replaceAccountAgents([...agents.values()], [...removed]);
     bridge.apply([{id:'campaigns',entry:{payload:{items:campaigns}}},{id:'homebrew',entry:{payload:{items:homebrew}}}]);
@@ -394,7 +394,7 @@ else{
     localStorage.setItem('nex_account_profile_'+current.uid,JSON.stringify(updated));
     setProfileAvatar(name,updated.photo);
     updateHeaderAvatar();
-    // Persist the optional age in the owner's existing private homebrew record on the next sync.
+    // Dados adicionais do perfil são mantidos no navegador.
     dirty=true;schedule();
     profileStatus('Perfil salvo neste dispositivo.');
    }catch(error){profileStatus('Não foi possível salvar o perfil: '+(error?.code||'tente novamente'));}
