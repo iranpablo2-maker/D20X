@@ -2826,7 +2826,7 @@ function nexOfficialPassiveBonuses(){
   originProfetizado:state.origin==='Profetizado'?2:0,
   originColegial:state.origin==='Colegial'&&state.nexAutoChoices?.colegialNear===true?2:0,
   originExperimento:state.origin==='Experimento'?2:0,
-  furtividade:active('Espreitar da Besta')?5:0
+  furtividade:active('Espreitar da Besta')?(nexPowerAffinity('Espreitar da Besta')?10:5):0
  };
 }
 function nexFocusRecords(){
@@ -2897,6 +2897,7 @@ function nexRitualPowerReduction(r,d){
  if(nexHasSheetPower('Ritual Predileto')&&choices.favoriteRitual===String(r?.id))reduction++;
  if(nexHasSheetPower('Tatuagem Ritualística')&&/pessoal/i.test(String(d?.range||r?.range||''))&&/^(você|voce|o conjurador|si mesmo)$/i.test(String(d?.target||r?.target||'').trim()))reduction++;
  if(nexHasSheetPower('Explorador da Névoa')&&state.nexAutoSceneUses?.nevoaDiscount)reduction++;
+ if(nexPowerAffinity('Absorver Conhecimento')&&element==='Conhecimento'&&/toque/i.test(String(d?.range||r?.range||''))&&choices.absorverOutro===true)reduction++;
  return reduction;
 }
 function nexEnhancedRitualDT(r){
@@ -2945,7 +2946,7 @@ function nexOfficialSkillBonus(name){
   (name==='Fortitude'?b.bonusFortitude+(nexHasSheetPower('Adaptação Climática')?2:0):0)+(name==='Reflexos'?nexLightProtectionBonus():0)+(name==='Vontade'?b.bonusVontade+b.originProfetizado:0)+
   (name==='Diplomacia'?b.originDiplomata:0)+(name==='Intuição'?b.bonusIntuicao:0)+
   (state.origin==='Experimento'&&state.nexAutoChoices?.experimentoSkill===name?b.originExperimento:0)+
-  b.originColegial+gatuno+(name==='Furtividade'?b.furtividade+(nexHasSheetPower('Muito Sorrateiro')?3:0):0)+(['Fortitude','Reflexos','Vontade'].includes(name)?nexSceneTacticalBonus():0)+(state.origin==='Amigo dos Animais'&&state.nexAutoChoices?.animalSkill===name?2:0)
+  b.originColegial+gatuno+(name==='Furtividade'?b.furtividade+(nexHasSheetPower('Muito Sorrateiro')?3:0):0)+(['Fortitude','Reflexos','Vontade'].includes(name)?nexSceneTacticalBonus():0)+(state.origin==='Amigo dos Animais'&&!state.nexAutoChoices?.animalLost&&state.nexAutoChoices?.animalSkill===name?2:0)
  +(nexTrailIs('Combatente','Agente Secreto',40)&&['Diplomacia','Enganação'].includes(name)?2:0)
  +(nexHasSheetPower('Instinto de Fuga')&&state.nexAutoChoices?.chaseScene===true?2:0)
  +(nexTraceActive()&&['Ocultismo','Fortitude','Reflexos','Vontade'].includes(name)?2:0)
@@ -2956,7 +2957,7 @@ function nexRitualAdjustMaxSan(resourceMax){
  const lost=Math.max(0,Math.floor(Number(state.ritualToolkit?.permanentSanLoss)||0));
  const b=nexHomebrewBonuses();
  const official=nexOfficialPassiveBonuses();
- return {...resourceMax,pv:Math.max(0,resourceMax.pv+(b.pv||0)+official.pv+official.pvPower+official.originPv+official.bonusPv+official.originMergulhadorPv),pe:Math.max(0,resourceMax.pe+(b.pe||0)+official.improvedPotential+official.originPe+official.bonusPe+official.bonusFlatPe+(nexHasSheetPower('Combatente Esforçado')?Math.floor((Number(state.nex)||0)/5):0)-(state.origin==='Colegial'&&state.nexAutoMissionUses?.friendLost?Math.floor(Number(state.nex||0)/5):0)+(state.origin==='Ufólogo'?Math.max(0,Number(state.nexAutoChoices?.teoriaBonus||0)):0)+(nexTrailIs('Especialista','Bibliotecário',99)?Math.max(0,Number(state.attributes?.int)||0):0)),san:Math.max(0,(Number(resourceMax.san)||0)-lost+(b.san||0)+official.originSan)};
+ return {...resourceMax,pv:Math.max(0,resourceMax.pv+(b.pv||0)+official.pv+official.pvPower+official.originPv+official.bonusPv+official.originMergulhadorPv),pe:Math.max(0,resourceMax.pe+(b.pe||0)+official.improvedPotential+official.originPe+official.bonusPe+official.bonusFlatPe+(nexHasSheetPower('Combatente Esforçado')?Math.floor((Number(state.nex)||0)/5):0)-(state.origin==='Colegial'&&state.nexAutoMissionUses?.friendLost?Math.floor(Number(state.nex||0)/5):0)+(state.origin==='Ufólogo'?Math.max(0,Number(state.nexAutoChoices?.teoriaBonus||0)):0)+(nexTrailIs('Especialista','Bibliotecário',99)?Math.max(0,Number(state.attributes?.int)||0):0)),san:Math.max(0,(Number(resourceMax.san)||0)-lost+(b.san||0)+official.originSan-(state.origin==='Amigo dos Animais'&&state.nexAutoChoices?.animalLost?10:0)-(state.origin==='Chef do Outro Lado'?Math.max(0,Number(state.nexAutoChoices?.chefMeals)||0):0))};
 }
 function maxValues(){if(int(state.nex)===0){return nexRitualAdjustMaxSan({pv:Math.max(0,8+int(state.attributes.vig)),pe:Math.max(0,1+int(state.attributes.pre)),san:8,bonus:0,peLimit:1});}const level=LEVELS.indexOf(int(state.nex,5));const steps=Math.max(0,level-1);const bonus=state.origin==='Ex-Militar'?level:0;const vig=int(state.attributes.vig),pre=int(state.attributes[nexOfficialPassiveBonuses().rational?'int':'pre']);const rules=CLASS_RULES[state.class];if(rules&&state.autoRules!==false){return nexRitualAdjustMaxSan({pv:Math.max(0,rules.pv+vig+steps*(rules.pvStep+vig)+bonus+(state.class==='Combatente'&&nexHasSheetPower('Vitalidade Sofrida')?4+2*steps:0)),pe:Math.max(0,rules.pe+pre+steps*(rules.peStep+pre)),san:Math.max(0,rules.san+steps*rules.sanStep-(state.origin==='Cultista Arrependido'?Math.ceil(rules.san/2):0)),bonus,peLimit:level});}return nexRitualAdjustMaxSan({pv:Math.max(0,int(state.basePv)+steps*int(state.pvStep)+bonus),pe:Math.max(0,int(state.basePe)+steps*int(state.peStep)),san:Math.max(0,int(state.baseSan)+steps*int(state.sanStep)-(state.origin==='Cultista Arrependido'?Math.ceil(int(state.baseSan)/2):0)),bonus,peLimit:level});}
 function save(show=false){try{localStorage.setItem(KEY,JSON.stringify(state));if(show)toast('Ficha salva neste navegador.');}catch(e){toast('Não foi possível salvar. Exporte um backup em JSON.');}}
@@ -5048,6 +5049,7 @@ function abilityRecords(){
    const entries=[];
    const origin=typeof nex12Orig==='function'?nex12Orig():null;
    if(origin)entries.push({name:origin.ability||origin.name,source:`Origem: ${origin.name}`,detail:origin.description||'',homebrew:origin.official===false,id:null});
+   if(nexTrailIs('Ocultista','Possuído',65)&&state.nexAutoChoices?.possTrail){const t=state.nexAutoChoices.possTrail,entry=N19_TRAIL_ABILITIES.Ocultista?.[t]?.[0];if(t!=='Possuído'&&entry)entries.push({name:entry[0],source:'Trilha: '+t+' · NEX 10% (Ele Me Ensina)',detail:entry[1],id:null});}
    if(nexHasSheetPower('Flashback')&&state.nexAutoChoices?.flashbackOrigin!==state.origin){const extra=NEX12_ORIGIN_MAP[state.nexAutoChoices?.flashbackOrigin];if(extra)entries.push({name:extra.ability||extra.name,source:'Origem adicional (Flashback): '+extra.name,detail:extra.description||'',id:null});}
    if(int(state.nex)===0)entries.push({name:'Empenho',source:'Classe: Mundano',detail:'Pode gastar 1 PE para receber +2 em um teste de perícia.',id:null});
    for(const [name,detail] of N19_CLASS_ABILITIES[state.class]||[])entries.push({name,source:`Classe: ${state.class}`,detail,id:null});
@@ -5118,6 +5120,7 @@ function abilityRecords(){
  function nexAutoActivationSpec(a){
    const origin=String(a.source||'');
    if(a.homebrew||/homebrew/i.test(origin))return null;
+   const batchSpec=nexBatch50Spec(a);if(batchSpec)return batchSpec;
    if(a.name==='Registrar o Paranormal'&&origin==='Origem: Influencer Paranormal'&&state.nexAutoSceneUses?.registrarParanormal)return {id:'registroPresenca',name:a.name,cost:0,bonus:5,mode:'resistAll',note:'Somente contra a presença perturbadora da criatura registrada no RPG.'};
    if(a.name==='Apaixonado por Veículos')return {id:'apaixonadoVeiculos',name:a.name,cost:0,bonus:0,extraDice:1,mode:'any',note:'Somente testes de jogo para preservar o veículo, com aprovação do mestre.'};
    if(a.name==='Truque de Mestre'&&/^Trilha: Negociador/.test(origin))return null;
@@ -5201,6 +5204,9 @@ function abilityRecords(){
    return SKILL_DATA.filter(([name,baseAttr])=>{
      const skill=state.skills?.[name];
      const attr=skill?.attr||baseAttr;
+     if(spec.mode==='fisica3')return ['Acrobacia','Atletismo','Furtividade'].includes(name);
+     if(spec.mode==='mental')return ['int','pre'].includes(attr);
+     if(spec.mode==='atletismo')return name==='Atletismo';
      if(spec.mode==='pesquisador')return ['Ocultismo','Sobrevivência'].includes(name);
      if(spec.mode==='percepcao')return name==='Percepção';
      if(spec.mode==='volante')return ['Pilotagem','Fortitude','Reflexos','Vontade'].includes(name);
@@ -5295,9 +5301,84 @@ function abilityRecords(){
    const opts=nexAutoTargetSkills(spec),pending=state.nexAutoPending,active=pending?.id===spec.id;
    return '<div class="nex-auto-effect"><label>Próximo teste <select data-nex-auto-skill>'+opts.map(n=>'<option value="'+escape(n)+'">'+escape(n)+'</option>').join('')+'</select></label>'+(active?'<button type="button" class="btn sm" data-nex-auto-cancel>Cancelar efeito</button>':'<button type="button" class="btn sm" data-nex-auto-activate="'+escape(spec.id)+'" '+(pending||state.nexAutoSceneUses?.[spec.id]?'disabled':'')+'>Preparar '+escape(spec.replaceWith?'teste com '+spec.replaceWith:'+'+spec.bonus)+(spec.cost?' · '+spec.cost+' '+(spec.resource==='san'?'SAN':'PE'):'')+'</button>')+'<small>'+escape(spec.note||'')+'</small></div>';
  }
+ // Extensão de automações: cada ação valida a habilidade, recursos e período da ficha.
+ const nexBatch50Specs={
+   'Ciente das Cicatrizes':{id:'b50Ciente',cost:0,bonus:0,mode:'investigacao',replaceWith:'Luta',note:'Somente identificação de pistas elegíveis no RPG; selecione a perícia no controle.'},
+   'Minha Dor me Impulsiona':{id:'b50Impulso',cost:1,bonus:0,bonusDie:6,mode:'fisica3',note:'Condição de PV exigida pela regra da ficha.'},
+   'Nos Olhos do Monstro':{id:'b50Olhos',cost:0,bonus:5,mode:'nonattack',note:'Somente contra a criatura fictícia observada na cena.'},
+   'Conexão Empática':{id:'b50Empatia',cost:0,bonus:5,mode:'mental',note:'Teste ficcional associado ao dispositivo vinculado.'},
+   'Espreitar da Besta':{id:'b50Besta',cost:0,bonus:0,mode:'atletismo',replaceWith:'Furtividade',note:'Apenas na condição de perseguição do RPG.'},
+   'Plano de Fuga':{id:'b50Plano',cost:0,bonus:0,mode:'atletismo',attributeOverride:'int',note:'Somente ação elegível da regra opcional.'}
+ };
+ function nexBatch50Spec(a){
+   const s=nexBatch50Specs[a.name];if(!s)return null;
+   if(a.name==='Minha Dor me Impulsiona'&&maxValues().pv-Number(state.pvCurrent)<5)return null;
+   if(a.name==='Nos Olhos do Monstro'&&!state.nexAutoSceneUses?.b50Olhos)return null;
+   if(a.name==='Conexão Empática'&&(!nexPowerAffinity(a.name)||!state.nexAutoSceneUses?.conexaoEmpatica))return null;
+   if(a.name==='Ciente das Cicatrizes'){
+     const selected=state.nexAutoChoices?.cienteSkill;
+     if(!['Luta','Pontaria'].includes(selected)||Number(state.skills?.[selected]?.training||0)<5)return null;
+     return {...s,name:a.name,replaceWith:selected};
+   }
+   return {...s,name:a.name};
+ }
+ function nexBatch50Controls(a,aff,btn,num,sel,skills){
+   const box=s=>'<div class="nex-auto-effect">'+s+'</div>';
+   const note=s=>'<small>'+escape(s)+'</small>';
+   const opt=(key,values)=>'<select data-nex-auto-origin-choice="'+key+'"><option value="">Selecione</option>'+values.map(v=>'<option value="'+escape(v)+'" '+(String(state.nexAutoChoices?.[key]||'')===v?'selected':'')+'>'+escape(v)+'</option>').join('')+'</select>';
+   const check=(key,label)=>'<label><select data-nex-auto-origin-choice="'+key+'"><option value="false">Não</option><option value="true" '+(state.nexAutoChoices?.[key]?'selected':'')+'>Sim</option></select> '+escape(label)+'</label>';
+   const period=state.nexAutoSceneUses||{},day=state.nexAutoDayUses||{},mission=state.nexAutoMissionUses||{},inter=state.nexAutoInterludeUses||{};
+   const c=a.name,src=a.source||'';
+   if(c==='Acalentar'&&src==='Origem: Religioso')return nexBatchSkillControl(a)+box(btn('b50Acalentar','Rolar recuperação de SAN após sucesso')+note('Registra o resultado para o personagem atendido; não altera a ficha de outro jogador.'));
+   if(c==='Técnica Medicinal'&&src==='Origem: Agente de Saúde')return box(num('PV de cura já rolados',0,999,0)+btn('b50Medicinal','Calcular cura com Intelecto')+note('Resultado para o alvo elegível, sem duplicar o bônus de Paramédico.'));
+   if(c==='Ingrediente Secreto'&&src==='Origem: Chef')return box(num('Bônus de recuperação do primeiro prato',0,100,0)+num('Bônus do segundo prato',0,100,0)+btn('b50Chef','Somar os dois benefícios')+note('Informe os valores de recuperação aprovados pelo mestre para o mesmo recurso; não presume benefícios de pratos diferentes.'));
+   if(c==='Ciente das Cicatrizes')return box('<label>Perícia treinada '+opt('cienteSkill',['Luta','Pontaria'].filter(n=>Number(state.skills?.[n]?.training||0)>=5))+'</label>')+nexBatchSkillControl(a);
+   if(c==='Correria Desesperada')return nexBatchSkillControl(a)+box(note('Deslocamento de ficha durante a perseguição: '+(Math.max(0,Number(state.speed)||0)+3)+' m. O mapa usa a distância base registrada.'));
+   if(c==='Sacrificar os Joelhos')return box(btn('b50Sucesso','Registrar sucesso da ação fictícia · 2 PE',!!period.b50Sucesso)+note('Uma vez por cena; somente a mecânica abstrata de RPG.'));
+   if(c==='Plano de Fuga')return nexBatchSkillControl(a)+box(btn('b50PlanoAuto','Registrar sucesso da ação de RPG · 2 PE',!!period.b50PlanoAuto)+note('Uma vez por cena; resultado registrado no histórico.'));
+   if(c==='Minha Dor me Impulsiona')return box(note('Disponível conforme a diferença de PV atuais e máximos da ficha.'))+nexBatchSkillControl(a);
+   if(c==='Nos Olhos do Monstro')return box(btn('b50Olhos','Ativar efeito na cena · 3 PE',!!period.b50Olhos)+note('Confirme o alvo fictício com o mestre.'))+nexBatchSkillControl(a);
+   if(c==='Sincronia Paranormal'){
+     const pool=Number(state.nexAutoRoundUses?.b50SincroniaLeft??Math.max(0,Number(state.attributes?.pre)||0));
+     return box(btn('b50Sincronia','Ativar vínculo · 2 PE',!!period.b50Sincronia)+' '+btn('b50SincroniaManter','Manter na nova rodada · 1 PE',!period.b50Sincronia||!!state.nexAutoRoundUses?.b50SincroniaPaid)+note('Dados disponíveis nesta rodada: '+(period.b50Sincronia?pool:0))+
+     num('Dados de bônus para aliado',1,Math.max(1,pool),1)+btn('b50SincroniaDar','Registrar dados destinados ao aliado',!period.b50Sincronia||pool<1||!state.nexAutoRoundUses?.b50SincroniaPaid)+btn('b50SincroniaFim','Encerrar vínculo',!period.b50Sincronia));
+   }
+   if(c==='Espreitar da Besta')return aff+box(note('Bônus de Furtividade já calculado: +'+(nexPowerAffinity(c)?10:5)))+nexBatchSkillControl(a);
+   if(c==='Absorver Conhecimento')return aff+box(btn('b50Absorver','Registrar consulta ficcional · 1 PE')+(nexPowerAffinity(c)?check('absorverOutro','Ritual de Conhecimento por toque em outro personagem'):'')+note('A redução de PE só vale para conjuração elegível; desmarque após o uso.'));
+   if(c==='Apatia Herege')return aff+box(btn('b50Apatia','Repetir resistência elegível · 2 PE',!['Fortitude','Reflexos','Vontade'].includes(state.nexLastSkillRoll?.name)||!!state.nexLastSkillRoll?.used?.b50Apatia)+note('Afinidade conserva o melhor resultado. Confirme a condição de RPG.'));
+   if(c==='Conexão Empática')return aff+box(btn('b50Empatia','Ativar vínculo ficcional · 2 PE',!!period.conexaoEmpatica))+nexBatchSkillControl(a);
+   if(c==='Mascate'&&src.startsWith('Trilha: Muambeiro'))return box('<label>Especialidade profissional '+opt('mascateProf',['Armeiro','Engenheiro','Químico'])+'</label>'+note('Treinamento de Profissão e +5 espaços já calculados.'));
+   if(c==='Laboratório de Campo'&&src.startsWith('Trilha: Muambeiro'))return box('<label>Especialidade profissional '+opt('laboratorioProf',['Armeiro','Engenheiro','Químico'])+'</label>'+note('Progresso de projeto fictício: '+(Number(state.nexAutoChoices?.laboratorioProgress)||0)+'/3 ações')+btn('b50Laboratorio','Avançar uma ação de interlúdio',Number(state.nexAutoChoices?.laboratorioProgress)>=3)+' '+btn('b50LaboratorioReset','Iniciar novo projeto')+note('Registra apenas o progresso abstrato de jogo.'));
+   if(c==='Poder Não Desejado'&&src.startsWith('Trilha: Possuído')){
+     const cap=nexBatch50PPMax(),p=state.nexAutoChoices?.possPP??cap;
+     return box(note('PP: '+Math.min(cap,p)+'/'+cap+' · limite por turno: '+Math.max(0,Number(state.attributes?.pre)||0))+num('PP a usar',1,Math.max(1,Math.min(p,Number(state.attributes?.pre)||0)),1)+sel('Recurso',[['pv','PV'],['pe','PE']])+btn('b50PPUsar','Converter PP da ficha',p<1)+' '+btn('b50PPDormir','Recuperar 1 PP no interlúdio',!!inter.b50PPDormir||p>=cap)+' '+btn('b50PPInterludio','Novo interlúdio'));
+   }
+   if(c==='Ele Me Ensina'&&src.startsWith('Trilha: Possuído')){
+     const opts=Object.entries(N19_TRAIL_ABILITIES.Ocultista||{}).filter(([n])=>n!=='Possuído').map(([n,v])=>[n,v[0]?.[0]||n]);
+     return box(sel('Primeira habilidade da trilha',opts,state.nexAutoChoices?.possTrail)+btn('b50Ensina','Aprender habilidade escolhida',!!state.nexAutoChoices?.possTrail)+note('Use somente se a mesa confirmar os requisitos. A alternativa Transcender continua disponível pelo catálogo.'));
+   }
+   if(c==='Aura de Pavor')return aff+box(num('Identificador numérico do alvo no RPG',1,9999,1)+btn('b50Aura','Registrar efeito e DT · 2 PE')+' '+btn('b50NovoDia','Novo dia')+note('DT calculada: '+(10+Number(maxValues().peLimit||0)+Number(state.attributes?.pre||0)+(nexPowerAffinity(c)?5:0))+'. Um registro por alvo por dia; resistência resolvida pela mesa.'));
+   if(c==='Sofrimento de Sangue'&&src==='Origem: Transtornado Arrependido')return box(sel('Condição de descanso',[['luxuosa','Luxuosa'],['confortavel','Confortável'],['normal','Normal'],['precaria','Precária']])+btn('b50Descanso','Calcular condição efetiva')+note('A RD mental é calculada separadamente na ficha.'));
+   if(c==='Acostumado à Maldição de Elemento')return box('<label>Elemento '+opt('maldicaoElemento',['Sangue','Morte','Conhecimento','Energia'])+'</label>'+num('Perda de SAN que a falha causaria',0,100,0)+btn('b50Maldicao','Calcular perda de SAN elegível')+note('Confirme o elemento do item e o requisito antes de aplicar. Demais efeitos não são anulados.'));
+   if(c==='Manipular Entropia')return aff+box('<label>Dados do teste de RPG (separados por espaço) <input data-b50-dice maxlength="100" value="10"></label>'+num('Posição inicial do dado',1,20,1)+num('Quantidade de dados',1,nexPowerAffinity(c)?20:1,1)+btn('b50Entropia','Repetir dados escolhidos · 2 PE')+note('O resultado substitui os dados selecionados do teste informado, sem alterar outra ficha.'));
+   if(c==='Fôlego de Nadador'&&src==='Origem: Mergulhador')return box(note('Limite ficcional em rodadas: '+(2*Math.max(0,Number(state.attributes?.vig)||0))+'.')+btn('b50Nadador','Calcular deslocamento após sucesso')+note('Apenas uma medida abstrata da ficha de RPG, não uma orientação real.'));
+   if(c==='Companheiro Animal'&&src==='Origem: Amigo dos Animais')return box('<label>Perícia beneficiada '+opt('animalSkill',skills.map(x=>x[0]))+'</label>'+btn('b50AnimalPerda','Registrar perda do aliado de RPG',!!state.nexAutoChoices?.animalLost)+' '+btn('b50AnimalNovo','Registrar substituição aprovada',!state.nexAutoChoices?.animalLost)+note('O registro suspende o bônus de perícia e reduz SAN máxima em 10 enquanto aplicável.'));
+   if(c==='Estalos Macabros')return nexBatchSkillControl(a)+box('<label>Perícia original <select data-nex-auto-skill>'+skills.map(([n])=>'<option>'+escape(n)+'</option>').join('')+'</select></label>'+btn('b50Estalos','Preparar Ocultismo +5 · 1 PE',!!state.nexAutoPending)+nexBatchCancelControl('b50Estalos')+note('Somente teste de interação fictícia elegível.'));
+   if(c==='Magnum Opus'&&src==='Origem: Artista')return box('<label>Interlocutor fictício <input data-b50-text maxlength="80"></label>'+btn('b50Magnum','Registrar reconhecimento da obra',!!mission.b50Magnum)+' '+btn('novaMissao','Nova missão')+note('Alvo registrado: '+String(mission.b50Magnum||'nenhum')))+(mission.b50Magnum?nexBatchSkillControl(a):'');
+   if(c==='Na Trilha Certa')return box(num('Sucessos consecutivos elegíveis',1,Math.max(1,Number(state.peCurrent)||0),1)+'<label>Próximo teste <select data-nex-auto-skill>'+skills.map(([n])=>'<option>'+escape(n)+'</option>').join('')+'</select></label>'+btn('b50TrilhaCerta','Preparar dados acumulados',!!state.nexAutoPending)+nexBatchCancelControl('b50TrilhaCerta')+note('Um PE por dado adicional, apenas após os sucessos exigidos.'));
+   if(c==='Precognição')return aff+box(note('Defesa e resistência: +2.'+(nexPowerAffinity(c)?' Afinidade: imunidade à condição desprevenido na ficha de RPG.':''))+btn('b50Precog','Verificar condição da ficha'));
+   if(c==='Visão do Oculto')return aff+box(note('Percepção +5 já calculada.')+btn('b50Visao','Consultar benefício de percepção'));
+   if(c==='Deixe os Sussurros Guiarem')return box(btn('b50Sussurros','Ativar efeito de investigação · 2 PE',!!period.sussurros)+(period.sussurros?num('DT do próximo teste de investigação',0,100,15)+'<label>Perícia <select data-nex-auto-skill>'+skills.map(([n])=>'<option>'+escape(n)+'</option>').join('')+'</select></label>'+btn('b50SussurrosTeste','Preparar +2 e verificar DT',!!state.nexAutoPending)+nexBatchCancelControl('b50SussurrosTeste'):'')+note('A rolagem compara a DT informada e resolve o custo ficcional de SAN quando falhar.'));
+   if(c==='Campo Protetor')return aff+box(btn('campoProtetor','Registrar benefício de esquiva · 1 PE')+(nexPowerAffinity(c)?'<label>Próxima resistência de Reflexos </label>'+btn('b50CampoReflex','Preparar +5 Reflexos',!!state.nexAutoPending||!state.nexAutoRoundUses?.b50CampoReady)+nexBatchCancelControl('b50CampoReflex'):'')+note('A reação deve ser confirmada pelo mestre.'));
+   return null;
+ }
+ function nexBatch50PPMax(){
+   const rows=[...(state.powers||[]),...(state.n16?.abilities||[])].filter(x=>x?.name==='Transcender'&&!x.homebrew);
+   return 3+2*new Set(rows.map((x,i)=>String(x.id||'legacy-'+i))).size;
+ }
  function nexOfficialAbilityControls(a){
    if(a.homebrew||/homebrew/i.test(a.source))return '';
-   const affinityNames=['Potencial Aprimorado','Sangue de Ferro','Resistir a Elemento','Encarar a Morte','Instintos Sanguinários','Antecipar Vitalidade','Potencial Reaproveitado','Percepção Paranormal','Afortunado','Sobrepor Imprevisível','Placas Sanguinolentas','Valer-se do Caos','Surto Temporal','Sangue Vivo','Sangue Prazeroso','Anatomia Insana','Escapar da Morte'];
+   const affinityNames=['Potencial Aprimorado','Sangue de Ferro','Resistir a Elemento','Encarar a Morte','Instintos Sanguinários','Antecipar Vitalidade','Potencial Reaproveitado','Percepção Paranormal','Afortunado','Sobrepor Imprevisível','Placas Sanguinolentas','Valer-se do Caos','Surto Temporal','Sangue Vivo','Sangue Prazeroso','Anatomia Insana','Escapar da Morte','Espreitar da Besta','Absorver Conhecimento','Apatia Herege','Conexão Empática','Aura de Pavor','Manipular Entropia','Precognição','Visão do Oculto','Expansão de Conhecimento','Campo Protetor'];
    const affinityControl=affinityNames.includes(a.name)&&Number(state.nex)>=50?'<div class="nex-auto-effect"><label><input type="checkbox" data-nex-auto-affinity="'+escape(a.name)+'" '+(nexPowerAffinity(a.name)?'checked':'')+'> Benefício de afinidade adquirido</label><small>Marque somente se este benefício foi adquirido conforme a mesa.</small></div>':'';
    if(a.name==='A Força do Saber'&&/^Trilha: Bibliotecário/.test(a.source))return '<div class="nex-auto-effect"><label>Perícia baseada em Intelecto <select data-nex-auto-origin-choice="forcaSaberSkill"><option value="">Selecione</option>'+SKILL_DATA.map(([n])=>'<option value="'+escape(n)+'" '+(state.nexAutoChoices?.forcaSaberSkill===n?'selected':'')+'>'+escape(n)+'</option>').join('')+'</select></label><small>Acrescenta o Intelecto registrado aos PE máximos. O aumento de atributo deve ser registrado separadamente.</small></div>';
    if(a.name==='A Culpa é das Estrelas'&&a.source==='Origem: Jovem Místico'){const chosen=Array.isArray(state.nexAutoChoices?.starNumbers)?state.nexAutoChoices.starNumbers:[];return '<div class="nex-auto-effect"><label>Número inicial ou adicional <select data-nex-auto-resource-kind>'+[1,2,3,4,5,6].filter(n=>!chosen.includes(n)).map(n=>'<option value="'+n+'">'+n+'</option>').join('')+'</select></label><button type="button" class="btn sm" data-nex-auto-resource="estrelas" '+(state.nexAutoSceneUses?.estrelas?'disabled':'')+'>Rolar 1d6 · 1 PE</button><small>Números guardados: '+escape(chosen.join(', ')||'nenhum')+'.</small></div>';}
@@ -5366,6 +5447,8 @@ function abilityRecords(){
    const numInput=(label,min,max,val)=>'<label>'+escape(label)+' <input data-nex-auto-resource-kind type="number" min="'+min+'" max="'+max+'" value="'+val+'"></label>';
    const selector=(label,options,selected='')=>'<label>'+escape(label)+' <select data-nex-auto-resource-kind>'+options.map(v=>'<option value="'+escape(String(v[0]))+'" '+(String(v[0])===String(selected)?'selected':'')+'>'+escape(v[1])+'</option>').join('')+'</select></label>';
    const skillOpts=SKILL_DATA.map(([n])=>[n,n]);
+   const extraBatch=nexBatch50Controls(a,affinityControl,makeButton,numInput,selector,skillOpts);
+   if(extraBatch!==null)return extraBatch;
    if(a.source==='Origem: Cosplayer')return nexBatchSkillControl(a)+'<div class="nex-auto-effect"><label>Perícia relacionada à fantasia <select data-nex-auto-skill>'+skillOpts.map(([n])=>'<option>'+escape(n)+'</option>').join('')+'</select></label>'+makeButton('cosplayBonus','Preparar +2 no teste',!!state.nexAutoPending)+nexBatchCancelControl('cosplayBonus')+'<small>Somente se a mesa confirmar a relação com o figurino.</small></div>';
    if(a.source==='Origem: Repórter Investigativo')return nexBatchSkillControl(a)+'<div class="nex-auto-effect">'+makeButton('reporterPersuadir','Preparar Diplomacia com Investigação',!!state.nexAutoPending)+nexBatchCancelControl('reporterPersuadir')+'<small>Somente para persuasão e mudança de atitude no RPG.</small></div>';
    if(a.source==='Origem: Psicólogo')return nexBatchSkillControl(a)+'<div class="nex-auto-effect"><label>Resistência elegível <select data-nex-auto-skill>'+['Fortitude','Reflexos','Vontade'].map(n=>'<option>'+n+'</option>').join('')+'</select></label>'+makeButton('psicologoResistir','Preparar repetição usando Profissão · 2 PE',!!state.nexAutoPending||!!state.nexAutoRoundUses?.psicologoResistir||Number(state.peCurrent)<2)+nexBatchCancelControl('psicologoResistir')+'<small>Somente após falhar em resistência mental da própria ficha.</small></div>';
@@ -5619,6 +5702,84 @@ function abilityRecords(){
    if(resourceAction){
      const key=resourceAction.dataset.nexAutoResource,box=resourceAction.closest('.nex-auto-effect');
      const roll=faces=>{const v=new Uint32Array(1);crypto.getRandomValues(v);return v[0]%faces+1;};
+     if(key.startsWith('b50')){
+       const R=state.nexAutoRoundUses||{},S=state.nexAutoSceneUses||{},M=state.nexAutoMissionUses||{},I=state.nexAutoInterludeUses||{},D=state.nexAutoDayUses||{},C=state.nexAutoChoices||{};
+       const nums=[...box.querySelectorAll('input[data-nex-auto-resource-kind]')].map(x=>Number(x.value)),select=box.querySelector('select[data-nex-auto-resource-kind]')?.value;
+       const integer=(v,min,max)=>Number.isInteger(v)&&v>=min&&v<=max;
+       const has=name=>nexHasSheetPower(name);
+       const pay=n=>{if(!integer(n,0,100)||Number(state.peCurrent)<n){toast('PE insuficientes.');return false;}state.peCurrent-=n;return true;};
+       const record=(name,what,value)=>logResult(name,'Automação de RPG',what,value);
+       const setC=(k,v)=>{state.nexAutoChoices={...(state.nexAutoChoices||{}),[k]:v};};
+       const setS=(k,v)=>{state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),[k]:v};};
+       const setR=(k,v)=>{state.nexAutoRoundUses={...(state.nexAutoRoundUses||{}),[k]:v};};
+       const setI=(k,v)=>{state.nexAutoInterludeUses={...(state.nexAutoInterludeUses||{}),[k]:v};};
+       const prepare=(name,skill,cost,bonus,extraDice=0,replaceWith='',dt=null)=>{if(state.nexAutoPending||!state.skills?.[skill]||!pay(cost))return false;state.nexAutoPending={id:key,name,skill,kind:'skill',cost,bonus,extraDice,replaceWith,resource:'pe',used:false,b50DT:dt};return true;};
+       const skill=box.querySelector('[data-nex-auto-skill]')?.value;
+       if(key==='b50Acalentar'){
+         if(state.origin!=='Religioso'||!confirm('Confirme que o teste de RPG foi bem-sucedido.'))return;const d=roll(6),p=Math.max(0,Number(state.attributes?.pre)||0);record('Acalentar','1d6 ('+d+') + Presença',d+p);
+       }else if(key==='b50Medicinal'){
+         if(state.origin!=='Agente de Saúde'||!integer(nums[0],0,999))return;record('Técnica Medicinal','Cura rolada + Intelecto',nums[0]+Math.max(0,Number(state.attributes?.int)||0));
+       }else if(key==='b50Chef'){
+         if(state.origin!=='Chef'||!nums.every(v=>integer(v,0,100))||nums.length!==2)return;record('Ingrediente Secreto','Soma de dois benefícios informados',nums[0]+nums[1]);
+       }else if(key==='b50Sucesso'||key==='b50PlanoAuto'){
+         const name=key==='b50Sucesso'?'Sacrificar os Joelhos':'Plano de Fuga';if(!has(name)||S[key]||!pay(2))return;setS(key,true);record(name,'Sucesso da ação fictícia registrado',1);
+       }else if(key==='b50Olhos'){
+         if(!has('Nos Olhos do Monstro')||S.b50Olhos||!pay(3))return;setS('b50Olhos',true);
+       }else if(['b50Sincronia','b50SincroniaManter','b50SincroniaDar','b50SincroniaFim'].includes(key)){
+         if(!has('Sincronia Paranormal'))return;const p=Math.max(0,Number(state.attributes?.pre)||0);
+         if(key==='b50Sincronia'){if(S.b50Sincronia||!pay(2))return;setS('b50Sincronia',true);setR('b50SincroniaPaid',true);setR('b50SincroniaLeft',p);}
+         else if(key==='b50SincroniaManter'){if(!S.b50Sincronia||R.b50SincroniaPaid||!pay(1))return;setR('b50SincroniaPaid',true);setR('b50SincroniaLeft',p);}
+         else if(key==='b50SincroniaFim'){setS('b50Sincronia',false);setR('b50SincroniaLeft',0);}
+         else{const left=Number(R.b50SincroniaLeft)||0;if(!S.b50Sincronia||!R.b50SincroniaPaid||!integer(nums[0],1,left))return;setR('b50SincroniaLeft',left-nums[0]);record('Sincronia Paranormal','Dados de bônus destinados ao aliado',nums[0]);}
+       }else if(key==='b50Absorver'){
+         if(!has('Absorver Conhecimento')||!pay(1))return;record('Absorver Conhecimento','Consulta ficcional registrada',1);
+       }else if(key==='b50Apatia'){
+         const l=state.nexLastSkillRoll;if(!has('Apatia Herege')||!l||!['Fortitude','Reflexos','Vontade'].includes(l.name)||!Array.isArray(l.rolls)||!l.rolls.length||l.used?.b50Apatia||!confirm('Confirme a resistência elegível.'))return;if(!pay(2))return;
+         const before=[...l.rolls],after=before.map(()=>roll(20)),choose=x=>l.lower?Math.min(...x):Math.max(...x);
+         l.rolls=nexPowerAffinity('Apatia Herege')&&choose(before)>choose(after)?before:after;l.used={...(l.used||{}),b50Apatia:true};record('Apatia Herege',before.join(', ')+' → '+after.join(', '),choose(l.rolls)+Number(l.bonus||0));
+       }else if(key==='b50Empatia'){
+         if(!has('Conexão Empática')||S.conexaoEmpatica||!pay(2))return;setS('conexaoEmpatica',true);
+       }else if(key==='b50Laboratorio'||key==='b50LaboratorioReset'){
+         if(!nexTrailIs('Especialista','Muambeiro',65))return;const v=Math.max(0,Number(C.laboratorioProgress)||0);if(key==='b50Laboratorio'&&v>=3)return;setC('laboratorioProgress',key==='b50LaboratorioReset'?0:v+1);record('Laboratório de Campo','Ações de interlúdio concluídas',state.nexAutoChoices.laboratorioProgress);
+       }else if(['b50PPUsar','b50PPDormir','b50PPInterludio'].includes(key)){
+         if(!nexTrailIs('Ocultista','Possuído',10))return;const cap=nexBatch50PPMax(),p=Math.min(cap,Math.max(0,Number(C.possPP??cap)||0));
+         if(key==='b50PPInterludio'){setI('b50PPDormir',false);}
+         else if(key==='b50PPDormir'){if(I.b50PPDormir||p>=cap)return;setI('b50PPDormir',true);setC('possPP',Math.min(cap,p+1));}
+         else{const limit=Math.max(0,Number(state.attributes?.pre)||0)-(Number(R.b50PPGasto)||0),q=nums[0];if(!integer(q,1,Math.min(p,limit))||!['pv','pe'].includes(select))return;const field=select+'Current',gain=Math.min(Math.max(0,maxValues()[select]-Number(state[field]||0)),q*(select==='pv'?10:2));if(gain<=0)return;state[field]=Number(state[field]||0)+gain;setC('possPP',p-q);setR('b50PPGasto',(Number(R.b50PPGasto)||0)+q);record('Poder Não Desejado','Recurso de ficha recuperado',gain);}
+       }else if(key==='b50Ensina'){
+         if(!nexTrailIs('Ocultista','Possuído',65)||C.possTrail||!N19_TRAIL_ABILITIES.Ocultista?.[select]?.[0]||select==='Possuído'||!confirm('Confirme os requisitos com o mestre.'))return;setC('possTrail',select);
+       }else if(key==='b50Aura'||key==='b50NovoDia'){
+         if(!has('Aura de Pavor'))return;
+         if(key==='b50NovoDia'){state.nexAutoDayUses={};}
+         else{const target=nums[0],used=Array.isArray(D.b50AuraTargets)?D.b50AuraTargets:[];if(!integer(target,1,9999)||used.includes(target)||!pay(2))return;state.nexAutoDayUses={...D,b50AuraTargets:[...used,target]};record('Aura de Pavor','DT da resistência no RPG',10+Number(maxValues().peLimit||0)+Number(state.attributes?.pre||0)+(nexPowerAffinity('Aura de Pavor')?5:0));}
+       }else if(key==='b50Descanso'){
+         if(state.origin!=='Transtornado Arrependido'||!['luxuosa','confortavel','normal','precaria'].includes(select))return;const names={luxuosa:'Confortável',confortavel:'Normal',normal:'Precária',precaria:'Precária'};toast('Condição efetiva: '+names[select]);record('Sofrimento de Sangue','Condição de descanso: '+names[select],0);
+       }else if(key==='b50Maldicao'){
+         if(!has('Acostumado à Maldição de Elemento')||!['Sangue','Morte','Conhecimento','Energia'].includes(C.maldicaoElemento)||!integer(nums[0],0,100)||!confirm('Confirme que a falha corresponde ao elemento escolhido.'))return;record('Acostumado à Maldição de Elemento','Perda de SAN evitada: '+nums[0],0);
+       }else if(key==='b50Entropia'){
+         if(!has('Manipular Entropia'))return;const dice=String(box.querySelector('[data-b50-dice]')?.value||'').trim().split(/\s+/).map(Number),start=nums[0]-1,q=nums[1];
+         if(!dice.length||dice.length>20||!dice.every(v=>integer(v,1,20))||!integer(start,0,dice.length-1)||!integer(q,1,nexPowerAffinity('Manipular Entropia')?dice.length-start:1)||start+q>dice.length||!pay(2))return;const after=[...dice];for(let i=start;i<start+q;i++)after[i]=roll(20);record('Manipular Entropia',dice.join(', ')+' → '+after.join(', '),Math.max(...after));
+       }else if(key==='b50Nadador'){
+         if(state.origin!=='Mergulhador')return;record('Fôlego de Nadador','Deslocamento normal da ficha em metros',Math.max(0,Number(state.speed)||0));
+       }else if(key==='b50AnimalPerda'||key==='b50AnimalNovo'){
+         if(state.origin!=='Amigo dos Animais'||!confirm('Confirme o evento fictício com o mestre.'))return;setC('animalLost',key==='b50AnimalPerda');record('Companheiro Animal','Estado do aliado registrado',key==='b50AnimalPerda'?0:1);
+       }else if(key==='b50Estalos'){
+         if(!has('Estalos Macabros')||!prepare('Estalos Macabros',skill,1,5,0,'Ocultismo'))return;
+       }else if(key==='b50Magnum'){
+         if(state.origin!=='Artista'||M.b50Magnum)return;const target=String(box.querySelector('[data-b50-text]')?.value||'').trim().slice(0,80);if(!target)return;state.nexAutoMissionUses={...M,b50Magnum:target};
+       }else if(key==='b50TrilhaCerta'){
+         if(!has('Na Trilha Certa')||!integer(nums[0],1,Math.min(20,Number(state.peCurrent)||0))||!prepare('Na Trilha Certa',skill,nums[0],0,nums[0]))return;
+       }else if(key==='b50Precog'||key==='b50Visao'){
+         const name=key==='b50Precog'?'Precognição':'Visão do Oculto';if(!has(name))return;record(name,nexPowerAffinity(name)?'Afinidade registrada':'Benefício básico',key==='b50Precog'?2:5);
+       }else if(key==='b50Sussurros'){
+         if(!has('Deixe os Sussurros Guiarem')||S.sussurros||!pay(2))return;setS('sussurros',true);
+       }else if(key==='b50SussurrosTeste'){
+         if(!has('Deixe os Sussurros Guiarem')||!S.sussurros||!integer(nums[0],0,100)||!prepare('Deixe os Sussurros Guiarem',skill,0,2,0,'',nums[0]))return;
+       }else if(key==='b50CampoReflex'){
+         if(!nexPowerAffinity('Campo Protetor')||!R.b50CampoReady||!prepare('Campo Protetor','Reflexos',0,5))return;setR('b50CampoReady',false);
+       }else return;
+       save();renderStats();return;
+     }
      if(key==='novaRodada'){state.nexAutoRoundUses={};if(state.nexAutoSceneUses?.sangueVivo&&(Number(state.pvCurrent)<=0||Number(state.pvCurrent)>Math.floor(maxValues().pv/2)))state.nexAutoSceneUses.sangueVivo=false;}
      else if(key==='profeciaTemp'){
        if(state.origin!=='Profetizado'||!confirm('O mestre confirmou o acontecimento previsto?'))return;
@@ -5780,7 +5941,7 @@ function abilityRecords(){
        if(!state.skills?.[skill]||!Number.isInteger(attr)||attr<0||attr>9||![0,5,10,15].includes(training))return;
        state.peCurrent-=2;state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),transmissaoSkill:{skill,attr,training}};
      }else if(key==='campoProtetor'){
-       if(!nexHasSheetPower('Campo Protetor')||Number(state.peCurrent)<1)return;state.peCurrent--;logResult('Campo Protetor','Bônus de esquiva','Defesa contra a reação elegível',5);
+       if(!nexHasSheetPower('Campo Protetor')||Number(state.peCurrent)<1)return;state.peCurrent--;if(nexPowerAffinity('Campo Protetor'))state.nexAutoRoundUses={...(state.nexAutoRoundUses||{}),b50CampoReady:true};logResult('Campo Protetor','Bônus de esquiva','Defesa contra a reação elegível',5);
      }else if(key==='anularRitual'){
        if(!nexTrailIs('Ocultista','Conduíte',65))return;const cost=Number(box.querySelector('[data-nex-auto-resource-kind]')?.value);if(!Number.isInteger(cost)||cost<1||cost>Number(state.peCurrent)||cost>Number(maxValues().peLimit))return;
        const sk=state.skills?.Ocultismo||{},n=Math.max(0,Math.min(9,Number(state.attributes?.[sk.attr||'int'])||0)),rolls=Array.from({length:n||2},()=>roll(20)),training=Number(sk.training||0);
@@ -5956,11 +6117,12 @@ function abilityRecords(){
  });
  document.addEventListener('change',event=>{
    if(event.target.matches('[data-nex-auto-luck]')){state.nexAutoChoices={...(state.nexAutoChoices||{}),luckEnabled:!!event.target.checked};save();renderStats();return;}
-   if(event.target.matches('[data-nex-auto-affinity]')){const name=event.target.dataset.nexAutoAffinity;if(!['Potencial Aprimorado','Sangue de Ferro','Resistir a Elemento','Encarar a Morte','Instintos Sanguinários','Antecipar Vitalidade','Potencial Reaproveitado','Percepção Paranormal','Afortunado','Sobrepor Imprevisível','Placas Sanguinolentas','Valer-se do Caos','Surto Temporal','Sangue Vivo','Sangue Prazeroso','Anatomia Insana','Escapar da Morte'].includes(name)||!nexHasSheetPower(name)||Number(state.nex)<50)return;state.nexAutoChoices={...(state.nexAutoChoices||{}),powerAffinity:{...(state.nexAutoChoices?.powerAffinity||{}),[name]:event.target.checked}};save();renderStats();return;}
+   if(event.target.matches('[data-nex-auto-affinity]')){const name=event.target.dataset.nexAutoAffinity;if(!['Potencial Aprimorado','Sangue de Ferro','Resistir a Elemento','Encarar a Morte','Instintos Sanguinários','Antecipar Vitalidade','Potencial Reaproveitado','Percepção Paranormal','Afortunado','Sobrepor Imprevisível','Placas Sanguinolentas','Valer-se do Caos','Surto Temporal','Sangue Vivo','Sangue Prazeroso','Anatomia Insana','Escapar da Morte','Espreitar da Besta','Absorver Conhecimento','Apatia Herege','Conexão Empática','Aura de Pavor','Manipular Entropia','Precognição','Visão do Oculto','Expansão de Conhecimento','Campo Protetor'].includes(name)||!nexHasSheetPower(name)||Number(state.nex)<50)return;state.nexAutoChoices={...(state.nexAutoChoices||{}),powerAffinity:{...(state.nexAutoChoices?.powerAffinity||{}),[name]:event.target.checked}};save();renderStats();return;}
    if(event.target.matches('[data-nex-auto-action-scene]')){state.nexAutoChoices={...(state.nexAutoChoices||{}),actionScene:event.target.checked};save();renderStats();return;}
    if(event.target.matches('[data-nex-auto-origin-choice]')){
      const input=event.target,key=input.dataset.nexAutoOriginChoice;
      const allowed={
+       cienteSkill:['Luta','Pontaria'].filter(n=>Number(state.skills?.[n]?.training||0)>=5),absorverOutro:['false','true'],mascateProf:['Armeiro','Engenheiro','Químico'],laboratorioProf:['Armeiro','Engenheiro','Químico'],maldicaoElemento:['Sangue','Morte','Conhecimento','Energia'],
        engenheiroItem:(state.items||[]).filter(i=>nexItemChoiceEligible('engenheiroItem',i)).map(i=>String(i.id)),utilidadesItem:(state.items||[]).filter(i=>nexItemChoiceEligible('utilidadesItem',i)).map(i=>String(i.id)),paranormalItem:(state.items||[]).filter(i=>nexItemChoiceEligible('paranormalItem',i)).map(i=>String(i.id)),crimeItem:(state.items||[]).map(i=>String(i.id)),gravidadeItem:(state.items||[]).map(i=>String(i.id)),petSkill1:SKILL_DATA.map(x=>x[0]).filter(n=>!['Luta','Pontaria',state.nexAutoChoices?.petSkill2].includes(n)),petSkill2:SKILL_DATA.map(x=>x[0]).filter(n=>!['Luta','Pontaria',state.nexAutoChoices?.petSkill1].includes(n)),
        maculaElement:['Sangue','Morte','Conhecimento','Energia'],favoriteItem:(state.items||[]).filter(i=>i.category==='Arma').map(i=>String(i.id)),prestezaAttr:['for','agi'],comunicativaCount:Array.from({length:11},(_,i)=>String(i)),
        forcaSaberSkill:SKILL_DATA.map(x=>x[0]),carteiradaSkill:['Diplomacia','Enganação'],droneSkill:['Pilotagem','Tecnologia'],valentaoForce:['false','true'],chaseScene:['false','true'],insideTrace:['false','true'],
@@ -5976,7 +6138,7 @@ function abilityRecords(){
      };
      if(!Object.prototype.hasOwnProperty.call(allowed,key))return;
      const value=allowed[key].includes(input.value)?input.value:'';
-     state.nexAutoChoices={...(state.nexAutoChoices||{}),[key]:['colegialNear','valentaoForce','chaseScene','insideTrace'].includes(key)?value==='true':value};
+     state.nexAutoChoices={...(state.nexAutoChoices||{}),[key]:['colegialNear','valentaoForce','chaseScene','insideTrace','absorverOutro'].includes(key)?value==='true':value};
      save();renderStats();
      return;
    }
@@ -6191,6 +6353,7 @@ function abilityRecords(){
    if(calculationName==='Iniciativa'&&nexHasSheetPower('Proativo')&&rolls.some(n=>n>=19)){toast('Proativo: ação adicional no primeiro turno do RPG.');logResult('Proativo','Iniciativa','Benefício registrado',1);}
    if(pending?.id==='improvisarComponentes')toast(result>=15?'DT 15 atingida; confirme os componentes com o mestre.':'DT 15 não atingida.');
    if(pending){
+     if(pending.id==='b50SussurrosTeste'&&Number.isInteger(pending.b50DT)&&result<pending.b50DT){state.sanCurrent=Math.max(0,Number(state.sanCurrent||0)-1);logResult('Deixe os Sussurros Guiarem','SAN','Custo da falha de RPG',1);}
      if(pending.id==='psicologoResistir')state.nexAutoRoundUses={...(state.nexAutoRoundUses||{}),psicologoResistir:true};
      if(pending.id==='anteciparVitalidade')state.nexAutoChoices={...(state.nexAutoChoices||{}),vitalityCharges:Number(state.nexAutoChoices?.vitalityCharges||0)+1};
      state.nexAutoPending=null;
