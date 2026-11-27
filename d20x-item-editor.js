@@ -429,15 +429,16 @@ function combatConsumable(item){
  const model=lookup(item);
  if(!model||Number(item.quantity??1)<=0)return null;
  const isPem=norm(item.name).trim()==='granada de pem';
+ const isSleep=norm(item.name).trim()==='granada de gas sonifero';
  const expression=isPem?'6d6':String(stat(model,'Dano')||'').trim();
  const damage=/^\d+d\d+$/i.test(expression)?expression:'';
- return {damage,type:isPem?'Impacto (somente criaturas de Energia)':String(stat(model,'Tipo')||''),effect:String(window.NEX_ITEM_DESCRIBE?.(model)||model.description||''),name:item.name};
+ return {damage,effectDice:isSleep?'1d4':'',effectLabel:isSleep?'Duração de Fatigado (se passar em Fortitude)':'',effectUnit:isSleep?'rodada(s)':'',type:isPem?'Impacto (somente criaturas de Energia)':String(stat(model,'Tipo')||''),effect:String(window.NEX_ITEM_DESCRIBE?.(model)||model.description||''),name:item.name};
 }
 function card(item,expanded=false){
  const d=detail(item),weapon=d.category==='Arma',id=safe(item.id);
  const consumable=combatConsumable(item);
  if(consumable){
-  const short=consumable.damage?'<span>Dano: <b>'+safe(consumable.damage)+' '+safe(consumable.type)+'</b></span>':'<span>Efeito: <b>Sem dano direto</b></span>';
+  const short=consumable.damage?'<span>Dano: <b>'+safe(consumable.damage)+' '+safe(consumable.type)+'</b></span>':'<span>Efeito: <b>'+safe(consumable.effectDice?consumable.effectDice+' rodada(s) de Fatigado':'Sem dano direto')+'</b></span>';
   return '<details class="nex-item-card-new nex-ref-weapon" data-item-id="'+id+'"'+(expanded?' open':'')+'>'+
     '<summary class="nex-ref-heading"><span class="nex-item-chevron" aria-hidden="true">⌄</span><span class="nex-ref-titleblock"><strong class="nex-ref-name">'+safe(d.name)+'</strong><span class="nex-ref-damage">'+short+'</span></span></summary>'+
     '<label class="nex-item-equipped-label nex-ref-equip" title="Exibir no Combate"><input type="checkbox" data-nex-item-equipped="'+id+'" aria-label="Exibir '+safe(d.name)+' no Combate" '+(item.equipped?'checked':'')+'></label>'+
@@ -619,12 +620,12 @@ renderAttacks=function(){
  const cards=items.map(item=>{
   const c=combatConsumable(item);
   if(c){
-   const id=safe(item.id),collapsed=!collapsedWeapons.has(String(item.id)),action='Rolar Agilidade e exibir resultado';
+   const id=safe(item.id),collapsed=!collapsedWeapons.has(String(item.id)),action=c.damage?'Rolar Agilidade e dano':c.effectDice?'Rolar Agilidade e duração do efeito':'Rolar Agilidade e exibir efeito';
    return '<article class="nex-combat-equipped" data-equipped-weapon="'+id+'"><div class="nex-combat-weapon">'+
     '<button type="button" class="nex-combat-weapon-toggle" data-nex-weapon-toggle="'+id+'" aria-expanded="'+(!collapsed)+'" aria-label="Detalhes de '+safe(c.name)+'">'+(collapsed?'⌄':'⌃')+'</button>'+
     '<div class="nex-combat-weapon-main"><strong class="nex-combat-weapon-name">'+safe(c.name)+'</strong></div>'+
     '<button type="button" class="nex-combat-die-button" data-nex-weapon-roll="'+id+'" aria-label="'+action+' de '+safe(c.name)+'" title="'+action+'">'+weaponDieSvg+'</button></div>'+
-    '<div class="nex-combat-weapon-details" '+(collapsed?'hidden':'')+'><div class="nex-combat-weapon-summary">'+(c.damage?'Dano: <b>'+safe(c.damage)+' '+safe(c.type)+'</b>':'Efeito sem dano direto')+'</div><div>'+safe(c.effect)+'</div>'+
+    '<div class="nex-combat-weapon-details" '+(collapsed?'hidden':'')+'><div class="nex-combat-weapon-summary">'+(c.damage?'Dano: <b>'+safe(c.damage)+' '+safe(c.type)+'</b>':(c.effectDice?'Efeito: <b>'+safe(c.effectDice+' rodada(s) de Fatigado')+'</b>':'Efeito sem dano direto'))+'</div><div>'+safe(c.effect)+'</div>'+
     '<button type="button" class="nex-combat-weapon-remove" data-nex-weapon-remove="'+id+'">Remover</button></div></article>';
   }
   const w=weaponData(item),d=w.d,id=safe(item.id),bonus=w.bonus,damage=String(d.damage||'').trim();
@@ -722,12 +723,14 @@ document.addEventListener('click',e=>{
   const agiRolls=Array.from({length:agi===0?2:agi},weaponD20);
   const agiResult=agi===0?Math.min(...agiRolls):Math.max(...agiRolls);
   const roll=c.damage?weaponDice(c.damage,1):null;
-  if(c.damage&&!roll){toast('Fórmula de dano de RPG inválida.');return;}
+  const effectRoll=c.effectDice?weaponDice(c.effectDice,1):null;
+  if((c.damage&&!roll)||(c.effectDice&&!effectRoll)){toast('Fórmula de dados de RPG inválida.');return;}
   weaponRollPanel.innerHTML='<div class="nex-weapon-roll-head"><strong>'+safe(c.name)+'</strong><button type="button" data-close-weapon-popup aria-label="Fechar resultado">×</button></div>'+
     '<div class="nex-weapon-roll-stats"><span class="nex-weapon-roll-hex"></span><div class="nex-weapon-roll-column"><div class="nex-weapon-roll-value">'+safe(agiResult)+'</div><div class="nex-weapon-roll-label">AGILIDADE</div></div>'+
-    '<div class="nex-weapon-roll-column"><div class="nex-weapon-roll-value">'+safe(roll?roll.total:'—')+'</div><div class="nex-weapon-roll-label">DANO</div></div></div>'+
+    (roll||effectRoll?'<div class="nex-weapon-roll-column"><div class="nex-weapon-roll-value">'+safe(roll?roll.total:effectRoll.total)+'</div><div class="nex-weapon-roll-label">'+(roll?'DANO':'RODADAS')+'</div></div>':'')+'</div>'+
     '<div class="nex-weapon-roll-detail"><b>Teste de Agilidade:</b> '+safe(agiRolls.join(', '))+' → '+safe(agiResult)+'</div>'+
-    '<div class="nex-weapon-roll-detail"><b>Dano:</b> '+(roll?safe(c.type)+' · '+safe(roll.expression)+': '+safe(roll.detail):'Sem dano direto')+'</div>'+
+    (roll?'<div class="nex-weapon-roll-detail"><b>Dano:</b> '+safe(c.type)+' · '+safe(roll.expression)+': '+safe(roll.detail)+'</div>':'')+
+    (effectRoll?'<div class="nex-weapon-roll-detail"><b>'+safe(c.effectLabel)+':</b> '+safe(effectRoll.expression)+' · '+safe(effectRoll.detail)+' → '+safe(effectRoll.total)+' '+safe(c.effectUnit)+'</div>':'')+
     '<div class="nex-weapon-roll-detail"><b>EFEITO</b></div><div class="nex-weapon-roll-detail">'+safe(c.effect)+'</div>';
   weaponRollPanel.hidden=false;
   const rect=button.getBoundingClientRect(),width=310;
@@ -736,6 +739,7 @@ document.addEventListener('click',e=>{
   if(typeof logResult==='function'){
    logResult(c.name+' — Agilidade',(agi===0?2:agi)+'d20',agiRolls.join(', ')+' → '+agiResult,agiResult);
    if(roll)logResult(c.name+' — dano de RPG',roll.expression,roll.detail,roll.total);
+   if(effectRoll)logResult(c.name+' — '+c.effectLabel,effectRoll.expression,effectRoll.detail+' → '+effectRoll.total+' '+c.effectUnit,effectRoll.total);
   }
   return;
  }
