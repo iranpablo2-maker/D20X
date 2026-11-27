@@ -3333,6 +3333,12 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     updated=transform(sheet);
    }else if(request.kind==='resource'){
     updated=resourceChange(sheet,request.field,request.amount,request.mode);
+   }else if(request.kind==='summary'){
+    const fields=request.fields;
+    if(!fields||typeof fields.name!=='string'||!fields.name.trim()||typeof fields.notes!=='string'||!Number.isInteger(fields.nex)||fields.nex<0||fields.nex>99)throw Error('Resumo inválido');
+    updated={...sheet,name:fields.name.slice(0,100),nex:fields.nex,notes:fields.notes.slice(0,3000)};
+    if(updated.fullSheet)updated.fullSheet={...updated.fullSheet,name:updated.name,nex:updated.nex,notes:updated.notes};
+    for(const field of ['pv','pe','san'])updated=resourceChange(updated,field,fields[field],'set');
    }else if(request.kind==='edit'){
     if(!sheet.fullSheet)throw Error('Esta ficha antiga precisa ser vinculada como ficha completa');
     updated=mergeSharedEdit(sheet,request.changes);
@@ -5252,7 +5258,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     try{
      const original=campaignSheetRef(sheet);
      const destination=doc(db,'campaigns',roomId,sheet.isHidden?'sheets':'privateSheets',sheet.id);
-     const {id,isHidden,...data}=sheet;
+     const catalog=sharedLookup(sheet.id);
+     if(!catalog)throw Error('Cadastro da ficha indisponível');
+     const {id,isHidden,...data}=catalog;
      const batch=writeBatch(db);
      batch.set(destination,data);
      batch.delete(original);
@@ -5275,6 +5283,7 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
    run(async()=>{
     try{
      await deleteDoc(campaignSheetRef(sheet));
+     if(gm&&sharedReady)await sharedMasterWork(async(valid,store)=>{const next={...sharedRecords};delete next[sharedKey(sheet.id)];await store.save(next);if(valid()){sharedRecords=next;refreshRoomSheets();}});
      if(sheet.ownerUid===uid&&sheet.linkedAgentId)localPortraits.delete(sheet.linkedAgentId);
      notice('Personagem removido da campanha. A ficha original continua salva na conta D20X.');
     }catch(error){remove.disabled=false;throw error;}
@@ -5337,8 +5346,9 @@ if(!cfg||!cfg.projectId||!cfg.apiKey){show('setup',true);}else{
     throw Error('Preencha os campos com valores válidos.');
   if(editing){
    const original=roomSheets.find(s=>s.id===editing);
-   if(!original||!(gm||original.ownerUid===uid||original.controllerUid===uid))throw Error('Você não pode editar esta ficha.');
-   await updateDoc(campaignSheetRef(original),raw);
+   if(!original||!canEditSharedSheet(original,uid,roomData?.gmUid))throw Error('Você não pode editar esta ficha.');
+   const {updatedAt,...fields}=raw;
+   await sharedSubmit({kind:'summary',id:original.id,fields});
   }else{
    const target=gm?$('sheetOwner').value:uid;
    if(!gm&&playerCount(uid)>=characterLimit(uid))throw Error('Você atingiu o limite de personagens.');
