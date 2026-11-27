@@ -80,9 +80,9 @@ function describe(item){
  if(manualText)return manualText;
  const specific=extra.get(key);
  if(specific&&!generic.test(specific))return specific;
- const current=String(item.description||'').trim();
- if(current&&!generic.test(current)&&current.length>=45&&!/^(?:arma|munição|proteção) [·:]/i.test(current))return current;
- return narrative(item);
+ // Não reutilizar prosa de origem desconhecida como descrição oficial.
+ // A ficha conserva os campos mecânicos já cadastrados separadamente.
+ return narrative(item)+' Consulte a publicação de referência para efeitos específicos não indicados na ficha.';
 }
 for(const collection of collections){
  for(const item of collection){
