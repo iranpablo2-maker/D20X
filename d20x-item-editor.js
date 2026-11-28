@@ -760,12 +760,11 @@ document.addEventListener('click',e=>{
  const hasEnergy=w.d.curses?.some(x=>x.id==='energetica')&&energyRequested;
  if(hasEnergy&&Number(state.peCurrent||0)<2){toast('Energética exige 2 PE disponíveis.');return;}
  const pending=state.nexAutoPending,rollId='equipped:'+String(item.id);
- const pendingMatches=pending?.kind==='attack'&&(!pending.targetAttackId||pending.targetAttackId===rollId);
+ const prepared=nexAutoAttackPreview(rollId,w.skillName,w.effects.melee);
+ const pendingMatches=!!prepared&&(prepared.attack>0||prepared.damage>0);
  const pendingSkillMatches=pending?.kind==='skill'&&pending.equipmentEligible===true&&pending.skill===w.skillName&&!pending.replaceWith;
  const preparedSkill=pendingSkillMatches?Number(pending.bonus||0):0;
- const scale=pendingMatches&&pending.id==='ataqueEspecial'&&w.effects.melee&&typeof nexTrailIs==='function'&&nexTrailIs('Combatente','Guerreiro',99)?2:1;
- const preparedAttack=pendingMatches?scale*(Number(pending.attackBonus??(pending.attackTarget==='attack'?pending.bonus:0))||0):0;
- const preparedDamage=pendingMatches?scale*(Number(pending.damageBonus??(pending.attackTarget==='damage'?pending.bonus:0))||0):0;
+ const preparedAttack=prepared?.attack||0,preparedDamage=prepared?.damage||0;
  const attack=natural+w.bonus+(hasEnergy?5:0)+preparedAttack+preparedSkill;
  const critical=natural>=w.threshold;
  const secondaryExpression=String(w.d.secondary||'').trim().replace(/\s+/g,'');
@@ -786,10 +785,12 @@ document.addEventListener('click',e=>{
  const totalDamage=damage.total+(secondary?secondary.total:0)+(extra?extra.total:0)+(curseExtra?curseExtra.total:0)+(packRoll?packRoll.total:0)+originBonus+itemBonus;
  const attackBonus=w.bonus+(hasEnergy?5:0)+preparedAttack+preparedSkill;
  const detailAttack=rolls.join(', ')+' → '+natural+' '+(attackBonus>=0?'+ ':'− ')+Math.abs(attackBonus);
- const damageDetail=damage.detail+(originBonus?' + bônus '+originBonus:'')+(itemBonus?' + melhoria '+itemBonus:'');
+ const improvementBonus=itemBonus-preparedDamage;
+ const damageDetail=damage.detail+(originBonus?' + bônus '+originBonus:'')+(improvementBonus?' + melhoria '+improvementBonus:'')+(preparedDamage?' + '+prepared.p.name+' '+preparedDamage:'');
  const secondaryDetail=secondary?secondary.detail:'';
  if(packRoll){const left=Number(w.ammo.quantity)-packCount;if(left>0){w.ammo.quantity=left;if(w.ammo.nexInfo)w.ammo.nexInfo.quantity=left;}else{state.items=(state.items||[]).filter(i=>String(i.id)!==String(w.ammo.id));for(const entry of state.items){if(String(entry.nexInfo?.ammoItemId||'')===String(w.ammo.id))entry.nexInfo.ammoItemId='';}}if(packInput)packInput.value='0';}
- if(pendingMatches||pendingSkillMatches)state.nexAutoPending=null;
+ if(pendingMatches)nexAutoAttackCommit(prepared,'both');
+ if(pendingSkillMatches)state.nexAutoPending=null;
  if(w.effects.aimed||w.effects.favoriteChoice||w.effects.sneak||w.effects.intuitive){
   const r={...(state.nexAutoRoundUses||{})};
   if(w.effects.aimed)delete r.b100Aim;
@@ -810,6 +811,7 @@ document.addEventListener('click',e=>{
  '<div class="nex-weapon-roll-column"><div class="nex-weapon-roll-value">'+safe(attack)+'</div><div class="nex-weapon-roll-label">ATAQUE</div></div>'+
  '<div class="nex-weapon-roll-column"><div class="nex-weapon-roll-value">'+safe(totalDamage)+'</div><div class="nex-weapon-roll-label">DANO TOTAL</div></div></div>'+
  '<div class="nex-weapon-roll-detail">'+safe(w.skillName)+': '+safe(detailAttack)+
+ (pendingMatches?'<div>'+safe(prepared.p.name)+': '+safe(preparedAttack?'+'+preparedAttack+' ataque':'')+safe(preparedAttack&&preparedDamage?' / ':'')+safe(preparedDamage?'+'+preparedDamage+' dano':'')+'</div>':'')+
  (hasEnergy?'<div>Energética ativada: -2 PE, +5 ataque, dano Energia (ignora RD)</div>':'')+
  (w.effects.ignoreRD?'<div>Modificador de RD do RPG: '+safe(w.effects.ignoreRD)+'</div>':'')+
  (w.effects.wide?'<div>Efeito adicional registrado para resolução pelo mestre.</div>':'')+
@@ -826,7 +828,7 @@ document.addEventListener('click',e=>{
  weaponRollPanel.style.left=left+'px';
  weaponRollPanel.style.top=Math.max(8,Math.min(innerHeight-weaponRollPanel.offsetHeight-8,rect.bottom+9))+'px';
  if(typeof logResult==='function'){
-  logResult(w.d.name+' — ataque','d20 ('+w.skillName+')', '['+rolls.join(', ')+'] → '+natural,attack);
+  logResult(w.d.name+' — ataque','d20 ('+w.skillName+')',detailAttack+(preparedAttack?' · '+prepared.p.name+' +'+preparedAttack:''),attack);
   logResult(w.d.name+' — dano principal',damage.expression,damageDetail,damage.total+originBonus+itemBonus);
   if(secondary)logResult(w.d.name+' — dano secundário ('+(w.d.secondaryType||'Normal')+')',secondary.expression,secondaryDetail,secondary.total);
   if(packRoll)logResult('Chuva de Balas — efeito de RPG',packRoll.expression,packRoll.detail,packRoll.total);
