@@ -3155,25 +3155,54 @@ function nexOfficialAttackDamageBonus(a){
   const eliteBonus=elite&&a.attackKind==='longFirearm'?Math.max(0,Number(state.attributes?.int)||0):0;
   return originBonus+eliteBonus;
 }
-function nexAutoAttackConsume(kind,attackId){
- const p=state.nexAutoPending;
- if(!p||p.kind!=='attack')return 0;
+// Shared calculation for the skill, legacy attack and equipped item dice paths.
+function nexAutoAttackValues(p){
+ return {attack:Math.max(0,Number(p?.attackBonus??(p?.attackTarget==='attack'?p.bonus:0))||0),damage:Math.max(0,Number(p?.damageBonus??(p?.attackTarget==='damage'?p.bonus:0))||0)};
+}
+function nexAutoAttackIdentity(attackId){
  const id=String(attackId??'');
- if(p.targetAttackId&&p.targetAttackId!==id)return 0;
- // Compatibilidade com os efeitos simples criados nas versoes anteriores.
- const attack=Number(p.attackBonus??(p.attackTarget==='attack'?p.bonus:0))||0;
- const damage=Number(p.damageBonus??(p.attackTarget==='damage'?p.bonus:0))||0;
- let total=kind==='attack'?attack:kind==='damage'?damage:0;
- const target=(state.attacks||[]).find(a=>String(a.id)===id);
- if(p.id==='ataqueEspecial'&&target?.attackKind==='melee'&&nexTrailIs('Combatente','Guerreiro',99))total*=2;
- if(total<=0)return 0;
+ if(id.startsWith('equipped:'))return id;
+ const a=(state.attacks||[]).find(x=>String(x.id)===id);
+ return a?.linkedItemId?'equipped:'+String(a.linkedItemId):id;
+}
+function nexAutoAttackPreview(attackId,skill,melee){
+ const p=state.nexAutoPending,id=nexAutoAttackIdentity(attackId);
+ if(!p||p.kind!=='attack'||(p.targetAttackId&&nexAutoAttackIdentity(p.targetAttackId)!==id)||(p.targetSkill&&p.targetSkill!==skill))return null;
+ const amounts=nexAutoAttackValues(p);
+ const scale=p.id==='ataqueEspecial'&&melee&&nexTrailIs('Combatente','Guerreiro',99)?2:1;
+ return {p,id,skill,attack:amounts.attack*scale,damage:amounts.damage*scale};
+}
+function nexAutoAttackCommit(preview,kind){
+ if(!preview||state.nexAutoPending!==preview.p)return;
+ const {p,id,skill}=preview,amounts=nexAutoAttackValues(p);
+ const takeAttack=kind==='attack'||kind==='both',takeDamage=kind==='damage'||kind==='both';
+ if(!(takeAttack&&amounts.attack>0)&&!(takeDamage&&amounts.damage>0))return;
  p.targetAttackId=id;p.used=true;
- p.attackBonus=kind==='attack'?0:attack;
- p.damageBonus=kind==='damage'?0:damage;
- if(p.attackBonus<=0&&p.damageBonus<=0)state.nexAutoPending=null;
- save();
- queueMicrotask(()=>{if(typeof renderStats==='function')renderStats();});
+ if(skill)p.targetSkill=skill;
+ p.attackBonus=takeAttack?0:amounts.attack;p.damageBonus=takeDamage?0:amounts.damage;
+ if(!p.attackBonus&&!p.damageBonus)state.nexAutoPending=null;
+ save();queueMicrotask(()=>{if(typeof renderStats==='function')renderStats();});
+}
+function nexAutoAttackConsume(kind,attackId){
+ const target=(state.attacks||[]).find(a=>String(a.id)===String(attackId));
+ const melee=target?.attackKind==='melee';
+ const skill=target?.attackKind?(melee?'Luta':'Pontaria'):'';
+ const preview=nexAutoAttackPreview(attackId,skill,melee);
+ const total=preview?.[kind]||0;
+ if(total)nexAutoAttackCommit(preview,kind);
  return total;
+}
+function nexAutoSpecialSkillPreview(name){
+ const p=state.nexAutoPending;
+ if(p?.id!=='ataqueEspecial'||p.kind!=='attack'||!['Luta','Pontaria'].includes(name)||p.targetAttackId||(p.targetSkill&&p.targetSkill!==name))return null;
+ const amounts=nexAutoAttackValues(p),scale=name==='Luta'&&nexTrailIs('Combatente','Guerreiro',99)?2:1;
+ return amounts.attack>0?{p,name,attack:amounts.attack*scale}:null;
+}
+function nexAutoSpecialSkillCommit(preview){
+ if(!preview||state.nexAutoPending!==preview.p)return;
+ const p=preview.p,amounts=nexAutoAttackValues(p);
+ p.attackBonus=0;p.damageBonus=amounts.damage;p.targetSkill=preview.name;p.used=true;
+ if(!p.damageBonus)state.nexAutoPending=null;
 }
 function nexRollAttackDamage(a,extra=0,onlySecondary=false){
  const label=String(a.name||'Ataque');
@@ -6749,7 +6778,8 @@ function abilityRecords(){
    if(!button)return;
    event.preventDefault();event.stopImmediatePropagation();
    const name=button.dataset.nexSkillRoll;
-   const pending=state.nexAutoPending?.skill===name?state.nexAutoPending:null;
+   const pending=state.nexAutoPending?.kind==='skill'&&state.nexAutoPending.skill===name?state.nexAutoPending:null;
+   const specialAttack=nexAutoSpecialSkillPreview(name);
    const calculationName=pending?.replaceWith||name;
    const skill=state.skills?.[calculationName];
    const definition=SKILL_DATA.find(x=>x[0]===calculationName);
@@ -6774,15 +6804,16 @@ function abilityRecords(){
    const caosRoll=caosActive?rollDie20():null;
    const chosen=caosActive?(pool<=0?Math.min(...rolls,caosRoll):Math.max(...rolls,caosRoll)):(pool<=0?Math.min(...rolls):Math.max(...rolls));
    const bonusRoll=pending?.bonusDie?(()=>{const v=new Uint32Array(1);crypto.getRandomValues(v);return v[0]%pending.bonusDie+1;})():0;
-   const bonus=training+others+bonusRoll;
+   const bonus=training+others+bonusRoll+(specialAttack?.attack||0);
    const result=chosen+bonus;
    state.nexLastSkillRoll={name,rolls:[...rolls,...(caosActive?[caosRoll]:[])],lower:pool<=0,bonus,used:{}};
    if(paranoiaSkill===true||paranoiaSkill===calculationName)state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),paranoiaSkill:false};
    if(caosActive){const risk=nexPowerAffinity('Valer-se do Caos')?2:5;delete state.nexAutoChoices.caosDT;logResult('Valer-se do Caos','Dado adicional','Resultado separado',caosRoll);if(result<caosDT||caosRoll<=risk){const v=new Uint32Array(1);crypto.getRandomValues(v);const loss=v[0]%4+1;state.sanCurrent=Math.max(0,Number(state.sanCurrent||0)-loss);logResult('Valer-se do Caos','1d4 SAN','Custo de RPG',loss);}}
    const expression=pool<=0?(2-pool)+'d20 (menor)':pool+'d20 (maior)';
-   const detail='['+rolls.join(', ')+'] → '+chosen+(bonus<0?' − ':' + ')+Math.abs(bonus)+' · '+(ATTRIBUTE_NAMES[attr]||attr)+' '+count+' · Treino '+training+' · Outros '+others+(bonusRoll?' · Dado de habilidade: '+bonusRoll:'')+(pending?' · Habilidade: '+pending.name:'')+(firstImpression?' · Primeira Impressão':'');
+   const detail='['+rolls.join(', ')+'] → '+chosen+(bonus<0?' − ':' + ')+Math.abs(bonus)+' · '+(ATTRIBUTE_NAMES[attr]||attr)+' '+count+' · Treino '+training+' · Outros '+others+(bonusRoll?' · Dado de habilidade: '+bonusRoll:'')+(pending?' · Habilidade: '+pending.name:'')+(specialAttack?' · Ataque Especial: +'+specialAttack.attack:'')+(firstImpression?' · Primeira Impressão':'');
    const label=pending?.replaceWith?name+' (usando '+calculationName+')':name;
-   logResult(label,expression+(bonus>=0?' + ':' - ')+Math.abs(bonus),'['+rolls.join(', ')+'] → '+chosen,result);
+   logResult(label,expression+(bonus>=0?' + ':' - ')+Math.abs(bonus),'['+rolls.join(', ')+'] → '+chosen+(specialAttack?' · Ataque Especial +'+specialAttack.attack:''),result);
+   nexAutoSpecialSkillCommit(specialAttack);
    show(button,label,expression,detail,result,false,chosen);
    if(firstImpression){state.nexAutoSceneUses={...(state.nexAutoSceneUses||{}),firstImpression:true};save();}
    if(calculationName==='Iniciativa'&&nexHasSheetPower('Proativo')&&rolls.some(n=>n>=19)){toast('Proativo: ação adicional no primeiro turno do RPG.');logResult('Proativo','Iniciativa','Benefício registrado',1);}
@@ -7661,7 +7692,7 @@ const PARANORMAL=[
 <script src="d20x-descricoes-completas.js?v=20261127descricoesSAH12"></script>
 <script src="d20x-item-catalog.js?v=20261127descricao8"></script>
 <script src="d20x-item-modifiers.js?v=20261125pdfdefense1"></script>
-<script src="d20x-item-editor.js?v=20261127abilityAudit3"></script>
+<script src="d20x-item-editor.js?v=20261128specialattack1"></script>
 <!-- Sincronização em nuvem desativada a pedido do proprietário: mantém salvamento local. -->
 
 <style id="nex-v2059-attribute-roll-skill-picker">
